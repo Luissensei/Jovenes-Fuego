@@ -33,11 +33,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return onAuthStateChanged(auth!, async (currentUser) => {
       setUser(currentUser);
       setProfile(null);
-      setError(null);
       if (!currentUser) {
         setLoading(false);
         return;
       }
+      setError(null);
       try {
         const profileSnap = await getDoc(doc(db!, 'users', currentUser.uid));
         if (!profileSnap.exists()) {
