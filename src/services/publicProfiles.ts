@@ -1,5 +1,12 @@
-import { httpsCallable } from 'firebase/functions';
-import { functions } from './firebase/client';
+
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+} from 'firebase/firestore';
+
+import { db } from './firebase/client';
 
 export type PublicProfile = {
   id: string;
@@ -8,21 +15,33 @@ export type PublicProfile = {
   pic: string;
 };
 
-type PublicProfilesResponse = {
-  profiles: PublicProfile[];
-};
-
 export async function getPublicProfiles(): Promise<PublicProfile[]> {
-  if (!functions) {
-    throw new Error('Firebase Functions no está configurado.');
+  if (!db) {
+    throw new Error('Firebase Firestore no está configurado.');
   }
 
-  const callable = httpsCallable<void, PublicProfilesResponse>(
-    functions,
-    'getPublicProfiles',
-  );
+  try {
+    const profilesQuery = query(
+      collection(db, 'publicMembers'),
+      orderBy('name', 'asc'),
+    );
 
-  const response = await callable();
+    const snapshot = await getDocs(profilesQuery);
 
-  return response.data.profiles;
+    return snapshot.docs.map((document) => {
+      const data = document.data();
+
+      return {
+        id: document.id,
+        name: String(data.name ?? 'Joven'),
+        nick: String(data.nick ?? ''),
+        pic: String(data.pic ?? ''),
+      };
+    });
+  } catch (error) {
+    console.error('Error consultando perfiles:', error);
+    throw new Error(
+      'No se pudieron cargar los perfiles. Verifica los permisos de Firebase.',
+    );
+  }
 }
