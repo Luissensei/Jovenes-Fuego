@@ -24,8 +24,13 @@ import { firebaseProjectId } from '../services/firebase/client';
 import { AuthProvider, useAuth } from './AuthContext';
 import { LoginPage } from './LoginPage';
 import { MembersPage } from './MembersPage';
+import DashboardPage from './DashboardPage';
 import RankingPage from './RankingPage';
+import AttendancePage from './AttendancePage';
 import YouthPortalPage from './YouthPortalPage';
+import FollowupPage from './FollowupPage';
+import DevotionalsPage from './DevotionalsPage';
+import VisitorsPage from './VisitorsPage';
 
 function ModulePage({
   label,
@@ -244,12 +249,22 @@ function AdminApp() {
             <Route
               key={item.id}
               path={item.path}
-              element={
-                item.id === 'members' ? (
+              element={ 
+                item.id === 'dashboard' ? (
+                  <DashboardPage />
+                ) : item.id === 'members' ? (
                   <MembersPage />
                 ) : item.id === 'ranking' ? (
                   <RankingPage />
-                ) : (
+                ) : item.id === 'attendance' ? (
+                  <AttendancePage />
+                ) : item.id === 'followup' ? (
+                 <FollowupPage />
+                ) : item.id === 'devotionals' ? (
+                  <DevotionalsPage />
+                ) : item.id === 'visitors' ? (
+                  <VisitorsPage />
+                ) :(
                   <ModulePage
                     label={item.label}
                     description={item.description}

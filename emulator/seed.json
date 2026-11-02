@@ -1,0 +1,22 @@
+{
+  "publicProfiles": [
+    {
+      "id": "test_joven_001",
+      "name": "Joven de prueba 1",
+      "nick": "Fuego1",
+      "pic": ""
+    },
+    {
+      "id": "test_joven_002",
+      "name": "Joven de prueba 2",
+      "nick": "Fuego2",
+      "pic": ""
+    },
+    {
+      "id": "test_joven_003",
+      "name": "Joven de prueba 3",
+      "nick": "Fuego3",
+      "pic": ""
+    }
+  ]
+}
