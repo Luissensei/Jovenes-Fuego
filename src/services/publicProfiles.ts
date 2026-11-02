@@ -22,7 +22,7 @@ export async function getPublicProfiles(): Promise<PublicProfile[]> {
 
   try {
     const profilesQuery = query(
-      collection(db, 'publicMembers'),
+      collection(db, 'publicProfiles'),
       orderBy('name', 'asc'),
     );
 
@@ -39,7 +39,8 @@ export async function getPublicProfiles(): Promise<PublicProfile[]> {
       };
     });
   } catch (error) {
-    console.error('Error consultando perfiles:', error);
+    console.error('Error consultando perfiles públicos:', error);
+
     throw new Error(
       'No se pudieron cargar los perfiles. Verifica los permisos de Firebase.',
     );
