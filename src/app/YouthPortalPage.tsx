@@ -53,7 +53,7 @@ const games: {id: MiniGame; title: string; subtitle: string; icon: typeof Trophy
 function getInitials(name: string): string {
   const cleanName = name.trim();
   if (!cleanName || cleanName === 'Perfil sin nombre') return 'JF';
-  return cleanName.split(/\\s+/).slice(0, 2).map((part) => part[0] || '').join('').toUpperCase();
+  return cleanName.split(/\s+/).slice(0, 2).map((part) => part[0] || '').join('').toUpperCase();
 }
 
 function YouthAvatar({profile, large = false}: {profile: PublicProfile; large?: boolean}) {
@@ -83,7 +83,7 @@ function readLook(profileId: string): ProfileLook {
 }
 
 function formatActivityDate(value: string): string {
-  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) return value || 'Fecha por confirmar';
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return value || 'Fecha por confirmar';
   const [year, month, day] = value.split('-').map(Number);
   return new Date(year, month - 1, day).toLocaleDateString('es-CO', {
     weekday: 'long', day: 'numeric', month: 'long',

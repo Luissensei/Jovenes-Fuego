@@ -28,7 +28,7 @@ const editableFields: {key: keyof AdminMemberPatch; label: string; type?: string
 ];
 
 function initials(name?: string) {
-  return String(name ?? '?').trim().split(/\\s+/).slice(0, 2)
+  return String(name ?? '?').trim().split(/\s+/).slice(0, 2)
     .map((part) => part[0] ?? '').join('').toLocaleUpperCase('es') || '?';
 }
 
