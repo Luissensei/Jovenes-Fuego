@@ -260,6 +260,7 @@ export default function YouthPortalPage() {
   const [soundOn, setSoundOn] = useState(false);
   const [soundError, setSoundError] = useState('');
   const audioRef = useRef<AudioContext | null>(null);
+  const audioMasterRef = useRef<GainNode | null>(null);
 
   async function loadProfiles() {
     setLoading(true);
@@ -298,6 +299,7 @@ export default function YouthPortalPage() {
       if (audioRef.current) {
         void audioRef.current.close().catch(() => undefined);
         audioRef.current = null;
+        audioMasterRef.current = null;
       }
     };
   }, []);
@@ -400,58 +402,88 @@ export default function YouthPortalPage() {
   async function toggleAmbientSound() {
     setSoundError('');
     if (audioRef.current) {
-      await audioRef.current.close().catch(() => undefined);
+      const context = audioRef.current;
+      const master = audioMasterRef.current;
       audioRef.current = null;
+      audioMasterRef.current = null;
+      if (master && context.state !== 'closed') {
+        master.gain.cancelScheduledValues(context.currentTime);
+        master.gain.setValueAtTime(master.gain.value, context.currentTime);
+        master.gain.linearRampToValueAtTime(0.0001, context.currentTime + 0.55);
+        window.setTimeout(() => {
+          void context.close().catch(() => undefined);
+        }, 650);
+      } else {
+        await context.close().catch(() => undefined);
+      }
       setSoundOn(false);
       return;
     }
+
     try {
       const context = new AudioContext();
       await context.resume();
-      audioRef.current = context;
       const master = context.createGain();
       master.gain.setValueAtTime(0, context.currentTime);
-      master.gain.linearRampToValueAtTime(0.035, context.currentTime + 1.2);
+      master.gain.linearRampToValueAtTime(0.045, context.currentTime + 1.4);
       master.connect(context.destination);
+      audioRef.current = context;
+      audioMasterRef.current = master;
 
-      const low = context.createOscillator();
-      const lowGain = context.createGain();
-      low.type = 'sine';
-      low.frequency.value = 110;
-      lowGain.gain.value = 0.20;
-      low.connect(lowGain);
-      lowGain.connect(master);
-      low.start();
+      // Armonías cálidas y suaves para crear un ambiente discreto.
+      [[110, 0.15], [164.81, 0.075], [220, 0.025]].forEach(([frequency, volume]) => {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = frequency;
+        gain.gain.value = volume;
+        oscillator.connect(gain);
+        gain.connect(master);
+        oscillator.start();
+      });
 
-      const high = context.createOscillator();
-      const highGain = context.createGain();
-      high.type = 'sine';
-      high.frequency.value = 164.81;
-      highGain.gain.value = 0.11;
-      high.connect(highGain);
-      highGain.connect(master);
-      high.start();
-
-      const noiseBuffer = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
+      // Ruido marrón filtrado: textura semejante a viento y brasas, sin archivos externos.
+      const noiseBuffer = context.createBuffer(1, context.sampleRate * 4, context.sampleRate);
       const channel = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < channel.length; i += 1) channel[i] = (Math.random() * 2 - 1) * 0.16;
+      let previous = 0;
+      for (let index = 0; index < channel.length; index += 1) {
+        const white = Math.random() * 2 - 1;
+        previous = (previous + 0.025 * white) / 1.025;
+        channel[index] = previous * 3.2;
+      }
+
       const noise = context.createBufferSource();
       const filter = context.createBiquadFilter();
       const noiseGain = context.createGain();
       noise.buffer = noiseBuffer;
       noise.loop = true;
       filter.type = 'lowpass';
-      filter.frequency.value = 420;
-      noiseGain.gain.value = 0.10;
+      filter.frequency.value = 360;
+      noiseGain.gain.value = 0.34;
       noise.connect(filter);
       filter.connect(noiseGain);
       noiseGain.connect(master);
       noise.start();
 
+      // Movimiento lento del filtro para que el sonido no sea estático.
+      const breeze = context.createOscillator();
+      const breezeDepth = context.createGain();
+      breeze.type = 'sine';
+      breeze.frequency.value = 0.075;
+      breezeDepth.gain.value = 95;
+      breeze.connect(breezeDepth);
+      breezeDepth.connect(filter.frequency);
+      breeze.start();
+
       setSoundOn(true);
     } catch {
       setSoundError('Este navegador no permite reproducir el ambiente sonoro.');
       setSoundOn(false);
+      if (audioRef.current) {
+        void audioRef.current.close().catch(() => undefined);
+        audioRef.current = null;
+        audioMasterRef.current = null;
+      }
     }
   }
 
@@ -612,7 +644,7 @@ export default function YouthPortalPage() {
 
           {(
             <section className="youth-prayer-panel">
-              <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>El envío se habilitará cuando conectemos Staging y podamos probarlo de forma segura.</p></div></header>
+              <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>{firebaseReadOnlyMode ? 'El envío se habilita al conectar el entorno seguro de pruebas.' : 'Tu mensaje llegará a la bandeja interna del equipo de oración.'}</p></div></header>
               <p className="youth-prayer-privacy"><ShieldCheck size={15}/> El formulario está preparado para la bandeja interna. El selector de perfiles es público y no verifica quién está usando la cuenta; evita compartir datos sensibles.</p>
               <form onSubmit={(event) => void handlePrayerSubmit(event)}>
                 <label>Nombre (opcional)<input value={prayerName} onChange={(event) => setPrayerName(event.target.value)} maxLength={80} placeholder="Puedes enviarla como anónimo"/></label>
