@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   NavLink,
   Navigate,
   Route,
   Routes,
   useNavigate,
+  useLocation,
 } from 'react-router-dom';
 
 import {
@@ -16,6 +17,9 @@ import {
   X,
   LogOut,
   UserRound,
+  FlaskConical,
+  LockKeyhole,
+  ShieldAlert,
 } from 'lucide-react';
 
 import { modules } from './modules';
@@ -24,6 +28,7 @@ import {
   firebaseReadOnlyMode,
 } from '../services/firebase/client';
 import { AuthProvider, useAuth } from './AuthContext';
+import { useThemePreference } from './useThemePreference';
 
 import { LoginPage } from './LoginPage';
 import { MembersPage } from './MembersPage';
@@ -89,27 +94,10 @@ function AdminApp() {
     logout,
   } = useAuth();
 
-  const [dark, setDark] = useState(() => {
-    try {
-      const savedTheme = window.localStorage.getItem('jf-theme');
-      return savedTheme ? savedTheme === 'dark' : true;
-    } catch {
-      return true;
-    }
-  });
+  const { isDark, toggleTheme } = useThemePreference();
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const theme = dark ? 'dark' : 'light';
-    document.documentElement.dataset.theme = theme;
-
-    try {
-      window.localStorage.setItem('jf-theme', theme);
-    } catch {
-      // El cambio de tema sigue funcionando aunque el navegador bloquee el almacenamiento local.
-    }
-  }, [dark]);
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -180,6 +168,30 @@ function AdminApp() {
 
     return true;
   });
+
+  const currentModule = [...visibleModules]
+    .sort((left, right) => right.path.length - left.path.length)
+    .find((item) => (
+      item.path === location.pathname ||
+      (item.path !== '/' && location.pathname.startsWith(`${item.path}/`))
+    )) ?? visibleModules[0] ?? modules[0];
+
+  const ModuleIcon = currentModule.icon;
+  const EnvironmentIcon = !configured
+    ? ShieldAlert
+    : firebaseReadOnlyMode
+      ? LockKeyhole
+      : FlaskConical;
+  const environmentStatus = !configured
+    ? 'Vista previa · sin Firebase'
+    : firebaseReadOnlyMode
+      ? 'Producción · solo lectura'
+      : 'Staging conectado';
+  const environmentTone = !configured
+    ? 'preview'
+    : firebaseReadOnlyMode
+      ? 'readonly'
+      : 'staging';
 
   function renderModule(
     id: string,
@@ -280,9 +292,9 @@ function AdminApp() {
         <button
           className="icon-button"
           aria-label="Cambiar tema"
-          onClick={() => setDark(!dark)}
+          onClick={toggleTheme}
         >
-          {dark ? <Sun size={19} /> : <Moon size={19} />}
+          {isDark ? <Sun size={19} /> : <Moon size={19} />}
         </button>
       </header>
 
@@ -345,10 +357,10 @@ function AdminApp() {
 
           <button
             className="theme-toggle"
-            onClick={() => setDark(!dark)}
+            onClick={toggleTheme}
           >
-            {dark ? <Sun size={17} /> : <Moon size={17} />}
-            {dark ? 'Modo claro' : 'Modo oscuro'}
+            {isDark ? <Sun size={17} /> : <Moon size={17} />}
+            {isDark ? 'Modo claro' : 'Modo oscuro'}
           </button>
 
           {user && (
@@ -376,13 +388,17 @@ function AdminApp() {
 
       <div className="main">
         <div className="topline">
-          <div>
-            <span className="dot" />
-            {configured
-              ? firebaseReadOnlyMode
-                ? 'Sesión autenticada · producción en solo lectura'
-                : 'Sesión autenticada · entorno de pruebas'
-              : 'Vista previa · sin datos reales'}
+          <div className={`topline-status ${environmentTone}`} aria-live="polite">
+            <span className="topline-status-environment">
+              <span className="dot" aria-hidden="true" />
+              <EnvironmentIcon size={14} aria-hidden="true" />
+              <span>{environmentStatus}</span>
+            </span>
+            <span className="topline-status-divider" aria-hidden="true" />
+            <span className="topline-status-module">
+              <ModuleIcon size={15} strokeWidth={2.2} aria-hidden="true" />
+              <span>{currentModule.label}</span>
+            </span>
           </div>
 
           <span className="project-label">

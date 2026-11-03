@@ -6,7 +6,7 @@ import {
   Gamepad2, RefreshCw, ChevronRight, ShieldCheck, Sparkles,
   CalendarDays, Clock3, MapPin, HeartHandshake, Send, Medal, Crown,
   Palette, Volume2, VolumeX, Star, X, WandSparkles,
-  BookMarked, Timer, Swords, Brain, Layers,
+  BookMarked, Timer, Swords, Brain, Layers, Moon, Sun,
 } from 'lucide-react';
 
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
@@ -31,6 +31,7 @@ import {
   OrderVerseGame,
 } from './MoreBibleGames';
 
+import { useThemePreference } from './useThemePreference';
 import './YouthPortalPage.css';
 
 type ProfileLook = {
@@ -233,6 +234,7 @@ function HallOfFame({topPlayers, faithful, attendanceLimited}: {
 }
 
 export default function YouthPortalPage() {
+  const { isDark, toggleTheme } = useThemePreference();
   const [profiles, setProfiles] = useState<PublicProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -538,6 +540,10 @@ export default function YouthPortalPage() {
           <div className="youth-game-topbar">
             <button className="youth-back" type="button" onClick={exitGame}><ArrowLeft size={17}/> Volver a mi espacio</button>
             <span><Gamepad2 size={16}/> JUGADOR · {selectedProfile.name}</span>
+            <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'} aria-pressed={isDark}>
+              {isDark ? <Sun size={17}/> : <Moon size={17}/>}
+              <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>
+            </button>
           </div>
           {activeGame === 'trivia' && <TriviaGame onExit={exitGame}/>}
           {activeGame === 'verse' && <VerseGame onExit={exitGame}/>}
@@ -562,6 +568,10 @@ export default function YouthPortalPage() {
             <button type="button" aria-pressed={soundOn} className={`youth-sound-toggle ${soundOn ? 'active' : ''}`} onClick={() => void toggleAmbientSound()}>
               {soundOn ? <Volume2 size={17}/> : <VolumeX size={17}/>}
               {soundOn ? 'Ambiente activado' : 'Activar ambiente'}
+            </button>
+            <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'} aria-pressed={isDark}>
+              {isDark ? <Sun size={17}/> : <Moon size={17}/>}
+              <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>
             </button>
           </div>
 
@@ -686,7 +696,13 @@ export default function YouthPortalPage() {
         <section className="youth-selector">
           <div className="youth-selector-heading">
             <div><span>ACCESO JUVENIL</span><h3>Nuestra comunidad</h3></div>
-            <div className="youth-total"><Users size={17}/>{profiles.length} perfiles</div>
+            <div className="youth-selector-actions">
+              <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'} aria-pressed={isDark}>
+                {isDark ? <Sun size={17}/> : <Moon size={17}/>}
+                <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>
+              </button>
+              <div className="youth-total"><Users size={17}/>{profiles.length} perfiles</div>
+            </div>
           </div>
 
           <label className="youth-search">

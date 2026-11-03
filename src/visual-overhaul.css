@@ -3478,3 +3478,436 @@ h1,h2,h3,h4,p,small,strong,label {
     transform:none !important;
   }
 }
+
+
+
+/* ==========================================================
+   UX QUALITY PASS — THEMES, TYPOGRAPHY, SEARCH AND MODULE HUD
+   ========================================================== */
+
+:root {
+  --jf-font-body: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --jf-font-display: 'Manrope', 'DM Sans', sans-serif;
+  --jf-focus: #168bd2;
+  --jf-glass-strong: rgba(255,255,255,.90);
+  --jf-glass-soft: rgba(255,255,255,.72);
+  --jf-glass-edge: rgba(54,74,120,.16);
+  --text-primary: var(--jf-text);
+  --background: var(--jf-bg);
+  --card-bg: var(--jf-glass);
+  --border-color: var(--jf-border);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --jf-bg: #090f1d;
+  --jf-text: #f3f5ff;
+  --jf-muted: #b4bdd2;
+  --jf-border: rgba(201,215,248,.18);
+  --jf-glass: rgba(17,25,45,.80);
+  --jf-glass-border: rgba(205,220,250,.23);
+  --jf-glass-strong: rgba(20,29,51,.94);
+  --jf-glass-soft: rgba(16,24,43,.78);
+  --jf-glass-edge: rgba(205,220,250,.22);
+  --jf-surface: #151f35;
+  --jf-surface-2: #1b2740;
+  --text-primary: var(--jf-text);
+  --background: var(--jf-bg);
+  --card-bg: var(--jf-glass);
+  --border-color: var(--jf-border);
+  --jf-shadow: 0 18px 45px rgba(0,0,0,.30);
+  --jf-shadow-hover: 0 25px 58px rgba(0,0,0,.40);
+}
+
+:root:not([data-theme="dark"]) {
+  color-scheme: light;
+  --jf-bg: #f3f5fb;
+  --jf-text: #202a43;
+  --jf-muted: #596780;
+  --jf-border: rgba(48,65,108,.15);
+  --jf-glass: rgba(255,255,255,.88);
+  --jf-glass-border: rgba(255,255,255,.96);
+  --jf-glass-strong: rgba(255,255,255,.96);
+  --jf-glass-soft: rgba(247,249,255,.88);
+  --jf-glass-edge: rgba(54,74,120,.16);
+  --jf-surface: #fff;
+  --jf-surface-2: #f7f8fc;
+  --text-primary: var(--jf-text);
+  --background: var(--jf-bg);
+  --card-bg: var(--jf-glass);
+  --border-color: var(--jf-border);
+  --jf-shadow: 0 14px 34px rgba(34,49,91,.09);
+  --jf-shadow-hover: 0 22px 48px rgba(34,49,91,.14);
+}
+
+html, body {
+  min-width: 320px;
+  background-color: var(--jf-bg);
+  color: var(--jf-text);
+  font-family: var(--jf-font-body);
+}
+body {
+  font-size: 14px;
+  line-height: 1.55;
+}
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+h1, h2, h3, h4 {
+  color: var(--jf-text);
+  font-family: var(--jf-font-display);
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+h1 {font-size:clamp(27px,3.3vw,40px); letter-spacing:-.035em;}
+h2 {font-size:clamp(21px,2.4vw,29px);}
+h3 {font-size:clamp(16px,1.5vw,20px);}
+p {line-height:1.65;}
+small {font-size:11px;}
+label {line-height:1.45;}
+.main {color:var(--jf-text);}
+
+/* The left navigation keeps its dark contrast in both global themes. */
+.sidebar {width:270px;}
+.nav-item {
+  min-height:46px;
+  gap:11px;
+  padding:6px 12px;
+  font-size:12.5px;
+  line-height:1.3;
+}
+.nav-item-icon {
+  width:36px;
+  height:36px;
+  flex-basis:36px;
+  border-radius:12px;
+}
+.nav-item.active {
+  background:linear-gradient(100deg,rgba(255,119,69,.28),rgba(160,112,255,.17)) !important;
+  border-color:rgba(255,160,110,.30);
+}
+.nav-item:focus-visible, .theme-toggle:focus-visible, .icon-button:focus-visible {
+  outline:2px solid #ffb16e;
+  outline-offset:3px;
+}
+
+/* A real module/environment status bar, wrapping cleanly on narrow screens. */
+.topline {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:10px;
+  height:auto;
+  min-height:42px;
+  margin-bottom:22px;
+}
+.topline > div:first-child.topline-status {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+  min-width:0;
+  min-height:40px;
+  padding:6px 12px;
+  border:1px solid var(--jf-glass-edge);
+  border-radius:12px;
+  background:var(--jf-glass);
+  color:var(--jf-text);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0;
+  text-transform:none;
+}
+.topline-status-environment, .topline-status-module {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+.topline-status-environment > span:last-child,
+.topline-status-module > span {
+  overflow-wrap:anywhere;
+}
+.topline-status-module {color:var(--jf-muted);}
+.topline-status-divider {
+  width:1px;
+  height:18px;
+  flex:none;
+  background:var(--jf-border);
+}
+.topline-status .dot {
+  width:8px;
+  height:8px;
+  flex:none;
+  border-radius:50%;
+  background:#7c879b;
+  box-shadow:0 0 0 4px rgba(124,135,155,.12);
+}
+.topline-status.staging .dot {background:#24b47e;box-shadow:0 0 0 4px rgba(36,180,126,.14);}
+.topline-status.readonly .dot {background:#e3a342;box-shadow:0 0 0 4px rgba(227,163,66,.15);}
+.topline-status.preview .dot {background:#8792a6;box-shadow:0 0 0 4px rgba(135,146,166,.13);}
+.project-label {
+  max-width:min(48%,440px);
+  min-width:0;
+  padding:8px 12px;
+  font-size:11px;
+  line-height:1.4;
+  overflow-wrap:anywhere;
+}
+@media(max-width:900px) {
+  .topline {align-items:stretch;}
+  .topline > div:first-child.topline-status {width:100%;}
+  .project-label {max-width:100%;width:100%;}
+}
+@media(max-width:600px) {
+  .topline {gap:8px;margin-bottom:16px;}
+  .topline > div:first-child.topline-status {font-size:10.5px;gap:7px;padding:8px 10px;}
+}
+
+/* One predictable search field design for the admin modules and youth selector. */
+.shared-search, .member-search, .members-search, .profile-search, .youth-search {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  min-height:50px;
+  padding:0 14px;
+  border:1px solid var(--jf-glass-edge);
+  border-radius:13px;
+  background:var(--jf-glass-strong);
+  color:var(--jf-muted);
+  box-shadow:0 8px 22px rgba(28,43,78,.06);
+}
+.shared-search > svg, .member-search > svg, .members-search > svg, .profile-search > svg, .youth-search > svg {
+  flex:none;
+  color:var(--jf-accent);
+}
+.shared-search input, .member-search input, .members-search input,
+.profile-search input, .youth-search input {
+  flex:1 1 auto;
+  width:100%;
+  min-width:0;
+  height:46px;
+  min-height:44px;
+  margin:0;
+  padding:0;
+  border:0 !important;
+  border-radius:0 !important;
+  outline:0;
+  background:transparent !important;
+  color:var(--jf-text) !important;
+  box-shadow:none !important;
+  font-size:14px !important;
+}
+.shared-search input::placeholder, .member-search input::placeholder,
+.members-search input::placeholder, .profile-search input::placeholder,
+.youth-search input::placeholder {color:var(--jf-muted);opacity:.78;}
+.shared-search button, .member-search button, .members-search button,
+.profile-search button, .youth-search button {
+  display:grid;
+  flex:0 0 34px;
+  place-items:center;
+  width:34px;
+  height:34px;
+  min-height:34px !important;
+  padding:0;
+  border:0 !important;
+  border-radius:10px;
+  background:var(--jf-glass-soft);
+  color:var(--jf-muted);
+}
+:is(.shared-search,.member-search,.members-search,.profile-search,.youth-search):focus-within {
+  border-color:var(--jf-focus);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--jf-focus) 16%,transparent),
+    0 10px 24px rgba(28,43,78,.08);
+}
+input[type="search"] {appearance:none;-webkit-appearance:none;}
+input[type="search"]::-webkit-search-cancel-button {display:none;}
+.members-toolbar {min-width:0;align-items:center;gap:12px;}
+.results-count {flex:none;white-space:nowrap;}
+@media(max-width:600px) {
+  .members-toolbar {align-items:stretch;flex-direction:column;}
+  .results-count {align-self:flex-end;}
+}
+
+/* Correct checkbox/radio sizing: only text-like fields should fill a row. */
+.main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),select,textarea) {
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+}
+.main input[type="checkbox"], .main input[type="radio"] {
+  width:16px !important;
+  min-width:16px !important;
+  max-width:16px !important;
+  height:16px;
+  min-height:16px;
+  margin:0 7px 0 0;
+  flex:none;
+  accent-color:var(--jf-accent);
+  vertical-align:middle;
+}
+.main label:has(input[type="checkbox"]), .main label:has(input[type="radio"]) {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  max-width:100%;
+}
+.main input, .main select, .main textarea {
+  font-size:13px;
+  line-height:1.45;
+}
+.main input:not([type="checkbox"]):not([type="radio"]),
+.main select, .main textarea {
+  min-height:42px;
+  padding:10px 12px;
+}
+.main textarea {min-height:110px;line-height:1.6;}
+.main :is(button,a,input,select,textarea):focus-visible {
+  outline:2px solid var(--jf-focus);
+  outline-offset:3px;
+}
+
+/* Cards and panels read consistently in both themes. Keep hero panels vivid. */
+:root[data-theme="dark"] :is(
+  .page-card,.ranking-content,.attendance-card,.management-summary,.management-form,
+  .management-records,.shared-page-header,.shared-stat-card,.shared-empty-state,
+  .management-record,.managed-record,.managed-stat,.managed-empty,.reports-card,
+  .checkin-config,.checkin-panel,.followup-content,.visitors-content,
+  .devotionals-controls,.members-empty,.members-error,.shared-modal,.managed-modal,
+  .followup-modal,.visitors-modal,.devotionals-modal,.photos-modal,
+  .dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
+  .dashboard-bottom-note,.ranking-info-grid article,.ranking-player,.game-card,
+  .profile-card,.selected-profile-panel,.members-total-card,.member-card,.member-row,
+  .attendance-member,.followup-stat,.followup-card,.visitor-card,.visitors-stat,
+  .devotional-card,.photos-stats article,.photo-card,.reports-stats article,
+  .checkin-summary article,.management-record,.managed-record,.managed-stat,
+  .weekly-admin-panel,.weekly-admin-item,.prayer-admin-card,.youth-selector,
+  .youth-customizer,.youth-activities,.youth-game-hub,.youth-prayer-panel
+) {
+  color:var(--jf-text);
+  border-color:var(--jf-glass-edge);
+}
+:root:not([data-theme="dark"]) :is(
+  .page-card,.ranking-content,.attendance-card,.management-summary,.management-form,
+  .management-records,.shared-page-header,.shared-stat-card,.shared-empty-state,
+  .management-record,.managed-record,.managed-stat,.managed-empty,.reports-card,
+  .checkin-config,.checkin-panel,.followup-content,.visitors-content,
+  .devotionals-controls,.members-empty,.members-error,.shared-modal,.managed-modal,
+  .followup-modal,.visitors-modal,.devotionals-modal,.photos-modal,
+  .dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
+  .dashboard-bottom-note,.ranking-info-grid article,.ranking-player,.game-card,
+  .profile-card,.selected-profile-panel,.members-total-card,.member-card,.member-row,
+  .attendance-member,.followup-stat,.followup-card,.visitor-card,.visitors-stat,
+  .devotional-card,.photos-stats article,.photo-card,.reports-stats article,
+  .checkin-summary article,.weekly-admin-panel,.weekly-admin-item,.prayer-admin-card,
+  .youth-selector,.youth-customizer,.youth-activities,.youth-game-hub,.youth-prayer-panel
+) {
+  color:var(--jf-text) !important;
+  border-color:var(--jf-glass-edge) !important;
+  background:var(--jf-glass-strong) !important;
+  box-shadow:var(--jf-shadow);
+}
+:root:not([data-theme="dark"]) :is(
+  .dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
+  .dashboard-bottom-note,.ranking-info-grid article,.ranking-player,.game-card,
+  .profile-card,.selected-profile-panel,.members-total-card,.member-card,.member-row,
+  .attendance-member,.followup-stat,.followup-card,.visitor-card,.visitors-stat,
+  .devotional-card,.photos-stats article,.photo-card,.reports-stats article,
+  .checkin-summary article,.management-record,.managed-record,.managed-stat,
+  .weekly-admin-item,.prayer-admin-card,.youth-activity-card,.youth-store-item,
+  .youth-game-tile,.youth-profile-card,.youth-hall-card
+) :is(h1,h2,h3,h4,strong) {color:var(--jf-text) !important;}
+:root:not([data-theme="dark"]) :is(
+  .dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
+  .dashboard-bottom-note,.ranking-info-grid article,.ranking-player,.game-card,
+  .profile-card,.selected-profile-panel,.members-total-card,.member-card,.member-row,
+  .attendance-member,.followup-stat,.followup-card,.visitor-card,.visitors-stat,
+  .devotional-card,.photos-stats article,.photo-card,.reports-stats article,
+  .checkin-summary article,.management-record,.managed-record,.managed-stat,
+  .weekly-admin-item,.prayer-admin-card,.youth-activity-card,.youth-store-item,
+  .youth-game-tile,.youth-profile-card,.youth-hall-card
+) p {color:var(--jf-muted) !important;}
+
+/* Light theme support for the public youth profile selector and home panels. */
+:root:not([data-theme="dark"]) .youth-search {
+  background:var(--jf-glass-strong) !important;
+  color:var(--jf-text);
+  border-color:var(--jf-glass-edge);
+}
+:root:not([data-theme="dark"]) .youth-search input {color:var(--jf-text) !important;}
+:root:not([data-theme="dark"]) .youth-profile-card {
+  background:linear-gradient(145deg,#fff,#f1f4fc) !important;
+  border-color:var(--jf-glass-edge) !important;
+  color:var(--jf-text) !important;
+}
+:root:not([data-theme="dark"]) .youth-profile-card > strong,
+:root:not([data-theme="dark"]) .youth-selector-heading h3,
+:root:not([data-theme="dark"]) .youth-header h1,
+:root:not([data-theme="dark"]) .youth-header h2 {color:var(--jf-text) !important;}
+:root:not([data-theme="dark"]) .youth-card-nick,
+:root:not([data-theme="dark"]) .youth-results-count,
+:root:not([data-theme="dark"]) .youth-empty p,
+:root:not([data-theme="dark"]) .youth-loading span,
+:root:not([data-theme="dark"]) .youth-security-note {color:var(--jf-muted) !important;}
+:root:not([data-theme="dark"]) .youth-total {
+  color:var(--jf-text);
+  border-color:var(--jf-glass-edge);
+}
+:root:not([data-theme="dark"]) .youth-theme-toggle {
+  color:var(--jf-text);
+  border-color:var(--jf-glass-edge);
+  background:var(--jf-glass-strong);
+}
+
+/* Shared theme button for the profile selector, profile home and game HUD. */
+.youth-theme-toggle {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-height:40px;
+  flex:none;
+  padding:8px 12px;
+  border:1px solid var(--jf-glass-edge);
+  border-radius:11px;
+  background:var(--jf-glass);
+  color:var(--jf-text);
+  font:600 12px/1.2 var(--jf-font-body);
+  cursor:pointer;
+  transition:background .18s ease,transform .18s ease,border-color .18s ease;
+}
+.youth-theme-toggle svg {flex:none;color:var(--jf-accent);}
+.youth-theme-toggle:hover {transform:translateY(-1px);border-color:var(--jf-accent);}
+.youth-theme-toggle:focus-visible {outline:2px solid var(--jf-focus);outline-offset:3px;}
+.youth-selector-actions {display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.youth-home-toolbar {display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.youth-game-topbar {display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+@media(max-width:600px) {
+  .youth-portal {padding:18px 11px;}
+  .youth-selector-heading {align-items:flex-start;flex-wrap:wrap;}
+  .youth-selector-actions {width:100%;justify-content:space-between;}
+  .youth-theme-toggle {min-height:42px;padding:8px 10px;font-size:11px;}
+  .youth-home-toolbar .youth-back {margin-bottom:0;}
+  .youth-home-toolbar .youth-sound-toggle {margin-left:auto;}
+}
+@media(max-width:380px) {
+  .youth-selector-actions {gap:7px;}
+  .youth-selector-actions .youth-theme-toggle {flex:1 1 auto;}
+}
+
+/* Respect reduced motion and avoid hover lift on touch devices. */
+@media(prefers-reduced-motion:reduce) {
+  *, *::before, *::after {
+    scroll-behavior:auto !important;
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+}

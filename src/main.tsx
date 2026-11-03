@@ -7,6 +7,13 @@ import './modern-design.css';
 import './tactical-ui.css';
 import './visual-overhaul.css';
 
+try {
+  const savedTheme = window.localStorage.getItem('jf-theme');
+  document.documentElement.dataset.theme = savedTheme === 'light' ? 'light' : 'dark';
+} catch {
+  document.documentElement.dataset.theme = 'dark';
+}
+
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     void navigator.serviceWorker.register('/sw.js').catch(() => {
