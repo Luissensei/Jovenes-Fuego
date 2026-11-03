@@ -25,8 +25,8 @@ async function call<T>(name: string, payload: unknown = {}): Promise<T> {
   return response.data;
 }
 
-export async function getCheckins(): Promise<CheckinRecord[]> {
-  const result = await call<{items: CheckinRecord[]}>('getCheckins');
+export async function getCheckins(date: string, meetingName: string): Promise<CheckinRecord[]> {
+  const result = await call<{items: CheckinRecord[]}>('getCheckins', {date, meetingName});
   return Array.isArray(result.items) ? result.items : [];
 }
 
