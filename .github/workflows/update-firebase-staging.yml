@@ -52,15 +52,15 @@ jobs:
               console.log('  via=' + (typeof entry === 'string' ? entry : entry.title + ' | ' + entry.url));
             }
           }
-          const seen = new Set();
-          function isGrpcOnlyChain(name) {
+          function isGrpcOnlyChain(name, seen = new Set()) {
             if (name === '@grpc/grpc-js') return true;
             if (seen.has(name)) return false;
-            seen.add(name);
+            const nextSeen = new Set(seen);
+            nextSeen.add(name);
             const item = report.vulnerabilities?.[name];
             return Boolean(item?.via?.length) && item.via.every((entry) => {
               const dependency = typeof entry === 'string' ? entry : entry.name;
-              return dependency ? isGrpcOnlyChain(dependency) : false;
+              return dependency ? isGrpcOnlyChain(dependency, nextSeen) : false;
             });
           }
           const high = Object.entries(report.vulnerabilities ?? {}).filter(([, item]) =>
