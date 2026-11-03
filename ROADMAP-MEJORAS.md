@@ -185,3 +185,15 @@ No se han desplegado Functions, reglas ni Hosting desde esta conversación. No s
 - Los errores de ESLint que bloqueaban Functions se corrigieron alineando reglas heredadas de formato con TypeScript. Los errores de tipos de la configuración de Bandeja/Turnos se corrigieron con un tipo explícito.
 - La aprobación de scripts npm queda limitada a @firebase/util, esbuild y protobufjs en versiones concretas; re2 permanece bloqueado.
 - El límite de Vercel build-rate-limit sigue siendo externo a la compilación del código y ha impedido obtener una nueva previsualización en Vercel.
+
+
+### Resultado de validación final — commit 515b6f23ac2430b10bfba4a9c7997f3da5b98100
+
+GitHub Actions terminó correctamente ambos trabajos para este commit:
+
+- React y TypeScript: `npm ci` y `npm run build` completados.
+- Firebase Functions: `npm ci`, `npm run lint` y `npm run build` completados.
+
+Esto valida compilación y lint, pero no sustituye la prueba funcional contra Firebase Staging. Vercel todavía devuelve `build-rate-limit` en los proyectos de preview y producción; no es un error de compilación confirmado.
+
+Siguiente puerta para probar Acceso Juvenil: configurar la cuenta de servicio exclusiva de Staging en el secreto `FIREBASE_SERVICE_ACCOUNT_JOVENES_DE_FUEGO_STAGING` y ejecutar manualmente el workflow `Deploy Firebase Staging Functions`. Después probar perfiles públicos con datos sintéticos. Las reglas Firestore permanecen cerradas.
