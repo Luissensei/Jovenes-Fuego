@@ -99,7 +99,7 @@ export default function ReportsPage() {
         } else if (participant.status === 'Ausente' || participant.status === 'Falta') {
           absent++;
           current.absent++;
-        } else if (participant.status === 'Justificada' || participant.status === 'Justificado') {
+        } else if (participant.status === 'Justificada') {
           justified++;
           current.justified++;
         }
