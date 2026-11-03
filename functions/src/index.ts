@@ -247,7 +247,7 @@ export const submitPublicPrayerRequest = onCall(async (request) => {
     transaction.set(rateRef, {
       count: FieldValue.increment(1),
       day,
-      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
     }, {merge: true});
   });
 

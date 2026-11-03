@@ -62,7 +62,7 @@ Campos creados por `adminSaveWeeklyActivity`: `title`, `description`, `date` (AA
 Campos: `requester`, `category`, `message`, `status`, `createdAt`, `source`; cambios de estado añaden `updatedAt` y `updatedBy`. El joven puede enviar una solicitud pública mediante Cloud Function; la consulta y actualización de estado requieren rol admin, administrador o pastor. No se publica el contenido de las solicitudes a los demás jóvenes.
 
 ### `publicPrayerRateLimits/{hash}`
-Control diario de hasta tres envíos por dirección de red anonimizada mediante SHA-256. Contiene contador, día y una fecha `expiresAt` prevista para retención limitada. Configurar una política TTL en Firestore para `expiresAt` cuando el proyecto de Staging esté preparado.
+Control diario de hasta tres envíos por dirección de red anonimizada mediante SHA-256. Contiene contador, día y `expiresAt` como Timestamp de Firestore para retención limitada. Configurar una política TTL en Firestore para `expiresAt` cuando el proyecto de Staging esté preparado.
 
 ### Funciones administrativas y públicas
 
