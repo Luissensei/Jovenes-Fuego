@@ -149,14 +149,17 @@ function readLook(profile: PublicProfile): ProfileLook {
     const raw = window.localStorage.getItem(`jf-youth-look-${profile.id}`);
     if (!raw) return remote;
     const parsed = JSON.parse(raw) as Partial<ProfileLook>;
+    // En producción solo lectura, la personalización queda en este dispositivo.
+    // En Staging prevalecen siempre los valores sincronizados con Firebase.
+    const local = firebaseReadOnlyMode ? parsed : {};
     return {
       ...remote,
-      frame: profile.frame || parsed.frame || remote.frame,
-      background: profile.background || parsed.background || remote.background,
-      avatar: profile.avatar || parsed.avatar || remote.avatar,
-      title: profile.title || parsed.title || remote.title,
-      ownedItems: profile.ownedItems ?? parsed.ownedItems ?? [],
-      flames: profile.flames ?? parsed.flames ?? 0,
+      frame: local.frame || remote.frame,
+      background: local.background || remote.background,
+      avatar: local.avatar || remote.avatar,
+      title: local.title || remote.title,
+      ownedItems: local.ownedItems ?? remote.ownedItems,
+      flames: local.flames ?? remote.flames,
     };
   } catch {
     return remote;
@@ -379,6 +382,12 @@ export default function YouthPortalPage() {
     setLookSaving(true);
     setLookNotice('');
     try {
+      if (firebaseReadOnlyMode) {
+        // Permite probar marcos y fondos localmente sin escribir en producción.
+        window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
+        setLookNotice(`${item.label} equipado en este dispositivo. La sincronización de la comunidad se habilita en Staging.`);
+        return;
+      }
       await saveYouthProfileAppearance(selectedProfile.id, next);
       window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
       setLookNotice(`${item.label} equipado correctamente.`);
@@ -601,7 +610,7 @@ export default function YouthPortalPage() {
                       type="button"
                       key={item.key || 'default'}
                       className={`youth-store-item ${selected ? 'selected' : ''} ${unlocked ? 'unlocked' : 'locked'}`}
-                      disabled={lookSaving || firebaseReadOnlyMode}
+                      disabled={lookSaving}
                       onClick={() => void equipLookItem(lookCategory,item)}
                     >
                       <span className="youth-store-item-art">{item.emoji}</span>
@@ -612,7 +621,7 @@ export default function YouthPortalPage() {
                 })}
               </div>
               {lookNotice && <p className="youth-inline-warning" role="status">{lookNotice}</p>}
-              {firebaseReadOnlyMode && <p className="youth-inline-warning">Personalización disponible al conectar Staging. La base original está protegida en solo lectura.</p>}
+              {firebaseReadOnlyMode && <p className="youth-inline-warning">En solo lectura, los cambios cosméticos se guardan solo en este dispositivo. Para sincronizarlos con todos los móviles usa Staging.</p>}
               {lookSaving && <p className="youth-inline-warning">Guardando personalización...</p>}
             </section>
           )}
