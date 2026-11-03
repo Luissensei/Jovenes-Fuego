@@ -197,9 +197,35 @@ export function AuthProvider({
         setError(null);
 
         try {
+          const identifier = email.trim().toLowerCase();
+          let signInEmail = identifier;
+
+          // La app original admite nombre de usuario. Mantener compatibilidad:
+          // username@jovenesdefuego.app, con lookup público al correo real si existe.
+          if (!identifier.includes('@')) {
+            signInEmail = `${identifier}@jovenesdefuego.app`;
+
+            try {
+              const usernameLookup = await getDoc(
+                doc(db, 'public', `al_${identifier}`),
+              );
+              const mappedEmail = usernameLookup.data()?.e;
+              if (
+                usernameLookup.exists() &&
+                typeof mappedEmail === 'string' &&
+                mappedEmail.includes('@')
+              ) {
+                signInEmail = mappedEmail.trim().toLowerCase();
+              }
+            } catch {
+              // Si el lookup público no existe o no se permite, usar el correo
+              // histórico username@jovenesdefuego.app.
+            }
+          }
+
           await signInWithEmailAndPassword(
             auth,
-            email.trim(),
+            signInEmail,
             password,
           );
         } catch (cause) {
