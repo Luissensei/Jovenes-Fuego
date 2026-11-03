@@ -323,7 +323,7 @@ export default function RankingPage({
                       <li key={player.id} className={`podium-place place-${index + 1}`}>
                         <span className="youth-podium-medal">{index === 0 ? <Crown size={17}/> : <Medal size={17}/>}</span>
                         <span className="youth-podium-rank">0{index + 1}</span>
-                        {photo ? <img src={photo} alt="" /> : <b>{player.name.trim().split(/\\s+/).slice(0, 2).map((part) => part[0] ?? '').join('').toUpperCase()}</b>}
+                        {photo ? <img src={photo} alt="" /> : <b>{player.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0] ?? '').join('').toUpperCase()}</b>}
                         <span className="youth-podium-name">{player.name}</span>
                         <strong>{player.points} pts</strong>
                       </li>
