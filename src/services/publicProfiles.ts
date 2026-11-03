@@ -16,6 +16,12 @@ export type PublicProfile = {
   nick: string;
   pic: string;
   points: number;
+  frame?: string;
+  avatar?: string;
+  background?: string;
+  title?: string;
+  flames?: number;
+  ownedItems?: string[];
 };
 
 type LegacyRankingEntry = {
@@ -95,7 +101,7 @@ export async function getPublicProfiles(): Promise<PublicProfile[]> {
 
     // Public profile photos are stored separately in photos/{memberId}.
     // Fetch only the photo documents corresponding to visible public profiles.
-    const photos = new Map<string, string>();
+    const photos = new Map<string, Record<string, unknown>>();
 
     for (
       let start = 0;
@@ -115,17 +121,26 @@ export async function getPublicProfiles(): Promise<PublicProfile[]> {
       const photoSnapshot = await getDocs(photoQuery);
 
       photoSnapshot.docs.forEach((photoDoc) => {
-        photos.set(
-          photoDoc.id,
-          safePhoto(photoDoc.data().p),
-        );
+        photos.set(photoDoc.id, photoDoc.data());
       });
     }
 
-    return profiles.map((profile) => ({
-      ...profile,
-      pic: photos.get(profile.id) ?? '',
-    }));
+    return profiles.map((profile) => {
+      const photo = photos.get(profile.id) ?? {};
+      const flames = Number(photo.w ?? 0);
+      return {
+        ...profile,
+        pic: safePhoto(photo.p),
+        frame: typeof photo.f === 'string' ? photo.f : '',
+        avatar: typeof photo.a === 'string' ? photo.a : '',
+        background: typeof photo.b === 'string' ? photo.b : '',
+        title: typeof photo.t === 'string' ? photo.t : '',
+        flames: Number.isFinite(flames) && flames >= 0 ? flames : 0,
+        ownedItems: Array.isArray(photo.u)
+          ? photo.u.filter((item): item is string => typeof item === 'string')
+          : [],
+      };
+    });
   } catch (error) {
     const firebaseError = error as {code?: string};
     console.error('Error consultando perfiles del ranking original:', error);
