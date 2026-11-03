@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { Flame, LockKeyhole, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Flame, LockKeyhole, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { GamingButton } from '../components/gaming/GamingUI';
 
@@ -69,6 +70,17 @@ export function LoginPage() {
               {busy ? 'Verificando acceso…' : 'Ingresar al centro'}
             </GamingButton>
           </form>
+
+          <div className="jf-login-divider"><span>¿VIENES A PARTICIPAR?</span></div>
+          <Link className="jf-youth-access" to="/portal-joven">
+            <span className="jf-youth-access__icon"><Users size={19} /></span>
+            <span className="jf-youth-access__copy">
+              <strong>Entrar al Portal Joven</strong>
+              <small>Explora los perfiles y desafíos de la comunidad.</small>
+              <small className="jf-youth-access__notice">La selección de perfil es pública y no valida identidad.</small>
+            </span>
+            <ArrowUpRight size={18} />
+          </Link>
 
           <p className="jf-login-safe"><ShieldCheck size={16} /> Acceso protegido por Firebase. No uses contraseñas de producción durante el desarrollo.</p>
         </section>
