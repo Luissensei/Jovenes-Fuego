@@ -11,6 +11,7 @@ import {
 import {
   Flame,
   Menu,
+  ChevronDown,
   Moon,
   Sun,
   ShieldCheck,
@@ -96,6 +97,7 @@ function AdminApp() {
     }
   });
   const [menuOpen, setMenuOpen] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -315,8 +317,20 @@ function AdminApp() {
         <nav className="jf-navigation" aria-label="Módulos">
           {navigationGroups.map((group) => (
             <div className="jf-navigation__group" key={group.label}>
-              <span className="jf-navigation__label">{group.label}</span>
-              {group.items.map((item) => (
+              <button
+                className="jf-navigation__toggle"
+                type="button"
+                aria-expanded={!collapsedGroups.includes(group.label)}
+                onClick={() => setCollapsedGroups((current) =>
+                  current.includes(group.label)
+                    ? current.filter((label) => label !== group.label)
+                    : [...current, group.label],
+                )}
+              >
+                <span className="jf-navigation__label">{group.label}</span>
+                <ChevronDown size={14} className={collapsedGroups.includes(group.label) ? '' : 'is-expanded'} aria-hidden="true" />
+              </button>
+              {!collapsedGroups.includes(group.label) && group.items.map((item) => (
                 <NavLink
                   key={item.id}
                   to={item.path}
