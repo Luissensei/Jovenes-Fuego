@@ -46,6 +46,55 @@ function safePhoto(value: unknown): string {
   return '';
 }
 
+export type PublicRankingMetric = Pick<PublicProfile, 'id' | 'name' | 'points'>;
+
+/**
+ * Lectura ligera para indicadores: usa únicamente public/ranking y no descarga
+ * fotografías ni otros datos del perfil.
+ */
+export async function getPublicRankingMetrics(): Promise<PublicRankingMetric[]> {
+  if (!db) {
+    throw new Error('Firebase Firestore no está configurado.');
+  }
+
+  try {
+    const snapshot = await getDoc(doc(db, 'public', 'ranking'));
+    if (!snapshot.exists()) return [];
+
+    const data = snapshot.data();
+    if (data.off === true) return [];
+
+    const entries = Array.isArray(data.all)
+      ? data.all as LegacyRankingEntry[]
+      : [];
+
+    return entries.flatMap((entry, index) => {
+      if (!entry || typeof entry !== 'object') return [];
+
+      const name = typeof entry.n === 'string' ? entry.n.trim() : '';
+      if (!name) return [];
+
+      const memberId = typeof entry.i === 'string' ? entry.i.trim() : '';
+      const rawPoints = Number(entry.t ?? 0);
+
+      return [{
+        id: memberId || `public-ranking-${index}`,
+        name,
+        points: Number.isFinite(rawPoints) && rawPoints >= 0 ? rawPoints : 0,
+      }];
+    });
+  } catch (error) {
+    const firebaseError = error as {code?: string};
+    console.error('Error consultando métricas públicas del ranking:', error);
+
+    if (firebaseError.code === 'permission-denied') {
+      throw new Error('Firestore no permite leer public/ranking con las reglas actuales.');
+    }
+
+    throw new Error('No se pudieron consultar las métricas públicas del ranking.');
+  }
+}
+
 export async function getPublicProfiles(): Promise<PublicProfile[]> {
   if (!db) {
     throw new Error('Firebase Firestore no está configurado.');
