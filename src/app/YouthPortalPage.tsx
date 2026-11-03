@@ -555,6 +555,7 @@ export default function YouthPortalPage() {
                   );
                 })}
               </div>
+              {lookNotice && <p className="youth-inline-warning" role="status">{lookNotice}</p>}
               {lookSaving && <p className="youth-inline-warning">Guardando personalización...</p>}
             </section>
           )}
@@ -593,7 +594,7 @@ export default function YouthPortalPage() {
                 <label>Nombre (opcional)<input value={prayerName} onChange={(event) => setPrayerName(event.target.value)} maxLength={80} placeholder="Puedes enviarla como anónimo"/></label>
                 <label>Tipo de petición<select value={prayerCategory} onChange={(event) => setPrayerCategory(event.target.value)}><option>General</option><option>Familia</option><option>Estudios</option><option>Fortaleza espiritual</option><option>Agradecimiento</option><option>Otra</option></select></label>
                 <label className="prayer-message-field">Cuéntanos cómo podemos orar por ti<textarea value={prayerMessage} onChange={(event) => setPrayerMessage(event.target.value)} minLength={8} maxLength={500} rows={4} required placeholder="Escribe tu petición con confianza..."/></label>
-                <div className="youth-prayer-submit-row"><small>{prayerMessage.length}/1200 caracteres. Evita compartir datos personales sensibles.</small><button type="submit" disabled={prayerBusy || prayerMessage.trim().length < 8}>{prayerBusy ? 'Enviando...' : 'Enviar petición'} <Send size={16}/></button></div>
+                <div className="youth-prayer-submit-row"><small>{prayerMessage.length}/500 caracteres. Evita compartir datos personales sensibles.</small><button type="submit" disabled={prayerBusy || prayerMessage.trim().length < 8}>{prayerBusy ? 'Enviando...' : 'Enviar petición'} <Send size={16}/></button></div>
                 {prayerStatus && <p className="youth-prayer-status" role="status">{prayerStatus}</p>}
               </form>
             </section>
