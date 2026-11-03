@@ -1,0 +1,1204 @@
+
+/* =====================================================
+   JOVENES DE FUEGO - DESIGN SYSTEM 2026
+   Capa visual global para todas las interfaces
+===================================================== */
+
+:root {
+  color-scheme: light;
+
+  --jf-bg: #f3f4f9;
+  --jf-surface: #ffffff;
+  --jf-surface-2: #f7f5fa;
+  --jf-text: #201b2a;
+  --jf-muted: #888296;
+  --jf-border: #e8e5ef;
+  --jf-accent: #f16b35;
+  --jf-accent-2: #a35ad1;
+  --jf-purple: #54216e;
+  --jf-shadow: 0 12px 35px rgba(30, 20, 50, .055);
+  --jf-shadow-hover: 0 18px 42px rgba(30, 20, 50, .11);
+
+  --background: var(--jf-bg);
+  --card: var(--jf-surface);
+  --border: var(--jf-border);
+  --text: var(--jf-text);
+  --muted: var(--jf-muted);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --jf-bg: #0d1019;
+  --jf-surface: #171b29;
+  --jf-surface-2: #202437;
+  --jf-text: #f4f2fa;
+  --jf-muted: #a3a2b5;
+  --jf-border: #2c3042;
+  --jf-accent: #ff824c;
+  --jf-accent-2: #b68bea;
+  --jf-purple: #30203d;
+  --jf-shadow: 0 12px 35px rgba(0, 0, 0, .2);
+  --jf-shadow-hover: 0 18px 42px rgba(0, 0, 0, .3);
+
+  --background: var(--jf-bg);
+  --card: var(--jf-surface);
+  --border: var(--jf-border);
+  --text: var(--jf-text);
+  --muted: var(--jf-muted);
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--jf-bg);
+}
+
+body {
+  min-width: 320px;
+  background:
+    radial-gradient(ellipse at 85% 0%, rgba(161, 90, 209, .055), transparent 34%),
+    var(--jf-bg);
+  color: var(--jf-text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  transition: background .25s ease, color .25s ease;
+}
+
+:root[data-theme="dark"] body {
+  background:
+    radial-gradient(ellipse at 85% 0%, rgba(161, 90, 209, .09), transparent 38%),
+    var(--jf-bg);
+}
+
+::selection {
+  background: rgba(241, 107, 53, .25);
+  color: inherit;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(241, 107, 53, .4);
+  outline-offset: 3px;
+}
+
+/* =====================================================
+   ESTRUCTURA PRINCIPAL
+===================================================== */
+
+.layout {
+  min-height: 100vh;
+  background: var(--jf-bg);
+  color: var(--jf-text);
+}
+
+.main {
+  width: auto;
+  max-width: none;
+  min-height: 100vh;
+  margin-left: 270px;
+  padding: 28px clamp(20px, 3vw, 48px) 35px;
+  background: transparent;
+}
+
+.topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  min-height: 42px;
+  margin-bottom: 29px;
+  color: var(--jf-muted);
+}
+
+.topline > div:first-child {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.topline .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34c47b;
+  box-shadow: 0 0 12px rgba(52, 196, 123, .55);
+}
+
+.project-label {
+  max-width: 48%;
+  padding: 9px 13px;
+  border: 1px solid var(--jf-border);
+  border-radius: 10px;
+  background: var(--jf-surface);
+  color: var(--jf-muted);
+  font-size: 11px;
+}
+
+.layout footer {
+  color: var(--jf-muted);
+}
+
+/* =====================================================
+   MENU LATERAL
+===================================================== */
+
+.sidebar {
+  width: 270px;
+  padding: 25px 17px 19px;
+  background:
+    radial-gradient(circle at 0 0, rgba(241, 107, 53, .15), transparent 30%),
+    linear-gradient(180deg, #171321 0%, #171b29 100%);
+  border-right: 1px solid rgba(255,255,255,.055);
+  box-shadow: 10px 0 35px rgba(16, 12, 27, .07);
+}
+
+.brand {
+  padding: 0 9px 25px;
+}
+
+.brand-mark {
+  width: 43px;
+  height: 43px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ff9959, #ec4e2b);
+  box-shadow: 0 7px 20px rgba(241, 93, 48, .25);
+}
+
+.brand strong {
+  font-size: 14px;
+  letter-spacing: -.4px;
+}
+
+.brand small {
+  font-size: 10px;
+  color: #aaa3bb;
+}
+
+.env-chip {
+  padding: 10px 12px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(255,255,255,.08);
+  color: #ddd5e8;
+}
+
+.sidebar nav {
+  gap: 5px;
+  scrollbar-width: thin;
+}
+
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 41px;
+  padding: 10px 13px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  color: #bdb6ca;
+  font-size: 12px;
+  font-weight: 600;
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    transform .2s ease,
+    color .2s ease;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,.065);
+  color: white;
+  transform: translateX(2px);
+}
+
+.nav-item.active {
+  border-color: rgba(255,255,255,.12);
+  background: linear-gradient(110deg, #ef693b, #d64d39);
+  color: #fff;
+  box-shadow: 0 6px 19px rgba(239, 91, 51, .22);
+}
+
+.sidebar-bottom {
+  padding-top: 17px;
+}
+
+.safe-note {
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  background: rgba(255,255,255,.045);
+}
+
+.theme-toggle {
+  min-height: 42px;
+  border-color: rgba(255,255,255,.10);
+  border-radius: 10px;
+  transition: background .2s ease;
+}
+
+.theme-toggle:hover {
+  background: rgba(255,255,255,.08);
+}
+
+.mobile-header {
+  background: #171321;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  box-shadow: 0 5px 20px rgba(0,0,0,.08);
+}
+
+/* =====================================================
+   TITULOS Y ENCABEZADOS
+===================================================== */
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'Manrope', sans-serif;
+  color: var(--jf-text);
+  line-height: 1.25;
+}
+
+h1 {
+  font-weight: 850;
+}
+
+.eyebrow,
+.ranking-kicker,
+.shared-eyebrow,
+.management-kicker {
+  color: var(--jf-accent);
+  font-weight: 850;
+  letter-spacing: 1.35px;
+}
+
+/* =====================================================
+   TARJETAS Y PANELES GENERALES
+===================================================== */
+
+.page-card,
+.ranking-content,
+.attendance-card,
+.management-summary,
+.management-form,
+.management-records,
+.shared-page-header,
+.shared-stat-card,
+.shared-empty-state,
+.management-record,
+.managed-record,
+.managed-stat,
+.managed-empty,
+.managed-modal,
+.reports-card,
+.checkin-config,
+.checkin-panel {
+  border: 1px solid var(--jf-border);
+  border-radius: 17px;
+  background: var(--jf-surface);
+  color: var(--jf-text);
+  box-shadow: var(--jf-shadow);
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    background .2s ease;
+}
+
+.page-card {
+  max-width: 1250px;
+}
+
+.ranking-content,
+.management-summary,
+.management-form,
+.management-records {
+  padding: clamp(18px, 3vw, 28px);
+}
+
+.management-record:hover,
+.managed-record:hover {
+  border-color: rgba(241, 107, 53, .5);
+  box-shadow: var(--jf-shadow-hover);
+}
+
+.notice,
+.profile-notice,
+.management-message {
+  border-radius: 13px;
+}
+
+/* =====================================================
+   PANEL PRINCIPAL
+===================================================== */
+
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dashboard-hero {
+  min-height: 260px;
+  padding: clamp(26px, 4vw, 44px);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 80% 5%, rgba(249, 158, 103, .22), transparent 28%),
+    radial-gradient(circle at 95% 90%, rgba(178, 116, 231, .22), transparent 33%),
+    linear-gradient(120deg, #20152d, #49234f 57%, #833b37);
+  box-shadow: 0 20px 45px rgba(48, 23, 57, .18);
+}
+
+.dashboard-hero h1 {
+  color: white;
+}
+
+.dashboard-flame {
+  border: 1px solid rgba(255,255,255,.17);
+  background: rgba(255,255,255,.09);
+  box-shadow: 0 15px 40px rgba(0,0,0,.14);
+}
+
+.dashboard-stat,
+.dashboard-shortcut {
+  border: 1px solid var(--jf-border);
+  border-radius: 17px;
+  background: var(--jf-surface);
+  box-shadow: var(--jf-shadow);
+}
+
+.dashboard-stat {
+  padding: 20px;
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.dashboard-stat:hover,
+.dashboard-shortcut:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--jf-shadow-hover);
+}
+
+.dashboard-stat-icon,
+.dashboard-shortcut-icon {
+  border-radius: 13px;
+  background: rgba(241,107,53,.11);
+  color: var(--jf-accent);
+}
+
+.dashboard-section-heading {
+  margin-top: 12px;
+}
+
+.dashboard-shortcut {
+  min-height: 80px;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+/* =====================================================
+   JOVENES Y PERFILES
+===================================================== */
+
+.members-hero {
+  min-height: 205px;
+  border-radius: 23px;
+  background:
+    radial-gradient(circle at 90% 5%, rgba(255,255,255,.16), transparent 28%),
+    linear-gradient(120deg, #21152f, #552467 60%, #a34b30);
+  box-shadow: 0 16px 38px rgba(40, 17, 63, .13);
+}
+
+.members-total-card {
+  border-radius: 16px;
+  background: rgba(255,255,255,.12);
+}
+
+.member-card,
+.member-row {
+  border: 1px solid var(--jf-border);
+  border-radius: 16px;
+  background: var(--jf-surface);
+  box-shadow: var(--jf-shadow);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.member-card:hover,
+.member-row:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--jf-shadow-hover);
+}
+
+.member-avatar {
+  border-radius: 16px;
+  background: linear-gradient(135deg, #54216e, #ed713b);
+  color: white;
+}
+
+.members-search,
+.member-search,
+.profile-search,
+.shared-search {
+  min-height: 47px;
+  border: 1px solid var(--jf-border);
+  border-radius: 12px;
+  background: var(--jf-surface);
+  color: var(--jf-muted);
+}
+
+.members-search input,
+.member-search input,
+.profile-search input,
+.shared-search input {
+  color: var(--jf-text);
+}
+
+.member-count {
+  border: 1px solid var(--jf-border);
+  border-radius: 15px;
+  background: var(--jf-surface);
+  box-shadow: var(--jf-shadow);
+}
+
+/* =====================================================
+   RANKING Y GAMING
+===================================================== */
+
+.ranking-hub {
+  gap: 22px;
+}
+
+.ranking-hero {
+  min-height: 230px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 85% 10%, rgba(248, 155, 98, .23), transparent 25%),
+    linear-gradient(120deg, #1a1428, #48205a 55%, #873b3b);
+  box-shadow: 0 18px 40px rgba(40, 17, 63, .16);
+}
+
+.ranking-hero-art {
+  border-radius: 30px;
+  background: rgba(255,255,255,.095);
+  border-color: rgba(255,255,255,.15);
+  box-shadow: 0 15px 35px rgba(0,0,0,.14);
+}
+
+.ranking-tabs {
+  padding: 7px;
+  border: 1px solid var(--jf-border);
+  border-radius: 14px;
+  background: var(--jf-surface);
+  box-shadow: var(--jf-shadow);
+}
+
+.ranking-tabs button {
+  min-height: 43px;
+  border-radius: 10px;
+  transition: background .2s ease, color .2s ease;
+}
+
+.ranking-tabs button.active {
+  background: linear-gradient(110deg, #e9693c, #d95740);
+  box-shadow: 0 5px 14px rgba(220, 83, 54, .18);
+}
+
+.ranking-info-grid article,
+.ranking-player,
+.ranking-empty,
+.ranking-state {
+  border: 1px solid var(--jf-border);
+  border-radius: 15px;
+  background: var(--jf-surface);
+  box-shadow: var(--jf-shadow);
+}
+
+.ranking-player {
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.ranking-player:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--jf-shadow-hover);
+}
+
+.ranking-first {
+  border-color: rgba(241, 164, 66, .5);
+  background:
+    linear-gradient(100deg, rgba(241, 164, 66, .09), transparent),
+    var(--jf-surface);
+}
+
+.game-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 222px;
+  border: 1px solid var(--jf-border);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(176, 109, 205, .08), transparent 34%),
+    var(--jf-surface);
+  box-shadow: var(--jf-shadow);
+  transition: transform .23s ease, border-color .23s ease, box-shadow .23s ease;
+}
+
+.game-card::after {
+  position: absolute;
+  right: -25px;
+  bottom: -50px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  content: "";
+  background: rgba(241, 107, 53, .045);
+  pointer-events: none;
+}
+
+.game-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(241, 107, 53, .42);
+  box-shadow: var(--jf-shadow-hover);
+}
+
+.game-icon {
+  width: 49px;
+  height: 49px;
+  border-radius: 15px;
+}
+
+.game-status {
+  border: 1px solid var(--jf-border);
+  border-radius: 20px;
+  background: var(--jf-surface-2);
+}
+
+.game-card-footer {
+  position: relative;
+  z-index: 1;
+  border-color: var(--jf-border);
+}
+
+.game-card-footer button {
+  min-height: 37px;
+  border-radius: 9px;
+  padding: 9px 13px;
+  background: linear-gradient(110deg, #f17a40, #dc5738);
+  box-shadow: 0 5px 15px rgba(220, 83, 54, .15);
+}
+
+.game-available {
+  border-color: rgba(241,107,53,.5) !important;
+}
+
+.profile-card {
+  border: 1px solid var(--jf-border);
+  border-radius: 17px;
+  background: var(--jf-surface);
+  box-shadow: var(--jf-shadow);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.profile-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--jf-shadow-hover);
+}
+
+.profile-card.selected {
+  border: 2px solid var(--jf-accent);
+  background: var(--jf-surface-2);
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #54216e, #f16b35);
+  box-shadow: 0 5px 16px rgba(100, 40, 120, .15);
+}
+
+/* =====================================================
+   PORTAL DE JOVENES
+===================================================== */
+
+.youth-portal {
+  min-height: 100vh;
+  padding: clamp(18px, 3vw, 42px);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(169, 96, 214, .12), transparent 38%),
+    var(--jf-bg);
+  color: var(--jf-text);
+}
+
+.youth-selector,
+.youth-welcome {
+  border: 1px solid var(--jf-border);
+  border-radius: 24px;
+  background: var(--jf-surface);
+  box-shadow: var(--jf-shadow);
+}
+
+.youth-header {
+  padding-top: 28px;
+}
+
+.youth-brand-icon {
+  width: 76px;
+  height: 76px;
+  border: 1px solid rgba(241,107,53,.2);
+  border-radius: 24px;
+  background: linear-gradient(140deg, #fca36c, #e94e2d);
+  box-shadow: 0 10px 28px rgba(241,107,53,.21);
+}
+
+.youth-header h1 {
+  letter-spacing: -1px;
+}
+
+.youth-selector {
+  padding: clamp(18px, 3vw, 32px);
+}
+
+.youth-profile-card {
+  border: 1px solid var(--jf-border);
+  border-radius: 19px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(173,112,213,.09), transparent 32%),
+    var(--jf-surface);
+  box-shadow: var(--jf-shadow);
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+
+.youth-profile-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(241,107,53,.55);
+  box-shadow: var(--jf-shadow-hover);
+}
+
+.youth-avatar {
+  width: 84px;
+  height: 84px;
+  border: 3px solid rgba(241,107,53,.55);
+  background: linear-gradient(145deg, #54216e, #f16b35);
+  box-shadow: 0 7px 22px rgba(100,40,120,.18);
+}
+
+.youth-card-action {
+  color: var(--jf-accent);
+  border-color: var(--jf-border);
+}
+
+/* =====================================================
+   ASISTENCIA, SEGUIMIENTO Y VISITANTES
+===================================================== */
+
+.attendance-header,
+.followup-header,
+.visitors-header {
+  border-radius: 21px;
+}
+
+.attendance-card,
+.followup-stat,
+.followup-card,
+.visitors-stat,
+.visitor-card {
+  border: 1px solid var(--jf-border);
+  border-radius: 16px;
+  background: var(--jf-surface);
+  box-shadow: var(--jf-shadow);
+}
+
+.attendance-member {
+  border: 1px solid var(--jf-border);
+  border-radius: 12px;
+  background: var(--jf-surface);
+  transition: border-color .2s ease, transform .2s ease;
+}
+
+.attendance-member:hover {
+  transform: translateY(-2px);
+  border-color: rgba(241,107,53,.45);
+}
+
+.followup-card,
+.visitor-card {
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.followup-card:hover,
+.visitor-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--jf-shadow-hover);
+}
+
+/* =====================================================
+   DEVOCIONALES
+===================================================== */
+
+.devotionals-feature {
+  min-height: 170px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(255,193,120,.2), transparent 30%),
+    linear-gradient(115deg, #24152f, #59305c 65%, #8b482e);
+  box-shadow: var(--jf-shadow);
+}
+
+.devotional-card {
+  border: 1px solid var(--jf-border);
+  border-radius: 17px;
+  background: var(--jf-surface);
+  box-shadow: var(--jf-shadow);
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.devotional-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--jf-shadow-hover);
+}
+
+/* =====================================================
+   MODULOS ADMINISTRATIVOS
+===================================================== */
+
+.management-page,
+.managed-page,
+.checkin-page,
+.photos-page,
+.reports-page,
+.followup-page,
+.devotionals-page,
+.visitors-page {
+  animation: jfPageEnter .35s ease both;
+}
+
+.management-header,
+.managed-hero,
+.checkin-hero,
+.photos-hero,
+.reports-hero {
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 21px;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(255,255,255,.13), transparent 28%),
+    linear-gradient(115deg, #21152e, #542463 60%, #984631);
+  box-shadow: 0 15px 35px rgba(38,17,56,.13);
+}
+
+.management-summary,
+.management-form,
+.management-records,
+.management-record,
+.managed-record,
+.managed-stat {
+  border: 1px solid var(--jf-border);
+  border-radius: 16px;
+  background: var(--jf-surface);
+  box-shadow: var(--jf-shadow);
+}
+
+.management-record {
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.management-record:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--jf-shadow-hover);
+}
+
+.management-form input,
+.management-form textarea,
+.managed-form-field input,
+.managed-form-field textarea,
+.photos-modal input,
+.photos-modal textarea,
+.visitors-modal input,
+.visitors-modal textarea,
+.followup-modal input,
+.followup-modal textarea,
+.devotionals-modal input,
+.devotionals-modal textarea {
+  border-color: var(--jf-border);
+  border-radius: 11px;
+  background: var(--jf-surface-2);
+  color: var(--jf-text);
+}
+
+.management-form input:focus,
+.management-form textarea:focus,
+.managed-form-field input:focus,
+.managed-form-field textarea:focus {
+  border-color: var(--jf-accent);
+  box-shadow: 0 0 0 3px rgba(241,107,53,.12);
+}
+
+.management-submit,
+.managed-primary,
+.managed-primary-button,
+.checkin-primary,
+.photos-primary,
+.visitors-primary,
+.followup-primary,
+.devotionals-primary {
+  border-radius: 11px;
+  background: linear-gradient(110deg, #f17b43, #df5938);
+  box-shadow: 0 6px 16px rgba(220,83,54,.14);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.management-submit:hover,
+.managed-primary:hover,
+.checkin-primary:hover,
+.photos-primary:hover,
+.visitors-primary:hover,
+.followup-primary:hover,
+.devotionals-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(220,83,54,.2);
+}
+
+/* =====================================================
+   TABLAS E INFORMES
+===================================================== */
+
+.shared-table-wrapper,
+.reports-card {
+  overflow: hidden;
+  border: 1px solid var(--jf-border);
+  border-radius: 16px;
+  background: var(--jf-surface);
+}
+
+.shared-table th,
+.reports-table th {
+  padding: 15px;
+  background: var(--jf-surface-2);
+  color: var(--jf-muted);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+.shared-table td,
+.reports-table td {
+  padding: 14px 15px;
+  border-top: 1px solid var(--jf-border);
+  color: var(--jf-text);
+}
+
+.shared-table tbody tr,
+.reports-table tbody tr {
+  transition: background .18s ease;
+}
+
+.shared-table tbody tr:hover,
+.reports-table tbody tr:hover {
+  background: var(--jf-surface-2);
+}
+
+/* =====================================================
+   FORMULARIOS, MODALES Y BUSQUEDA
+===================================================== */
+
+input,
+select,
+textarea {
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    background .2s ease;
+}
+
+.shared-modal,
+.managed-modal,
+.followup-modal,
+.visitors-modal,
+.devotionals-modal,
+.photos-modal {
+  border: 1px solid var(--jf-border);
+  border-radius: 19px;
+  background: var(--jf-surface);
+  color: var(--jf-text);
+  box-shadow: 0 25px 80px rgba(0,0,0,.25);
+  animation: jfModalIn .23s ease both;
+}
+
+.shared-modal-header,
+.managed-modal-header {
+  border-color: var(--jf-border);
+}
+
+.shared-modal-close,
+.managed-close {
+  border-radius: 10px;
+  transition: background .2s ease, transform .2s ease;
+}
+
+.shared-modal-close:hover,
+.managed-close:hover {
+  transform: rotate(5deg);
+  background: var(--jf-surface-2);
+}
+
+/* =====================================================
+   BOTONES GLOBALES
+===================================================== */
+
+.login-submit,
+.ranking-empty button,
+.ranking-state button,
+.verse-next-button,
+.mbg-primary-button {
+  background: linear-gradient(110deg, #f17b43, #df5938);
+  box-shadow: 0 6px 16px rgba(220,83,54,.16);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.login-submit:hover:not(:disabled),
+.verse-next-button:hover:not(:disabled),
+.mbg-primary-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(220,83,54,.23);
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   ALERTAS Y ESTADOS
+===================================================== */
+
+.ranking-state,
+.members-state,
+.members-empty,
+.managed-empty,
+.management-empty,
+.shared-empty-state,
+.youth-empty,
+.photos-empty,
+.reports-empty {
+  border-radius: 17px;
+  background: var(--jf-surface);
+  color: var(--jf-muted);
+}
+
+.loading-shell {
+  background: var(--jf-bg);
+  color: var(--jf-muted);
+}
+
+.spinner {
+  width: 23px;
+  height: 23px;
+  border-width: 3px;
+  border-color: var(--jf-border);
+  border-top-color: var(--jf-accent);
+}
+
+/* =====================================================
+   LOGIN ADMINISTRATIVO
+===================================================== */
+
+.login-shell {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(241,107,53,.14), transparent 35%),
+    radial-gradient(ellipse at 90% 90%, rgba(163,90,209,.14), transparent 35%),
+    var(--jf-bg);
+}
+
+.login-card {
+  border: 1px solid var(--jf-border);
+  border-radius: 24px;
+  background: var(--jf-surface);
+  box-shadow: 0 25px 80px rgba(35,20,49,.12);
+  animation: jfPageEnter .45s ease both;
+}
+
+.login-logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  box-shadow: 0 8px 23px rgba(241,107,53,.2);
+}
+
+.login-card h1 {
+  color: var(--jf-text);
+}
+
+.login-card input {
+  border-color: var(--jf-border);
+  border-radius: 11px;
+  background: var(--jf-surface-2);
+  color: var(--jf-text);
+}
+
+/* =====================================================
+   ANIMACIONES GENERALES
+===================================================== */
+
+@keyframes jfPageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(11px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes jfModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .management-page,
+  .managed-page,
+  .checkin-page,
+  .photos-page,
+  .reports-page,
+  .members-page,
+  .dashboard-page {
+    animation: jfPageEnter .35s ease both;
+  }
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1100px) {
+  .main {
+    padding: 23px 22px 30px;
+  }
+}
+
+@media (max-width: 900px) {
+  .main {
+    margin-left: 0;
+    padding: 18px 17px 28px;
+  }
+
+  .mobile-header {
+    min-height: 64px;
+    height: 64px;
+  }
+
+  .sidebar {
+    z-index: 30;
+  }
+
+  .scrim {
+    z-index: 25;
+    backdrop-filter: blur(3px);
+  }
+
+  .topline {
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .project-label {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .main {
+    padding: 15px 12px 25px;
+  }
+
+  .topline {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+    height: auto;
+    min-height: 0;
+  }
+
+  .project-label {
+    width: fit-content;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .dashboard-hero,
+  .ranking-hero,
+  .members-hero,
+  .attendance-header,
+  .managed-hero,
+  .checkin-hero,
+  .photos-hero,
+  .reports-hero {
+    border-radius: 18px;
+  }
+
+  .ranking-content {
+    padding: 16px;
+  }
+
+  .ranking-section-heading h2 {
+    font-size: 20px;
+  }
+
+  .management-header {
+    align-items: flex-start;
+  }
+
+  .management-header h1 {
+    font-size: 25px;
+  }
+
+  .management-summary,
+  .management-form,
+  .management-records {
+    border-radius: 14px;
+  }
+
+  .shared-table-wrapper {
+    max-width: calc(100vw - 30px);
+  }
+
+  .youth-portal {
+    padding: 16px 10px 28px;
+  }
+}
+
+/* RESPETA LA PREFERENCIA DE MOVIMIENTO */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
