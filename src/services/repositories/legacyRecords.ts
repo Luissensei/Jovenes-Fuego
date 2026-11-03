@@ -68,7 +68,7 @@ export async function getLegacyFollowups(): Promise<LegacyFollowupRecord[]> {
       notes: String(data.n ?? ''),
       // Los registros originales son seguimientos ya realizados, no tareas
       // pendientes; no se inventa un estado desde la fecha.
-      status: 'Completado',
+      status: 'Completado' as const,
     };
   }).sort((a, b) => b.date.localeCompare(a.date));
 }
@@ -95,10 +95,10 @@ export async function getLegacyVisitors(): Promise<LegacyVisitorRecord[]> {
         ? `Visitas registradas: ${visits.length}`
         : '',
       status: originalStatus === 'miembro'
-        ? 'Integrado'
+        ? 'Integrado' as const
         : visits.length > 1
-          ? 'Contactado'
-          : 'Nuevo',
+          ? 'Contactado' as const
+          : 'Nuevo' as const,
     };
   }).sort((a, b) => b.date.localeCompare(a.date));
 }
