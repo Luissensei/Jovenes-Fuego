@@ -59,6 +59,42 @@ function memberImage(value: unknown): string {
     ? value : '';
 }
 
+function compressMemberPhoto(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      if (!context) {
+        reject(new Error('Este navegador no pudo procesar la fotografía.'));
+        return;
+      }
+      for (const size of [220, 180, 144, 120]) {
+        const scale = Math.min(1, size / Math.max(image.width, image.height));
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        for (const quality of [0.66, 0.56, 0.46, 0.36]) {
+          const encoded = canvas.toDataURL('image/jpeg', quality);
+          if (encoded.length < 58000) {
+            resolve(encoded);
+            return;
+          }
+        }
+      }
+      reject(new Error('La imagen es demasiado pesada incluso después de comprimirla.'));
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('No se pudo abrir el archivo de imagen.'));
+    };
+    image.src = objectUrl;
+  });
+}
+
 function MemberAvatar({member}: {member: MemberAdminRecord}) {
   const [failed, setFailed] = useState(false);
   const image = memberImage(member.pic);
