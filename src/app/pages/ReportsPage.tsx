@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 import {
-  subscribeAttendanceMeetings,
+  listAttendanceMeetings,
   type AttendanceMeeting,
 } from '../../services/attendance';
 
@@ -30,43 +30,66 @@ export default function ReportsPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let active = true;
+    let membersReady = false;
+    let meetingsReady = false;
     let membersUnsubscribe: (() => void) | null = null;
-    let meetingsUnsubscribe: (() => void) | null = null;
+
+    const finishLoading = () => {
+      if (active && membersReady && meetingsReady) {
+        setLoading(false);
+      }
+    };
 
     try {
       membersUnsubscribe = subscribeMembers(
-        (items) => {
+        (items: MemberRecord[]) => {
+          if (!active) return;
           setMembers(items);
-          setLoading(false);
+          membersReady = true;
+          finishLoading();
         },
-        (cause) => {
+        (cause: Error) => {
+          if (!active) return;
           setError(cause.message);
-          setLoading(false);
+          membersReady = true;
+          finishLoading();
         },
       );
-
-      meetingsUnsubscribe = subscribeAttendanceMeetings(
-        (items) => {
-          setMeetings(items);
-          setLoading(false);
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
+      if (!membersUnsubscribe) {
+        membersReady = true;
+        setError('No se pudo conectar con la base de datos de Staging.');
+      }
     } catch (cause) {
       setError(
         cause instanceof Error
           ? cause.message
-          : 'No se pudieron consultar los informes.',
+          : 'No se pudieron consultar los jóvenes.',
       );
-      setLoading(false);
+      membersReady = true;
     }
 
+    void listAttendanceMeetings()
+      .then((items: AttendanceMeeting[]) => {
+        if (!active) return;
+        setMeetings(items);
+        meetingsReady = true;
+        finishLoading();
+      })
+      .catch((cause: unknown) => {
+        if (!active) return;
+        setError((current) => current || (
+          cause instanceof Error
+            ? cause.message
+            : 'No se pudieron consultar las reuniones de asistencia.'
+        ));
+        meetingsReady = true;
+        finishLoading();
+      });
+
     return () => {
+      active = false;
       membersUnsubscribe?.();
-      meetingsUnsubscribe?.();
     };
   }, []);
 

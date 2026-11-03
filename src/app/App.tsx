@@ -1,53 +1,52 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import {
   NavLink,
   Navigate,
   Route,
   Routes,
   useNavigate,
+  useLocation,
 } from 'react-router-dom';
 
 import {
   Flame,
   Menu,
+  ChevronDown,
   Moon,
   Sun,
   ShieldCheck,
   X,
   LogOut,
-  UserRound,
 } from 'lucide-react';
+import { PlayerAvatar } from '../components/gaming/GamingUI';
 
 import { modules } from './modules';
 import { firebaseProjectId } from '../services/firebase/client';
 import { AuthProvider, useAuth } from './AuthContext';
 
-import { LoginPage } from './LoginPage';
-import { MembersPage } from './MembersPage';
+import { LoadingScreen } from '../components/gaming/GamingUI';
 
-import DashboardPage from './DashboardPage';
-import AttendancePage from './AttendancePage';
-import FollowupPage from './FollowupPage';
-import DevotionalsPage from './DevotionalsPage';
-import VisitorsPage from './VisitorsPage';
-import RankingPage from './RankingPage';
-import YouthPortalPage from './YouthPortalPage';
-
-import PrayersPage from './pages/PrayersPage';
-import EventsPage from './pages/EventsPage';
-import InboxPage from './pages/InboxPage';
-import TurnsPage from './pages/TurnsPage';
-
-import CheckinPage from './pages/CheckinPage';
-import PhotosPage from './pages/PhotosPage';
-import ReportsPage from './pages/ReportsPage';
-import {
-  BonusPage,
-  PastoralPage,
-  LeadersPage,
-  AuditPage,
-  SettingsPage,
-} from './pages/ManagementPages';
+const LoginPage = lazy(() => import('./LoginPage').then((module) => ({ default: module.LoginPage })));
+const MembersPage = lazy(() => import('./MembersPage').then((module) => ({ default: module.MembersPage })));
+const DashboardPage = lazy(() => import('./DashboardPage'));
+const AttendancePage = lazy(() => import('./AttendancePage'));
+const FollowupPage = lazy(() => import('./FollowupPage'));
+const DevotionalsPage = lazy(() => import('./DevotionalsPage'));
+const VisitorsPage = lazy(() => import('./VisitorsPage'));
+const RankingPage = lazy(() => import('./RankingPage'));
+const YouthPortalPage = lazy(() => import('./YouthPortalPage'));
+const PrayersPage = lazy(() => import('./pages/PrayersPage'));
+const EventsPage = lazy(() => import('./pages/EventsPage'));
+const InboxPage = lazy(() => import('./pages/InboxPage'));
+const TurnsPage = lazy(() => import('./pages/TurnsPage'));
+const CheckinPage = lazy(() => import('./pages/CheckinPage'));
+const PhotosPage = lazy(() => import('./pages/PhotosPage'));
+const ReportsPage = lazy(() => import('./pages/ReportsPage'));
+const BonusPage = lazy(() => import('./pages/ManagementPages').then((module) => ({ default: module.BonusPage })));
+const PastoralPage = lazy(() => import('./pages/ManagementPages').then((module) => ({ default: module.PastoralPage })));
+const LeadersPage = lazy(() => import('./pages/ManagementPages').then((module) => ({ default: module.LeadersPage })));
+const AuditPage = lazy(() => import('./pages/ManagementPages').then((module) => ({ default: module.AuditPage })));
+const SettingsPage = lazy(() => import('./pages/ManagementPages').then((module) => ({ default: module.SettingsPage })));
 
 function ModulePage({
   label,
@@ -95,7 +94,9 @@ function AdminApp() {
     }
   });
   const [menuOpen, setMenuOpen] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const theme = dark ? 'dark' : 'light';
@@ -175,6 +176,16 @@ function AdminApp() {
 
     return true;
   });
+
+  const currentModule = visibleModules.find((item) => item.path === location.pathname);
+  const navigationGroups = [
+    { label: 'LOBBY Y PROGRESO', ids: ['dashboard', 'ranking', 'games', 'profile'] },
+    { label: 'VIDA DE COMUNIDAD', ids: ['members', 'attendance', 'visitors', 'followups', 'devotionals', 'photos', 'events', 'checkins', 'prayers', 'inbox', 'turns'] },
+    { label: 'GESTIÓN Y CONTROL', ids: ['bonus', 'pastoral', 'leaders', 'reports', 'audit', 'settings'] },
+  ].map((group) => ({
+    ...group,
+    items: visibleModules.filter((item) => group.ids.includes(item.id)),
+  })).filter((group) => group.items.length > 0);
 
   function renderModule(
     id: string,
@@ -300,22 +311,37 @@ function AdminApp() {
             : 'VISTA PREVIA · SIN FIREBASE'}
         </div>
 
-        <nav aria-label="Módulos">
-          {visibleModules.map((item) => (
-            <NavLink
-              key={item.id}
-              to={item.path}
-              end={item.path === '/'}
-              onClick={() => setMenuOpen(false)}
-              className={({ isActive }) =>
-                `nav-item ${isActive ? 'active' : ''}`
-              }
-            >
-              <span className="nav-item-icon" aria-hidden="true">
-                <item.icon size={17} strokeWidth={2.1} />
-              </span>
-              <span>{item.label}</span>
-            </NavLink>
+        <nav className="jf-navigation" aria-label="Módulos">
+          {navigationGroups.map((group) => (
+            <div className="jf-navigation__group" key={group.label}>
+              <button
+                className="jf-navigation__toggle"
+                type="button"
+                aria-expanded={!collapsedGroups.includes(group.label)}
+                onClick={() => setCollapsedGroups((current) =>
+                  current.includes(group.label)
+                    ? current.filter((label) => label !== group.label)
+                    : [...current, group.label],
+                )}
+              >
+                <span className="jf-navigation__label">{group.label}</span>
+                <ChevronDown size={14} className={collapsedGroups.includes(group.label) ? '' : 'is-expanded'} aria-hidden="true" />
+              </button>
+              {!collapsedGroups.includes(group.label) && group.items.map((item) => (
+                <NavLink
+                  key={item.id}
+                  to={item.path}
+                  end={item.path === '/'}
+                  onClick={() => setMenuOpen(false)}
+                  className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                >
+                  <span className="nav-item-icon" aria-hidden="true">
+                    <item.icon size={17} strokeWidth={2.1} />
+                  </span>
+                  <span>{item.label}</span>
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
 
@@ -363,20 +389,21 @@ function AdminApp() {
 
       <main className="main">
         <div className="topline">
-          <div>
+          <div className="jf-topline-context">
             <span className="dot" />
             {configured
               ? 'Sesión autenticada · entorno de pruebas'
               : 'Vista previa · sin datos reales'}
+            <span className="jf-topline-divider">/</span>
+            <strong>{currentModule?.label ?? 'Panel principal'}</strong>
           </div>
 
           <span className="project-label">
             {user ? (
               <>
-                <UserRound size={13} />
-                {String(profile?.name ?? user.email ?? 'Usuario')}
-                {' · '}
-                {role || 'sin rol'}
+                <PlayerAvatar name={String(profile?.name ?? user.email ?? 'Usuario')} size="sm" frame="cyan" />
+                <span>{String(profile?.name ?? user.email ?? 'Usuario')}</span>
+                <span className="jf-role-chip">{role || 'sin rol'}</span>
               </>
             ) : (
               'Firebase: no configurado'
@@ -402,11 +429,11 @@ function AdminApp() {
             <Route
               key={item.id}
               path={item.path}
-              element={renderModule(
-                item.id,
-                item.label,
-                item.description,
-              )}
+              element={
+                <div className="jf-route-screen" key={item.id}>
+                  {renderModule(item.id, item.label, item.description)}
+                </div>
+              }
             />
           ))}
 
@@ -427,20 +454,22 @@ function AdminApp() {
 
 export function App() {
   return (
-    <Routes>
-      <Route
-        path="/portal-joven/*"
-        element={<YouthPortalPage />}
-      />
+    <Suspense fallback={<LoadingScreen label="Preparando tu espacio…" />}>
+      <Routes>
+        <Route
+          path="/portal-joven/*"
+          element={<YouthPortalPage />}
+        />
 
-      <Route
-        path="/*"
-        element={
-          <AuthProvider>
-            <AdminApp />
-          </AuthProvider>
-        }
-      />
-    </Routes>
+        <Route
+          path="/*"
+          element={
+            <AuthProvider>
+              <AdminApp />
+            </AuthProvider>
+          }
+        />
+      </Routes>
+    </Suspense>
   );
 }
