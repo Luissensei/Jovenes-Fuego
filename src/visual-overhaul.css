@@ -3272,3 +3272,209 @@ button:disabled {cursor:not-allowed;opacity:.58;}
     transform:none !important;
   }
 }
+
+
+/* ==========================================================
+   CORRECCIÓN FINAL DE LAYOUT + 3D CON CAPAS MÁS PROFUNDAS
+   ========================================================== */
+
+/* La barra lateral ya ocupa espacio: el lienzo principal no debe medir
+   también el 100% de la ventana más su margen izquierdo. */
+.main {
+  width:calc(100% - 270px) !important;
+  min-width:0;
+  margin-left:270px;
+  overflow-x:visible;
+  box-sizing:border-box;
+}
+.main > * {min-width:0;max-width:100%;}
+.layout {min-width:0;max-width:100%;}
+.sidebar {flex:none;}
+
+/* Evita que títulos normales se partan palabra por palabra.
+   Los identificadores extensos conservan reglas de ruptura locales. */
+h1,h2,h3,h4,p,small,strong,label {
+  overflow-wrap:break-word;
+  word-break:normal;
+}
+.topline, .topline > div, .project-label,
+.dashboard-section-title, .ranking-section-heading,
+.shared-page-header, .management-record-top {
+  min-width:0;
+}
+.member-card-info strong, .ranking-player-info strong,
+.followup-person strong, .visitor-person h3,
+.photo-card-content h3, .management-record-top strong,
+.managed-record-heading strong, .project-label {
+  overflow-wrap:anywhere;
+}
+
+/* Sombras en varios planos: borde superior, base, profundidad y rebote. */
+:root {
+  --jf-depth-shadow:
+    0 1px 0 rgba(255,255,255,.19) inset,
+    0 -1px 0 rgba(0,0,0,.12) inset,
+    0 3px 0 rgba(0,0,0,.10),
+    0 10px 18px rgba(0,0,0,.13),
+    0 24px 42px rgba(0,0,0,.17),
+    0 42px 72px rgba(0,0,0,.14);
+  --jf-depth-shadow-hover:
+    0 1px 0 rgba(255,255,255,.25) inset,
+    0 -1px 0 rgba(0,0,0,.13) inset,
+    0 5px 0 rgba(0,0,0,.10),
+    0 17px 28px rgba(0,0,0,.17),
+    0 34px 58px rgba(0,0,0,.21),
+    0 58px 95px rgba(0,0,0,.18);
+}
+:root:not([data-theme="dark"]) {
+  --jf-depth-shadow:
+    0 1px 0 rgba(255,255,255,.98) inset,
+    0 -1px 0 rgba(49,68,115,.035) inset,
+    0 3px 0 rgba(52,69,113,.035),
+    0 10px 18px rgba(38,55,105,.055),
+    0 24px 42px rgba(38,55,105,.085),
+    0 42px 72px rgba(38,55,105,.075);
+  --jf-depth-shadow-hover:
+    0 1px 0 rgba(255,255,255,1) inset,
+    0 -1px 0 rgba(49,68,115,.05) inset,
+    0 5px 0 rgba(52,69,113,.045),
+    0 17px 28px rgba(38,55,105,.075),
+    0 34px 58px rgba(38,55,105,.12),
+    0 58px 95px rgba(38,55,105,.10);
+}
+
+/* Un borde de luz y una cara de cristal más definida. */
+.dashboard-stat, .dashboard-shortcut, .dashboard-community-stat,
+.dashboard-chart-card, .dashboard-bottom-note,
+.ranking-info-grid article, .ranking-player, .game-card, .profile-card,
+.selected-profile-panel, .members-total-card, .member-card,
+.attendance-member, .followup-stat, .followup-card,
+.visitor-card, .devotional-card, .photo-card,
+.reports-stats article, .checkin-summary article,
+.management-record, .managed-record, .weekly-admin-item,
+.youth-hall-card, .youth-activity-card, .youth-store-item,
+.youth-game-tile, .youth-profile-card {
+  border:1px solid var(--jf-glass-edge) !important;
+  box-shadow:var(--jf-depth-shadow) !important;
+  isolation:isolate;
+}
+@media (hover:hover) and (pointer:fine) {
+  .dashboard-stat:hover, .dashboard-shortcut:hover,
+  .dashboard-community-stat:hover, .dashboard-chart-card:hover,
+  .dashboard-bottom-note:hover, .ranking-info-grid article:hover,
+  .ranking-player:hover, .game-card:hover, .profile-card:hover,
+  .selected-profile-panel:hover, .members-total-card:hover,
+  .member-card:hover, .attendance-member:hover,
+  .followup-stat:hover, .followup-card:hover, .visitor-card:hover,
+  .devotional-card:hover, .photo-card:hover, .reports-stats article:hover,
+  .checkin-summary article:hover, .management-record:hover,
+  .managed-record:hover, .weekly-admin-item:hover,
+  .youth-hall-card:hover, .youth-activity-card:hover,
+  .youth-store-item:hover, .youth-game-tile:hover,
+  .youth-profile-card:hover {
+    transform:perspective(1250px) translate3d(0,-10px,28px)
+      rotateX(3.6deg) rotateY(-1.7deg) scale(1.018) !important;
+    box-shadow:var(--jf-depth-shadow-hover) !important;
+    border-color:rgba(255,153,95,.48) !important;
+    z-index:3;
+  }
+}
+
+/* Los campos no desbordan su panel y mantienen un área táctil cómoda. */
+.main form, .main fieldset, .main label {min-width:0;max-width:100%;}
+.main input, .main select, .main textarea {
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+}
+.main button, .main a {max-width:100%;}
+.main button:not(.icon-button) {min-height:38px;}
+.main :is(input,select,textarea,button,a):focus-visible {
+  outline:2px solid var(--jf-accent) !important;
+  outline-offset:3px;
+}
+
+/* Gráficos, listas y tablas permanecen dentro de su propia pantalla. */
+.dashboard-charts-grid, .dashboard-community-stats,
+.ranking-info-grid, .ranking-list, .members-grid,
+.attendance-summary, .followup-stats, .followup-list,
+.visitors-stats, .visitors-list, .devotionals-grid,
+.photos-grid, .reports-stats, .reports-breakdown,
+.checkin-grid, .checkin-summary, .management-list,
+.managed-stat-grid, .managed-record-list {
+  width:100%;
+  max-width:100%;
+  min-width:0;
+}
+.shared-table-wrapper, .reports-table-wrapper,
+.management-table-wrapper, .data-table-wrapper {
+  width:100%;
+  max-width:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+}
+.shared-table, .reports-table, .management-table {
+  max-width:none;
+}
+.main table {border-collapse:separate;border-spacing:0;}
+
+/* Pantallas estrechas: conserva el relieve estático, quita la inclinación. */
+@media(max-width:900px) {
+  .main {
+    width:100% !important;
+    margin-left:0 !important;
+    padding-inline:clamp(12px,3vw,22px);
+  }
+  .main > * {width:100%;max-width:100%;}
+}
+@media(max-width:600px) {
+  .main {padding:13px 11px 28px;}
+  .dashboard-hero, .members-hero, .attendance-header,
+  .followup-header, .visitors-header, .devotionals-hero,
+  .photos-hero, .reports-hero, .checkin-hero,
+  .managed-hero, .management-header {
+    min-width:0;
+    max-width:100%;
+  }
+  .dashboard-stat, .dashboard-shortcut, .dashboard-community-stat,
+  .dashboard-chart-card, .dashboard-bottom-note, .ranking-info-grid article,
+  .ranking-player, .game-card, .profile-card, .members-total-card,
+  .member-card, .attendance-member, .followup-stat, .followup-card,
+  .visitor-card, .devotional-card, .photo-card, .reports-stats article,
+  .checkin-summary article, .management-record, .managed-record,
+  .weekly-admin-item, .youth-hall-card, .youth-activity-card,
+  .youth-store-item, .youth-game-tile, .youth-profile-card {
+    box-shadow:var(--jf-depth-shadow) !important;
+  }
+  .dashboard-shortcut, .ranking-player, .visitor-card,
+  .member-card, .management-record, .managed-record {
+    transform:none !important;
+  }
+}
+@media(max-width:380px) {
+  .main {padding-inline:9px;}
+  .ranking-player-points span {display:none;}
+  .dashboard-bar-label {gap:6px;}
+  .dashboard-bar-label strong {font-size:10px;}
+}
+@media(prefers-reduced-motion:reduce) {
+  .dashboard-stat, .dashboard-shortcut, .dashboard-community-stat,
+  .dashboard-chart-card, .dashboard-bottom-note,
+  .ranking-info-grid article, .ranking-player, .game-card,
+  .profile-card, .selected-profile-panel, .members-total-card,
+  .member-card, .attendance-card, .attendance-member,
+  .followup-stat, .followup-content, .followup-card,
+  .visitors-stat, .visitors-content, .visitor-card,
+  .devotionals-feature, .devotional-card, .photo-card,
+  .reports-card, .checkin-config, .checkin-panel,
+  .management-summary, .management-form, .management-records,
+  .management-record, .managed-stat, .managed-record,
+  .weekly-admin-item, .youth-hall-card, .youth-activity-card,
+  .youth-store-item, .youth-game-tile, .youth-profile-card {
+    transition:none !important;
+    transform:none !important;
+  }
+}
