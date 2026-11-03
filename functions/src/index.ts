@@ -1460,8 +1460,10 @@ function currentBogotaDate(): string {
     month: "2-digit",
     day: "2-digit",
   }).formatToParts(new Date());
-  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
-  return values.year + "-" + values.month + "-" + values.day;
+  const year = parts.find((part) => part.type === "year")?.value ?? "0000";
+  const month = parts.find((part) => part.type === "month")?.value ?? "00";
+  const day = parts.find((part) => part.type === "day")?.value ?? "00";
+  return year + "-" + month + "-" + day;
 }
 
 export const getDashboardSummary = onCall(async (request) => {
