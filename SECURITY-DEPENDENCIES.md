@@ -11,7 +11,7 @@
 | Área | Versión / entorno | Estado |
 |---|---|---|
 | Firebase Web SDK | 13.1.0 (al aprobarse la actualización automatizada) | Build y lint verificados; ver nota gRPC |
-| React Router DOM | 7.18.0 | Versión con corrección de los avisos de redirección conocidos |
+| React Router DOM | 7.18.5 | Versión con corrección de los avisos de redirección conocidos |
 | Firebase Admin | 13.10.0 | Dependencia servidor en `functions/` |
 | Firebase Functions | 7.4.0 | Dependencia servidor en `functions/` |
 | Cloud Functions Node | 22 | Revisado por separado en CI |
