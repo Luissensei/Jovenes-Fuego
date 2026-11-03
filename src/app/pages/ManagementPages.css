@@ -1,0 +1,262 @@
+
+.management-page {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 30px;
+  color: var(--text-primary, inherit);
+}
+
+.management-header {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  margin-bottom: 25px;
+}
+
+.management-icon {
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 17px;
+  background: rgba(234, 88, 12, .12);
+  color: #ea580c;
+}
+
+.management-kicker {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #d97706;
+}
+
+.management-header h1 {
+  margin: 5px 0;
+  font-size: clamp(25px, 4vw, 34px);
+}
+
+.management-header p {
+  margin: 0;
+  opacity: .7;
+}
+
+.management-summary,
+.management-form,
+.management-records {
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 16px;
+  background: var(--card-bg, #fff);
+}
+
+.management-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.management-summary div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.management-summary span {
+  font-size: 13px;
+  opacity: .7;
+}
+
+.management-summary strong {
+  font-size: 28px;
+}
+
+.management-summary-icon {
+  color: #d97706;
+}
+
+.management-form h2,
+.management-records h2 {
+  font-size: 18px;
+  margin: 0 0 17px;
+}
+
+.management-form {
+  display: grid;
+  gap: 14px;
+}
+
+.management-form label {
+  display: grid;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.management-form input,
+.management-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 13px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  resize: vertical;
+}
+
+.management-form input:focus,
+.management-form textarea:focus {
+  outline: 2px solid rgba(234, 88, 12, .25);
+  border-color: #ea580c;
+}
+
+.management-submit {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 45px;
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: #ea580c;
+  color: white;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.management-submit:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+.management-message {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px;
+  margin: 14px 0;
+  border-radius: 11px;
+  font-size: 14px;
+}
+
+.management-message.error {
+  color: #dc2626;
+  background: rgba(220, 38, 38, .09);
+}
+
+.management-message.success {
+  color: #16a34a;
+  background: rgba(22, 163, 74, .09);
+}
+
+.management-private-note {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  font-size: 12px;
+  opacity: .7;
+}
+
+.management-records-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.management-records-heading h2 {
+  margin: 0 0 15px;
+}
+
+.management-records-heading button {
+  border: 0;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--border-color, #eee);
+  color: inherit;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.management-list {
+  display: grid;
+  gap: 10px;
+}
+
+.management-record {
+  padding: 15px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+
+.management-record-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.management-role {
+  padding: 5px 9px;
+  border-radius: 20px;
+  color: #b45309;
+  background: rgba(245, 158, 11, .12);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.management-record p {
+  margin: 9px 0;
+  line-height: 1.5;
+}
+
+.management-note-content {
+  white-space: pre-wrap;
+}
+
+.management-record small {
+  display: block;
+  font-size: 11px;
+  opacity: .65;
+  margin-top: 8px;
+}
+
+.management-empty {
+  padding: 25px 10px;
+  text-align: center;
+  opacity: .7;
+}
+
+.management-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 24px;
+  font-size: 12px;
+  opacity: .65;
+}
+
+@media (max-width: 600px) {
+  .management-header {
+    align-items: flex-start;
+  }
+
+  .management-icon {
+    flex-basis: 48px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .management-summary,
+  .management-form,
+  .management-records {
+    padding: 15px;
+  }
+}

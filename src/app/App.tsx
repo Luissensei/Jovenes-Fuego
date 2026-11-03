@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import {
   NavLink,
@@ -22,15 +21,33 @@ import {
 import { modules } from './modules';
 import { firebaseProjectId } from '../services/firebase/client';
 import { AuthProvider, useAuth } from './AuthContext';
+
 import { LoginPage } from './LoginPage';
 import { MembersPage } from './MembersPage';
+
 import DashboardPage from './DashboardPage';
-import RankingPage from './RankingPage';
 import AttendancePage from './AttendancePage';
-import YouthPortalPage from './YouthPortalPage';
 import FollowupPage from './FollowupPage';
 import DevotionalsPage from './DevotionalsPage';
 import VisitorsPage from './VisitorsPage';
+import RankingPage from './RankingPage';
+import YouthPortalPage from './YouthPortalPage';
+
+import PrayersPage from './pages/PrayersPage';
+import EventsPage from './pages/EventsPage';
+import InboxPage from './pages/InboxPage';
+import TurnsPage from './pages/TurnsPage';
+
+import CheckinPage from './pages/CheckinPage';
+import PhotosPage from './pages/PhotosPage';
+import ReportsPage from './pages/ReportsPage';
+import {
+  BonusPage,
+  PastoralPage,
+  LeadersPage,
+  AuditPage,
+  SettingsPage,
+} from './pages/ManagementPages';
 
 function ModulePage({
   label,
@@ -41,7 +58,7 @@ function ModulePage({
 }) {
   return (
     <section className="page-card">
-      <div className="eyebrow">MÓDULO EN RECONSTRUCCIÓN</div>
+      <div className="eyebrow">MÓDULO EN DESARROLLO</div>
       <h1>{label}</h1>
       <p className="lead">{description}</p>
 
@@ -50,8 +67,8 @@ function ModulePage({
         <div>
           <strong>Entorno de pruebas</strong>
           <p>
-            Esta pantalla es una base de navegación.
-            La lógica de datos se implementará y probará por módulo.
+            Esta sección todavía necesita completar sus funciones.
+            Estamos trabajando en su implementación.
           </p>
         </div>
       </div>
@@ -89,13 +106,12 @@ function AdminApp() {
     return <LoginPage />;
   }
 
-  const role = String(profile?.role ?? '').toLowerCase();
+  const role = String(profile?.role ?? '').trim().toLowerCase();
+
   const isAdmin = ['admin', 'administrador'].includes(role);
   const isPastor = role === 'pastor';
 
   const visibleModules = modules.filter((item) => {
-    if (item.id === 'youth') return false;
-
     if (item.id === 'pastoral') {
       return isPastor || isAdmin;
     }
@@ -106,6 +122,85 @@ function AdminApp() {
 
     return true;
   });
+
+  function renderModule(
+    id: string,
+    label: string,
+    description: string,
+  ) {
+    switch (id) {
+      case 'dashboard':
+        return <DashboardPage />;
+
+      case 'members':
+        return <MembersPage />;
+
+      case 'attendance':
+        return <AttendancePage />;
+
+      case 'followups':
+        return <FollowupPage />;
+
+      case 'devotionals':
+        return <DevotionalsPage />;
+
+      case 'visitors':
+        return <VisitorsPage />;
+
+      case 'prayers':
+        return <PrayersPage />;
+
+      case 'events':
+        return <EventsPage />;
+
+      case 'inbox':
+        return <InboxPage />;
+
+      case 'turns':
+        return <TurnsPage />;
+
+      case 'ranking':
+        return <RankingPage key={id} initialTab="ranking" />;
+
+      case 'games':
+        return <RankingPage key={id} initialTab="games" />;
+
+      case 'profile':
+        return <RankingPage key={id} initialTab="profiles" />;
+      
+      case 'checkins':
+        return <CheckinPage />;
+
+      case 'photos':
+        return <PhotosPage />;
+
+      case 'reports':
+        return <ReportsPage />;
+
+      case 'settings':
+        return <SettingsPage />;
+
+      case 'audit':
+        return <AuditPage />;
+
+      case 'leaders':
+        return <LeadersPage />;
+
+      case 'pastoral':
+        return <PastoralPage />;
+
+      case 'bonus':
+        return <BonusPage />;
+        
+      default:
+        return (
+          <ModulePage
+            label={label}
+            description={description}
+          />
+        );
+    }
+  }
 
   return (
     <div className="layout">
@@ -138,6 +233,7 @@ function AdminApp() {
           <span className="brand-mark">
             <Flame size={23} />
           </span>
+
           <div>
             <strong>Jóvenes de Fuego</strong>
             <small>Comunidad · Crecimiento</small>
@@ -170,10 +266,11 @@ function AdminApp() {
         <div className="sidebar-bottom">
           <div className="safe-note">
             <ShieldCheck size={17} />
+
             <span>
               Producción protegida
               <br />
-              <small>Sin escrituras de negocio en esta fase.</small>
+              <small>Entorno independiente de pruebas.</small>
             </span>
           </div>
 
@@ -240,7 +337,7 @@ function AdminApp() {
 
         {configured && !profile && user && (
           <div className="preview-warning">
-            La cuenta no tiene un perfil de aplicación válido.
+            No se pudo cargar el perfil de aplicación.
           </div>
         )}
 
@@ -249,28 +346,11 @@ function AdminApp() {
             <Route
               key={item.id}
               path={item.path}
-              element={ 
-                item.id === 'dashboard' ? (
-                  <DashboardPage />
-                ) : item.id === 'members' ? (
-                  <MembersPage />
-                ) : item.id === 'ranking' ? (
-                  <RankingPage />
-                ) : item.id === 'attendance' ? (
-                  <AttendancePage />
-                ) : item.id === 'followup' ? (
-                 <FollowupPage />
-                ) : item.id === 'devotionals' ? (
-                  <DevotionalsPage />
-                ) : item.id === 'visitors' ? (
-                  <VisitorsPage />
-                ) :(
-                  <ModulePage
-                    label={item.label}
-                    description={item.description}
-                  />
-                )
-              }
+              element={renderModule(
+                item.id,
+                item.label,
+                item.description,
+              )}
             />
           ))}
 
