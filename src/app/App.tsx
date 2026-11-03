@@ -33,14 +33,7 @@ import VisitorsPage from './VisitorsPage';
 import RankingPage from './RankingPage';
 import YouthPortalPage from './YouthPortalPage';
 
-import PrayersPage from './pages/PrayersPage';
-import EventsPage from './pages/EventsPage';
-import InboxPage from './pages/InboxPage';
-import TurnsPage from './pages/TurnsPage';
 
-import CheckinPage from './pages/CheckinPage';
-import PhotosPage from './pages/PhotosPage';
-import ReportsPage from './pages/ReportsPage';
 import {
   BonusPage,
   PastoralPage,
@@ -147,18 +140,6 @@ function AdminApp() {
       case 'visitors':
         return <VisitorsPage />;
 
-      case 'prayers':
-        return <PrayersPage />;
-
-      case 'events':
-        return <EventsPage />;
-
-      case 'inbox':
-        return <InboxPage />;
-
-      case 'turns':
-        return <TurnsPage />;
-
       case 'ranking':
         return <RankingPage key={id} initialTab="ranking" />;
 
@@ -168,15 +149,6 @@ function AdminApp() {
       case 'profile':
         return <RankingPage key={id} initialTab="profiles" />;
       
-      case 'checkins':
-        return <CheckinPage />;
-
-      case 'photos':
-        return <PhotosPage />;
-
-      case 'reports':
-        return <ReportsPage />;
-
       case 'settings':
         return <SettingsPage />;
 
