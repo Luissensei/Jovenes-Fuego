@@ -287,7 +287,33 @@ export async function updateMemberForAdministration(
   patch: AdminMemberPatch,
 ): Promise<void> {
   if (!db) throw new Error('Firebase Firestore no está configurado.');
-  await updateDoc(doc(db, 'members', memberId), patch);
+  const memberRef = doc(db, 'members', memberId);
+  const photoRef = doc(db, 'photos', memberId);
+  const photo = typeof patch.pic === 'string' ? patch.pic : null;
+  const validJpeg = photo !== null
+    && /^data:image\\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(photo)
+    && photo.length < 60000;
+  if (photo?.startsWith('data:image/') && !validJpeg) {
+    throw new Error('La fotografía debe ser JPEG y pesar menos de 60 KB después de comprimirla.');
+  }
+
+  await runTransaction(db, async (transaction) => {
+    const existingPhoto = photo !== null ? await transaction.get(photoRef) : null;
+    transaction.update(memberRef, patch);
+    if (validJpeg || photo === '') {
+      const values = {
+        p: photo ?? '',
+        c: Date.now(),
+      };
+      if (existingPhoto?.exists()) {
+        transaction.update(photoRef, values);
+      } else {
+        transaction.set(photoRef, {
+          p: values.p, f: '', a: '', b: '', t: '', u: [], w: 0, c: values.c,
+        });
+      }
+    }
+  });
 }
 
 export async function getPrayerRequestsForAdministration(): Promise<AdminPrayerRequest[]> {
