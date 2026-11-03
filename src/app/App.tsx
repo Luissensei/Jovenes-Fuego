@@ -19,7 +19,10 @@ import {
 } from 'lucide-react';
 
 import { modules } from './modules';
-import { firebaseProjectId } from '../services/firebase/client';
+import {
+  firebaseProjectId,
+  firebaseReadOnlyMode,
+} from '../services/firebase/client';
 import { AuthProvider, useAuth } from './AuthContext';
 
 import { LoginPage } from './LoginPage';
@@ -151,6 +154,11 @@ function AdminApp() {
   const isStaff = isAdmin || isPastor || isLeader;
 
   const visibleModules = modules.filter((item) => {
+    // Production is intentionally limited to read-only profile and game pages.
+    if (firebaseReadOnlyMode) {
+      return ['ranking', 'games', 'profile'].includes(item.id);
+    }
+
     if (item.id === 'pastoral') {
       return isPastor || isAdmin;
     }
@@ -296,7 +304,9 @@ function AdminApp() {
         <div className="env-chip">
           <span className="pulse" />
           {configured
-            ? `STAGING · ${firebaseProjectId}`
+            ? firebaseReadOnlyMode
+              ? 'PRODUCCIÓN · SOLO LECTURA'
+              : `STAGING · ${firebaseProjectId}`
             : 'VISTA PREVIA · SIN FIREBASE'}
         </div>
 
@@ -324,9 +334,15 @@ function AdminApp() {
             <ShieldCheck size={17} />
 
             <span>
-              Producción protegida
+              {firebaseReadOnlyMode
+                ? 'Base original protegida'
+                : 'Producción protegida'}
               <br />
-              <small>Entorno independiente de pruebas.</small>
+              <small>
+                {firebaseReadOnlyMode
+                  ? 'Solo consultas; edición deshabilitada.'
+                  : 'Entorno independiente de pruebas.'}
+              </small>
             </span>
           </div>
 
@@ -366,7 +382,9 @@ function AdminApp() {
           <div>
             <span className="dot" />
             {configured
-              ? 'Sesión autenticada · entorno de pruebas'
+              ? firebaseReadOnlyMode
+                ? 'Sesión autenticada · producción en solo lectura'
+                : 'Sesión autenticada · entorno de pruebas'
               : 'Vista previa · sin datos reales'}
           </div>
 
@@ -412,13 +430,22 @@ function AdminApp() {
 
           <Route
             path="*"
-            element={<Navigate to="/" replace />}
+            element={
+              <Navigate
+                to={firebaseReadOnlyMode ? '/ranking' : '/'}
+                replace
+              />
+            }
           />
         </Routes>
 
         <footer>
           Jóvenes de Fuego · reconstrucción independiente ·{' '}
-          {configured ? 'staging' : 'vista previa'}
+          {configured
+            ? firebaseReadOnlyMode
+              ? 'producción · solo lectura'
+              : 'staging'
+            : 'vista previa'}
         </footer>
       </main>
     </div>
