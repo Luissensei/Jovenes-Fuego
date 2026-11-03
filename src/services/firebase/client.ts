@@ -33,7 +33,7 @@ functionsInstance = null;
 
 export const firebaseConfigured = Boolean(app && authInstance && dbInstance);
 export const firebaseProjectId = originalConfig.projectId;
-export const firebaseReadOnlyMode = true;
+export const firebaseReadOnlyMode = originalConfig.projectId === 'jovenes-de-fuego';
 export const auth: Auth | null = authInstance;
 export const db: Firestore | null = dbInstance;
 export const functions: Functions | null = functionsInstance;
@@ -43,7 +43,9 @@ export const functions: Functions | null = functionsInstance;
  * Do not remove this guard or add writes to the original project.
  */
 export function assertFirebaseWritesAllowed(): void {
-  throw new Error(
-    'La base original está conectada en modo de solo lectura. No se permiten escrituras desde esta aplicación.',
-  );
+  if (firebaseReadOnlyMode) {
+    throw new Error(
+      'La base original está protegida en modo de solo lectura. Conecta y prueba Staging antes de habilitar escrituras.',
+    );
+  }
 }
