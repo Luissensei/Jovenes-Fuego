@@ -1,5 +1,6 @@
 import {
   collection,
+  getDocs,
   limit,
   onSnapshot,
   orderBy,
@@ -11,7 +12,7 @@ import {httpsCallable} from 'firebase/functions';
 
 import {db, functions} from './firebase/client';
 
-export type AttendanceStatus = 'Presente' | 'Ausente' | 'Justificado';
+export type AttendanceStatus = 'Presente' | 'Tarde' | 'Falta' | 'Justificada' | 'Ausente';
 
 export type AttendanceParticipant = {
   memberId: string;
@@ -40,7 +41,9 @@ export type AttendanceMeeting = {
 const validStatuses = new Set<AttendanceStatus>([
   'Presente',
   'Ausente',
-  'Justificado',
+  'Tarde',
+  'Falta',
+  'Justificada',
 ]);
 
 function parseParticipants(value: unknown): AttendanceParticipant[] {
@@ -142,10 +145,71 @@ async function call<T>(name: string, payload: unknown = {}): Promise<T> {
 }
 
 export async function listAttendanceMeetings(): Promise<AttendanceMeeting[]> {
-  const result = await call<{meetings: AttendanceMeeting[]}>(
-    'getAttendanceMeetings',
+  if (!db) {
+    throw new Error('Firebase Firestore no está configurado.');
+  }
+
+  // La aplicación original guarda la asistencia por fecha y servicio:
+  // attendance/{YYYY-MM-DD}_{service} con el mapa de estados en "r".
+  const [attendanceSnapshot, membersSnapshot] = await Promise.all([
+    getDocs(collection(db, 'attendance')),
+    getDocs(collection(db, 'members')),
+  ]);
+
+  const memberNames = new Map(
+    membersSnapshot.docs.map((item) => [
+      item.id,
+      String(item.data().name ?? item.id),
+    ]),
   );
-  return Array.isArray(result.meetings) ? result.meetings : [];
+
+  const serviceNames: Record<string, string> = {
+    dis: 'Discipulado',
+    mie: 'Servicio de miércoles',
+    vie: 'Servicio de viernes',
+    ayj: 'Ayuno y servicio de jóvenes',
+    ayc: 'Ayuno de la congregación',
+    esc: 'Escuela dominical',
+    otr: 'Otro servicio o actividad',
+    gen: 'Servicio',
+  };
+
+  const meetings = attendanceSnapshot.docs.map((item) => {
+    const data = item.data();
+    const [date = '', service = 'gen'] = item.id.split('_');
+    const records = data.r && typeof data.r === 'object'
+      ? data.r as Record<string, unknown>
+      : {};
+
+    const participants = Object.entries(records).flatMap(([memberId, value]) => {
+      if (!value || typeof value !== 'object') return [];
+      const statusCode = String((value as Record<string, unknown>).s ?? '');
+      const statusMap: Record<string, AttendanceStatus> = {
+        P: 'Presente',
+        T: 'Tarde',
+        J: 'Justificada',
+        F: 'Falta',
+      };
+      const status = statusMap[statusCode];
+      if (!status) return [];
+
+      return [{
+        memberId,
+        name: memberNames.get(memberId) ?? memberId,
+        status,
+      }];
+    });
+
+    return {
+      id: item.id,
+      name: serviceNames[service] ?? serviceNames.gen,
+      date,
+      createdAt: '',
+      participants,
+    };
+  });
+
+  return meetings.sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export async function createAttendanceMeeting(
