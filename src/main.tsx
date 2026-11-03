@@ -5,6 +5,7 @@ import { App } from './app/App';
 import './styles.css';
 import './modern-design.css';
 import './tactical-ui.css';
+import './visual-overhaul.css';
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
