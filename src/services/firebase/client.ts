@@ -14,36 +14,10 @@ const originalConfig = {
   appId: '1:222344810816:web:91898b0e914ce5f40b6aa5',
 };
 
-const rawProjectId =
-  import.meta.env.VITE_FIREBASE_PROJECT_ID?.trim() || originalConfig.projectId;
-const productionReadOnlyEnabled =
-  import.meta.env.VITE_FIREBASE_READ_ONLY_PRODUCTION !== 'false';
-const originalProjectId = rawProjectId === originalConfig.projectId;
+// El proyecto destino es fijo: la base original de Jóvenes de Fuego.
+// No permitimos que variables antiguas de staging cambien el proyecto.
+const config = originalConfig;
 
-if (originalProjectId && !productionReadOnlyEnabled) {
-  throw new Error(
-    'La conexión con Firebase original debe permanecer en modo de solo lectura.',
-  );
-}
-
-if (!originalProjectId) {
-  throw new Error(
-    'Esta versión está preparada para la base original. No se permite conectar otro proyecto.',
-  );
-}
-
-const config = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY?.trim() || originalConfig.apiKey,
-  authDomain:
-    import.meta.env.VITE_FIREBASE_AUTH_DOMAIN?.trim() || originalConfig.authDomain,
-  projectId: originalConfig.projectId,
-  storageBucket:
-    import.meta.env.VITE_FIREBASE_STORAGE_BUCKET?.trim() || originalConfig.storageBucket,
-  messagingSenderId:
-    import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID?.trim() ||
-    originalConfig.messagingSenderId,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID?.trim() || originalConfig.appId,
-};
 
 let app: FirebaseApp | null = null;
 let authInstance: Auth | null = null;
