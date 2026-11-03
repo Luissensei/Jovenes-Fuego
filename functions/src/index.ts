@@ -1385,8 +1385,8 @@ export const getManagementData = onCall(async (request) => {
     }
     return {
       id: document.id,
-      action: text(data.action, 120),
-      actorUid: text(data.actorUid ?? data.createdBy, 150),
+      action: text(data.action ?? data.description ?? data.type, 120),
+      actorUid: text(data.actorUid ?? data.createdBy ?? data.userName ?? data.userId, 150),
       collection: text(data.collection, 120),
       recordId: text(data.recordId, 150),
       createdAt: isoValue(data.createdAt),
