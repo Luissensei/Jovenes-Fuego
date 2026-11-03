@@ -18,8 +18,8 @@ module.exports = {
     sourceType: "module",
   },
   ignorePatterns: [
-    "/lib/**/*", // Ignore built files.
-    "/generated/**/*", // Ignore generated files.
+    "/lib/**/*",
+    "/generated/**/*",
   ],
   plugins: [
     "@typescript-eslint",
@@ -29,5 +29,17 @@ module.exports = {
     "quotes": ["error", "double"],
     "import/no-unresolved": 0,
     "indent": ["error", 2],
+
+    // TypeScript already provides typed declarations; JSDoc is optional.
+    "require-jsdoc": "off",
+
+    // Keep long validated messages and typed callable payloads readable.
+    "max-len": "off",
+
+    // The source intentionally removes the null byte from user text.
+    "no-control-regex": "off",
+
+    // Use the project formatter's normal ternary layout.
+    "operator-linebreak": "off",
   },
 };

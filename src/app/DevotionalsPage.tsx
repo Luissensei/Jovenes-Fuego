@@ -15,7 +15,7 @@ import {
 import {
   createDevotional,
   deleteDevotional,
-  subscribeDevotionals,
+  getDevotionals,
   type DevotionalRecord,
 } from '../services/repositories/devotionals';
 
@@ -27,7 +27,7 @@ function getLocalDate() {
   return new Date(now.getTime() - offset).toISOString().slice(0, 10);
 }
 
-export default function DevotionalsPage() {
+export default function DevotionalsPage({canManage = false}: {canManage?: boolean}) {
   const [devotionals, setDevotionals] = useState<DevotionalRecord[]>([]);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('Todos');
@@ -48,30 +48,25 @@ export default function DevotionalsPage() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
+    let active = true;
 
-    try {
-      unsubscribe = subscribeDevotionals(
-        (items) => {
-          setDevotionals(items);
-          setLoading(false);
-          setError('');
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
-    } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'No se pudieron cargar los devocionales.',
-      );
-      setLoading(false);
+    async function load() {
+      setLoading(true);
+      setError('');
+      try {
+        const items = await getDevotionals();
+        if (active) setDevotionals(items);
+      } catch (cause) {
+        if (active) {
+          setError(cause instanceof Error ? cause.message : 'No se pudieron cargar los devocionales.');
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
     }
 
-    return () => unsubscribe?.();
+    void load();
+    return () => { active = false; };
   }, []);
 
   const filtered = useMemo(() => {
@@ -163,15 +158,17 @@ export default function DevotionalsPage() {
           <p>Alimenta tu fe y fortalece tu relación con Dios cada día.</p>
         </div>
 
-        <button
-          className="devotionals-primary"
-          onClick={() => {
-            setError('');
-            setShowForm(true);
-          }}
-        >
-          <Plus size={18} /> Crear devocional
-        </button>
+        {canManage && (
+          <button
+            className="devotionals-primary"
+            onClick={() => {
+              setError('');
+              setShowForm(true);
+            }}
+          >
+            <Plus size={18} /> Crear devocional
+          </button>
+        )}
       </header>
 
       <section className="devotionals-feature">
@@ -282,19 +279,21 @@ export default function DevotionalsPage() {
               <UserRound size={16} /> {selected.author}
             </div>
 
-            <button
-              className="devotional-remove"
-              onClick={() => handleDelete(selected)}
-              disabled={deleting}
-            >
-              <Trash2 size={16} />
-              {deleting ? 'Eliminando...' : 'Eliminar devocional'}
-            </button>
+            {canManage && (
+              <button
+                className="devotional-remove"
+                onClick={() => handleDelete(selected)}
+                disabled={deleting}
+              >
+                <Trash2 size={16} />
+                {deleting ? 'Eliminando...' : 'Eliminar devocional'}
+              </button>
+            )}
           </section>
         </div>
       )}
 
-      {showForm && (
+      {showForm && canManage && (
         <div className="devotionals-overlay">
           <form className="devotionals-modal" onSubmit={handleCreate}>
             <div className="devotionals-modal-header">
@@ -381,7 +380,7 @@ export default function DevotionalsPage() {
       )}
 
       <p className="devotionals-notice">
-        Los devocionales se guardan en Firebase Staging.
+        Los devocionales se consultan desde Firebase Staging. La publicación y eliminación están reservadas para administración y pastoral.
       </p>
     </main>
   );

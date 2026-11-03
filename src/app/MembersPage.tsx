@@ -12,13 +12,24 @@ import {
   type AdminMemberPatch,
 } from '../services/youthPortal';
 
-type EditableField = {
-  key: keyof AdminMemberPatch;
-  label: string;
-  type?: 'tel' | 'date' | 'url';
-  multiline?: boolean;
-  boolean?: boolean;
-};
+type StringMemberKey = Exclude<keyof AdminMemberPatch, 'ac' | 'nopub'>;
+type BooleanMemberKey = Extract<keyof AdminMemberPatch, 'ac' | 'nopub'>;
+
+type EditableField =
+  | {
+      key: StringMemberKey;
+      label: string;
+      type?: 'tel' | 'date' | 'url';
+      multiline?: boolean;
+      boolean?: false;
+    }
+  | {
+      key: BooleanMemberKey;
+      label: string;
+      type?: never;
+      multiline?: never;
+      boolean: true;
+    };
 
 const editableFields: EditableField[] = [
   {key: 'name', label: 'Nombre completo'},
@@ -118,11 +129,11 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
     setDraft({});
   }
 
-  function changeField(key: keyof AdminMemberPatch, value: string) {
+  function changeField(key: StringMemberKey, value: string) {
     setDraft((current) => ({...current, [key]: value}));
   }
 
-  function changeBoolean(key: keyof AdminMemberPatch, value: boolean) {
+  function changeBoolean(key: BooleanMemberKey, value: boolean) {
     setDraft((current) => ({...current, [key]: value}));
   }
 
@@ -158,7 +169,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
         <div className="members-hero-copy">
           <span className="members-kicker"><Flame size={15}/> NUESTRA COMUNIDAD</span>
           <h1>Jóvenes</h1>
-          <p>Consulta, abre y actualiza las fichas de los integrantes de la comunidad.</p>
+          <p>{canEdit ? 'Consulta, abre y actualiza las fichas de los integrantes de la comunidad.' : 'Consulta los perfiles básicos de la comunidad con los permisos asignados a tu rol.'}</p>
         </div>
         <div className="members-total-card">
           <span className="members-total-icon"><Users size={23}/></span>
@@ -182,7 +193,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
         </div>
       )}
 
-      {loading && <div className="members-state"><div className="spinner"/><strong>Cargando comunidad</strong><span>Consultando fichas con permisos administrativos...</span></div>}
+      {loading && <div className="members-state"><div className="spinner"/><strong>Cargando comunidad</strong><span>Consultando fichas con los permisos asignados...</span></div>}
 
       {!loading && firebaseConfigured && !error && filtered.length === 0 && (
         <div className="members-state"><span className="members-state-icon"><Users size={30}/></span><strong>{members.length ? 'No encontramos coincidencias' : 'Aún no hay jóvenes registrados'}</strong><span>{members.length ? 'Prueba con otro nombre o apodo.' : 'Cuando existan registros autorizados aparecerán aquí.'}</span></div>
@@ -201,10 +212,16 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
                 <p className="member-nick">{member.nick ? `@${String(member.nick)}` : 'Sin apodo registrado'}</p>
               </div>
               <div className="member-card-details">
-                <div><Phone size={16}/><span>{String(member.phone ?? 'Sin teléfono registrado')}</span></div>
-                <div>{member.bd ? <CalendarDays size={16}/> : <UserRound size={16}/>}<span>{member.bd ? `Nacimiento: ${String(member.bd)}` : 'Perfil de joven'}</span></div>
-                {member.from && <div><MapPin size={16}/><span>{String(member.from)}</span></div>}
-                {member.mn && <div><ShieldCheck size={16}/><span>{String(member.mn)}</span></div>}
+                {canEdit ? (
+                  <>
+                    <div><Phone size={16}/><span>{String(member.phone ?? 'Sin teléfono registrado')}</span></div>
+                    <div>{member.bd ? <CalendarDays size={16}/> : <UserRound size={16}/>}<span>{member.bd ? `Nacimiento: ${String(member.bd)}` : 'Perfil de joven'}</span></div>
+                    {member.from && <div><MapPin size={16}/><span>{String(member.from)}</span></div>}
+                    {member.mn && <div><ShieldCheck size={16}/><span>{String(member.mn)}</span></div>}
+                  </>
+                ) : (
+                  <div><ShieldCheck size={16}/><span>Datos privados protegidos por permisos</span></div>
+                )}
               </div>
               <button type="button" className="member-detail-button" onClick={() => openMember(member)}><Edit3 size={16}/> {canEdit ? 'Abrir ficha completa' : 'Ver ficha completa'} <span>{canEdit ? 'Editar' : 'Solo lectura'}</span></button>
             </article>
@@ -212,7 +229,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
         </div>
       )}
 
-      <footer className="members-footer"><span/>Datos consultados mediante una función protegida · Acceso administrativo</footer>
+      <footer className="members-footer"><span/>Datos consultados mediante una función protegida · {canEdit ? 'Acceso administrativo' : 'Consulta de información básica'}</footer>
 
       {selectedMember && (
         <div className="member-detail-backdrop" role="presentation" onMouseDown={(event) => {if (event.target === event.currentTarget) closeMember();}}>
@@ -226,7 +243,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
               <div className="member-detail-fields">
                 {(canEdit
                   ? editableFields
-                  : editableFields.filter((field) => ['name', 'nick', 'pic'].includes(field.key))
+                  : editableFields.filter((field) => field.key === 'name' || field.key === 'nick' || field.key === 'pic')
                 ).map((field) => (
                   <label key={field.key} className={field.multiline ? 'wide' : ''}>
                     {field.label}

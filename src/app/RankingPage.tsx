@@ -135,7 +135,9 @@ export default function RankingPage({
       console.error('Error cargando perfiles públicos:', err);
 
       setError(
-        'No se pudieron cargar los perfiles. Verifica Firebase Staging y sus permisos.',
+        err instanceof Error
+          ? err.message
+          : 'No se pudieron cargar los perfiles públicos. Revisa la configuración de Firebase Staging.',
       );
     } finally {
       setLoading(false);
@@ -414,6 +416,11 @@ export default function RankingPage({
 
                   <p>
                     Prepárate para aprender y poner a prueba tus conocimientos.
+                  </p>
+                  <p className="ranking-local-score-note" role="note">
+                    Las puntuaciones de estas partidas son de práctica.
+                    No se suman al ranking oficial hasta validar una cuenta
+                    juvenil y las respuestas desde el servidor.
                   </p>
                 </div>
 

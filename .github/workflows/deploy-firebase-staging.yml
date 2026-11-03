@@ -1,0 +1,39 @@
+name: Deploy Firebase Staging Functions
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-staging-functions:
+    name: Deploy Cloud Functions to Staging only
+    runs-on: ubuntu-latest
+    environment: firebase-staging
+    steps:
+      - name: Checkout selected branch
+        uses: actions/checkout@v4
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - name: Install Firebase Functions dependencies
+        run: npm ci
+        working-directory: functions
+      - name: Lint Firebase Functions
+        run: npm run lint
+        working-directory: functions
+      - name: Build Firebase Functions
+        run: npm run build
+        working-directory: functions
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JOVENES_DE_FUEGO_STAGING }}
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools@15
+      - name: Deploy Functions to Staging
+        run: firebase deploy --only functions --project jovenes-de-fuego-staging --non-interactive

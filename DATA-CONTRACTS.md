@@ -4,7 +4,7 @@ Este documento registra el esquema observado en el código legado. Es un contrat
 
 ## Primer módulo implementado
 
-### `members/{id}` — consulta de jóvenes
+### `members/{id}` — consulta de jóvenes y fuente histórica de perfiles públicos
 
 **Lectura:** suscripción `onSnapshot(collection(db, 'members'))` en `src/services/repositories/members.ts`.
 
@@ -62,12 +62,12 @@ Campos creados por `adminSaveWeeklyActivity`: `title`, `description`, `date` (AA
 Campos: `requester`, `category`, `message`, `status`, `createdAt`, `source`; cambios de estado añaden `updatedAt` y `updatedBy`. El joven puede enviar una solicitud pública mediante Cloud Function; la consulta y actualización de estado requieren rol admin, administrador o pastor. No se publica el contenido de las solicitudes a los demás jóvenes.
 
 ### `publicPrayerRateLimits/{hash}`
-Control diario de hasta tres envíos por dirección de red anonimizada mediante SHA-256. Contiene contador, día y `expiresAt` como Timestamp de Firestore para retención limitada. Configurar una política TTL en Firestore para `expiresAt` cuando el proyecto de Staging esté preparado.
+Control diario de hasta 50 envíos por dirección de red anonimizada mediante SHA-256, para evitar bloquear grupos que comparten una red Wi-Fi. Contiene contador, día y `expiresAt` como Timestamp de Firestore para retención limitada. Configurar una política TTL en Firestore para `expiresAt` cuando el proyecto de Staging esté preparado.
 
 ### Funciones administrativas y públicas
 
 - `getMyApplicationProfile`: valida la sesión y lee `users/{uid}` desde servidor, sin conceder al navegador lectura directa de la colección `users`.
-- `getPublicProfiles`: lee perfiles publicados, devuelve campos públicos y puntos, y excluye perfiles marcados `nopub` tanto en `publicProfiles` como en `members`.
+- `getPublicProfiles`: combina la ficha histórica `members/{id}` con el complemento opcional `publicProfiles/{id}`. Si no existe un documento complementario, el joven sigue apareciendo con los campos públicos de `members`. Excluye el perfil si `nopub === true` en cualquiera de las dos colecciones y devuelve únicamente ID, nombre, apodo, foto HTTPS y puntos.
 - `getPrivateMembers`: devuelve fichas a usuarios autenticados con rol admin, administrador, pastor o líder. Para líderes devuelve solo ID, nombre, apodo y foto; administración/pastoral reciben la ficha completa. La edición de fichas mediante `adminUpdateMember` sigue restringida a admin, administrador y pastor. La sincronización opcional de `members` y `publicProfiles` se realiza con un batch atómico.
 - `adminUpdateMember`: actualiza una lista permitida de campos de `members/{id}`; mantiene los campos históricos no enviados. Si existe `publicProfiles/{id}`, sincroniza nombre, apodo, foto y `nopub` en una operación batch.
 - `getPublicWeeklyActivities`, `adminListWeeklyActivities`, `adminSaveWeeklyActivity`.
@@ -87,3 +87,38 @@ El código de Cloud Functions y frontend debe compilarse y probarse en Staging, 
 ### `attendanceMeetings/{id}` — reuniones de la reconstrucción
 
 Colección nueva y aislada para el módulo de asistencia de esta reconstrucción. Campos: `name`, `date` (AAAA-MM-DD), `createdBy`, `createdAt`, `participants` (lista de `{ memberId, name, status }`) y, después del primer guardado, `updatedAt`/`updatedBy`. Las funciones `getAttendanceMeetings`, `createAttendanceMeeting` y `saveMeetingAttendance` requieren autenticación y un rol reconocido. La función vuelve a consultar el nombre real del joven en `members/{id}` y valida los estados permitidos. Esta colección no reemplaza ni modifica `attendance/{fecha}_{servicio}`.
+
+## Extensiones protegidas de la reconstrucción
+
+Las siguientes funciones usan Firebase Admin SDK desde Cloud Functions. El navegador no debe leer ni escribir directamente estas colecciones para que los módulos funcionen:
+
+| Callable | Colección histórica/nueva | Permisos |
+|---|---|---|
+| getFollowups, createFollowup, updateFollowupStatus, deleteFollowup | followups | Autenticado con rol staff; líderes solo consultan/modifican sus propios registros. |
+| getVisitors, createVisitor, updateVisitorStatus, deleteVisitor | visitors | Autenticado con rol staff; teléfono/correo/notas solo para admin/pastor o propietario del registro. |
+| getDevotionals, createDevotional, deleteDevotional | devotionals | Lectura staff; escritura admin/pastor. |
+| getManagedRecords, createManagedRecord, updateManagedRecord, updateManagedRecordStatus, deleteManagedRecord | inbox, turnos | Lista cerrada de colecciones y campos; Bandeja solo admin/pastor, Turnos staff. |
+| getCheckins, createCheckin | attendanceMeetings | Autenticado con rol staff; servidor valida miembro/fecha/servicio y previene duplicados. QR comparte el historial nuevo de Asistencia. |
+| getPhotos, createPhotoRequest, approvePhoto, rejectPhoto, deleteApprovedPhoto | fotoPend, photos | Lectura/envío staff; moderación admin/pastor; enlaces HTTPS. |
+| getManagementData, createManagementRecord | bonus, pastoral, users, audit, settings | Lectura y escritura con allowlist; notas pastorales admin/pastor; módulos de administración restringidos. |
+
+Todas las funciones requieren identidad Firebase cuando manejan datos internos. Las validaciones de rol se realizan en el servidor leyendo users/{uid}; los botones ocultos en React son únicamente experiencia de usuario y no sustituyen autorización.
+
+Los registros temporales que antes estaban codificados en las pantallas de Seguimiento y Visitantes se han retirado. Esas pantallas ahora utilizan las colecciones existentes followups y visitors, con metadatos createdBy, createdAt, updatedBy y updatedAt. Los datos ficticios no se migran ni se guardan.
+
+## Acceso juvenil a perfiles públicos
+
+El callable getPublicProfiles se ejecuta en la región us-central1 por defecto. El cliente usa la misma región; puede configurarse mediante VITE_FIREBASE_FUNCTIONS_REGION, pero el valor del frontend y la región de despliegue deben coincidir. Una respuesta functions/not-found significa que el callable no está publicado en el proyecto/región consultado; un deploy de Vercel no despliega Firebase Functions.
+
+El archivo FIREBASE-STAGING-DEPLOY.md documenta un flujo manual que despliega únicamente Functions al proyecto jovenes-de-fuego-staging. No despliega reglas Firestore, Hosting ni recursos de producción.
+
+
+### Panel principal — getDashboardSummary
+
+Callable autenticada. Lee el rol del documento users/{uid} y devuelve un resumen calculado en servidor.
+
+- Roles admin, administrador y pastor: total de jóvenes, reuniones del mes en attendanceMeetings, asistencias presentes, seguimientos pendientes, visitantes nuevos, peticiones pendientes y actividades publicadas futuras.
+- Roles líder: mismos indicadores operativos, pero seguimientos y visitantes solo de sus propios registros; no recibe peticiones privadas.
+- Rol user: solo total de perfiles públicos visibles y actividades futuras. No recibe conteos de reuniones, asistencia, seguimientos, visitantes ni peticiones.
+- La fecha de corte del panel usa la zona horaria America/Bogota.
+- La función devuelve agregados; no envía documentos privados completos al navegador.

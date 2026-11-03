@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from 'react';
 import {
   Users,
@@ -8,67 +7,75 @@ import {
   FileSpreadsheet,
   TrendingUp,
   ClipboardList,
+  RefreshCw,
 } from 'lucide-react';
 
 import {
-  subscribeAttendanceMeetings,
+  listAttendanceMeetings,
   type AttendanceMeeting,
 } from '../../services/attendance';
-
 import {
-  subscribeMembers,
-  type MemberRecord,
-} from '../../services/repositories/members';
+  getMembersForAdministration,
+  type MemberAdminRecord,
+} from '../../services/youthPortal';
+
+function currentLocalMonth() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function csvCell(value: string | number) {
+  const normalized = String(value).replace(/[\r\n]+/g, ' ');
+  const protectedValue = /^[\s]*[=+@-]/.test(normalized)
+    ? `'${normalized}`
+    : normalized;
+  return `"${protectedValue.replace(/"/g, '""')}"`;
+}
 
 export default function ReportsPage() {
-  const [members, setMembers] = useState<MemberRecord[]>([]);
+  const [members, setMembers] = useState<MemberAdminRecord[]>([]);
   const [meetings, setMeetings] = useState<AttendanceMeeting[]>([]);
-  const [month, setMonth] = useState(
-    new Date().toISOString().slice(0, 7),
-  );
+  const [month, setMonth] = useState(currentLocalMonth);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    let membersUnsubscribe: (() => void) | null = null;
-    let meetingsUnsubscribe: (() => void) | null = null;
+    let active = true;
 
-    try {
-      membersUnsubscribe = subscribeMembers(
-        (items) => {
-          setMembers(items);
-          setLoading(false);
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
+    async function loadReports() {
+      setLoading(true);
+      setError('');
 
-      meetingsUnsubscribe = subscribeAttendanceMeetings(
-        (items) => {
-          setMeetings(items);
-          setLoading(false);
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
-    } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'No se pudieron consultar los informes.',
-      );
-      setLoading(false);
+      try {
+        // Ambas consultas usan Cloud Functions protegidas.
+        // La página ya no necesita permisos de lectura directa en Firestore.
+        const [memberRows, meetingRows] = await Promise.all([
+          getMembersForAdministration(),
+          listAttendanceMeetings(),
+        ]);
+
+        if (!active) return;
+        setMembers(memberRows);
+        setMeetings(meetingRows);
+      } catch (cause) {
+        if (!active) return;
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : 'No se pudieron consultar los informes.',
+        );
+      } finally {
+        if (active) setLoading(false);
+      }
     }
 
+    void loadReports();
+
     return () => {
-      membersUnsubscribe?.();
-      meetingsUnsubscribe?.();
+      active = false;
     };
-  }, []);
+  }, [refreshKey]);
 
   const report = useMemo(() => {
     const filteredMeetings = meetings.filter(
@@ -87,7 +94,7 @@ export default function ReportsPage() {
     filteredMeetings.forEach((meeting) => {
       meeting.participants.forEach((participant) => {
         const current = memberStats.get(participant.memberId) ?? {
-          name: participant.name,
+          name: participant.name || 'Joven sin nombre',
           present: 0,
           absent: 0,
           justified: 0,
@@ -109,11 +116,11 @@ export default function ReportsPage() {
     });
 
     const total = present + absent + justified;
-
     const ranking = Array.from(memberStats.entries())
       .map(([id, stats]) => ({ id, ...stats }))
-      .sort((a, b) => b.present - a.present)
-      .slice(0, 10);
+      .sort((a, b) =>
+        b.present - a.present || a.name.localeCompare(b.name, 'es'),
+      );
 
     return {
       meetings: filteredMeetings,
@@ -145,34 +152,22 @@ export default function ReportsPage() {
     ];
 
     const csv = rows
-      .map((row) =>
-        row
-          .map((value) => `"${value.replace(/"/g, '""')}"`)
-          .join(','),
-      )
-      .join('\n');
+      .map((row) => row.map((value) => csvCell(value)).join(','))
+      .join('\r\n');
 
     const blob = new Blob(
       ['\uFEFF' + csv],
       { type: 'text/csv;charset=utf-8;' },
     );
-
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
 
     link.href = url;
     link.download = `informe-asistencia-${month}.csv`;
+    document.body.appendChild(link);
     link.click();
-
-    URL.revokeObjectURL(url);
-  }
-
-  if (loading) {
-    return (
-      <main className="reports-page">
-        <p>Cargando informes...</p>
-      </main>
-    );
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   return (
@@ -208,136 +203,161 @@ export default function ReportsPage() {
         <button
           type="button"
           className="reports-export"
+          onClick={() => setRefreshKey((value) => value + 1)}
+          disabled={loading}
+        >
+          <RefreshCw size={17} />
+          Actualizar
+        </button>
+
+        <button
+          type="button"
+          className="reports-export"
           onClick={downloadCsv}
-          disabled={report.ranking.length === 0}
+          disabled={loading || report.ranking.length === 0}
         >
           <FileSpreadsheet size={17} />
           Exportar CSV
         </button>
       </section>
 
-      <section className="reports-stats">
-        <article>
-          <div className="reports-icon purple"><Users /></div>
-          <span>Jóvenes registrados</span>
-          <strong>{members.length}</strong>
-        </article>
-
-        <article>
-          <div className="reports-icon orange"><CalendarDays /></div>
-          <span>Reuniones del periodo</span>
-          <strong>{report.meetings.length}</strong>
-        </article>
-
-        <article>
-          <div className="reports-icon green"><CheckCircle2 /></div>
-          <span>Presentes</span>
-          <strong>{report.present}</strong>
-        </article>
-
-        <article>
-          <div className="reports-icon red"><XCircle /></div>
-          <span>Ausentes</span>
-          <strong>{report.absent}</strong>
-        </article>
-      </section>
-
-      <section className="reports-card">
-        <div className="reports-section-heading">
-          <div>
-            <span>RESUMEN GENERAL</span>
-            <h2>Indicadores de asistencia</h2>
-          </div>
-          <ClipboardList size={25} />
+      {loading ? (
+        <div className="reports-empty" role="status">
+          Consultando informes y estadísticas...
         </div>
+      ) : (
+        <>
+          <section className="reports-stats">
+            <article>
+              <div className="reports-icon purple"><Users /></div>
+              <span>Jóvenes registrados</span>
+              <strong>{members.length}</strong>
+            </article>
 
-        <div className="reports-rate">
-          <div>
-            <span>Porcentaje de asistencia</span>
-            <strong>{report.rate}%</strong>
-          </div>
+            <article>
+              <div className="reports-icon orange"><CalendarDays /></div>
+              <span>Reuniones del periodo</span>
+              <strong>{report.meetings.length}</strong>
+            </article>
 
-          <div className="reports-progress">
-            <div style={{ width: `${report.rate}%` }} />
-          </div>
+            <article>
+              <div className="reports-icon green"><CheckCircle2 /></div>
+              <span>Presentes</span>
+              <strong>{report.present}</strong>
+            </article>
 
-          <div className="reports-breakdown">
-            <span>Presentes: {report.present}</span>
-            <span>Ausentes: {report.absent}</span>
-            <span>Justificados: {report.justified}</span>
-            <span>Total: {report.total}</span>
-          </div>
-        </div>
-      </section>
+            <article>
+              <div className="reports-icon red"><XCircle /></div>
+              <span>Ausentes</span>
+              <strong>{report.absent}</strong>
+            </article>
+          </section>
 
-      <section className="reports-card">
-        <div className="reports-section-heading">
-          <div>
-            <span>PARTICIPACIÓN JUVENIL</span>
-            <h2>Asistencia por joven</h2>
-          </div>
-          <Users size={25} />
-        </div>
+          <section className="reports-card">
+            <div className="reports-section-heading">
+              <div>
+                <span>RESUMEN GENERAL</span>
+                <h2>Indicadores de asistencia</h2>
+              </div>
+              <ClipboardList size={25} />
+            </div>
 
-        {report.ranking.length === 0 ? (
-          <div className="reports-empty">
-            No existen registros de asistencia para este periodo.
-          </div>
-        ) : (
-          <div className="reports-table-wrapper">
-            <table className="reports-table">
-              <thead>
-                <tr>
-                  <th>Joven</th>
-                  <th>Presente</th>
-                  <th>Ausente</th>
-                  <th>Justificado</th>
-                </tr>
-              </thead>
+            <div className="reports-rate">
+              <div>
+                <span>Porcentaje de asistencia</span>
+                <strong>{report.rate}%</strong>
+              </div>
 
-              <tbody>
-                {report.ranking.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.name}</td>
-                    <td>{item.present}</td>
-                    <td>{item.absent}</td>
-                    <td>{item.justified}</td>
-                  </tr>
+              <div
+                className="reports-progress"
+                role="progressbar"
+                aria-label="Porcentaje de asistencia"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={report.rate}
+              >
+                <div style={{ width: `${report.rate}%` }} />
+              </div>
+
+              <div className="reports-breakdown">
+                <span>Presentes: {report.present}</span>
+                <span>Ausentes: {report.absent}</span>
+                <span>Justificados: {report.justified}</span>
+                <span>Total: {report.total}</span>
+              </div>
+            </div>
+          </section>
+
+          <section className="reports-card">
+            <div className="reports-section-heading">
+              <div>
+                <span>PARTICIPACIÓN JUVENIL</span>
+                <h2>Asistencia por joven</h2>
+              </div>
+              <Users size={25} />
+            </div>
+
+            {report.ranking.length === 0 ? (
+              <div className="reports-empty">
+                No existen registros de asistencia para este periodo.
+              </div>
+            ) : (
+              <div className="reports-table-wrapper">
+                <table className="reports-table">
+                  <thead>
+                    <tr>
+                      <th>Joven</th>
+                      <th>Presente</th>
+                      <th>Ausente</th>
+                      <th>Justificado</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {report.ranking.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.name}</td>
+                        <td>{item.present}</td>
+                        <td>{item.absent}</td>
+                        <td>{item.justified}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          <section className="reports-card">
+            <div className="reports-section-heading">
+              <div>
+                <span>ACTIVIDAD</span>
+                <h2>Reuniones registradas</h2>
+              </div>
+            </div>
+
+            {report.meetings.length === 0 ? (
+              <div className="reports-empty">
+                No hay reuniones registradas en el periodo seleccionado.
+              </div>
+            ) : (
+              <div className="reports-meeting-list">
+                {report.meetings.map((meeting) => (
+                  <article key={meeting.id}>
+                    <div>
+                      <strong>{meeting.name}</strong>
+                      <span>{meeting.date}</span>
+                    </div>
+                    <span>
+                      {meeting.participants.length} participantes
+                    </span>
+                  </article>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      <section className="reports-card">
-        <div className="reports-section-heading">
-          <div>
-            <span>ACTIVIDAD</span>
-            <h2>Reuniones registradas</h2>
-          </div>
-        </div>
-
-        {report.meetings.length === 0 ? (
-          <div className="reports-empty">
-            No hay reuniones registradas en el periodo seleccionado.
-          </div>
-        ) : (
-          <div className="reports-meeting-list">
-            {report.meetings.map((meeting) => (
-              <article key={meeting.id}>
-                <div>
-                  <strong>{meeting.name}</strong>
-                  <span>{meeting.date}</span>
-                </div>
-                <span>
-                  {meeting.participants.length} participantes
-                </span>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
+              </div>
+            )}
+          </section>
+        </>
+      )}
     </main>
   );
 }

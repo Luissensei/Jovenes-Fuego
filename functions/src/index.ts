@@ -65,29 +65,48 @@ function isValidTime(value: string): boolean {
 }
 
 async function loadVisiblePublicProfiles() {
-  const snapshot = await db.collection("publicProfiles").limit(200).get();
-  const memberSnapshots = snapshot.docs.length > 0
-    ? await db.getAll(...snapshot.docs.map((document) =>
-      db.collection("members").doc(document.id),
-    ))
-    : [];
+  // El esquema histórico guarda las fichas principales en "members".
+  // "publicProfiles" es una colección complementaria y no todos los
+  // jóvenes antiguos tienen necesariamente un documento duplicado allí.
+  const [membersSnapshot, publicSnapshot] = await Promise.all([
+    db.collection("members").limit(500).get(),
+    db.collection("publicProfiles").limit(500).get(),
+  ]);
 
-  return snapshot.docs.flatMap((document, index) => {
-    const data = document.data();
-    const memberData = memberSnapshots[index]?.data();
+  const membersById = new Map(
+    membersSnapshot.docs.map((document) => [document.id, document.data()]),
+  );
+  const publicById = new Map(
+    publicSnapshot.docs.map((document) => [document.id, document.data()]),
+  );
+  const ids = new Set([...membersById.keys(), ...publicById.keys()]);
 
-    // La marca de no publicación se respeta tanto en el perfil público
-    // como en la ficha privada del miembro.
-    if (data.nopub === true || memberData?.nopub === true) return [];
+  return Array.from(ids).flatMap((id) => {
+    const memberData = membersById.get(id);
+    const publicData = publicById.get(id);
 
-    const points = Number(data.points ?? data.puntos ?? 0);
-    const image = text(data.pic, 1500);
+    // Una marca de privacidad en cualquiera de las dos fichas tiene prioridad.
+    if (memberData?.nopub === true || publicData?.nopub === true) return [];
+
+    const name = text(publicData?.name ?? memberData?.name, 120);
+    const nick = text(publicData?.nick ?? memberData?.nick, 60);
+    if (!name && !nick) return [];
+
+    const pointsValue = Number(
+      publicData?.points ?? publicData?.puntos ??
+      memberData?.points ?? memberData?.puntos ?? 0,
+    );
+    const image = text(publicData?.pic ?? memberData?.pic, 1500);
+
+    // Nunca se devuelven teléfonos, fechas, notas ni campos privados.
     return [{
-      id: document.id,
-      name: typeof data.name === "string" ? data.name : "",
-      nick: typeof data.nick === "string" ? data.nick : "",
+      id,
+      name,
+      nick,
       pic: image.startsWith("https://") ? image : "",
-      points: Number.isFinite(points) && points >= 0 ? points : 0,
+      points: Number.isFinite(pointsValue) && pointsValue >= 0
+        ? pointsValue
+        : 0,
     }];
   });
 }
@@ -344,8 +363,8 @@ export const submitPublicPrayerRequest = onCall(async (request) => {
   await db.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(rateRef);
     const count = Number(snapshot.data()?.count ?? 0);
-    if (count >= 3) {
-      throw new HttpsError("resource-exhausted", "Ya se alcanzó el límite diario de peticiones desde esta conexión.");
+    if (count >= 50) {
+      throw new HttpsError("resource-exhausted", "Esta conexión alcanzó el límite diario de 50 peticiones de oración.");
     }
     transaction.set(rateRef, {
       count: FieldValue.increment(1),
@@ -565,4 +584,1001 @@ export const saveMeetingAttendance = onCall(async (request) => {
     updatedBy: request.auth.uid,
   });
   return {success: true};
+});
+
+
+// -----------------------------------------------------------------------------
+// Persistencia protegida para seguimiento, visitantes y devocionales.
+// Todas estas operaciones usan Admin SDK desde Functions; el navegador no
+// necesita permisos directos sobre las colecciones privadas.
+// -----------------------------------------------------------------------------
+
+function isoValue(value: unknown): string {
+  if (typeof value === "string") return value.slice(0, 40);
+  if (value instanceof Date && Number.isFinite(value.getTime())) {
+    return value.toISOString();
+  }
+  if (typeof value === "object" && value !== null && "toDate" in value) {
+    const timestamp = value as {toDate?: () => Date};
+    if (typeof timestamp.toDate === "function") {
+      const date = timestamp.toDate();
+      return date instanceof Date && Number.isFinite(date.getTime())
+        ? date.toISOString()
+        : "";
+    }
+  }
+  return "";
+}
+
+async function ensureOwnedRecord(
+  collectionName: string,
+  recordId: string,
+  uid: string,
+  role: AuthorizedRole,
+) {
+  const ref = db.collection(collectionName).doc(recordId);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) {
+    throw new HttpsError("not-found", "No se encontró el registro.");
+  }
+  const data = snapshot.data() ?? {};
+  if (role === "lider" || role === "líder") {
+    if (data.createdBy !== uid) {
+      throw new HttpsError("permission-denied", "Solo puedes modificar los registros que creaste.");
+    }
+  }
+  return {ref, data};
+}
+
+const followupStatuses = ["Pendiente", "En proceso", "Completado"];
+const visitorStatuses = ["Nuevo", "Contactado", "Integrado"];
+
+export const getFollowups = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const role = await requireAuthorizedRole(request.auth.uid);
+  const snapshot = await db.collection("followups").limit(500).get();
+  const items = snapshot.docs.flatMap((document) => {
+    const data = document.data();
+    if ((role === "lider" || role === "líder") &&
+      data.createdBy !== request.auth?.uid) return [];
+    return [{
+      id: document.id,
+      name: text(data.name, 120),
+      date: text(data.date, 10),
+      reason: text(data.reason, 120),
+      notes: text(data.notes, 2000),
+      status: followupStatuses.includes(String(data.status))
+        ? String(data.status)
+        : "Pendiente",
+      createdAt: isoValue(data.createdAt),
+    }];
+  }).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+  return {items};
+});
+
+export const createFollowup = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const data = request.data ?? {};
+  const name = text(data.name, 120);
+  const date = text(data.date, 10);
+  const reason = text(data.reason, 120);
+  const notes = text(data.notes, 2000);
+  if (name.length < 2 || !isValidDate(date) || !reason || !notes) {
+    throw new HttpsError("invalid-argument", "Completa un nombre, fecha real, motivo y observaciones válidas.");
+  }
+  const ref = db.collection("followups").doc();
+  const now = new Date().toISOString();
+  await ref.set({
+    name, date, reason, notes,
+    status: "Pendiente",
+    createdAt: now,
+    createdBy: request.auth.uid,
+    updatedAt: now,
+    updatedBy: request.auth.uid,
+  });
+  return {success: true, id: ref.id};
+});
+
+export const updateFollowupStatus = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const role = await requireAuthorizedRole(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  const status = text(request.data?.status, 30);
+  if (!id || !followupStatuses.includes(status)) {
+    throw new HttpsError("invalid-argument", "El seguimiento o su estado no son válidos.");
+  }
+  const {ref} = await ensureOwnedRecord("followups", id, request.auth.uid, role);
+  await ref.update({
+    status,
+    updatedAt: new Date().toISOString(),
+    updatedBy: request.auth.uid,
+  });
+  return {success: true};
+});
+
+export const deleteFollowup = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const role = await requireAuthorizedRole(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona un seguimiento válido.");
+  const {ref} = await ensureOwnedRecord("followups", id, request.auth.uid, role);
+  await ref.delete();
+  return {success: true};
+});
+
+export const getVisitors = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const role = await requireAuthorizedRole(request.auth.uid);
+  const snapshot = await db.collection("visitors").limit(500).get();
+  const items = snapshot.docs.flatMap((document) => {
+    const data = document.data();
+    if ((role === "lider" || role === "líder") &&
+      data.createdBy !== request.auth?.uid) return [];
+    return [{
+      id: document.id,
+      name: text(data.name, 120),
+      phone: role === "admin" || role === "administrador" || role === "pastor" ||
+        data.createdBy === request.auth?.uid
+        ? text(data.phone, 40)
+        : "",
+      email: role === "admin" || role === "administrador" || role === "pastor" ||
+        data.createdBy === request.auth?.uid
+        ? text(data.email, 160)
+        : "",
+      date: text(data.date, 10),
+      source: text(data.source, 120),
+      notes: role === "admin" || role === "administrador" || role === "pastor" ||
+        data.createdBy === request.auth?.uid
+        ? text(data.notes, 1000)
+        : "",
+      status: visitorStatuses.includes(String(data.status))
+        ? String(data.status)
+        : "Nuevo",
+      createdAt: isoValue(data.createdAt),
+    }];
+  }).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+  return {items};
+});
+
+export const createVisitor = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const data = request.data ?? {};
+  const name = text(data.name, 120);
+  const phone = text(data.phone, 40);
+  const email = text(data.email, 160);
+  const date = text(data.date, 10);
+  const source = text(data.source, 120);
+  const notes = text(data.notes, 1000);
+  if (name.length < 2 || phone.length < 7 || !isValidDate(date)) {
+    throw new HttpsError("invalid-argument", "El nombre, teléfono y fecha de visita son obligatorios y deben ser válidos.");
+  }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new HttpsError("invalid-argument", "El correo electrónico no tiene un formato válido.");
+  }
+  const ref = db.collection("visitors").doc();
+  const now = new Date().toISOString();
+  await ref.set({
+    name, phone, email, date,
+    source: source || "Otro",
+    notes,
+    status: "Nuevo",
+    createdAt: now,
+    createdBy: request.auth.uid,
+    updatedAt: now,
+    updatedBy: request.auth.uid,
+  });
+  return {success: true, id: ref.id};
+});
+
+export const updateVisitorStatus = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const role = await requireAuthorizedRole(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  const status = text(request.data?.status, 30);
+  if (!id || !visitorStatuses.includes(status)) {
+    throw new HttpsError("invalid-argument", "El visitante o su estado no son válidos.");
+  }
+  const {ref} = await ensureOwnedRecord("visitors", id, request.auth.uid, role);
+  await ref.update({
+    status,
+    updatedAt: new Date().toISOString(),
+    updatedBy: request.auth.uid,
+  });
+  return {success: true};
+});
+
+export const deleteVisitor = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const role = await requireAuthorizedRole(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona un visitante válido.");
+  const {ref} = await ensureOwnedRecord("visitors", id, request.auth.uid, role);
+  await ref.delete();
+  return {success: true};
+});
+
+export const getDevotionals = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const snapshot = await db.collection("devotionals").limit(250).get();
+  const devotionals = snapshot.docs.map((document) => {
+    const data = document.data();
+    return {
+      id: document.id,
+      title: text(data.title, 120),
+      verse: text(data.verse, 2000),
+      reference: text(data.reference, 120),
+      author: text(data.author, 100),
+      category: text(data.category, 40),
+      date: text(data.date, 10),
+      content: text(data.content, 10000),
+      createdAt: isoValue(data.createdAt),
+    };
+  }).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+  return {devotionals};
+});
+
+export const createDevotional = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAdminOrPastor(request.auth.uid);
+  const data = request.data ?? {};
+  const title = text(data.title, 120);
+  const verse = text(data.verse, 2000);
+  const reference = text(data.reference, 120);
+  const author = text(data.author, 100);
+  const category = text(data.category, 40);
+  const date = text(data.date, 10);
+  const content = text(data.content, 10000);
+  const categories = ["Fe", "Oración", "Juventud", "Amor", "Servicio"];
+  if (!title || !verse || !reference || !author || !content ||
+    !categories.includes(category) || !isValidDate(date)) {
+    throw new HttpsError("invalid-argument", "Completa el devocional con una categoría y fecha válidas.");
+  }
+  const ref = db.collection("devotionals").doc();
+  await ref.set({
+    title, verse, reference, author, category, date, content,
+    createdAt: new Date().toISOString(),
+    createdBy: request.auth.uid,
+  });
+  return {success: true, id: ref.id};
+});
+
+export const deleteDevotional = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAdminOrPastor(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona un devocional válido.");
+  const ref = db.collection("devotionals").doc(id);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "No se encontró el devocional.");
+  await ref.delete();
+  return {success: true};
+});
+
+// -----------------------------------------------------------------------------
+// Registros administrados: bandeja de entrada y turnos.
+// Se limita la colección y los campos permitidos; nunca se acepta un path
+// arbitrario enviado por el navegador.
+// -----------------------------------------------------------------------------
+
+type ManagedKind = "inbox" | "turns";
+
+type ManagedCollectionConfig = {
+  collection: string;
+  fields: Record<string, number>;
+  statuses: string[];
+};
+
+function managedCollectionConfig(kind: unknown): ManagedCollectionConfig {
+  if (kind === "inbox") {
+    return {
+      collection: "inbox",
+      fields: {
+        senderName: 120,
+        subject: 160,
+        senderContact: 160,
+        message: 4000,
+      },
+      statuses: ["Nuevo", "En revisión", "Respondido", "Archivado"],
+    };
+  }
+  if (kind === "turns") {
+    return {
+      collection: "turnos",
+      fields: {
+        service: 120,
+        responsibleName: 120,
+        date: 10,
+        startTime: 5,
+        endTime: 5,
+        notes: 1000,
+      },
+      statuses: ["Pendiente", "Confirmado", "Completado"],
+    };
+  }
+  throw new HttpsError("invalid-argument", "El tipo de registro solicitado no está permitido.");
+}
+
+function cleanManagedFields(
+  raw: unknown,
+  allowed: Record<string, number>,
+): Record<string, string> {
+  if (typeof raw !== "object" || raw === null) {
+    throw new HttpsError("invalid-argument", "Los datos del registro no son válidos.");
+  }
+  const source = raw as Record<string, unknown>;
+  const result: Record<string, string> = {};
+  for (const [field, maxLength] of Object.entries(allowed)) {
+    if (source[field] !== undefined) {
+      result[field] = text(source[field], maxLength);
+    }
+  }
+  if (Object.keys(result).length === 0) {
+    throw new HttpsError("invalid-argument", "No hay campos válidos para guardar.");
+  }
+  return result;
+}
+
+function validateManagedFields(kind: ManagedKind, fields: Record<string, string>) {
+  if (kind === "inbox") {
+    if (fields.senderName !== undefined && fields.senderName.length < 2) {
+      throw new HttpsError("invalid-argument", "El nombre del remitente es demasiado corto.");
+    }
+    if (fields.subject !== undefined && fields.subject.length < 2) {
+      throw new HttpsError("invalid-argument", "El asunto es demasiado corto.");
+    }
+  }
+  if (kind === "turns") {
+    if (fields.date !== undefined && !isValidDate(fields.date)) {
+      throw new HttpsError("invalid-argument", "La fecha del turno no es válida.");
+    }
+    if (fields.startTime && !isValidTime(fields.startTime)) {
+      throw new HttpsError("invalid-argument", "La hora de inicio no es válida.");
+    }
+    if (fields.endTime && !isValidTime(fields.endTime)) {
+      throw new HttpsError("invalid-argument", "La hora de finalización no es válida.");
+    }
+    if (fields.startTime && fields.endTime && fields.endTime <= fields.startTime) {
+      throw new HttpsError("invalid-argument", "La hora final debe ser posterior a la hora de inicio.");
+    }
+  }
+}
+
+export const getManagedRecords = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const kind = request.data?.kind as ManagedKind;
+  const config = managedCollectionConfig(kind);
+  if (kind === "inbox") {
+    await requireAdminOrPastor(request.auth.uid);
+  } else {
+    await requireAuthorizedRole(request.auth.uid);
+  }
+  const snapshot = await db.collection(config.collection).limit(500).get();
+  const items = snapshot.docs.map((document) => {
+    const data = document.data();
+    const fields: Record<string, string> = {};
+    const fieldLimits = config.fields as Record<string, number>;
+    for (const field of Object.keys(fieldLimits)) {
+      fields[field] = text(data[field], fieldLimits[field]);
+    }
+    return {
+      ...fields,
+      id: document.id,
+      status: text(data.status, 40),
+      createdAt: isoValue(data.createdAt),
+      updatedAt: isoValue(data.updatedAt),
+    };
+  }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return {items};
+});
+
+export const createManagedRecord = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const kind = request.data?.kind as ManagedKind;
+  const config = managedCollectionConfig(kind);
+  if (kind === "inbox") {
+    await requireAdminOrPastor(request.auth.uid);
+  } else {
+    await requireAuthorizedRole(request.auth.uid);
+  }
+  const fields = cleanManagedFields(request.data?.fields, config.fields);
+  validateManagedFields(kind, fields);
+  const status = text(request.data?.status, 40) || config.statuses[0];
+  if (!config.statuses.includes(status)) {
+    throw new HttpsError("invalid-argument", "El estado inicial no está permitido.");
+  }
+  const now = new Date().toISOString();
+  const ref = db.collection(config.collection).doc();
+  await ref.set({
+    ...fields,
+    status,
+    createdAt: now,
+    createdBy: request.auth.uid,
+    updatedAt: now,
+    updatedBy: request.auth.uid,
+  });
+  return {success: true, id: ref.id};
+});
+
+export const updateManagedRecord = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const kind = request.data?.kind as ManagedKind;
+  const config = managedCollectionConfig(kind);
+  if (kind === "inbox") {
+    await requireAdminOrPastor(request.auth.uid);
+  } else {
+    await requireAuthorizedRole(request.auth.uid);
+  }
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona un registro válido.");
+  const fields = cleanManagedFields(request.data?.fields, config.fields);
+  validateManagedFields(kind, fields);
+  const ref = db.collection(config.collection).doc(id);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "No se encontró el registro.");
+  await ref.update({
+    ...fields,
+    updatedAt: new Date().toISOString(),
+    updatedBy: request.auth.uid,
+  });
+  return {success: true};
+});
+
+export const updateManagedRecordStatus = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const kind = request.data?.kind as ManagedKind;
+  const config = managedCollectionConfig(kind);
+  if (kind === "inbox") {
+    await requireAdminOrPastor(request.auth.uid);
+  } else {
+    await requireAuthorizedRole(request.auth.uid);
+  }
+  const id = text(request.data?.id, 150);
+  const status = text(request.data?.status, 40);
+  if (!id || !config.statuses.includes(status)) {
+    throw new HttpsError("invalid-argument", "El registro o estado no son válidos.");
+  }
+  const ref = db.collection(config.collection).doc(id);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "No se encontró el registro.");
+  await ref.update({
+    status,
+    updatedAt: new Date().toISOString(),
+    updatedBy: request.auth.uid,
+  });
+  return {success: true};
+});
+
+export const deleteManagedRecord = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const kind = request.data?.kind as ManagedKind;
+  const config = managedCollectionConfig(kind);
+  if (kind === "inbox") {
+    await requireAdminOrPastor(request.auth.uid);
+  } else {
+    await requireAuthorizedRole(request.auth.uid);
+  }
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona un registro válido.");
+  const ref = db.collection(config.collection).doc(id);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "No se encontró el registro.");
+  await ref.delete();
+  return {success: true};
+});
+
+export const getCheckins = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const date = text(request.data?.date, 10);
+  const meetingName = text(request.data?.meetingName, 100);
+  if (!isValidDate(date) || !meetingName) {
+    throw new HttpsError("invalid-argument", "Indica una fecha y servicio válidos.");
+  }
+  const snapshot = await db.collection("attendanceMeetings")
+    .where("date", "==", date)
+    .limit(300)
+    .get();
+
+  const matchingMeetings = snapshot.docs.filter((meeting) =>
+    text(meeting.data().name, 100).toLowerCase() === meetingName.toLowerCase(),
+  );
+  const items = matchingMeetings.flatMap((meeting) => {
+    const data = meeting.data();
+    const participants = Array.isArray(data.participants) ? data.participants : [];
+    return participants.flatMap((item) => {
+      if (typeof item !== "object" || item === null) return [];
+      const participant = item as Record<string, unknown>;
+      const status = text(participant.status, 20);
+      const memberId = text(participant.memberId, 150);
+      if (!memberId || !["Presente", "Ausente", "Justificado"].includes(status)) return [];
+      return [{
+        id: meeting.id + "_" + memberId,
+        memberId,
+        memberName: text(participant.name, 120),
+        meetingName: text(data.name, 100),
+        date: text(data.date, 10),
+        createdAt: isoValue(data.updatedAt ?? data.createdAt),
+      }];
+    });
+  });
+  return {items};
+});
+
+export const createCheckin = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const memberId = text(request.data?.memberId, 150);
+  const meetingName = text(request.data?.meetingName, 100);
+  const date = text(request.data?.date, 10);
+  if (!memberId || meetingName.length < 2 || !isValidDate(date)) {
+    throw new HttpsError("invalid-argument", "Selecciona un joven, servicio y fecha válidos.");
+  }
+
+  const memberSnapshot = await db.collection("members").doc(memberId).get();
+  if (!memberSnapshot.exists) {
+    throw new HttpsError("not-found", "El joven ya no existe en el registro de miembros.");
+  }
+  const memberName = text(memberSnapshot.data()?.name, 120);
+  if (!memberName) {
+    throw new HttpsError("failed-precondition", "El perfil del joven no tiene un nombre válido.");
+  }
+
+  // Consultamos por fecha (un único campo) para evitar exigir un índice
+  // compuesto durante esta migración. La comparación del servicio se hace
+  // en servidor y el documento determinista protege las carreras concurrentes.
+  const daySnapshot = await db.collection("attendanceMeetings")
+    .where("date", "==", date)
+    .limit(300)
+    .get();
+  const existing = daySnapshot.docs.find((document) =>
+    text(document.data().name, 100).toLowerCase() === meetingName.toLowerCase(),
+  );
+  const meetingId = existing?.id ?? createHash("sha256")
+    .update(date + "|" + meetingName.toLowerCase())
+    .digest("hex");
+  const meetingRef = db.collection("attendanceMeetings").doc(meetingId);
+  const now = new Date().toISOString();
+
+  await db.runTransaction(async (transaction) => {
+    const meetingSnapshot = await transaction.get(meetingRef);
+    if (!meetingSnapshot.exists) {
+      transaction.create(meetingRef, {
+        name: meetingName,
+        date,
+        createdBy: request.auth?.uid,
+        createdAt: now,
+        updatedAt: now,
+        participants: [{memberId, name: memberName, status: "Presente"}],
+      });
+      return;
+    }
+
+    const meetingData = meetingSnapshot.data() ?? {};
+    if (text(meetingData.date, 10) !== date ||
+      text(meetingData.name, 100).toLowerCase() !== meetingName.toLowerCase()) {
+      throw new HttpsError("already-exists", "Ya existe un servicio con ese identificador. Actualiza la lista e inténtalo de nuevo.");
+    }
+    const participants = Array.isArray(meetingData.participants)
+      ? meetingData.participants
+      : [];
+    if (participants.some((item) =>
+      typeof item === "object" && item !== null &&
+      (item as Record<string, unknown>).memberId === memberId,
+    )) {
+      throw new HttpsError("already-exists", memberName + " ya tiene asistencia en este servicio.");
+    }
+    transaction.update(meetingRef, {
+      participants: [...participants, {memberId, name: memberName, status: "Presente"}],
+      updatedAt: now,
+      updatedBy: request.auth?.uid,
+    });
+  });
+  return {success: true, meetingId};
+});
+
+
+// Galería: moderación y publicación protegidas por rol.
+function photoResult(id: string, data: Record<string, unknown>) {
+  const imageUrl = text(data.imageUrl, 2000);
+  return {
+    id,
+    title: text(data.title, 120),
+    description: text(data.description, 2000),
+    imageUrl: imageUrl.startsWith("https://") ? imageUrl : "",
+    authorName: text(data.authorName, 120),
+    status: text(data.status, 30),
+    createdAt: isoValue(data.createdAt),
+    approvedAt: isoValue(data.approvedAt),
+  };
+}
+
+export const getPhotos = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const [pendingSnapshot, approvedSnapshot] = await Promise.all([
+    db.collection("fotoPend").limit(300).get(),
+    db.collection("photos").limit(300).get(),
+  ]);
+  const pending = pendingSnapshot.docs.map((document) =>
+    photoResult(document.id, document.data()),
+  ).filter((item) => item.status !== "Rechazada")
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const approved = approvedSnapshot.docs.map((document) =>
+    photoResult(document.id, document.data()),
+  ).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return {pending, approved};
+});
+
+export const createPhotoRequest = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const data = request.data ?? {};
+  const title = text(data.title, 120);
+  const description = text(data.description, 2000);
+  const imageUrl = text(data.imageUrl, 2000);
+  const authorName = text(data.authorName, 120);
+  if (title.length < 2 || authorName.length < 2 || !/^https:\/\//i.test(imageUrl)) {
+    throw new HttpsError("invalid-argument", "Indica un título, autor y enlace HTTPS válido para la imagen.");
+  }
+  const ref = db.collection("fotoPend").doc();
+  await ref.set({
+    title, description, imageUrl, authorName,
+    status: "Pendiente",
+    createdAt: new Date().toISOString(),
+    createdBy: request.auth.uid,
+  });
+  return {success: true, id: ref.id};
+});
+
+export const approvePhoto = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAdminOrPastor(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona una fotografía válida.");
+  const pendingRef = db.collection("fotoPend").doc(id);
+  const snapshot = await pendingRef.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "La fotografía pendiente no existe.");
+  const data = snapshot.data() ?? {};
+  const imageUrl = text(data.imageUrl, 2000);
+  if (!imageUrl.startsWith("https://")) {
+    throw new HttpsError("failed-precondition", "La imagen no tiene un enlace HTTPS válido.");
+  }
+  const approvedRef = db.collection("photos").doc();
+  const batch = db.batch();
+  batch.set(approvedRef, {
+    title: text(data.title, 120),
+    description: text(data.description, 2000),
+    imageUrl,
+    authorName: text(data.authorName, 120),
+    status: "Aprobada",
+    createdAt: isoValue(data.createdAt) || new Date().toISOString(),
+    approvedAt: new Date().toISOString(),
+    approvedBy: request.auth.uid,
+  });
+  batch.delete(pendingRef);
+  await batch.commit();
+  return {success: true};
+});
+
+export const rejectPhoto = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAdminOrPastor(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona una fotografía válida.");
+  const ref = db.collection("fotoPend").doc(id);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "La fotografía pendiente no existe.");
+  await ref.update({
+    status: "Rechazada",
+    rejectedAt: new Date().toISOString(),
+    rejectedBy: request.auth.uid,
+  });
+  return {success: true};
+});
+
+export const deleteApprovedPhoto = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAdminOrPastor(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona una fotografía válida.");
+  const ref = db.collection("photos").doc(id);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "La fotografía publicada no existe.");
+  await ref.delete();
+  return {success: true};
+});
+
+
+// Administración con respuestas allowlist: la app no puede leer libremente
+// users, notas pastorales, auditoría ni ajustes.
+type ManagementKind = "bonus" | "pastoral" | "leaders" | "audit" | "settings";
+
+function managementConfig(kind: unknown) {
+  if (kind === "bonus") return {collection: "bonus"};
+  if (kind === "pastoral") return {collection: "pastoral"};
+  if (kind === "leaders") return {collection: "users"};
+  if (kind === "audit") return {collection: "audit"};
+  if (kind === "settings") return {collection: "settings"};
+  throw new HttpsError("invalid-argument", "El módulo de administración no es válido.");
+}
+
+async function requireManagementRole(uid: string, kind: ManagementKind) {
+  if (kind === "pastoral") {
+    await requireAdminOrPastor(uid);
+    return;
+  }
+  const role = await requireAuthorizedRole(uid);
+  if (role !== "admin" && role !== "administrador") {
+    throw new HttpsError("permission-denied", "Este módulo está reservado para administración.");
+  }
+}
+
+export const getManagementData = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const kind = request.data?.kind as ManagementKind;
+  const config = managementConfig(kind);
+  await requireManagementRole(request.auth.uid, kind);
+  const snapshot = await db.collection(config.collection).limit(500).get();
+
+  const items = snapshot.docs.map((document) => {
+    const data = document.data();
+    if (kind === "bonus") {
+      return {
+        id: document.id,
+        memberName: text(data.memberName, 120),
+        reason: text(data.reason, 500),
+        points: Number.isFinite(Number(data.points)) ? Number(data.points) : 0,
+        createdAt: isoValue(data.createdAt),
+      };
+    }
+    if (kind === "pastoral") {
+      return {
+        id: document.id,
+        memberName: text(data.memberName, 120),
+        title: text(data.title, 160),
+        note: text(data.note, 5000),
+        createdAt: isoValue(data.createdAt),
+      };
+    }
+    if (kind === "leaders") {
+      // No devolver correos, tokens, claims ni datos auxiliares de Auth.
+      return {
+        id: document.id,
+        name: text(data.name, 120),
+        user: text(data.user, 120),
+        role: text(data.role, 40),
+      };
+    }
+    if (kind === "settings") {
+      return {
+        id: document.id,
+        key: text(data.key, 120) || document.id,
+        value: text(data.value, 2000),
+        updatedAt: isoValue(data.updatedAt),
+      };
+    }
+    return {
+      id: document.id,
+      action: text(data.action ?? data.description ?? data.type, 120),
+      actorUid: text(data.actorUid ?? data.createdBy ?? data.userName ?? data.userId, 150),
+      collection: text(data.collection, 120),
+      recordId: text(data.recordId, 150),
+      createdAt: isoValue(data.createdAt),
+    };
+  }).sort((a, b) =>
+    ("createdAt" in b ? String(b.createdAt) : "").localeCompare(
+      "createdAt" in a ? String(a.createdAt) : "",
+    ),
+  );
+  return {items};
+});
+
+export const createManagementRecord = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const kind = request.data?.kind as ManagementKind;
+  managementConfig(kind);
+  await requireManagementRole(request.auth.uid, kind);
+  const data = request.data?.data;
+  if (typeof data !== "object" || data === null) {
+    throw new HttpsError("invalid-argument", "Los datos del registro no son válidos.");
+  }
+  const source = data as Record<string, unknown>;
+  const now = new Date().toISOString();
+
+  if (kind === "bonus") {
+    const memberName = text(source.memberName, 120);
+    const reason = text(source.reason, 500);
+    const points = Number(source.points);
+    if (memberName.length < 2 || !reason || !Number.isInteger(points) ||
+      points < 1 || points > 1000) {
+      throw new HttpsError("invalid-argument", "Indica joven, motivo y puntos entre 1 y 1.000.");
+    }
+    const ref = db.collection("bonus").doc();
+    await ref.set({memberName, reason, points, createdAt: now, createdBy: request.auth.uid});
+    return {success: true, id: ref.id};
+  }
+
+  if (kind === "pastoral") {
+    const memberName = text(source.memberName, 120);
+    const title = text(source.title, 160);
+    const note = text(source.note, 5000);
+    if (memberName.length < 2 || !title || !note) {
+      throw new HttpsError("invalid-argument", "Completa el joven, título y contenido de la nota.");
+    }
+    const ref = db.collection("pastoral").doc();
+    await ref.set({memberName, title, note, createdAt: now, createdBy: request.auth.uid});
+    return {success: true, id: ref.id};
+  }
+
+  if (kind === "settings") {
+    const key = text(source.key, 120).toLowerCase().replace(/[^a-z0-9_-]/g, "-");
+    const value = text(source.value, 2000);
+    if (!key || !value) {
+      throw new HttpsError("invalid-argument", "Escribe el nombre y el valor del ajuste.");
+    }
+    const ref = db.collection("settings").doc(key);
+    await ref.set({key, value, updatedAt: now, updatedBy: request.auth.uid}, {merge: true});
+    return {success: true, id: ref.id};
+  }
+
+  throw new HttpsError("permission-denied", "Este módulo no permite crear registros.");
+});
+
+
+function currentBogotaDate(): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Bogota",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const year = parts.find((part) => part.type === "year")?.value ?? "0000";
+  const month = parts.find((part) => part.type === "month")?.value ?? "00";
+  const day = parts.find((part) => part.type === "day")?.value ?? "00";
+  return year + "-" + month + "-" + day;
+}
+
+export const getDashboardSummary = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+
+  const userSnapshot = await db.collection("users").doc(request.auth.uid).get();
+  const role = text(userSnapshot.data()?.role, 40).toLowerCase();
+  const recognized = ["admin", "administrador", "pastor", "lider", "líder", "user"];
+  if (!userSnapshot.exists || !recognized.includes(role)) {
+    throw new HttpsError("permission-denied", "Tu cuenta no tiene un rol válido para consultar el panel.");
+  }
+
+  const today = currentBogotaDate();
+  const monthStart = today.slice(0, 7) + "-01";
+
+  const [activitySnapshot, publicProfiles] = await Promise.all([
+    db.collection("weeklyActivities").limit(120).get(),
+    role === "user" ? loadVisiblePublicProfiles() : Promise.resolve([]),
+  ]);
+
+  const upcomingActivities = activitySnapshot.docs.filter((document) => {
+    const data = document.data();
+    const date = text(data.date, 10);
+    return data.published === true && isValidDate(date) && date >= today;
+  }).length;
+
+  if (role === "user") {
+    return {
+      role,
+      memberCount: publicProfiles.length,
+      meetingsThisMonth: 0,
+      attendancePresent: 0,
+      followupsPending: null,
+      visitorsNew: null,
+      prayersPending: null,
+      upcomingActivities,
+    };
+  }
+
+  const [memberCountSnapshot, meetingsSnapshot, followupsSnapshot, visitorsSnapshot] =
+    await Promise.all([
+      db.collection("members").count().get(),
+      db.collection("attendanceMeetings")
+        .where("date", ">=", monthStart)
+        .where("date", "<=", today)
+        .limit(300)
+        .get(),
+      db.collection("followups").limit(500).get(),
+      db.collection("visitors").limit(500).get(),
+    ]);
+
+  const isLeader = role === "lider" || role === "líder";
+  const followups = followupsSnapshot.docs.filter((document) => {
+    const data = document.data();
+    return (!isLeader || data.createdBy === request.auth?.uid) &&
+      text(data.status, 30) === "Pendiente";
+  });
+  const visitors = visitorsSnapshot.docs.filter((document) => {
+    const data = document.data();
+    return (!isLeader || data.createdBy === request.auth?.uid) &&
+      text(data.status, 30) === "Nuevo";
+  });
+
+  const attendancePresent = meetingsSnapshot.docs.reduce((total, meeting) => {
+    const participants = meeting.data().participants;
+    if (!Array.isArray(participants)) return total;
+    return total + participants.filter((item) =>
+      typeof item === "object" && item !== null &&
+      (item as Record<string, unknown>).status === "Presente",
+    ).length;
+  }, 0);
+
+  let prayersPending: number | null = null;
+  if (role === "admin" || role === "administrador" || role === "pastor") {
+    const prayerSnapshot = await db.collection("publicPrayerRequests").limit(200).get();
+    prayersPending = prayerSnapshot.docs.filter((document) =>
+      text(document.data().status, 30) === "Pendiente",
+    ).length;
+  }
+
+  return {
+    role,
+    memberCount: memberCountSnapshot.data().count,
+    meetingsThisMonth: meetingsSnapshot.size,
+    attendancePresent,
+    followupsPending: followups.length,
+    visitorsNew: visitors.length,
+    prayersPending,
+    upcomingActivities,
+  };
 });

@@ -84,6 +84,7 @@ function AdminApp() {
     configured,
     error: authError,
     logout,
+    retryProfile,
   } = useAuth();
 
   const [dark, setDark] = useState(() => {
@@ -132,6 +133,13 @@ function AdminApp() {
           <p>{authError || 'No se pudo validar tu perfil de aplicación. Por seguridad, no se abrirán los módulos internos.'}</p>
           <button
             type="button"
+            onClick={() => void retryProfile()}
+            disabled={loading}
+          >
+            <ShieldCheck size={17} /> {loading ? 'Verificando…' : 'Reintentar validación'}
+          </button>
+          <button
+            type="button"
             onClick={async () => {
               await logout();
               navigate('/');
@@ -164,7 +172,7 @@ function AdminApp() {
       return isAdmin || isPastor || isLeader;
     }
 
-    if (['prayers', 'events'].includes(item.id)) {
+    if (['prayers', 'events', 'inbox'].includes(item.id)) {
       return isAdmin || isPastor;
     }
 
@@ -195,7 +203,7 @@ function AdminApp() {
         return <FollowupPage />;
 
       case 'devotionals':
-        return <DevotionalsPage />;
+        return <DevotionalsPage canManage={isAdmin || isPastor} />;
 
       case 'visitors':
         return <VisitorsPage />;
@@ -225,7 +233,7 @@ function AdminApp() {
         return <CheckinPage />;
 
       case 'photos':
-        return <PhotosPage />;
+        return <PhotosPage canModerate={isAdmin || isPastor} />;
 
       case 'reports':
         return <ReportsPage />;

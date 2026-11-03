@@ -1,16 +1,5 @@
-
-import {
-  addDoc,
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-  Timestamp,
-  type Unsubscribe,
-} from 'firebase/firestore';
-
-import { db } from '../firebase/client';
-import { COLLECTIONS } from './collections';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../firebase/client';
 
 export type CheckinRecord = {
   id: string;
@@ -21,77 +10,36 @@ export type CheckinRecord = {
   createdAt: string;
 };
 
-export function subscribeCheckins(
-  callback: (items: CheckinRecord[]) => void,
-  onError: (error: Error) => void,
-): Unsubscribe {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
-  const checkinsQuery = query(
-    collection(db, COLLECTIONS.checkins),
-    orderBy('createdAt', 'desc'),
-  );
-
-  return onSnapshot(
-    checkinsQuery,
-    (snapshot) => {
-      callback(
-        snapshot.docs.map((item) => {
-          const data = item.data();
-
-          return {
-            id: item.id,
-            memberId: String(data.memberId ?? ''),
-            memberName: String(data.memberName ?? ''),
-            meetingName: String(data.meetingName ?? ''),
-            date: String(data.date ?? ''),
-            createdAt:
-              data.createdAt instanceof Timestamp
-                ? data.createdAt.toDate().toISOString()
-                : '',
-          };
-        }),
-      );
-    },
-    (cause) => onError(
-      cause instanceof Error
-        ? cause
-        : new Error('No se pudieron cargar los registros QR.'),
-    ),
-  );
-}
-
-export async function createCheckin(data: {
+export type CreateCheckinInput = {
   memberId: string;
-  memberName: string;
   meetingName: string;
   date: string;
-}): Promise<string> {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
+};
 
+async function call<T>(name: string, payload: unknown = {}): Promise<T> {
+  if (!functions) {
+    throw new Error('Firebase Functions no está configurado en este entorno.');
+  }
+  const callable = httpsCallable<unknown, T>(functions, name);
+  const response = await callable(payload);
+  return response.data;
+}
+
+export async function getCheckins(date: string, meetingName: string): Promise<CheckinRecord[]> {
+  const result = await call<{items: CheckinRecord[]}>('getCheckins', {date, meetingName});
+  return Array.isArray(result.items) ? result.items : [];
+}
+
+export async function createCheckin(data: CreateCheckinInput): Promise<void> {
   const memberId = data.memberId.trim();
-  const memberName = data.memberName.trim();
   const meetingName = data.meetingName.trim();
   const date = data.date.trim();
-
-  if (!memberId || !memberName || !meetingName || !date) {
-    throw new Error('Faltan datos para registrar la asistencia.');
+  if (!memberId || !meetingName || !date) {
+    throw new Error('Selecciona un joven, nombre de servicio y fecha.');
   }
-
-  const result = await addDoc(
-    collection(db, COLLECTIONS.checkins),
-    {
-      memberId,
-      memberName,
-      meetingName,
-      date,
-      createdAt: Timestamp.now(),
-    },
-  );
-
-  return result.id;
+  await call<{success: boolean}>('createCheckin', {
+    memberId,
+    meetingName,
+    date,
+  });
 }
