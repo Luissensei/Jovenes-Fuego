@@ -263,6 +263,7 @@ export function SurvivalGame({ onExit }: { onExit: () => void }) {
   function answer(option: string) {
     if (answered !== null || finished) return;
     setAnswered(option);
+    playGameTone(option === question.answer ? 'success' : 'incorrect');
     if (option === question.answer) {
       setScore((value) => value + 10);
     } else {
@@ -331,6 +332,7 @@ export function DuelGame({ onExit }: { onExit: () => void }) {
   function answer(option: string) {
     if (answered !== null) return;
     setAnswered(option);
+    playGameTone(option === question.answer ? 'success' : 'incorrect');
     if (option === question.answer) {
       setScores((old) => old.map((score, i) => i === turn ? score + 10 : score));
     }
