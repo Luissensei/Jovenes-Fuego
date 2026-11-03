@@ -22,6 +22,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { modules } from './modules';
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
+import {firebaseProjectId, firebaseReadOnlyMode} from '../services/firebase/client';
 
 const quickActions = [
   {
@@ -169,7 +170,11 @@ export default function DashboardPage() {
         </div>
         <span className="dashboard-env">
           <ShieldCheck size={13} />
-          {configured ? 'STAGING ACTIVO' : 'MODO VISTA PREVIA'}
+          {configured
+            ? firebaseReadOnlyMode
+              ? 'PRODUCCIÓN · SOLO LECTURA'
+              : `STAGING · ${firebaseProjectId}`
+            : 'MODO VISTA PREVIA'}
         </span>
       </div>
 
@@ -206,7 +211,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="dashboard-hero-foot">
-            <span><span className="dashboard-live-dot" /> SISTEMA EN LÍNEA</span>
+            <span><span className="dashboard-live-dot" /> {configured ? 'FIREBASE CONECTADO' : 'VISTA PREVIA LOCAL'}</span>
             <span>JÓVENES DE FUEGO / 2026</span>
           </div>
         </div>
@@ -265,8 +270,16 @@ export default function DashboardPage() {
             <div className="dashboard-stat-icon"><ShieldCheck size={19} /></div>
             <div className="dashboard-stat-copy">
               <small>ENTORNO ACTUAL</small>
-              <strong className="dashboard-stat-word">{configured ? 'TEST' : 'DEMO'}</strong>
-              <span>{configured ? 'Firebase de pruebas' : 'Sin conexión a Firebase'}</span>
+              <strong className="dashboard-stat-word">
+                {configured ? firebaseReadOnlyMode ? 'PROD RO' : 'STAGING' : 'DEMO'}
+              </strong>
+              <span>
+                {configured
+                  ? firebaseReadOnlyMode
+                    ? 'Firebase original protegido'
+                    : `Firebase ${firebaseProjectId}`
+                  : 'Sin conexión a Firebase'}
+              </span>
             </div>
           </article>
         </div>
