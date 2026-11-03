@@ -90,6 +90,6 @@ jobs:
             echo "No hay cambios de dependencias para guardar."
             exit 0
           fi
-          git add package.json package-lock.json
+          git add package.json package-lock.json .nvmrc
           git commit -m "Actualizar Firebase SDK y dependencias de seguridad"
           git push origin HEAD
