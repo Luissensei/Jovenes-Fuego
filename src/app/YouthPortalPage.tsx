@@ -156,7 +156,7 @@ function readLook(profile: PublicProfile): ProfileLook {
       ...remote,
       frame: local.frame || remote.frame,
       background: local.background || remote.background,
-      avatar: local.avatar || remote.avatar,
+      avatar: typeof local.avatar === 'string' ? local.avatar : remote.avatar,
       title: local.title || remote.title,
       ownedItems: local.ownedItems ?? remote.ownedItems,
       flames: local.flames ?? remote.flames,
