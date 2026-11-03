@@ -402,11 +402,11 @@ function AdminApp() {
             <Route
               key={item.id}
               path={item.path}
-              element={renderModule(
-                item.id,
-                item.label,
-                item.description,
-              )}
+              element={
+                <div className="jf-route-screen" key={item.id}>
+                  {renderModule(item.id, item.label, item.description)}
+                </div>
+              }
             />
           ))}
 
