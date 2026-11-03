@@ -291,7 +291,7 @@ export async function updateMemberForAdministration(
   const photoRef = doc(db, 'photos', memberId);
   const photo = typeof patch.pic === 'string' ? patch.pic : null;
   const validJpeg = photo !== null
-    && /^data:image\\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(photo)
+    && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(photo)
     && photo.length < 60000;
   if (photo?.startsWith('data:image/') && !validJpeg) {
     throw new Error('La fotografía debe ser JPEG y pesar menos de 60 KB después de comprimirla.');
