@@ -245,6 +245,8 @@ export default function YouthPortalPage() {
   const [editingLook, setEditingLook] = useState(false);
   const [lookCategory, setLookCategory] = useState<LookShopCategory>('frames');
   const [lookSaving, setLookSaving] = useState(false);
+  const [portalExiting, setPortalExiting] = useState(false);
+  const [gameExiting, setGameExiting] = useState(false);
   const [activeGame, setActiveGame] = useState<MiniGame | null>(null);
 
   const [prayerName, setPrayerName] = useState('');
@@ -338,7 +340,6 @@ export default function YouthPortalPage() {
 
   async function equipLookItem(category: LookShopCategory, item: (typeof lookShop)[LookShopCategory][number]) {
     if (!selectedProfile) return;
-    const field = lookCategoryField[category];
     const ownedKey = `${lookCategoryStorage[category]}:${item.key}`;
     const alreadyOwned = item.cost === 0 || look.ownedItems.includes(ownedKey);
     if (!alreadyOwned && look.flames < item.cost) {
@@ -348,7 +349,10 @@ export default function YouthPortalPage() {
 
     const next: ProfileLook = {
       ...look,
-      [field]: item.key,
+      frame: category === 'frames' ? item.key : look.frame,
+      avatar: category === 'avatars' ? item.key : look.avatar,
+      title: category === 'titles' ? item.key : look.title,
+      background: category === 'backgrounds' ? item.key : look.background,
       ownedItems: alreadyOwned ? look.ownedItems : [...look.ownedItems, ownedKey],
       flames: alreadyOwned ? look.flames : look.flames - item.cost,
     };
@@ -367,6 +371,14 @@ export default function YouthPortalPage() {
     } finally {
       setLookSaving(false);
     }
+  }
+
+  function leaveProfile() {
+    setPortalExiting(true);
+    window.setTimeout(() => {
+      setSelectedProfile(null);
+      setPortalExiting(false);
+    }, 360);
   }
 
   async function toggleAmbientSound() {
@@ -448,10 +460,16 @@ export default function YouthPortalPage() {
   }
 
   if (selectedProfile && activeGame) {
-    const exitGame = () => setActiveGame(null);
+    const exitGame = () => {
+      setGameExiting(true);
+      window.setTimeout(() => {
+        setActiveGame(null);
+        setGameExiting(false);
+      }, 300);
+    };
     return (
       <main className="youth-portal">
-        <div className="youth-container youth-game-shell">
+        <div className={`youth-container youth-game-shell ${gameExiting ? "youth-game-exit" : ""}`}>
           <div className="youth-game-topbar">
             <button className="youth-back" type="button" onClick={exitGame}><ArrowLeft size={17}/> Volver a mi espacio</button>
             <span><Gamepad2 size={16}/> JUGADOR · {selectedProfile.name}</span>
@@ -470,10 +488,10 @@ export default function YouthPortalPage() {
 
   if (selectedProfile) {
     return (
-      <main className={`youth-portal youth-look-${look.background}`}>
+      <main className={`youth-portal youth-look-${look.background} ${portalExiting ? "youth-profile-exit" : ""}`}>
         <div className="youth-container youth-home-enter">
           <div className="youth-home-toolbar">
-            <button type="button" className="youth-back" onClick={() => setSelectedProfile(null)}>
+            <button type="button" className="youth-back" onClick={leaveProfile}>
               <ArrowLeft size={17}/> Cambiar de perfil
             </button>
             <button type="button" aria-pressed={soundOn} className={`youth-sound-toggle ${soundOn ? 'active' : ''}`} onClick={() => void toggleAmbientSound()}>
