@@ -4,7 +4,7 @@ import {
   AlertCircle, Search, Users, RefreshCw, CalendarDays, Phone,
   UserRound, Flame, X, Save, Edit3, ShieldCheck, MapPin, Minimize2, Maximize2, Camera,
 } from 'lucide-react';
-import {firebaseConfigured} from '../services/firebase/client';
+import {firebaseConfigured, firebaseReadOnlyMode} from '../services/firebase/client';
 import {
   getMembersForAdministration,
   updateMemberForAdministration,
@@ -217,6 +217,10 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
       setError('Tu rol puede consultar la ficha, pero no editar datos personales.');
       return;
     }
+    if (firebaseReadOnlyMode) {
+      setError('La base original está protegida. Conecta Staging para guardar cambios sin modificar producción.');
+      return;
+    }
     setSaving(true);
     setMessage('');
     setError('');
@@ -345,7 +349,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
               <div className="member-detail-privacy"><ShieldCheck size={16}/>{canEdit ? 'Solo administración y pastoral pueden guardar cambios. Los campos históricos no enviados se conservan.' : 'Vista de solo lectura. Solicita a administración o pastoral cualquier corrección.'}</div>
               {error && <p className="member-detail-error" role="alert">{error}</p>}
               {message && <p className="member-detail-success" role="status">{message}</p>}
-              <footer><button type="button" className="member-detail-cancel" onClick={closeMember} disabled={saving}>Cerrar</button>{canEdit && <button type="submit" className="member-detail-save" disabled={saving}><Save size={17}/>{saving ? 'Guardando...' : 'Guardar cambios'}</button>}</footer>
+              <footer><button type="button" className="member-detail-cancel" onClick={closeMember} disabled={saving}>Cerrar</button>{canEdit && <button type="submit" className="member-detail-save" disabled={saving || firebaseReadOnlyMode}><Save size={17}/>{saving ? 'Guardando...' : firebaseReadOnlyMode ? 'Solo lectura · Staging' : 'Guardar cambios'}</button>}</footer>
             </form>
           </section>
         </div>
