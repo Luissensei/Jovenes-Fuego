@@ -1,4 +1,4 @@
-import {addDoc, collection, doc, getDoc, getDocs, setDoc, updateDoc} from 'firebase/firestore';
+import {collection, doc, getDoc, getDocs, runTransaction, setDoc, updateDoc} from 'firebase/firestore';
 
 import {db} from './firebase/client';
 
@@ -112,7 +112,7 @@ export async function getWeeklyActivities(): Promise<WeeklyActivity[]> {
     return [{
       id: `legacy-event-${index}-${date}`,
       title,
-      description: '',
+      description: typeof event.n === 'string' ? event.n : '',
       date,
       time: typeof event.h === 'string' ? event.h : '',
       location: typeof event.p === 'string' ? event.p : '',
@@ -202,34 +202,37 @@ export async function saveWeeklyActivity(
     n: activity.description.trim(),
     published: activity.published,
   };
-  let eventId = activity.id;
-  if (eventId && !eventId.startsWith('legacy-event-')) {
-    await setDoc(doc(db, 'events', eventId), payload, {merge: true});
-  } else {
-    const created = await addDoc(collection(db, 'events'), {
-      ...payload, cf: {}, pg: {}, q: 0,
-    });
-    eventId = created.id;
-  }
-
-  // El portal juvenil lee únicamente el documento público existente.
-  // Actualizamos solo su campo ev y conservamos el resto del ranking.
+  const eventRef = activity.id && !activity.id.startsWith('legacy-event-')
+    ? doc(db, 'events', activity.id)
+    : doc(collection(db, 'events'));
   const rankingRef = doc(db, 'public', 'ranking');
-  const rankingSnapshot = await getDoc(rankingRef);
-  if (!rankingSnapshot.exists()) {
-    throw new Error('No existe public/ranking para publicar actividades.');
-  }
-  const current = rankingSnapshot.data();
-  const currentEvents = Array.isArray(current.ev)
-    ? current.ev.filter((entry): entry is Record<string, unknown> =>
-        Boolean(entry) && typeof entry === 'object')
-    : [];
-  const nextEvents = currentEvents.filter((entry) =>
-    !(entry.t === payload.t && entry.d === payload.d));
-  if (activity.published) {
-    nextEvents.push({t: payload.t, d: payload.d, h: payload.h, p: payload.p});
-  }
-  await updateDoc(rankingRef, {ev: nextEvents, u: Date.now()});
+
+  // Guardamos el evento y su publicación pública en una sola transacción,
+  // sin reemplazar el resto del documento de ranking.
+  await runTransaction(db, async (transaction) => {
+    const rankingSnapshot = await transaction.get(rankingRef);
+    if (!rankingSnapshot.exists()) {
+      throw new Error('No existe public/ranking para publicar actividades.');
+    }
+    const current = rankingSnapshot.data();
+    const currentEvents = Array.isArray(current.ev)
+      ? current.ev.filter((entry): entry is Record<string, unknown> =>
+          Boolean(entry) && typeof entry === 'object')
+      : [];
+    const nextEvents = currentEvents.filter((entry) =>
+      !(entry.t === payload.t && entry.d === payload.d));
+    if (activity.published) {
+      nextEvents.push({
+        t: payload.t,
+        d: payload.d,
+        h: payload.h,
+        p: payload.p,
+        n: payload.n,
+      });
+    }
+    transaction.set(eventRef, payload, {merge: true});
+    transaction.update(rankingRef, {ev: nextEvents, u: Date.now()});
+  });
 }
 
 export async function sendPrayerRequest(input: PrayerRequestInput): Promise<void> {
@@ -287,7 +290,7 @@ export async function getPrayerRequestsForAdministration(): Promise<AdminPrayerR
     if (data.k !== 'p') return [];
     const raw = typeof data.t === 'string' ? data.t : '';
     const categoryMatch = raw.match(/^\[([^\]]{1,40})\]\s*/);
-    const timestamp = typeof data.c === 'number'
+      const timestamp = typeof data.c === 'number' && Number.isFinite(data.c)
       ? new Date(data.c).toISOString()
       : typeof data.d === 'string' ? data.d : '';
     return [{
