@@ -1,6 +1,7 @@
 import {playGameTone} from './gameAudio';
 import { useEffect, useState } from 'react';
-import { bibleQuestionBank, shuffleBibleQuestions } from './bibleQuestionBank';
+import { shuffleBibleQuestions } from './bibleQuestionBank';
+import { expandedBibleQuestionBank } from './extendedBibleQuestionBank';
 import {
   Heart, Swords, Trophy,
   ChevronLeft, ChevronRight, RotateCcw, CheckCircle2,
@@ -27,7 +28,7 @@ function shuffle<T,>(items: T[]): T[] {
 }
 
 function makeQuestionBank(): Question[] {
-  return shuffleBibleQuestions(bibleQuestionBank).map((question) => ({
+  return shuffleBibleQuestions(expandedBibleQuestionBank).map((question) => ({
     prompt: question.question,
     options: question.options,
     answer: question.options[question.answer],
@@ -88,6 +89,27 @@ const memoryPairs = [
   ['Elías', 'Fuego del cielo', '🔥'],
   ['Jonatán', 'Amistad con David', '🤝'],
   ['Pablo', 'Damasco', '🛤️'],
+  ['Miriam', 'Canasta del Nilo', '🧺'],
+  ['Moisés', 'Tablas de la ley', '📜'],
+  ['Isaac', 'Carnero', '🐏'],
+  ['Jacob', 'Escalera', '🪜'],
+  ['Josué', 'Jericó', '🏰'],
+  ['Débora', 'Barac', '⚔️'],
+  ['Samuel', 'Voz en la noche', '🌙'],
+  ['Salomón', 'Templo', '🏛️'],
+  ['Nehemías', 'Murallas', '🧱'],
+  ['Job', 'Perseverancia', '🌿'],
+  ['Pedro', 'Caminar sobre el agua', '🌊'],
+  ['Tomás', 'Duda', '❔'],
+  ['Marta', 'Betania', '🍞'],
+  ['María Magdalena', 'Sepulcro vacío', '🌅'],
+  ['Esteban', 'Primer mártir', '🕊️'],
+  ['Timoteo', 'Pablo', '📖'],
+  ['Bernabé', 'Compañero de Pablo', '🤝'],
+  ['Lidia', 'Púrpura', '🟣'],
+  ['Priscila', 'Aquila', '⛺'],
+  ['Cornelio', 'Cesarea', '🏠'],
+  ['Bartimeo', 'Ceguera sanada', '👀'],
 ];
 
 type MemoryCard = { id: number; pair: number; text: string; symbol: string };
@@ -148,7 +170,7 @@ export function MemoryGame({ onExit }: { onExit: () => void }) {
 
   return (
     <section className="mbg-game">
-      <Header title="Memoria bíblica" subtitle="Encuentra ocho parejas bíblicas diferentes en cada partida." onExit={onExit} />
+      <Header title="Memoria bíblica" subtitle="Encuentra ocho parejas por partida usando un banco de personajes y relatos más amplio." onExit={onExit} />
       {finished ? (
         <Result score={Math.max(0, 160 - moves * 5)} onRestart={restart} onExit={onExit} />
       ) : (
@@ -438,6 +460,18 @@ const verseLevels = [
   { ref: '2 Timoteo 1:7', text: 'Porque no nos ha dado Dios espíritu de cobardía sino de poder de amor y de dominio propio' },
   { ref: 'Juan 10:10', text: 'Yo he venido para que tengan vida y para que la tengan en abundancia' },
   { ref: 'Salmo 34:8', text: 'Gustad y ved que es bueno Jehová dichoso el hombre que confía en él' },
+  { ref: 'Salmo 37:5', text: 'Encomienda a Jehová tu camino y confía en él y él hará' },
+  { ref: 'Isaías 41:10', text: 'No temas porque yo estoy contigo no desmayes porque yo soy tu Dios que te esfuerzo' },
+  { ref: 'Romanos 12:21', text: 'No seas vencido de lo malo sino vence con el bien el mal' },
+  { ref: 'Salmo 56:3', text: 'En el día que temo yo en ti confío' },
+  { ref: 'Mateo 5:14', text: 'Vosotros sois la luz del mundo' },
+  { ref: 'Proverbios 17:17', text: 'En todo tiempo ama el amigo y es como un hermano en tiempo de angustia' },
+  { ref: 'Isaías 26:3', text: 'Tú guardarás en completa paz a aquel cuyo pensamiento en ti persevera' },
+  { ref: 'Gálatas 6:9', text: 'No nos cansemos pues de hacer bien porque a su tiempo segaremos si no desmayamos' },
+  { ref: 'Colosenses 3:23', text: 'Y todo lo que hagáis hacedlo de corazón como para el Señor y no para los hombres' },
+  { ref: 'Salmo 121:1', text: 'Alzaré mis ojos a los montes de dónde vendrá mi socorro' },
+  { ref: '1 Tesalonicenses 5:16', text: 'Estad siempre gozosos' },
+  { ref: '1 Tesalonicenses 5:17', text: 'Orad sin cesar' },
 ];
 
 type Word = { id: number; text: string };
