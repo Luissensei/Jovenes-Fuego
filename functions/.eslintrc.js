@@ -29,5 +29,13 @@ module.exports = {
     "quotes": ["error", "double"],
     "import/no-unresolved": 0,
     "indent": ["error", 2],
+
+    // Keep style feedback visible without blocking Firebase deployments.
+    // TypeScript compilation remains a required predeploy check.
+    "require-jsdoc": "warn",
+    "max-len": "warn",
+    "operator-linebreak": "warn",
+    // The functions sanitize user text by matching control characters.
+    "no-control-regex": "warn",
   },
 };
