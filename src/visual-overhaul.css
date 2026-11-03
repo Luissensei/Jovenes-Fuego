@@ -1575,3 +1575,12 @@ body::after {
   }
   .youth-game-tile:hover,.youth-activity-card:hover,.youth-hall-card:hover,.youth-prayer-panel:hover {transform:none!important;}
 }
+
+
+.member-detail-backdrop.closing {animation:jfBackdropOut .22s ease both;}
+.member-detail-modal.closing {animation:jfDetailZoomOut .22s cubic-bezier(.55,.05,.75,.4) both;}
+@keyframes jfBackdropOut {to {opacity:0;}}
+@keyframes jfDetailZoomOut {to {opacity:0;transform:translateY(12px) scale(.975);filter:blur(3px);}}
+@media(prefers-reduced-motion:reduce) {
+  .member-detail-backdrop.closing,.member-detail-modal.closing {animation:none!important;}
+}
