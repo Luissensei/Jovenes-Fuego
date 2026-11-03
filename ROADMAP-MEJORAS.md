@@ -116,3 +116,25 @@ Conservar las funciones y la información que utiliza la iglesia, pero ofrecer u
 - No cambiar nombres de colecciones o campos históricos sin documentar su uso y compatibilidad.
 - No copiar ni migrar datos reales a Staging; utilizar cuentas y registros de prueba.
 - No considerar una previsualización exitosa hasta comprobar el build y probar los flujos principales.
+
+
+## Hallazgos de la revisión del código actual
+
+Estos puntos se observaron en los archivos de esta rama y deben considerarse antes de habilitar todos los módulos:
+
+| Archivo o módulo | Estado observado | Trabajo necesario |
+|---|---|---|
+| `src/services/repositories/devotionals.ts` y `DevotionalsPage.tsx` | Consulta, creación y eliminación directamente en Firestore. | Migrar a funciones protegidas y definir quién puede publicar o eliminar. |
+| `src/services/repositories/managedRecords.ts` y `ManagedRecordsPage.tsx` | Lecturas y escrituras directas para registros administrados. | Revisar colección por colección, esquema y roles antes de crear endpoints. |
+| `InboxPage.tsx` y `TurnsPage.tsx` | Reutilizan la pantalla de registros administrados. | Dependen de la migración de `managedRecords.ts`. |
+| `src/services/repositories/checkins.ts` y `CheckinPage.tsx` | Consulta y creación de registros QR directamente en Firestore. | Migrar y unificar con la asistencia protegida, evitando duplicados. |
+| `src/services/repositories/photos.ts` y `PhotosPage.tsx` | Lectura, aprobación, rechazo y eliminación directas en Firestore. | Crear endpoints por rol y definir el flujo de moderación. |
+| `src/app/pages/ManagementPages.tsx` | Lee colecciones y escribe puntos extra, notas pastorales y ajustes directamente; también consulta usuarios y auditoría. | Separar permisos de administración y pastoral en el servidor. Nunca exponer notas pastorales ni datos de usuarios mediante reglas abiertas. |
+| `src/services/repositories/members.ts` | Conserva una suscripción directa a la colección `members`. | Revisar si quedan consumidores; sustituirlos por el servicio protegido o retirar el código antiguo. |
+| `FollowupPage.tsx` | Actualmente usa registros de ejemplo guardados solo en el estado de la pantalla. | Conectar el módulo a almacenamiento persistente con historial y responsables. |
+| `VisitorsPage.tsx` | Actualmente usa visitantes de ejemplo guardados solo en el estado de la pantalla. | Implementar almacenamiento persistente, permisos y protección de datos de contacto. |
+| `ReportsPage.tsx` | En esta rama ya consulta asistencia y jóvenes mediante Cloud Functions protegidas. | Validar el build y probar los cálculos con datos ficticios de Staging. |
+
+**Importante:** con las reglas actuales de Firestore cerradas, los módulos que todavía usan el SDK directamente no podrán completar esas operaciones. No se deben abrir las reglas para resolverlo. Primero hay que diseñar y probar endpoints con validación de identidad, rol, campos permitidos y límites de consulta.
+
+Los módulos de seguimiento y visitantes tienen datos de demostración locales; no deben tratarse como registros persistentes ni utilizarse para almacenar información real hasta terminar su conexión segura.
