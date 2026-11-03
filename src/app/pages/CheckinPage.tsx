@@ -11,14 +11,11 @@ import {
   Search,
 } from 'lucide-react';
 
-import {
-  subscribeMembers,
-  type MemberRecord,
-} from '../../services/repositories/members';
+import {getMembersForAdministration, type MemberAdminRecord} from '../../services/youthPortal';
 
 import {
   createCheckin,
-  subscribeCheckins,
+  getCheckins,
   type CheckinRecord,
 } from '../../services/repositories/checkins';
 
@@ -29,7 +26,7 @@ function getToday() {
 }
 
 export default function CheckinPage() {
-  const [members, setMembers] = useState<MemberRecord[]>([]);
+  const [members, setMembers] = useState<MemberAdminRecord[]>([]);
   const [checkins, setCheckins] = useState<CheckinRecord[]>([]);
   const [selectedMemberId, setSelectedMemberId] = useState('');
   const [meetingName, setMeetingName] = useState('Servicio juvenil');
@@ -46,40 +43,25 @@ export default function CheckinPage() {
     (member) => member.id === selectedMemberId,
   );
 
-  useEffect(() => {
-    let unsubscribeMembers: (() => void) | null = null;
-    let unsubscribeCheckins: (() => void) | null = null;
-
+  async function loadData() {
+    setLoading(true);
+    setError('');
     try {
-      unsubscribeMembers = subscribeMembers(
-        (items) => setMembers(items),
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
-
-      unsubscribeCheckins = subscribeCheckins(
-        (items) => {
-          setCheckins(items);
-          setLoading(false);
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
+      const [memberRows, checkinRows] = await Promise.all([
+        getMembersForAdministration(),
+        getCheckins(),
+      ]);
+      setMembers(memberRows);
+      setCheckins(checkinRows);
     } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : 'Error cargando datos.',
-      );
+      setError(cause instanceof Error ? cause.message : 'Error cargando datos del check-in.');
+    } finally {
       setLoading(false);
     }
+  }
 
-    return () => {
-      unsubscribeMembers?.();
-      unsubscribeCheckins?.();
-    };
+  useEffect(() => {
+    void loadData();
   }, []);
 
   const processQr = useCallback(async (value: string) => {
@@ -129,13 +111,8 @@ export default function CheckinPage() {
     setSaving(true);
 
     try {
-      await createCheckin({
-        memberId,
-        memberName,
-        meetingName,
-        date,
-      });
-
+      await createCheckin({memberId, meetingName, date});
+      await loadData();
       setMessage(`Asistencia registrada para ${memberName}.`);
     } catch (cause) {
       setError(
@@ -224,11 +201,10 @@ export default function CheckinPage() {
     try {
       await createCheckin({
         memberId: selectedMember.id,
-        memberName,
         meetingName,
         date,
       });
-
+      await loadData();
       setMessage(`Asistencia registrada para ${memberName}.`);
     } catch (cause) {
       setError(
