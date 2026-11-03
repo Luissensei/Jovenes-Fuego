@@ -344,8 +344,8 @@ export const submitPublicPrayerRequest = onCall(async (request) => {
   await db.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(rateRef);
     const count = Number(snapshot.data()?.count ?? 0);
-    if (count >= 3) {
-      throw new HttpsError("resource-exhausted", "Ya se alcanzó el límite diario de peticiones desde esta conexión.");
+    if (count >= 50) {
+      throw new HttpsError("resource-exhausted", "Esta conexión alcanzó el límite diario de 50 peticiones de oración.");
     }
     transaction.set(rateRef, {
       count: FieldValue.increment(1),
