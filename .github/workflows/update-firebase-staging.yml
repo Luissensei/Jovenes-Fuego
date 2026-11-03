@@ -21,8 +21,13 @@ jobs:
       - name: Configurar Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 26
           cache: npm
+
+      - name: Definir entorno Node compatible
+        run: |
+          node -e "const fs=require('fs'); const p=require('./package.json'); p.engines={...(p.engines ?? {}), node: '>=24.12.0'}; fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\\n');"
+          echo "24.12.0" > .nvmrc
 
       - name: Actualizar SDK de Firebase
         run: npm install firebase@13.1.0 --save
@@ -33,10 +38,26 @@ jobs:
       - name: Revisar ESLint
         run: npm run lint
 
-      - name: Bloquear vulnerabilidades altas en producción
+      - name: Diagnosticar auditoría de dependencias runtime
         run: |
           npm audit --omit=dev --json > /tmp/jf-firebase-audit.json || true
-          node -e "const r = JSON.parse(require('fs').readFileSync('/tmp/jf-firebase-audit.json', 'utf8')); const v = r.metadata?.vulnerabilities ?? {}; console.log('Auditoría runtime:', JSON.stringify(v)); if ((v.high ?? 0) > 0 || (v.critical ?? 0) > 0) process.exit(1);"
+          node <<'NODE'
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('/tmp/jf-firebase-audit.json', 'utf8'));
+          console.log('Resumen runtime:', report.metadata?.vulnerabilities ?? {});
+          for (const [name, item] of Object.entries(report.vulnerabilities ?? {})) {
+            console.log(name + ' | severity=' + item.severity + ' | range=' + item.range);
+            for (const entry of item.via ?? []) {
+              if (typeof entry !== 'string') console.log('  advisory=' + entry.title + ' | range=' + entry.range + ' | url=' + entry.url);
+            }
+            console.log('  paths=' + (item.nodes ?? []).join(', '));
+          }
+          const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+          for (const [name, info] of Object.entries(lock.packages ?? {})) {
+            if (name.endsWith('node_modules/@grpc/grpc-js')) console.log('GRPC_LOCK ' + name + ' = ' + info.version);
+          }
+          if ((report.metadata?.vulnerabilities?.high ?? 0) > 0 || (report.metadata?.vulnerabilities?.critical ?? 0) > 0) process.exit(1);
+          NODE
 
       - name: Guardar actualización solo en esta rama
         run: |
