@@ -85,12 +85,26 @@ function AdminApp() {
     logout,
   } = useAuth();
 
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(() => {
+    try {
+      const savedTheme = window.localStorage.getItem('jf-theme');
+      return savedTheme ? savedTheme === 'dark' : true;
+    } catch {
+      return true;
+    }
+  });
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    const theme = dark ? 'dark' : 'light';
+    document.documentElement.dataset.theme = theme;
+
+    try {
+      window.localStorage.setItem('jf-theme', theme);
+    } catch {
+      // El cambio de tema sigue funcionando aunque el navegador bloquee el almacenamiento local.
+    }
   }, [dark]);
 
   if (loading) {
