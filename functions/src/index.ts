@@ -1280,3 +1280,143 @@ export const deleteApprovedPhoto = onCall(async (request) => {
   await ref.delete();
   return {success: true};
 });
+
+
+// Administración con respuestas allowlist: la app no puede leer libremente
+// users, notas pastorales, auditoría ni ajustes.
+type ManagementKind = "bonus" | "pastoral" | "leaders" | "audit" | "settings";
+
+function managementConfig(kind: unknown) {
+  if (kind === "bonus") return {collection: "bonus"};
+  if (kind === "pastoral") return {collection: "pastoral"};
+  if (kind === "leaders") return {collection: "users"};
+  if (kind === "audit") return {collection: "audit"};
+  if (kind === "settings") return {collection: "settings"};
+  throw new HttpsError("invalid-argument", "El módulo de administración no es válido.");
+}
+
+async function requireManagementRole(uid: string, kind: ManagementKind) {
+  if (kind === "pastoral") {
+    await requireAdminOrPastor(uid);
+    return;
+  }
+  const role = await requireAuthorizedRole(uid);
+  if (role !== "admin" && role !== "administrador") {
+    throw new HttpsError("permission-denied", "Este módulo está reservado para administración.");
+  }
+}
+
+export const getManagementData = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const kind = request.data?.kind as ManagementKind;
+  const config = managementConfig(kind);
+  await requireManagementRole(request.auth.uid, kind);
+  const snapshot = await db.collection(config.collection).limit(500).get();
+
+  const items = snapshot.docs.map((document) => {
+    const data = document.data();
+    if (kind === "bonus") {
+      return {
+        id: document.id,
+        memberName: text(data.memberName, 120),
+        reason: text(data.reason, 500),
+        points: Number.isFinite(Number(data.points)) ? Number(data.points) : 0,
+        createdAt: isoValue(data.createdAt),
+      };
+    }
+    if (kind === "pastoral") {
+      return {
+        id: document.id,
+        memberName: text(data.memberName, 120),
+        title: text(data.title, 160),
+        note: text(data.note, 5000),
+        createdAt: isoValue(data.createdAt),
+      };
+    }
+    if (kind === "leaders") {
+      // No devolver correos, tokens, claims ni datos auxiliares de Auth.
+      return {
+        id: document.id,
+        name: text(data.name, 120),
+        user: text(data.user, 120),
+        role: text(data.role, 40),
+      };
+    }
+    if (kind === "settings") {
+      return {
+        id: document.id,
+        key: text(data.key, 120) || document.id,
+        value: text(data.value, 2000),
+        updatedAt: isoValue(data.updatedAt),
+      };
+    }
+    return {
+      id: document.id,
+      action: text(data.action, 120),
+      actorUid: text(data.actorUid ?? data.createdBy, 150),
+      collection: text(data.collection, 120),
+      recordId: text(data.recordId, 150),
+      createdAt: isoValue(data.createdAt),
+    };
+  }).sort((a, b) =>
+    ("createdAt" in b ? String(b.createdAt) : "").localeCompare(
+      "createdAt" in a ? String(a.createdAt) : "",
+    ),
+  );
+  return {items};
+});
+
+export const createManagementRecord = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const kind = request.data?.kind as ManagementKind;
+  managementConfig(kind);
+  await requireManagementRole(request.auth.uid, kind);
+  const data = request.data?.data;
+  if (typeof data !== "object" || data === null) {
+    throw new HttpsError("invalid-argument", "Los datos del registro no son válidos.");
+  }
+  const source = data as Record<string, unknown>;
+  const now = new Date().toISOString();
+
+  if (kind === "bonus") {
+    const memberName = text(source.memberName, 120);
+    const reason = text(source.reason, 500);
+    const points = Number(source.points);
+    if (memberName.length < 2 || !reason || !Number.isInteger(points) ||
+      points < 1 || points > 1000) {
+      throw new HttpsError("invalid-argument", "Indica joven, motivo y puntos entre 1 y 1.000.");
+    }
+    const ref = db.collection("bonus").doc();
+    await ref.set({memberName, reason, points, createdAt: now, createdBy: request.auth.uid});
+    return {success: true, id: ref.id};
+  }
+
+  if (kind === "pastoral") {
+    const memberName = text(source.memberName, 120);
+    const title = text(source.title, 160);
+    const note = text(source.note, 5000);
+    if (memberName.length < 2 || !title || !note) {
+      throw new HttpsError("invalid-argument", "Completa el joven, título y contenido de la nota.");
+    }
+    const ref = db.collection("pastoral").doc();
+    await ref.set({memberName, title, note, createdAt: now, createdBy: request.auth.uid});
+    return {success: true, id: ref.id};
+  }
+
+  if (kind === "settings") {
+    const key = text(source.key, 120).toLowerCase().replace(/[^a-z0-9_-]/g, "-");
+    const value = text(source.value, 2000);
+    if (!key || !value) {
+      throw new HttpsError("invalid-argument", "Escribe el nombre y el valor del ajuste.");
+    }
+    const ref = db.collection("settings").doc(key);
+    await ref.set({key, value, updatedAt: now, updatedBy: request.auth.uid}, {merge: true});
+    return {success: true, id: ref.id};
+  }
+
+  throw new HttpsError("permission-denied", "Este módulo no permite crear registros.");
+});
