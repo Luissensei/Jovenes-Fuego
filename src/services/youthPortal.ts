@@ -1,4 +1,4 @@
-import {doc, getDoc} from 'firebase/firestore';
+import {collection, doc, getDoc, getDocs} from 'firebase/firestore';
 import {httpsCallable} from 'firebase/functions';
 
 import {db, functions} from './firebase/client';
@@ -197,10 +197,17 @@ export async function sendPrayerRequest(
 }
 
 export async function getMembersForAdministration(): Promise<MemberAdminRecord[]> {
-  const result = await call<{members: MemberAdminRecord[]}>(
-    'getPrivateMembers',
-  );
-  return result.members ?? [];
+  if (!db) {
+    throw new Error('Firebase Firestore no está configurado.');
+  }
+
+  // El directorio original vive directamente en members; no depende de
+  // Firebase Functions, que no están desplegadas en el proyecto original.
+  const snapshot = await getDocs(collection(db, 'members'));
+  return snapshot.docs.map((item) => ({
+    ...(item.data() as AdminMemberPatch),
+    id: item.id,
+  }));
 }
 
 export async function updateMemberForAdministration(
