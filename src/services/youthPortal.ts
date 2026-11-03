@@ -293,14 +293,11 @@ export async function updateMemberForAdministration(
   const validJpeg = photo !== null
     && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(photo)
     && photo.length < 60000;
-  if (photo?.startsWith('data:image/') && !validJpeg) {
-    throw new Error('La fotografía debe ser JPEG y pesar menos de 60 KB después de comprimirla.');
-  }
-
+  const syncPhoto = validJpeg || photo === '';
   await runTransaction(db, async (transaction) => {
-    const existingPhoto = photo !== null ? await transaction.get(photoRef) : null;
+    const existingPhoto = syncPhoto ? await transaction.get(photoRef) : null;
     transaction.update(memberRef, patch);
-    if (validJpeg || photo === '') {
+    if (syncPhoto) {
       const values = {
         p: photo ?? '',
         c: Date.now(),
