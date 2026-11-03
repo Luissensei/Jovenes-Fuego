@@ -212,6 +212,8 @@ export async function saveWeeklyActivity(
   // Guardamos el evento y su publicación pública en una sola transacción,
   // sin reemplazar el resto del documento de ranking.
   await runTransaction(db, async (transaction) => {
+    const previousEvent = isNewEvent ? null : await transaction.get(eventRef);
+    const oldData = previousEvent?.exists() ? previousEvent.data() : null;
     const rankingSnapshot = await transaction.get(rankingRef);
     if (!rankingSnapshot.exists()) {
       throw new Error('No existe public/ranking para publicar actividades.');
@@ -221,8 +223,12 @@ export async function saveWeeklyActivity(
       ? current.ev.filter((entry): entry is Record<string, unknown> =>
           Boolean(entry) && typeof entry === 'object')
       : [];
-    const nextEvents = currentEvents.filter((entry) =>
-      !(entry.t === payload.t && entry.d === payload.d));
+    const nextEvents = currentEvents.filter((entry) => {
+      const matchesPrevious = oldData
+        && entry.t === oldData.t && entry.d === oldData.d;
+      const matchesCurrent = entry.t === payload.t && entry.d === payload.d;
+      return !matchesPrevious && !matchesCurrent;
+    });
     if (activity.published) {
       nextEvents.push({
         t: payload.t,
