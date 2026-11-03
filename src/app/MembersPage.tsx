@@ -226,7 +226,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
               <div className="member-detail-fields">
                 {(canEdit
                   ? editableFields
-                  : editableFields.filter((field) => ['name', 'nick', 'pic'].includes(field.key))
+                  : editableFields.filter((field) => field.key === 'name' || field.key === 'nick' || field.key === 'pic')
                 ).map((field) => (
                   <label key={field.key} className={field.multiline ? 'wide' : ''}>
                     {field.label}
