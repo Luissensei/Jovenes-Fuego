@@ -374,7 +374,7 @@ function AdminApp() {
         />
       )}
 
-      <main className="main">
+      <div className="main">
         <div className="topline">
           <div>
             <span className="dot" />
@@ -444,7 +444,7 @@ function AdminApp() {
               : 'staging'
             : 'vista previa'}
         </footer>
-      </main>
+      </div>
     </div>
   );
 }
