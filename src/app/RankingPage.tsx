@@ -379,12 +379,27 @@ export default function RankingPage({
 
           {activeGame === 'trivia' ? (
             <TriviaGame
+              playerName={selectedProfile?.name}
               onExit={() => setActiveGame(null)}
             />
           ) : activeGame === 'verse' ? (
             <VerseGame
+              playerName={selectedProfile?.name}
               onExit={() => setActiveGame(null)}
             />
+          ) : !selectedProfile ? (
+            <div className="ranking-state profile-required" role="status">
+              <UserRound size={32} />
+              <strong>Primero selecciona tu perfil</strong>
+              <span>
+                Elige tu nombre en Perfiles para identificar la sesión de práctica.
+                Esta selección no verifica tu identidad ni permite modificar puntos.
+              </span>
+              <button type="button" onClick={() => changeTab('profiles')}>
+                <UserRound size={16} />
+                Elegir perfil
+              </button>
+            </div>
           ) : (
             <>
               <div className="ranking-section-heading">
@@ -624,11 +639,18 @@ export default function RankingPage({
                     </small>
                   </div>
 
-                  <button
-                    onClick={() => setSelectedProfile(null)}
-                  >
-                    Cerrar
-                  </button>
+                  <div className="selected-profile-actions">
+                    <button type="button" onClick={() => changeTab('games')}>
+                      <Gamepad2 size={15} />
+                      Ir a los juegos
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedProfile(null)}
+                    >
+                      Cerrar
+                    </button>
+                  </div>
                 </div>
               )}
             </>
