@@ -1,17 +1,24 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator, type Auth } from 'firebase/auth';
-import {
-  getFirestore,
-  connectFirestoreEmulator,
-  type Firestore,
-} from 'firebase/firestore';
-import {
-  getFunctions,
-  connectFunctionsEmulator,
-  type Functions,
-} from 'firebase/functions';
+import { getAuth, type Auth } from 'firebase/auth';
+import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getFunctions, type Functions } from 'firebase/functions';
 
 const rawProjectId = import.meta.env.VITE_FIREBASE_PROJECT_ID?.trim() ?? '';
+const productionReadOnlyEnabled =
+  import.meta.env.VITE_FIREBASE_READ_ONLY_PRODUCTION === 'true';
+const originalProjectId = rawProjectId === 'jovenes-de-fuego';
+
+if (originalProjectId && !productionReadOnlyEnabled) {
+  throw new Error(
+    'El proyecto original solo puede conectarse con el modo de solo lectura habilitado.',
+  );
+}
+
+if (productionReadOnlyEnabled && !originalProjectId) {
+  throw new Error(
+    'El modo de solo lectura requiere VITE_FIREBASE_PROJECT_ID=jovenes-de-fuego.',
+  );
+}
 
 const hasMinimumConfig = Boolean(
   import.meta.env.VITE_FIREBASE_API_KEY?.trim() &&
@@ -19,12 +26,6 @@ const hasMinimumConfig = Boolean(
   rawProjectId &&
   import.meta.env.VITE_FIREBASE_APP_ID?.trim(),
 );
-
-if (rawProjectId === 'jovenes-de-fuego') {
-  throw new Error(
-    'Bloqueado: el frontend de desarrollo no puede conectarse a producción.',
-  );
-}
 
 let app: FirebaseApp | null = null;
 let authInstance: Auth | null = null;
@@ -43,18 +44,12 @@ if (hasMinimumConfig) {
   };
 
   app = getApps()[0] ?? initializeApp(config);
-
   authInstance = getAuth(app);
   dbInstance = getFirestore(app);
-  functionsInstance = getFunctions(app);
 
-  if (
-    import.meta.env.DEV &&
-    import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true'
-  ) {
-    connectAuthEmulator(authInstance, 'http://127.0.0.1:9099');
-    connectFirestoreEmulator(dbInstance, '127.0.0.1', 8080);
-    connectFunctionsEmulator(functionsInstance, '127.0.0.1', 5001);
+  // Production read-only mode never initializes callable Functions.
+  if (!productionReadOnlyEnabled) {
+    functionsInstance = getFunctions(app);
   }
 }
 
@@ -63,6 +58,18 @@ export const firebaseConfigured = Boolean(
 );
 
 export const firebaseProjectId = rawProjectId || null;
+export const firebaseReadOnlyMode = productionReadOnlyEnabled;
 export const auth: Auth | null = authInstance;
 export const db: Firestore | null = dbInstance;
 export const functions: Functions | null = functionsInstance;
+
+/**
+ * Stops client-side writes when the app is connected to the original project.
+ */
+export function assertFirebaseWritesAllowed(): void {
+  if (firebaseReadOnlyMode) {
+    throw new Error(
+      'La conexión con producción está en modo de solo lectura. Esta operación está deshabilitada.',
+    );
+  }
+}
