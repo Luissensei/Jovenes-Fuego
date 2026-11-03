@@ -1,5 +1,5 @@
 import {httpsCallable} from "firebase/functions";
-import {functions} from "./firebase/client";
+import {functions, firebaseReadOnly} from "./firebase/client";
 
 export type PublicProfile = {
   id: string;
@@ -19,7 +19,7 @@ export async function getPublicProfiles(): Promise<PublicProfile[]> {
   try {
     const callable = httpsCallable<Record<string, never>, PublicProfilesResponse>(
       functions,
-      "getPublicProfiles",
+      firebaseReadOnly ? "readonlyGetPublicProfiles" : "getPublicProfiles",
     );
     const response = await callable({});
     return (response.data.profiles ?? []).map((profile) => ({
@@ -36,7 +36,7 @@ export async function getPublicProfiles(): Promise<PublicProfile[]> {
   } catch (error) {
     console.error("Error consultando perfiles públicos:", error);
     throw new Error(
-      "No se pudieron cargar los perfiles. Comprueba que las funciones de Staging estén desplegadas.",
+      "No se pudieron cargar los perfiles. Comprueba que la función de consulta esté desplegada.",
     );
   }
 }

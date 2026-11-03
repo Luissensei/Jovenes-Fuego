@@ -21,7 +21,7 @@ import {
 import { PlayerAvatar } from '../components/gaming/GamingUI';
 
 import { modules } from './modules';
-import { firebaseProjectId } from '../services/firebase/client';
+import { firebaseProjectId, firebaseReadOnly } from '../services/firebase/client';
 import { AuthProvider, useAuth } from './AuthContext';
 
 import { LoadingScreen } from '../components/gaming/GamingUI';
@@ -152,6 +152,10 @@ function AdminApp() {
   const isStaff = isAdmin || isPastor || isLeader;
 
   const visibleModules = modules.filter((item) => {
+    if (firebaseReadOnly) {
+      return ['ranking', 'games', 'profile'].includes(item.id);
+    }
+
     if (item.id === 'pastoral') {
       return isPastor || isAdmin;
     }
@@ -306,9 +310,11 @@ function AdminApp() {
 
         <div className="env-chip">
           <span className="pulse" />
-          {configured
-            ? `STAGING · ${firebaseProjectId}`
-            : 'VISTA PREVIA · SIN FIREBASE'}
+          {firebaseReadOnly
+            ? 'SOLO LECTURA · PRODUCCIÓN'
+            : configured
+              ? `STAGING · ${firebaseProjectId}`
+              : 'VISTA PREVIA · SIN FIREBASE'}
         </div>
 
         <nav className="jf-navigation" aria-label="Módulos">
@@ -350,9 +356,11 @@ function AdminApp() {
             <ShieldCheck size={17} />
 
             <span>
-              Producción protegida
+              {firebaseReadOnly ? 'Conexión de solo lectura' : 'Producción protegida'}
               <br />
-              <small>Entorno independiente de pruebas.</small>
+              <small>{firebaseReadOnly
+                ? 'No se permiten cambios en los datos originales.'
+                : 'Entorno independiente de pruebas.'}</small>
             </span>
           </div>
 
@@ -391,9 +399,11 @@ function AdminApp() {
         <div className="topline">
           <div className="jf-topline-context">
             <span className="dot" />
-            {configured
-              ? 'Sesión autenticada · entorno de pruebas'
-              : 'Vista previa · sin datos reales'}
+            {firebaseReadOnly
+              ? 'Sesión autenticada · datos originales en solo lectura'
+              : configured
+                ? 'Sesión autenticada · entorno de pruebas'
+                : 'Vista previa · sin datos reales'}
             <span className="jf-topline-divider">/</span>
             <strong>{currentModule?.label ?? 'Panel principal'}</strong>
           </div>

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { ArrowUpRight, Flame, LockKeyhole, ShieldCheck, Sparkles, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import { firebaseReadOnly } from '../services/firebase/client';
 import { GamingButton } from '../components/gaming/GamingUI';
 
 export function LoginPage() {
@@ -50,12 +51,14 @@ export function LoginPage() {
           <span className="jf-login-panel__icon"><LockKeyhole size={21} /></span>
           <p className="jf-eyebrow">ACCESO DE EQUIPO</p>
           <h2 id="jf-login-title">Bienvenido de vuelta</h2>
-          <p className="jf-login-panel__intro">Ingresa con tu cuenta autorizada de Firebase Staging para acceder a los módulos internos.</p>
+          <p className="jf-login-panel__intro">{firebaseReadOnly
+            ? 'Ingresa con tu cuenta original para consultar los módulos disponibles, sin modificar los datos de la comunidad.'
+            : 'Ingresa con tu cuenta autorizada de Firebase Staging para acceder a los módulos internos.'}</p>
 
           {!configured && (
             <div className="setup-warning" role="status">
               <ShieldCheck size={18} />
-              <span><strong>Firebase todavía no está configurado.</strong><br />La interfaz puede revisarse, pero el inicio de sesión requiere completar .env.local con la configuración del proyecto de pruebas.</span>
+              <span><strong>Firebase todavía no está configurado.</strong><br />La interfaz puede revisarse, pero el inicio de sesión requiere completar las variables de entorno del proyecto elegido.</span>
             </div>
           )}
 
@@ -82,7 +85,9 @@ export function LoginPage() {
             <ArrowUpRight size={18} />
           </Link>
 
-          <p className="jf-login-safe"><ShieldCheck size={16} /> Acceso protegido por Firebase. No uses contraseñas de producción durante el desarrollo.</p>
+          <p className="jf-login-safe"><ShieldCheck size={16} /> {firebaseReadOnly
+            ? 'Acceso a las cuentas originales. Los datos están protegidos en modo de solo lectura.'
+            : 'Acceso protegido por Firebase Staging. No uses contraseñas de producción durante el desarrollo.'}</p>
         </section>
       </div>
     </main>

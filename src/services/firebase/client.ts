@@ -20,9 +20,14 @@ const hasMinimumConfig = Boolean(
   import.meta.env.VITE_FIREBASE_APP_ID?.trim(),
 );
 
-if (rawProjectId === 'jovenes-de-fuego') {
+const isProductionProject = rawProjectId === 'jovenes-de-fuego';
+export const firebaseReadOnly =
+  isProductionProject &&
+  import.meta.env.VITE_FIREBASE_READ_ONLY?.trim().toLowerCase() === 'true';
+
+if (isProductionProject && !firebaseReadOnly) {
   throw new Error(
-    'Bloqueado: el frontend de desarrollo no puede conectarse a producción.',
+    'Bloqueado: producción solo se permite con VITE_FIREBASE_READ_ONLY=true.',
   );
 }
 

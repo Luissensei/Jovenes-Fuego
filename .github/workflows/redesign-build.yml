@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "redesign/**"
+      - "connect/**"
   pull_request:
     branches:
       - main
@@ -44,6 +45,10 @@ jobs:
         run: npm run build --prefix functions
       - name: Revisar ESLint de Cloud Functions
         run: npm run lint --prefix functions
+      - name: Instalar dependencias del codebase aislado de solo lectura
+        run: npm install --prefix functions-readonly
+      - name: Compilar funciones aisladas de solo lectura
+        run: npm run build --prefix functions-readonly
       - name: Auditar dependencias runtime de Cloud Functions
         run: npm audit --prefix functions --omit=dev --audit-level=high
       - name: Resumen de auditoría de dependencias
