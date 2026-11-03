@@ -40,3 +40,23 @@
 @keyframes jf-fade-in{from{opacity:0}to{opacity:1}}@keyframes jf-modal-in{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes jf-toast-in{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}@keyframes jf-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @media(max-width:560px){.jf-modal-backdrop{padding:.5rem}.jf-modal{border-radius:19px}.jf-modal__header,.jf-modal__body{padding:1rem}.jf-toast-stack{right:.65rem;bottom:calc(.65rem + env(safe-area-inset-bottom));width:calc(100vw - 1.3rem)}}
 @media(prefers-reduced-motion:reduce){.jf-button,.jf-xp__track span,.jf-modal-backdrop,.jf-modal,.jf-toast,.jf-loading-mark,.jf-loading-orbit{animation:none!important;transition:none!important}.jf-button:hover:not(:disabled),.jf-button:active:not(:disabled){transform:none}}
+
+.jf-animated-card{transition:transform .24s ease,border-color .24s ease,box-shadow .24s ease}
+.jf-animated-card:hover{transform:translateY(-4px);border-color:rgba(128,71,255,.45);box-shadow:var(--jf-shadow-glow)}
+.jf-player-profile-card{display:grid;gap:1rem;padding:1.25rem}
+.jf-player-profile-card__top{display:flex;align-items:center;gap:1rem}
+.jf-player-profile-card__identity{display:grid;justify-items:start;gap:.2rem;min-width:0}
+.jf-player-profile-card__identity h3{margin:.1rem 0;font:800 1.25rem Rajdhani,Inter,sans-serif;color:var(--jf-text)}
+.jf-player-profile-card__identity small{color:var(--jf-muted);font-size:.72rem}
+.jf-player-profile-card__level{margin-left:auto;flex:none;padding:.48rem .65rem;border:1px solid rgba(128,71,255,.38);border-radius:12px;color:#c7a8ff;background:rgba(128,71,255,.12);font:800 .8rem Orbitron,sans-serif}
+.jf-player-profile-card__badges{display:flex;flex-wrap:wrap;gap:.45rem}
+.jf-background-effects{position:fixed;z-index:-1;inset:0;overflow:hidden;pointer-events:none}
+.jf-background-effects__orb{position:absolute;display:block;width:38vw;aspect-ratio:1;border-radius:50%;filter:blur(90px);opacity:.12}
+.jf-background-effects__orb--violet{left:-14vw;top:-10vh;background:#8047ff}
+.jf-background-effects__orb--fire{right:-12vw;top:18vh;background:#ff6a35}
+.jf-background-effects__orb--cyan{right:15vw;bottom:-28vh;background:#35d9ff}
+.jf-background-effects__grid{position:absolute;inset:0;opacity:.035;background-image:linear-gradient(rgba(255,255,255,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.3) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,black,transparent 80%)}
+.jf-navbar{display:flex;align-items:center;gap:1rem;min-height:58px;padding:.7rem 1rem;border:1px solid var(--jf-border);border-radius:17px;background:var(--jf-glass);backdrop-filter:blur(18px)}
+.jf-sidebar{display:flex;flex-direction:column;min-width:0;padding:1rem;border:1px solid var(--jf-border);border-radius:20px;background:var(--jf-panel);backdrop-filter:blur(18px)}
+@media(max-width:560px){.jf-player-profile-card__top{align-items:flex-start;flex-wrap:wrap}.jf-player-profile-card__level{margin-left:auto}.jf-background-effects__orb{filter:blur(55px)}}
+@media(prefers-reduced-motion:reduce){.jf-animated-card{transition:none}.jf-animated-card:hover{transform:none}}
