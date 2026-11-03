@@ -175,7 +175,7 @@ export async function getAdminWeeklyActivities(): Promise<WeeklyActivity[]> {
     const data = item.data();
     const title = typeof data.t === 'string' ? data.t.trim() : '';
     const date = typeof data.d === 'string' ? data.d : '';
-    if (!title || !/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) return [];
+    if (!title || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return [];
     return [{
       id: item.id,
       title,
@@ -286,7 +286,7 @@ export async function getPrayerRequestsForAdministration(): Promise<AdminPrayerR
     const data = item.data();
     if (data.k !== 'p') return [];
     const raw = typeof data.t === 'string' ? data.t : '';
-    const categoryMatch = raw.match(/^\\[([^\\]]{1,40})\\]\\s*/);
+    const categoryMatch = raw.match(/^\[([^\]]{1,40})\]\s*/);
     const timestamp = typeof data.c === 'number'
       ? new Date(data.c).toISOString()
       : typeof data.d === 'string' ? data.d : '';
