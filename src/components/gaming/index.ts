@@ -13,8 +13,9 @@ export {
   PlayerProfileCard,
   RankBadge,
   StatCard,
-  ToastProvider,
-  useToast,
 } from './GamingUI';
+
+export { ToastProvider } from './ToastProvider';
+export { useToast } from './toast-context';
 
 export type { GamingButtonProps } from './GamingUI';
