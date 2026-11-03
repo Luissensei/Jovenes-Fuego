@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
-import { Flame, LockKeyhole, ShieldCheck } from 'lucide-react';
+import { Flame, LockKeyhole, ShieldCheck, Sparkles } from 'lucide-react';
 import { useAuth } from './AuthContext';
+import { GamingButton } from '../components/gaming/GamingUI';
 
 export function LoginPage() {
   const { login, configured, error: authError } = useAuth();
@@ -11,10 +12,11 @@ export function LoginPage() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy || !configured) return;
     setBusy(true);
     setError('');
     try {
-      await login(email, password);
+      await login(email.trim(), password);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'No se pudo iniciar sesión.');
     } finally {
@@ -24,29 +26,53 @@ export function LoginPage() {
 
   return (
     <main className="login-shell">
-      <section className="login-card">
-        <span className="login-logo"><Flame size={28} /></span>
-        <p className="eyebrow">ENTORNO SEGURO DE PRUEBAS</p>
-        <h1>Jóvenes de Fuego</h1>
-        <p className="login-intro">Inicia sesión con una cuenta creada en Firebase staging.</p>
-        {!configured && (
-          <div className="setup-warning">
-            <ShieldCheck size={18} />
-            <span><strong>Firebase todavía no está configurado.</strong><br />La interfaz puede revisarse, pero el inicio de sesión requiere completar .env.local con la configuración del proyecto de pruebas.</span>
+      <div className="jf-login-scene">
+        <section className="jf-login-art" aria-labelledby="jf-welcome-title">
+          <span className="jf-login-art__orb jf-login-art__orb--one" />
+          <span className="jf-login-art__orb jf-login-art__orb--two" />
+          <div className="jf-login-art__brand">
+            <span className="jf-login-art__brand-mark"><Flame size={28} /></span>
+            <div>
+              <strong>JÓVENES DE FUEGO</strong>
+              <small>GAMING COMMUNITY EXPERIENCE</small>
+            </div>
           </div>
-        )}
-        {(error || authError) && <p className="form-error" role="alert">{error || authError}</p>}
-        <form onSubmit={submit}>
-          <label htmlFor="email">Correo electrónico</label>
-          <input id="email" autoComplete="username" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu-correo@ejemplo.com" required />
-          <label htmlFor="password">Contraseña</label>
-          <input id="password" autoComplete="current-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Contraseña de staging" required />
-          <button className="login-submit" type="submit" disabled={!configured || busy}>
-            <LockKeyhole size={17} /> {busy ? 'Comprobando…' : 'Iniciar sesión'}
-          </button>
-        </form>
-        <p className="login-foot"><ShieldCheck size={15} /> No uses aquí contraseñas de producción durante el desarrollo.</p>
-      </section>
+          <span className="jf-login-art__eyebrow"><Sparkles size={14} /> FE · COMUNIDAD · PROPÓSITO</span>
+          <h1 id="jf-welcome-title">Una generación <span>que mantiene</span> la llama.</h1>
+          <p className="jf-login-art__copy">
+            Un espacio para crecer en la fe, descubrir tus talentos, compartir con la comunidad y superar nuevos desafíos.
+          </p>
+          <p className="jf-login-art__motto">Conectados por la fe. Unidos con propósito.</p>
+        </section>
+
+        <section className="jf-login-panel" aria-labelledby="jf-login-title">
+          <span className="jf-login-panel__icon"><LockKeyhole size={21} /></span>
+          <p className="jf-eyebrow">ACCESO DE EQUIPO</p>
+          <h2 id="jf-login-title">Bienvenido de vuelta</h2>
+          <p className="jf-login-panel__intro">Ingresa con tu cuenta autorizada de Firebase Staging para acceder a los módulos internos.</p>
+
+          {!configured && (
+            <div className="setup-warning" role="status">
+              <ShieldCheck size={18} />
+              <span><strong>Firebase todavía no está configurado.</strong><br />La interfaz puede revisarse, pero el inicio de sesión requiere completar .env.local con la configuración del proyecto de pruebas.</span>
+            </div>
+          )}
+
+          {(error || authError) && <p className="jf-login-error" role="alert">{error || authError}</p>}
+
+          <form className="jf-login-form" onSubmit={submit}>
+            <label htmlFor="email">Correo electrónico</label>
+            <input id="email" autoComplete="username" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="tu-correo@ejemplo.com" required disabled={busy} />
+            <label htmlFor="password">Contraseña</label>
+            <input id="password" autoComplete="current-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Contraseña de staging" required disabled={busy} />
+            <GamingButton type="submit" size="lg" fullWidth loading={busy} disabled={!configured} leadingIcon={!busy ? <LockKeyhole size={17} /> : undefined}>
+              {busy ? 'Verificando acceso…' : 'Ingresar al centro'}
+            </GamingButton>
+          </form>
+
+          <p className="jf-login-safe"><ShieldCheck size={16} /> Acceso protegido por Firebase. No uses contraseñas de producción durante el desarrollo.</p>
+        </section>
+      </div>
     </main>
   );
 }
