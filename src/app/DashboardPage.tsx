@@ -21,7 +21,7 @@ import { NavLink } from 'react-router-dom';
 
 import { useAuth } from './AuthContext';
 import { modules } from './modules';
-import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
+import {getPublicRankingMetrics, type PublicRankingMetric} from '../services/publicProfiles';
 import {firebaseProjectId, firebaseReadOnlyMode} from '../services/firebase/client';
 
 const quickActions = [
@@ -87,7 +87,7 @@ export default function DashboardPage() {
     .trim()
     .split(/\s+/)[0];
 
-  const [publicProfiles, setPublicProfiles] = useState<PublicProfile[]>([]);
+  const [publicProfiles, setPublicProfiles] = useState<PublicRankingMetric[]>([]);
   const [profilesLoading, setProfilesLoading] = useState(configured);
   const [profilesError, setProfilesError] = useState('');
 
@@ -106,7 +106,7 @@ export default function DashboardPage() {
     setProfilesLoading(true);
     setProfilesError('');
 
-    getPublicProfiles()
+    getPublicRankingMetrics()
       .then((rows) => {
         if (active) setPublicProfiles(rows);
       })
