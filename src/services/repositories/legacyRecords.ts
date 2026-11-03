@@ -62,7 +62,7 @@ export async function getLegacyFollowups(): Promise<LegacyFollowupRecord[]> {
 
     return {
       id: item.id,
-      name: names.get(memberId) ?? memberId || 'Joven sin nombre',
+      name: (names.get(memberId) ?? memberId) || 'Joven sin nombre',
       date,
       reason: String(data.t ?? 'Seguimiento'),
       notes: String(data.n ?? ''),
