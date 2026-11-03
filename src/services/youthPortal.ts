@@ -1,5 +1,5 @@
 import {httpsCallable} from "firebase/functions";
-import {functions} from "./firebase/client";
+import {functions, firebaseReadOnly} from "./firebase/client";
 
 export type WeeklyActivity = {
   id: string;
@@ -66,9 +66,24 @@ export type AdminPrayerRequest = {
 
 async function call<T>(name: string, payload: unknown = {}): Promise<T> {
   if (!functions) {
-    throw new Error("Firebase Functions no está configurado. Revisa el entorno Staging.");
+    throw new Error("Firebase Functions no está configurado en este entorno.");
   }
-  const callable = httpsCallable<unknown, T>(functions, name);
+
+  const productionReadOnlyFunctions: Record<string, string> = {
+    getPublicWeeklyActivities: "readonlyGetPublicWeeklyActivities",
+    getPublicHallOfFame: "readonlyGetPublicHallOfFame",
+  };
+
+  let targetName = name;
+  if (firebaseReadOnly) {
+    const safeName = productionReadOnlyFunctions[name];
+    if (!safeName) {
+      throw new Error("La conexión con los datos originales está en modo de solo lectura. Esta operación no está disponible.");
+    }
+    targetName = safeName;
+  }
+
+  const callable = httpsCallable<unknown, T>(functions, targetName);
   const result = await callable(payload);
   return result.data;
 }
