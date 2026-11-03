@@ -278,8 +278,12 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
 
       {!loading && firebaseConfigured && !error && filtered.length > 0 && (
         <div className="members-grid">
-          {filtered.map((member) => (
-            <article className="member-card" key={member.id}>
+          {filtered.map((member, index) => (
+            <article
+              className="member-card"
+              key={member.id}
+              style={{animationDelay: `${Math.min(index, 14) * 45}ms`}}
+            >
               <div className="member-card-top">
                 <MemberAvatar member={member} />
                 <span className={`member-status ${member.nopub === true ? 'private' : 'public'}`}><span/>{member.nopub === true ? 'No publicado' : 'Perfil público'}</span>
