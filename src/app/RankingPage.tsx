@@ -27,6 +27,7 @@ import {
   getPublicProfiles,
   type PublicProfile,
 } from '../services/publicProfiles';
+import { PlayerProfileCard } from '../components/gaming/GamingUI';
 
 import TriviaGame from './TriviaGame';
 import VerseGame from './VerseGame';
@@ -618,32 +619,20 @@ export default function RankingPage({
 
               {/* PERFIL SELECCIONADO */}
               {selectedProfile && (
-                <div className="selected-profile-panel">
-                  <div className="selected-profile-avatar">
-                    {selectedProfile.pic ? (
-                      <img src={selectedProfile.pic} alt="" />
-                    ) : (
-                      <UserRound size={28} />
-                    )}
+                <div className="selected-profile-panel selected-profile-panel--gaming">
+                  <div className="selected-profile-panel__content">
+                    <PlayerProfileCard
+                      name={selectedProfile.name || 'Joven'}
+                      playerId={selectedProfile.id}
+                      avatarUrl={selectedProfile.pic}
+                      rank="Participante"
+                      points={selectedProfile.points ?? 0}
+                    />
+                    <p className="selected-profile-panel__notice">
+                      Perfil público de Staging. El acceso a información personal requiere autenticación segura.
+                    </p>
                   </div>
-
-                  <div>
-                    <span className="ranking-kicker">
-                      PERFIL SELECCIONADO
-                    </span>
-
-                    <h3>{selectedProfile.name}</h3>
-
-                    <p>@{selectedProfile.nick}</p>
-
-                    <small>
-                      El acceso personal requiere autenticación segura.
-                    </small>
-                  </div>
-
-                  <button
-                    onClick={() => setSelectedProfile(null)}
-                  >
+                  <button type="button" onClick={() => setSelectedProfile(null)}>
                     Cerrar
                   </button>
                 </div>
