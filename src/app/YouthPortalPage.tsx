@@ -325,6 +325,21 @@ export default function YouthPortalPage() {
     return profiles.filter((profile) => `${profile.name} ${profile.nick}`.toLocaleLowerCase('es').includes(query));
   }, [profiles, search]);
 
+  const topPlayersWithPhotos = useMemo(() => topPlayers.map((player) => ({
+    ...player,
+    pic: player.pic || profiles.find((profile) =>
+      profile.name === player.name || (profile.nick && profile.nick === player.name),
+    )?.pic || '',
+  })), [topPlayers, profiles]);
+
+  const faithfulWithPhotos = useMemo(() => faithful.map((player) => ({
+    ...player,
+    pic: player.pic || profiles.find((profile) =>
+      profile.name === player.name || (profile.nick && profile.nick === player.name),
+    )?.pic || '',
+  })), [faithful, profiles]);
+
+
   const publishedActivities = useMemo(() => {
     const today = new Date();
     const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -591,7 +606,7 @@ export default function YouthPortalPage() {
             </div>
           </section>
 
-          <HallOfFame topPlayers={topPlayers} faithful={faithful} attendanceLimited={attendanceLimited}/>
+          <HallOfFame topPlayers={topPlayersWithPhotos} faithful={faithfulWithPhotos} attendanceLimited={attendanceLimited}/>
 
           {(
             <section className="youth-prayer-panel">
