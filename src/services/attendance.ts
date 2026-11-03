@@ -1,21 +1,7 @@
+import {httpsCallable} from 'firebase/functions';
+import {functions} from './firebase/client';
 
-import {
-  addDoc,
-  collection,
-  doc,
-  onSnapshot,
-  orderBy,
-  query,
-  Timestamp,
-  updateDoc,
-} from 'firebase/firestore';
-
-import { db } from './firebase/client';
-
-export type AttendanceStatus =
-  | 'Presente'
-  | 'Ausente'
-  | 'Justificado';
+export type AttendanceStatus = 'Presente' | 'Ausente' | 'Justificado';
 
 export type AttendanceParticipant = {
   memberId: string;
@@ -41,133 +27,60 @@ export type AttendanceMeeting = {
   participants: AttendanceParticipant[];
 };
 
-function isValidStatus(status: unknown): status is AttendanceStatus {
-  return (
-    status === 'Presente' ||
-    status === 'Ausente' ||
-    status === 'Justificado'
-  );
+async function call<T>(name: string, payload: unknown = {}): Promise<T> {
+  if (!functions) {
+    throw new Error('Firebase Functions no está configurado en este entorno.');
+  }
+  const callable = httpsCallable<unknown, T>(functions, name);
+  const response = await callable(payload);
+  return response.data;
 }
 
-function parseParticipants(data: unknown): AttendanceParticipant[] {
-  if (!Array.isArray(data)) return [];
-
-  return data.filter((item): item is AttendanceParticipant => {
-    return (
-      typeof item === 'object' &&
-      item !== null &&
-      typeof item.memberId === 'string' &&
-      typeof item.name === 'string' &&
-      isValidStatus(item.status)
-    );
-  });
+export async function listAttendanceMeetings(): Promise<AttendanceMeeting[]> {
+  const result = await call<{meetings: AttendanceMeeting[]}>('getAttendanceMeetings');
+  return Array.isArray(result.meetings) ? result.meetings : [];
 }
 
-// Crear reunión
 export async function createAttendanceMeeting(
   data: CreateMeetingInput,
 ): Promise<CreateMeetingResult> {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
   const name = data.name.trim();
   const date = data.date.trim();
-
   if (!name || !date) {
     throw new Error('Debes indicar el nombre y la fecha.');
   }
 
-  const meeting = await addDoc(collection(db, 'attendance'), {
-    name,
-    date,
-    createdAt: Timestamp.now(),
-    participants: [],
-  });
-
-  return {
-    success: true,
-    meetingId: meeting.id,
-  };
+  return call<CreateMeetingResult>('createAttendanceMeeting', {name, date});
 }
 
-// Escuchar reuniones guardadas
-export function subscribeAttendanceMeetings(
-  callback: (meetings: AttendanceMeeting[]) => void,
-  onError?: (error: Error) => void,
-) {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
-  const meetingsQuery = query(
-    collection(db, 'attendance'),
-    orderBy('createdAt', 'desc'),
-  );
-
-  return onSnapshot(
-    meetingsQuery,
-    (snapshot) => {
-      const meetings = snapshot.docs.map((document) => {
-        const data = document.data();
-
-        return {
-          id: document.id,
-          name: String(data.name ?? ''),
-          date: String(data.date ?? ''),
-          createdAt:
-            data.createdAt instanceof Timestamp
-              ? data.createdAt.toDate().toISOString()
-              : '',
-          participants: parseParticipants(data.participants),
-        };
-      });
-
-      callback(meetings);
-    },
-    (error) => onError?.(error),
-  );
-}
-
-// Guardar los estados de asistencia
 export async function saveMeetingAttendance(
   meetingId: string,
   participants: AttendanceParticipant[],
 ): Promise<void> {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
-  if (!meetingId) {
+  if (!meetingId.trim()) {
     throw new Error('Debes seleccionar una reunión.');
   }
-
   if (participants.length > 500) {
     throw new Error('La reunión supera el límite de 500 participantes.');
   }
 
-  const uniqueIds = new Set(
-    participants.map((participant) => participant.memberId),
-  );
-
+  const uniqueIds = new Set(participants.map((participant) => participant.memberId));
   if (uniqueIds.size !== participants.length) {
     throw new Error('Hay jóvenes duplicados en la asistencia.');
   }
 
   for (const participant of participants) {
     if (
-      !participant.memberId ||
+      !participant.memberId.trim() ||
       !participant.name.trim() ||
-      !isValidStatus(participant.status)
+      !['Presente', 'Ausente', 'Justificado'].includes(participant.status)
     ) {
       throw new Error('Hay información inválida en la asistencia.');
     }
   }
 
-  await updateDoc(
-    doc(db, 'attendance', meetingId),
-    {
-      participants,
-    },
-  );
+  await call<{success: boolean}>('saveMeetingAttendance', {
+    meetingId,
+    participants,
+  });
 }

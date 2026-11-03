@@ -39,22 +39,104 @@ async function requireAdminOrPastor(uid: string): Promise<AuthorizedRole> {
   return role;
 }
 
+function isValidDate(value: string): boolean {
+  if (value.length !== 10 || value[4] !== "-" || value[7] !== "-") {
+    return false;
+  }
+  const digits = value.slice(0, 4) + value.slice(5, 7) + value.slice(8, 10);
+  if (!Array.from(digits).every((character) => character >= "0" && character <= "9")) {
+    return false;
+  }
+  const year = Number(value.slice(0, 4));
+  const month = Number(value.slice(5, 7));
+  const day = Number(value.slice(8, 10));
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day;
+}
+
+function isValidTime(value: string): boolean {
+  if (value.length !== 5 || value[2] !== ":") return false;
+  const hours = Number(value.slice(0, 2));
+  const minutes = Number(value.slice(3, 5));
+  return Number.isInteger(hours) && Number.isInteger(minutes) &&
+    hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59;
+}
+
+async function loadVisiblePublicProfiles() {
+  const snapshot = await db.collection("publicProfiles").limit(200).get();
+  const memberSnapshots = snapshot.docs.length > 0
+    ? await db.getAll(...snapshot.docs.map((document) =>
+      db.collection("members").doc(document.id),
+    ))
+    : [];
+
+  return snapshot.docs.flatMap((document, index) => {
+    const data = document.data();
+    const memberData = memberSnapshots[index]?.data();
+
+    // La marca de no publicación se respeta tanto en el perfil público
+    // como en la ficha privada del miembro.
+    if (data.nopub === true || memberData?.nopub === true) return [];
+
+    const points = Number(data.points ?? data.puntos ?? 0);
+    const image = text(data.pic, 1500);
+    return [{
+      id: document.id,
+      name: typeof data.name === "string" ? data.name : "",
+      nick: typeof data.nick === "string" ? data.nick : "",
+      pic: image.startsWith("https://") ? image : "",
+      points: Number.isFinite(points) && points >= 0 ? points : 0,
+    }];
+  });
+}
+
+export const getMyApplicationProfile = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+
+  try {
+    const snapshot = await db.collection("users").doc(request.auth.uid).get();
+    if (!snapshot.exists) {
+      throw new HttpsError(
+        "permission-denied",
+        "No existe un perfil de aplicación para esta cuenta.",
+      );
+    }
+
+    const data = snapshot.data() ?? {};
+    const role = text(data.role, 40).toLowerCase();
+    const allowedRoles = [
+      "admin", "administrador", "pastor", "lider", "líder", "user",
+    ];
+    if (!allowedRoles.includes(role)) {
+      throw new HttpsError(
+        "permission-denied",
+        "El perfil no tiene un rol reconocido.",
+      );
+    }
+
+    return {
+      profile: {
+        name: text(data.name, 120),
+        user: text(data.user, 120),
+        role,
+      },
+    };
+  } catch (cause) {
+    if (cause instanceof HttpsError) throw cause;
+    throw new HttpsError(
+      "internal",
+      "No se pudo consultar el perfil de aplicación.",
+    );
+  }
+});
+
 export const getPublicProfiles = onCall(async () => {
   try {
-    const snapshot = await db.collection("publicProfiles").limit(200).get();
-    return {
-      profiles: snapshot.docs.map((document) => {
-        const data = document.data();
-        const points = Number(data.points ?? data.puntos ?? 0);
-        return {
-          id: document.id,
-          name: typeof data.name === "string" ? data.name : "",
-          nick: typeof data.nick === "string" ? data.nick : "",
-          pic: typeof data.pic === "string" ? data.pic : "",
-          points: Number.isFinite(points) && points >= 0 ? points : 0,
-        };
-      }),
-    };
+    return {profiles: await loadVisiblePublicProfiles()};
   } catch {
     throw new HttpsError("internal", "No se pudieron consultar los perfiles públicos.");
   }
@@ -64,16 +146,27 @@ export const getPrivateMembers = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  await requireAdminOrPastor(request.auth.uid);
+  const role = await requireAuthorizedRole(request.auth.uid);
 
   try {
     const snapshot = await db.collection("members").limit(500).get();
-    return {
-      members: snapshot.docs.map((document) => ({
-        id: document.id,
-        ...document.data(),
-      })),
-    };
+    const members = snapshot.docs.map((document) => {
+      const data = document.data();
+      if (role === "lider" || role === "líder") {
+        // Los líderes solo necesitan datos mínimos para identificar y pasar lista.
+        return {
+          id: document.id,
+          name: text(data.name, 120),
+          nick: text(data.nick, 60),
+          pic: text(data.pic, 1500).startsWith("https://")
+            ? text(data.pic, 1500)
+            : "",
+        };
+      }
+      return {id: document.id, ...data};
+    });
+
+    return {members};
   } catch {
     throw new HttpsError("internal", "No se pudieron consultar las fichas de los jóvenes.");
   }
@@ -123,23 +216,30 @@ export const adminUpdateMember = onCall(async (request) => {
   }
 
   const memberRef = db.collection("members").doc(memberId);
-  const memberSnapshot = await memberRef.get();
+  const publicRef = db.collection("publicProfiles").doc(memberId);
+  const [memberSnapshot, publicSnapshot] = await Promise.all([
+    memberRef.get(),
+    publicRef.get(),
+  ]);
   if (!memberSnapshot.exists) {
     throw new HttpsError("not-found", "No se encontró el joven seleccionado.");
   }
-  await memberRef.set(patch, {merge: true});
 
-  const publicRef = db.collection("publicProfiles").doc(memberId);
-  const publicSnapshot = await publicRef.get();
+  const batch = db.batch();
+  batch.set(memberRef, patch, {merge: true});
+
   if (publicSnapshot.exists) {
-    const publicPatch: Record<string, string> = {};
+    const publicPatch: Record<string, string | boolean> = {};
     if (typeof patch.name === "string") publicPatch.name = patch.name;
     if (typeof patch.nick === "string") publicPatch.nick = patch.nick;
     if (typeof patch.pic === "string") publicPatch.pic = patch.pic;
+    if (typeof patch.nopub === "boolean") publicPatch.nopub = patch.nopub;
     if (Object.keys(publicPatch).length > 0) {
-      await publicRef.set(publicPatch, {merge: true});
+      batch.set(publicRef, publicPatch, {merge: true});
     }
   }
+
+  await batch.commit();
   return {success: true, memberId};
 });
 
@@ -201,11 +301,14 @@ export const adminSaveWeeklyActivity = onCall(async (request) => {
   const published = data.published === true;
   const id = text(data.id, 150);
 
-  if (title.length < 3 || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    throw new HttpsError("invalid-argument", "Indica un título y una fecha válidos.");
+  if (title.length < 3 || !isValidDate(date)) {
+    throw new HttpsError("invalid-argument", "Indica un título y una fecha real válidos.");
   }
-  if (time && !/^\d{2}:\d{2}$/.test(time)) {
-    throw new HttpsError("invalid-argument", "La hora no tiene un formato válido.");
+  if (time && !isValidTime(time)) {
+    throw new HttpsError("invalid-argument", "La hora debe estar entre 00:00 y 23:59.");
+  }
+  if (typeof data.published !== "boolean") {
+    throw new HttpsError("invalid-argument", "Indica si la actividad debe publicarse.");
   }
 
   const ref = id
@@ -241,8 +344,8 @@ export const submitPublicPrayerRequest = onCall(async (request) => {
   await db.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(rateRef);
     const count = Number(snapshot.data()?.count ?? 0);
-    if (count >= 3) {
-      throw new HttpsError("resource-exhausted", "Ya se alcanzó el límite diario de peticiones desde esta conexión.");
+    if (count >= 50) {
+      throw new HttpsError("resource-exhausted", "Esta conexión alcanzó el límite diario de 50 peticiones de oración.");
     }
     transaction.set(rateRef, {
       count: FieldValue.increment(1),
@@ -304,26 +407,14 @@ export const adminUpdatePrayerStatus = onCall(async (request) => {
 
 export const getPublicHallOfFame = onCall(async () => {
   try {
-    const [profileSnapshot, attendanceSnapshot] = await Promise.all([
-      db.collection("publicProfiles").limit(200).get(),
-      db.collection("attendance").limit(1000).get(),
+    const [profiles, attendanceSnapshot] = await Promise.all([
+      loadVisiblePublicProfiles(),
+      db.collection("attendanceMeetings").orderBy("date", "desc").limit(1001).get(),
     ]);
-
-    const profiles = profileSnapshot.docs.map((document) => {
-      const data = document.data();
-      const points = Number(data.points ?? data.puntos ?? 0);
-      return {
-        id: document.id,
-        name: text(data.name, 100) || "Joven",
-        nick: text(data.nick, 50),
-        pic: text(data.pic, 1500),
-        points: Number.isFinite(points) && points >= 0 ? points : 0,
-      };
-    });
 
     const publicIds = new Set(profiles.map((profile) => profile.id));
     const attendanceCounts = new Map<string, number>();
-    attendanceSnapshot.docs.forEach((meeting) => {
+    attendanceSnapshot.docs.slice(0, 1000).forEach((meeting) => {
       const participants = meeting.data().participants;
       if (!Array.isArray(participants)) return;
       participants.forEach((participant) => {
@@ -346,10 +437,56 @@ export const getPublicHallOfFame = onCall(async () => {
       .sort((a, b) => b.attendances - a.attendances || a.name.localeCompare(b.name, "es"))
       .slice(0, 10);
 
-    return {topPlayers, faithful};
+    return {
+      topPlayers,
+      faithful,
+      attendanceLimited: attendanceSnapshot.size > 1000,
+    };
   } catch {
     throw new HttpsError("internal", "No se pudo preparar la clasificación pública.");
   }
+});
+
+export const getAttendanceMeetings = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+
+  const snapshot = await db.collection("attendanceMeetings")
+    .orderBy("date", "desc")
+    .limit(300)
+    .get();
+
+  return {
+    meetings: snapshot.docs.map((document) => {
+      const data = document.data();
+      const participants = Array.isArray(data.participants)
+        ? data.participants.flatMap((item) => {
+          if (typeof item !== "object" || item === null) return [];
+          const row = item as Record<string, unknown>;
+          if (typeof row.memberId !== "string" ||
+            typeof row.name !== "string" ||
+            !["Presente", "Ausente", "Justificado"].includes(String(row.status))) {
+            return [];
+          }
+          return [{
+            memberId: row.memberId,
+            name: row.name,
+            status: row.status as "Presente" | "Ausente" | "Justificado",
+          }];
+        })
+        : [];
+
+      return {
+        id: document.id,
+        name: text(data.name, 100),
+        date: text(data.date, 20),
+        createdAt: text(data.createdAt, 40),
+        participants,
+      };
+    }),
+  };
 });
 
 export const createAttendanceMeeting = onCall(async (request) => {
@@ -360,11 +497,11 @@ export const createAttendanceMeeting = onCall(async (request) => {
 
   const meetingName = text(request.data?.name, 100);
   const meetingDate = text(request.data?.date, 20);
-  if (!meetingName || !/^\d{4}-\d{2}-\d{2}$/.test(meetingDate)) {
-    throw new HttpsError("invalid-argument", "Debes indicar un nombre y fecha válidos.");
+  if (!meetingName || !isValidDate(meetingDate)) {
+    throw new HttpsError("invalid-argument", "Debes indicar un nombre y una fecha real válidos.");
   }
 
-  const meeting = await db.collection("attendance").add({
+  const meeting = await db.collection("attendanceMeetings").add({
     name: meetingName,
     date: meetingDate,
     createdBy: request.auth.uid,
@@ -372,4 +509,60 @@ export const createAttendanceMeeting = onCall(async (request) => {
     participants: [],
   });
   return {success: true, meetingId: meeting.id};
+});
+
+export const saveMeetingAttendance = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+
+  const meetingId = text(request.data?.meetingId, 150);
+  const rawParticipants = request.data?.participants;
+  if (!meetingId || !Array.isArray(rawParticipants) || rawParticipants.length > 500) {
+    throw new HttpsError("invalid-argument", "La reunión o la lista de asistencia no es válida.");
+  }
+
+  const participantIds = rawParticipants.map((item) =>
+    typeof item === "object" && item !== null
+      ? text((item as Record<string, unknown>).memberId, 150)
+      : "",
+  );
+  if (participantIds.some((id) => !id) ||
+    new Set(participantIds).size !== participantIds.length) {
+    throw new HttpsError("invalid-argument", "Hay jóvenes vacíos o repetidos en la lista.");
+  }
+
+  const validStatuses = ["Presente", "Ausente", "Justificado"];
+  const refs = participantIds.map((id) => db.collection("members").doc(id));
+  const memberSnapshots = refs.length ? await db.getAll(...refs) : [];
+  const participants = rawParticipants.map((item, index) => {
+    if (typeof item !== "object" || item === null) {
+      throw new HttpsError("invalid-argument", "Un participante no tiene un formato válido.");
+    }
+    const row = item as Record<string, unknown>;
+    const status = text(row.status, 20);
+    const memberSnapshot = memberSnapshots[index];
+    if (!validStatuses.includes(status)) {
+      throw new HttpsError("invalid-argument", "Uno de los estados de asistencia no es válido.");
+    }
+    if (!memberSnapshot?.exists) {
+      throw new HttpsError("not-found", "Uno de los jóvenes ya no existe en la colección members.");
+    }
+    const name = text(memberSnapshot.data()?.name, 120) || "Joven sin nombre";
+    return {memberId: participantIds[index], name, status};
+  });
+
+  const meetingRef = db.collection("attendanceMeetings").doc(meetingId);
+  const meetingSnapshot = await meetingRef.get();
+  if (!meetingSnapshot.exists) {
+    throw new HttpsError("not-found", "No se encontró la reunión seleccionada.");
+  }
+
+  await meetingRef.update({
+    participants,
+    updatedAt: new Date().toISOString(),
+    updatedBy: request.auth.uid,
+  });
+  return {success: true};
 });

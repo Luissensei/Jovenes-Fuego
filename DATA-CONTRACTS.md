@@ -48,7 +48,7 @@ Este documento registra el esquema observado en el código legado. Es un contrat
 - No se deben pegar credenciales de cuentas de servicio ni contraseñas en el frontend.
 - No desplegar reglas antiguas sin revisión. El análisis estático detectó permisos amplios en varias colecciones.
 - Antes de probar, usar un proyecto Firebase independiente, cuentas ficticias y datos sintéticos.
-- Ninguna escritura de negocio se ha añadido en esta fase.
+- Las nuevas escrituras descritas en esta sección se ejecutan por Cloud Functions; no se abren reglas de cliente en Firestore.
 
 
 ## Portal juvenil — nuevas colecciones aisladas
@@ -62,16 +62,18 @@ Campos creados por `adminSaveWeeklyActivity`: `title`, `description`, `date` (AA
 Campos: `requester`, `category`, `message`, `status`, `createdAt`, `source`; cambios de estado añaden `updatedAt` y `updatedBy`. El joven puede enviar una solicitud pública mediante Cloud Function; la consulta y actualización de estado requieren rol admin, administrador o pastor. No se publica el contenido de las solicitudes a los demás jóvenes.
 
 ### `publicPrayerRateLimits/{hash}`
-Control diario de hasta tres envíos por dirección de red anonimizada mediante SHA-256. Contiene contador, día y `expiresAt` como Timestamp de Firestore para retención limitada. Configurar una política TTL en Firestore para `expiresAt` cuando el proyecto de Staging esté preparado.
+Control diario de hasta 50 envíos por dirección de red anonimizada mediante SHA-256, para evitar bloquear grupos que comparten una red Wi-Fi. Contiene contador, día y `expiresAt` como Timestamp de Firestore para retención limitada. Configurar una política TTL en Firestore para `expiresAt` cuando el proyecto de Staging esté preparado.
 
 ### Funciones administrativas y públicas
 
-- `getPublicProfiles`: lee perfiles publicados y devuelve campos públicos y puntos.
-- `getPrivateMembers`: devuelve fichas solo a usuarios admin/pastor.
-- `adminUpdateMember`: actualiza una lista permitida de campos de `members/{id}`; mantiene los campos históricos no enviados. Si existe `publicProfiles/{id}`, sincroniza nombre, apodo y foto.
+- `getMyApplicationProfile`: valida la sesión y lee `users/{uid}` desde servidor, sin conceder al navegador lectura directa de la colección `users`.
+- `getPublicProfiles`: lee perfiles publicados, devuelve campos públicos y puntos, y excluye perfiles marcados `nopub` tanto en `publicProfiles` como en `members`.
+- `getPrivateMembers`: devuelve fichas a usuarios autenticados con rol admin, administrador, pastor o líder. Para líderes devuelve solo ID, nombre, apodo y foto; administración/pastoral reciben la ficha completa. La edición de fichas mediante `adminUpdateMember` sigue restringida a admin, administrador y pastor. La sincronización opcional de `members` y `publicProfiles` se realiza con un batch atómico.
+- `adminUpdateMember`: actualiza una lista permitida de campos de `members/{id}`; mantiene los campos históricos no enviados. Si existe `publicProfiles/{id}`, sincroniza nombre, apodo, foto y `nopub` en una operación batch.
 - `getPublicWeeklyActivities`, `adminListWeeklyActivities`, `adminSaveWeeklyActivity`.
+- `getAttendanceMeetings`, `createAttendanceMeeting`, `saveMeetingAttendance`: gestionan únicamente `attendanceMeetings`; la consulta de jóvenes se valida contra `members/{id}`.
 - `submitPublicPrayerRequest`, `adminGetPrayerRequests`, `adminUpdatePrayerStatus`.
-- `getPublicHallOfFame`: el top 3 se ordena por el campo público `points`/ `puntos`; el top 10 suma únicamente `attendance/{id}.participants[]` con `status === "Presente"` y cuyo `memberId` coincide con un documento de `publicProfiles`. No interpreta el formato histórico `attendance/{fecha}_{servicio}.r`, por lo que no debe presentarse como un conteo histórico completo.
+- `getPublicHallOfFame`: el top 3 se ordena por el campo público `points`/`puntos`; el top 10 suma únicamente reuniones de `attendanceMeetings/{id}.participants[]` con `status === "Presente"` y cuyo `memberId` coincide con un perfil público visible. Escanea hasta las 1.000 reuniones nuevas más recientes y devuelve `attendanceLimited` si hay más registros. No interpreta ni modifica el formato histórico `attendance/{fecha}_{servicio}.r`.
 
 ## Personalización cosmética
 
@@ -80,3 +82,8 @@ Los marcos y fondos elegidos en el portal se guardan en el almacenamiento local 
 ## Estado de despliegue
 
 El código de Cloud Functions y frontend debe compilarse y probarse en Staging, y las funciones nuevas deben desplegarse en el proyecto Firebase `jovenes-de-fuego-staging` antes de que las nuevas llamadas funcionen. Las reglas de Firestore se mantienen cerradas; no desplegar cambios de reglas como parte de esta fase.
+
+
+### `attendanceMeetings/{id}` — reuniones de la reconstrucción
+
+Colección nueva y aislada para el módulo de asistencia de esta reconstrucción. Campos: `name`, `date` (AAAA-MM-DD), `createdBy`, `createdAt`, `participants` (lista de `{ memberId, name, status }`) y, después del primer guardado, `updatedAt`/`updatedBy`. Las funciones `getAttendanceMeetings`, `createAttendanceMeeting` y `saveMeetingAttendance` requieren autenticación y un rol reconocido. La función vuelve a consultar el nombre real del joven en `members/{id}` y valida los estados permitidos. Esta colección no reemplaza ni modifica `attendance/{fecha}_{servicio}`.

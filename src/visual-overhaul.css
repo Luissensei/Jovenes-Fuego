@@ -1102,3 +1102,60 @@ body::after {
   }
   .youth-profile-card:hover,.youth-game-tile:hover,.youth-activity-card:hover {transform:none;translate:none;}
 }
+
+
+/* Revisión de accesibilidad, permisos y nuevos controles */
+.access-denied-shell {padding:24px;}
+.access-denied-card {
+  width:min(100%,520px);display:flex;flex-direction:column;align-items:center;gap:12px;
+  padding:clamp(22px,4vw,34px);border:1px solid var(--jf-glass-border);
+  border-radius:22px;background:var(--jf-glass);color:var(--jf-text);
+  text-align:center;box-shadow:var(--jf-shadow);
+  backdrop-filter:blur(24px) saturate(145%);
+}
+.access-denied-card > svg {color:#ff9c65;}
+.access-denied-card h1 {margin:0;font-family:var(--jf-display);font-size:clamp(25px,4vw,34px);text-transform:uppercase;}
+.access-denied-card p {margin:0;color:var(--jf-muted);font-size:12px;line-height:1.7;}
+.access-denied-card button {
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:43px;padding:0 17px;border:1px solid rgba(255,255,255,.18);
+  border-radius:12px;background:linear-gradient(110deg,#ff9c58,#e65a78);
+  color:#fff;font-size:11px;font-weight:900;
+}
+.member-detail-checkbox {
+  display:flex;align-items:flex-start;gap:10px;padding:12px;
+  border:1px solid rgba(255,170,110,.2);border-radius:12px;
+  background:rgba(255,132,87,.07);color:var(--jf-muted);
+  font-size:10px;font-weight:600;line-height:1.55;
+}
+.member-detail-checkbox input[type="checkbox"] {
+  width:18px;height:18px;flex:none;margin:1px 0 0;
+  accent-color:#ff9c58;cursor:pointer;
+}
+.member-status.private {border-color:rgba(255,130,151,.22);color:#ff9bab;}
+.member-status.private > span {background:#ff7c91;}
+.member-status.public {border-color:rgba(85,220,171,.18);color:#7ce1ba;}
+.member-status.public > span {background:#63d7a7;}
+.youth-look-notice {
+  margin:10px auto 0;max-width:650px;padding:9px 12px;
+  border:1px solid rgba(97,213,255,.2);border-radius:11px;
+  background:rgba(75,194,255,.07);color:#a8e9ff;text-align:center;
+  font-size:10px;line-height:1.5;
+}
+.youth-hall-limited {
+  margin:0 0 10px;padding:8px 10px;border:1px solid rgba(255,190,110,.18);
+  border-radius:10px;background:rgba(255,171,84,.06);
+  color:#f5c98e;font-size:9px;line-height:1.5;
+}
+.attendance-refresh {
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:40px;padding:0 13px;border:1px solid var(--jf-glass-border);
+  border-radius:11px;background:var(--jf-glass);color:var(--jf-text);
+  font-size:10px;font-weight:850;
+}
+.attendance-refresh:disabled {opacity:.55;cursor:wait;}
+@media (max-width:620px) {
+  .access-denied-card {width:100%;}
+  .attendance-header {align-items:flex-start;gap:12px;flex-direction:column;}
+  .attendance-refresh {width:100%;}
+}
