@@ -13,7 +13,6 @@ import {
 import {
   createManagedRecord,
   deleteManagedRecord,
-  subscribeManagedRecords,
   updateManagedRecord,
   updateManagedRecordStatus,
   type ManagedCollection,
@@ -83,33 +82,25 @@ export default function ManagedRecordsPage({ config }: Props) {
   );
 
   useEffect(() => {
-    setLoading(true);
-    setError('');
+    let active = true;
 
-    let unsubscribe: (() => void) | undefined;
-
-    try {
-      unsubscribe = subscribeManagedRecords(
-        config.collection,
-        (items) => {
-          setRecords(items);
-          setLoading(false);
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
-    } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'No se pudieron cargar los registros.',
-      );
-      setLoading(false);
+    async function load() {
+      setLoading(true);
+      setError('');
+      try {
+        const items = await getManagedRecords(config.collection);
+        if (active) setRecords(items);
+      } catch (cause) {
+        if (active) {
+          setError(cause instanceof Error ? cause.message : 'No se pudieron cargar los registros.');
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
     }
 
-    return () => unsubscribe?.();
+    void load();
+    return () => { active = false; };
   }, [config.collection]);
 
   const filtered = useMemo(() => {
@@ -201,6 +192,7 @@ export default function ManagedRecordsPage({ config }: Props) {
         setMessage('Registro creado correctamente.');
       }
 
+      setRecords(await getManagedRecords(config.collection));
       setShowForm(false);
       setEditingId(null);
       setForm(initialForm(config.fields));
@@ -229,6 +221,9 @@ export default function ManagedRecordsPage({ config }: Props) {
         record.id,
         status,
       );
+      setRecords((current) => current.map((item) =>
+        item.id === record.id ? {...item, status} : item,
+      ));
       setMessage('Estado actualizado correctamente.');
     } catch (cause) {
       setError(
@@ -254,6 +249,7 @@ export default function ManagedRecordsPage({ config }: Props) {
 
     try {
       await deleteManagedRecord(config.collection, record.id);
+      setRecords((current) => current.filter((item) => item.id !== record.id));
       setMessage('Registro eliminado correctamente.');
     } catch (cause) {
       setError(
