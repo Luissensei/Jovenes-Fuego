@@ -21,7 +21,11 @@ const hasCompleteEnvironmentConfig = Boolean(
   && env.VITE_FIREBASE_APP_ID?.trim(),
 );
 
-const config = hasCompleteEnvironmentConfig
+const useStagingEnvironment = env.VITE_FIREBASE_TARGET === 'staging'
+  && env.VITE_FIREBASE_PROJECT_ID === 'jovenes-de-fuego-staging'
+  && hasCompleteEnvironmentConfig;
+
+const config = useStagingEnvironment
   ? {
       apiKey: env.VITE_FIREBASE_API_KEY,
       authDomain: env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -33,9 +37,10 @@ const config = hasCompleteEnvironmentConfig
   : originalConfig;
 
 // El proyecto original nunca acepta escrituras desde esta aplicación.
-// Staging puede habilitarlas de forma explícita en sus variables de entorno.
+// Solo se usa Staging cuando VITE_FIREBASE_TARGET=staging y el projectId coincide.
 const isOriginalProject = config.projectId === originalConfig.projectId;
 export const firebaseReadOnlyMode = isOriginalProject
+  || !useStagingEnvironment
   || env.VITE_FIREBASE_READ_ONLY_PRODUCTION === 'true';
 
 let app: FirebaseApp | null = null;
