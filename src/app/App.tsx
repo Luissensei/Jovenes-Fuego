@@ -195,7 +195,7 @@ function AdminApp() {
         return <FollowupPage />;
 
       case 'devotionals':
-        return <DevotionalsPage />;
+        return <DevotionalsPage canManage={isAdmin || isPastor} />;
 
       case 'visitors':
         return <VisitorsPage />;
