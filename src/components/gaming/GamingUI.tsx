@@ -201,10 +201,11 @@ export function PlayerProfileCard({
   name,
   playerId,
   avatarUrl,
-  level = 1,
-  xp = 0,
-  xpToNext = 100,
-  rank = 'Inicio',
+  level,
+  xp,
+  xpToNext,
+  rank,
+  points,
   badges,
 }: {
   name: string;
@@ -214,8 +215,10 @@ export function PlayerProfileCard({
   xp?: number;
   xpToNext?: number;
   rank?: string;
+  points?: number;
   badges?: ReactNode;
 }) {
+  const hasExperience = typeof xp === 'number' && typeof xpToNext === 'number' && xpToNext > 0;
   return (
     <GlassCard className="jf-player-profile-card">
       <div className="jf-player-profile-card__top">
@@ -224,11 +227,19 @@ export function PlayerProfileCard({
           <span className="jf-eyebrow">PERFIL DE JUGADOR</span>
           <h3>{name}</h3>
           {playerId && <small>ID · {playerId}</small>}
-          <RankBadge rank={rank} />
+          {rank && <RankBadge rank={rank} />}
         </div>
-        <span className="jf-player-profile-card__level">NVL. {Math.max(1, level)}</span>
+        {typeof level === 'number' && (
+          <span className="jf-player-profile-card__level">NVL. {Math.max(1, level)}</span>
+        )}
       </div>
-      <ExperienceBar value={xp} max={xpToNext} />
+      {points !== undefined && (
+        <div className="jf-player-profile-card__points">
+          <span>PUNTOS ACUMULADOS</span>
+          <strong>{Math.max(0, points).toLocaleString('es-CO')}</strong>
+        </div>
+      )}
+      {hasExperience && <ExperienceBar value={xp!} max={xpToNext!} />}
       {badges && <div className="jf-player-profile-card__badges">{badges}</div>}
     </GlassCard>
   );
