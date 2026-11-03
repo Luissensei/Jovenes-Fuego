@@ -1,94 +1,89 @@
-# Conexión de producción en modo solo lectura
+# Conexión con Firebase original en modo solo lectura
 
-Esta reconstrucción puede conectarse al Firebase original `jovenes-de-fuego`
-sin inicializar Firebase Cloud Functions y sin habilitar escrituras desde la
-interfaz.
+La reconstrucción puede conectarse al proyecto original `jovenes-de-fuego`
+sin desplegar Cloud Functions y sin habilitar escrituras desde la interfaz.
 
 ## Configuración de Vercel
 
 Configura estas variables únicamente en el entorno **Production** del proyecto
-de Vercel:
+Vercel que servirá la nueva aplicación:
 
 - `VITE_FIREBASE_PROJECT_ID=jovenes-de-fuego`
 - `VITE_FIREBASE_READ_ONLY_PRODUCTION=true`
-- `VITE_FIREBASE_API_KEY`: valor de la aplicación web original en Firebase.
-- `VITE_FIREBASE_AUTH_DOMAIN`: valor de la aplicación web original.
-- `VITE_FIREBASE_APP_ID`: valor de la aplicación web original.
-- `VITE_FIREBASE_MESSAGING_SENDER_ID`: valor original, si está configurado.
-- `VITE_FIREBASE_STORAGE_BUCKET`: valor original, si está configurado.
+- `VITE_FIREBASE_API_KEY`: API key de la app web original.
+- `VITE_FIREBASE_AUTH_DOMAIN=jovenes-de-fuego.firebaseapp.com`
+- `VITE_FIREBASE_APP_ID`: app ID web original.
+- `VITE_FIREBASE_MESSAGING_SENDER_ID=222344810816`
+- `VITE_FIREBASE_STORAGE_BUCKET=jovenes-de-fuego.firebasestorage.app`
 
-Obtén esos valores en Firebase Console → Configuración del proyecto →
-General → Tus aplicaciones → aplicación web → configuración del SDK.
+Los valores web públicos se consultan en Firebase Console → Configuración del
+proyecto → General → Tus aplicaciones → app web → configuración del SDK.
 
-Mantén las variables de **Preview** y **Development** apuntando a
-`jovenes-de-fuego-staging` y con
-`VITE_FIREBASE_READ_ONLY_PRODUCTION=false`. No copies la configuración
-original en Preview ni en Development.
+Mantén **Preview** y **Development** apuntando a
+`jovenes-de-fuego-staging` con
+`VITE_FIREBASE_READ_ONLY_PRODUCTION=false`. No copies las variables originales
+en Preview ni Development.
 
-## Lecturas habilitadas
+## Esquema original confirmado
 
-- Firebase Authentication autentica contra el proyecto elegido por las
-  variables del entorno.
-- Después del inicio de sesión se lee únicamente
-  `users/{uid}` del usuario autenticado para validar su rol.
-- El selector público consulta únicamente `publicProfiles`, con
-  `nopub == false` y un máximo de 200 documentos.
-- No se consulta la colección privada `members` desde el navegador.
-- Firebase Functions no se inicializa en el modo de producción de solo lectura.
-- La navegación interna de producción se limita a Clasificación, Juegos y
+La antigua aplicación publica el selector de perfiles y los datos del ranking
+en el documento `public/ranking`. El campo `all` contiene los perfiles
+publicados. La aplicación original construye esa lista excluyendo los jóvenes
+con `members/{id}.nopub === true`, y aplica antes el formato de nombre público
+configurado por el administrador.
+
+La nueva interfaz lee solamente:
+
+1. `users/{uid}`: documento del usuario que ha iniciado sesión, para validar
+   su propio rol.
+2. `public/ranking`: documento público de ranking; de su campo `all` se usan
+   únicamente `i` (ID), `n` (nombre público) y `t` (puntos del mes).
+3. `photos/{memberId}`: documentos de fotos de los IDs que ya aparecen en
+   `public/ranking.all`; solo se utiliza el campo público `p` (foto JPEG).
+
+No se consulta `members` desde el navegador, y no se consulta la colección
+inventada `publicProfiles`. Así se conserva el selector original y se respeta
+la lista de privacidad que ya publica la aplicación anterior.
+
+## Acceso y funciones
+
+- Firebase Authentication inicia sesión en el proyecto original.
+- Tras iniciar sesión, se lee exclusivamente `users/{uid}`.
+- Firebase Functions no se inicializa en este modo.
+- El entorno de producción limita la navegación a Clasificación, Juegos y
   Perfil público.
-
-Los documentos de `publicProfiles` deben contener únicamente campos
-aprobados para mostrarse públicamente y tener `nopub: false`. Los perfiles
-sin ese indicador explícito no se mostrarán. La colección debe estar
-sincronizada con el estado de publicación de los miembros antes de activar
-esta lectura pública.
+- El portal público puede leer el ranking y los perfiles publicados. Las
+  operaciones del portal que todavía dependan de Cloud Functions no estarán
+  disponibles hasta migrarlas de manera segura.
 
 ## Escrituras bloqueadas
 
 Los repositorios de Firestore comprueban el modo de solo lectura antes de
-crear, editar, aprobar, rechazar o borrar documentos. Las funciones callable
-no se inicializan en este modo. Las otras secciones administrativas no se
-muestran.
+crear, editar, aprobar, rechazar o eliminar documentos. Los módulos
+administrativos no se muestran en producción. No se inicializan callable
+Functions en este modo.
 
-Las funciones del portal que todavía dependen de Cloud Functions (por ejemplo,
-actividades, salón de la fama basado en asistencias y envío de peticiones)
-no quedan habilitadas por este cambio. Deben migrarse por separado con reglas
-de seguridad adecuadas antes de activarlas.
+Los juegos actuales mantienen sus resultados en el navegador; no se envían
+puntos al ranking original.
 
-## Reglas de Firestore: revisión obligatoria
+## Reglas existentes: no reemplazar ni desplegar
 
-No desplegar `firestore.rules` de este repositorio en producción: ese archivo
-contiene una regla global que deniega todo acceso y corresponde al entorno
-de desarrollo.
+Las reglas suministradas para el proyecto original ya permiten:
 
-Antes de activar Production, inspecciona las reglas que ya existen en el
-proyecto original. Para que las dos lecturas anteriores funcionen, las reglas
-existentes deben restringir el acceso al propio documento de usuario y a los
-documentos públicos explícitos. Como referencia conceptual, los permisos
-mínimos son:
+- Leer `users/{uid}` cuando el UID coincide con el usuario autenticado.
+- Obtener el documento `public/ranking` sin iniciar sesión.
+- Leer `photos` para mostrar las fotos públicas.
+- Leer `members` solo después de autenticar una cuenta con documento
+  `users/{uid}`.
 
-```javascript
-match /users/{uid} {
-  allow get: if request.auth != null && request.auth.uid == uid;
-  allow list, create, update, delete: if false;
-}
+No hace falta añadir una regla para `publicProfiles`: esa colección no forma
+parte del esquema original usado por el selector heredado.
 
-match /publicProfiles/{profileId} {
-  allow get: if resource.data.nopub == false;
-  allow list: if resource.data.nopub == false
-    && request.query.limit <= 200;
-  allow create, update, delete: if false;
-}
-```
+**No desplegar** el archivo `firestore.rules` de este repositorio sobre el
+proyecto original. Ese archivo local corresponde al entorno de desarrollo y
+deniega todas las lecturas y escrituras. Tampoco cambies las reglas originales
+como parte de esta conexión.
 
-Este fragmento es una referencia para revisión, no una regla lista para
-reemplazar las reglas existentes. Las reglas de Firestore se combinan por
-concesión: cualquier otra regla que permita una lectura más amplia puede
-seguir permitiéndola. Además, Firestore Rules no oculta campos individuales
-de un documento; por eso `publicProfiles` debe contener exclusivamente datos
-públicos.
-
-Si las reglas actuales niegan estas lecturas, la aplicación mostrará el error
-de permisos y no intentará abrir permisos automáticamente. No cambiar las
-reglas originales sin auditar el archivo completo y los documentos reales.
+Si `public/ranking` no existe o tiene `off: true`, el selector mostrará una
+lista vacía. En ese caso, el administrador debe activar la pantalla pública
+desde la aplicación original para que su proceso normal publique el documento.
