@@ -164,7 +164,7 @@ function AdminApp() {
       return isAdmin || isPastor || isLeader;
     }
 
-    if (['prayers', 'events'].includes(item.id)) {
+    if (['prayers', 'events', 'inbox'].includes(item.id)) {
       return isAdmin || isPastor;
     }
 
