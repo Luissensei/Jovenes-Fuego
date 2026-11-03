@@ -26,13 +26,15 @@ function shuffle<T,>(items: T[]): T[] {
   return result;
 }
 
-const bank: Question[] = shuffleBibleQuestions(bibleQuestionBank).map((question) => ({
-  prompt: question.question,
-  options: question.options,
-  answer: question.options[question.answer],
-  reference: question.reference,
-  explanation: question.explanation,
-}));
+function makeQuestionBank(): Question[] {
+  return shuffleBibleQuestions(bibleQuestionBank).map((question) => ({
+    prompt: question.question,
+    options: question.options,
+    answer: question.options[question.answer],
+    reference: question.reference,
+    explanation: question.explanation,
+  }));
+}
 
 function Header({ title, subtitle, onExit }: {
   title: string;
@@ -187,6 +189,7 @@ export function MemoryGame({ onExit }: { onExit: () => void }) {
 export function ChallengeGame({ onExit }: { onExit: () => void }) {
   const [seconds, setSeconds] = useState(60);
   const [index, setIndex] = useState(0);
+  const [questions, setQuestions] = useState<Question[]>(makeQuestionBank);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
@@ -203,7 +206,7 @@ export function ChallengeGame({ onExit }: { onExit: () => void }) {
     if (seconds === 0) setFinished(true);
   }, [seconds]);
 
-  const question = bank[index % bank.length];
+  const question = questions[index % questions.length];
 
   function answer(option: string) {
     if (answered !== null || finished) return;
@@ -220,6 +223,7 @@ export function ChallengeGame({ onExit }: { onExit: () => void }) {
   function restart() {
     setSeconds(60);
     setIndex(0);
+    setQuestions(makeQuestionBank());
     setScore(0);
     setAnswered(null);
     setFinished(false);
@@ -247,12 +251,13 @@ export function ChallengeGame({ onExit }: { onExit: () => void }) {
 /* SUPERVIVENCIA */
 export function SurvivalGame({ onExit }: { onExit: () => void }) {
   const [index, setIndex] = useState(0);
+  const [questions, setQuestions] = useState<Question[]>(makeQuestionBank);
   const [lives, setLives] = useState(3);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
 
-  const question = bank[index % bank.length];
+  const question = questions[index % questions.length];
   const correct = answered === question.answer;
 
   function answer(option: string) {
@@ -277,6 +282,7 @@ export function SurvivalGame({ onExit }: { onExit: () => void }) {
 
   function restart() {
     setIndex(0);
+    setQuestions(makeQuestionBank());
     setLives(3);
     setScore(0);
     setAnswered(null);
@@ -315,11 +321,12 @@ export function DuelGame({ onExit }: { onExit: () => void }) {
   const [started, setStarted] = useState(false);
   const [turn, setTurn] = useState(0);
   const [round, setRound] = useState(0);
+  const [questions, setQuestions] = useState<Question[]>(makeQuestionBank);
   const [scores, setScores] = useState([0, 0]);
   const [answered, setAnswered] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
 
-  const question = bank[(round) % bank.length];
+  const question = questions[round % questions.length];
 
   function answer(option: string) {
     if (answered !== null) return;
@@ -343,6 +350,7 @@ export function DuelGame({ onExit }: { onExit: () => void }) {
   function restart() {
     setTurn(0);
     setRound(0);
+    setQuestions(makeQuestionBank());
     setScores([0, 0]);
     setAnswered(null);
     setFinished(false);
