@@ -12,13 +12,24 @@ import {
   type AdminMemberPatch,
 } from '../services/youthPortal';
 
-type EditableField = {
-  key: keyof AdminMemberPatch;
-  label: string;
-  type?: 'tel' | 'date' | 'url';
-  multiline?: boolean;
-  boolean?: boolean;
-};
+type StringMemberKey = Exclude<keyof AdminMemberPatch, 'ac' | 'nopub'>;
+type BooleanMemberKey = Extract<keyof AdminMemberPatch, 'ac' | 'nopub'>;
+
+type EditableField =
+  | {
+      key: StringMemberKey;
+      label: string;
+      type?: 'tel' | 'date' | 'url';
+      multiline?: boolean;
+      boolean?: false;
+    }
+  | {
+      key: BooleanMemberKey;
+      label: string;
+      type?: never;
+      multiline?: never;
+      boolean: true;
+    };
 
 const editableFields: EditableField[] = [
   {key: 'name', label: 'Nombre completo'},
@@ -118,11 +129,11 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
     setDraft({});
   }
 
-  function changeField(key: keyof AdminMemberPatch, value: string) {
+  function changeField(key: StringMemberKey, value: string) {
     setDraft((current) => ({...current, [key]: value}));
   }
 
-  function changeBoolean(key: keyof AdminMemberPatch, value: boolean) {
+  function changeBoolean(key: BooleanMemberKey, value: boolean) {
     setDraft((current) => ({...current, [key]: value}));
   }
 
