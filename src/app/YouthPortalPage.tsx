@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
-import {firebaseReadOnlyMode} from '../services/firebase/client';
 import {
   getWeeklyActivities,
   getHallOfFame,
@@ -18,6 +17,7 @@ import {
   type WeeklyActivity,
   type HallOfFamePlayer,
   type FaithfulPlayer,
+  saveYouthProfileAppearance,
 } from '../services/youthPortal';
 
 import TriviaGame from './TriviaGame';
@@ -33,13 +33,80 @@ import {
 import './YouthPortalPage.css';
 
 type ProfileLook = {
-  frame: 'ember' | 'prism' | 'ice' | 'gold';
-  background: 'aurora' | 'fire' | 'ocean' | 'galaxy';
+  frame: string;
+  background: string;
+  avatar: string;
+  title: string;
+  ownedItems: string[];
+  flames: number;
+};
+
+type LookShopCategory = 'frames' | 'avatars' | 'titles' | 'backgrounds';
+
+const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: string; cost: number}[]> = {
+  frames: [
+    {key:'fuego',label:'Fuego',emoji:'🔥',cost:0},
+    {key:'neon',label:'Neón',emoji:'💜',cost:40},
+    {key:'cielo',label:'Cielo',emoji:'🕊️',cost:40},
+    {key:'hielo',label:'Hielo',emoji:'❄️',cost:50},
+    {key:'arco',label:'Arcoíris',emoji:'🌈',cost:60},
+    {key:'esmeralda',label:'Esmeralda',emoji:'💚',cost:70},
+    {key:'rayo',label:'Rayo',emoji:'⚡',cost:80},
+    {key:'oro',label:'Oro',emoji:'👑',cost:120},
+    {key:'galaxia',label:'Galaxia',emoji:'🌌',cost:150},
+    {key:'corona',label:'Campeón',emoji:'🏆',cost:200},
+  ],
+  avatars: [
+    {key:'',label:'Iniciales',emoji:'🔤',cost:0},
+    {key:'paloma',label:'Paloma',emoji:'🕊️',cost:0},
+    {key:'leon',label:'León de Judá',emoji:'🦁',cost:0},
+    {key:'aguila',label:'Águila',emoji:'🦅',cost:0},
+    {key:'cordero',label:'Cordero',emoji:'🐑',cost:20},
+    {key:'mariposa',label:'Mariposa',emoji:'🦋',cost:25},
+    {key:'lobo',label:'Lobo',emoji:'🐺',cost:30},
+    {key:'estrella',label:'Estrella',emoji:'🌟',cost:40},
+    {key:'guerrero',label:'Guerrero',emoji:'🛡️',cost:50},
+    {key:'dragon',label:'Dragón',emoji:'🐉',cost:60},
+    {key:'cohete',label:'Cohete',emoji:'🚀',cost:70},
+    {key:'rey',label:'Rey',emoji:'👑',cost:80},
+    {key:'volcan',label:'Volcán',emoji:'🌋',cost:90},
+  ],
+  titles: [
+    {key:'chispa',label:'Chispa Encendida',emoji:'✨',cost:0},
+    {key:'valiente',label:'Valiente',emoji:'🛡️',cost:25},
+    {key:'guerrero',label:'Guerrero de Fe',emoji:'⚔️',cost:40},
+    {key:'intercesor',label:'Intercesor',emoji:'🙏',cost:50},
+    {key:'adorador',label:'Adorador',emoji:'🎵',cost:60},
+    {key:'sabio',label:'Sabio de la Palabra',emoji:'📖',cost:80},
+    {key:'leyenda',label:'Leyenda de Fuego',emoji:'🏆',cost:150},
+  ],
+  backgrounds: [
+    {key:'brasa',label:'Brasa',emoji:'🔥',cost:0},
+    {key:'ocaso',label:'Ocaso',emoji:'🌅',cost:30},
+    {key:'aurora',label:'Aurora',emoji:'🌌',cost:50},
+    {key:'noche',label:'Noche',emoji:'🌙',cost:50},
+    {key:'volcan',label:'Volcán',emoji:'🌋',cost:80},
+    {key:'galaxia',label:'Galaxia',emoji:'✨',cost:100},
+  ],
+};
+
+const lookCategoryField: Record<LookShopCategory, keyof ProfileLook> = {
+  frames: 'frame',
+  avatars: 'avatar',
+  titles: 'title',
+  backgrounds: 'background',
+};
+
+const lookCategoryStorage: Record<LookShopCategory, string> = {
+  frames: 'frames',
+  avatars: 'avs',
+  titles: 'tits',
+  backgrounds: 'bans',
 };
 
 type MiniGame = 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order';
 
-const defaultLook: ProfileLook = {frame: 'prism', background: 'aurora'};
+const defaultLook: ProfileLook = {frame: 'fuego', background: 'brasa', avatar: '', title: 'chispa', ownedItems: [], flames: 0};
 
 const games: {id: MiniGame; title: string; subtitle: string; icon: typeof Trophy; color: string}[] = [
   {id: 'trivia', title: 'Trivia bíblica', subtitle: 'Preguntas y conocimiento', icon: BookOpen, color: 'orange'},
@@ -60,26 +127,38 @@ function getInitials(name: string): string {
 function YouthAvatar({profile, large = false}: {profile: PublicProfile; large?: boolean}) {
   const [imageFailed, setImageFailed] = useState(false);
   return (
-    <div className={`youth-avatar ${large ? 'large' : ''}`}>
+    <div className={`youth-avatar youth-avatar-frame-${profile.frame || 'fuego'} ${large ? 'large' : ''}`}>
       {profile.pic && !imageFailed ? (
         <img src={profile.pic} alt={`Fotografía de ${profile.name}`} onError={() => setImageFailed(true)} />
-      ) : <span>{getInitials(profile.name)}</span>}
+      ) : <span className={profile.avatar ? 'youth-avatar-symbol' : ''}>{profile.avatar ? ({paloma:'🕊️',leon:'🦁',aguila:'🦅',cordero:'🐑',mariposa:'🦋',lobo:'🐺',estrella:'🌟',guerrero:'🛡️',dragon:'🐉',cohete:'🚀',rey:'👑',volcan:'🌋'} as Record<string,string>)[profile.avatar] ?? getInitials(profile.name) : getInitials(profile.name)}</span>}
     </div>
   );
 }
 
-function readLook(profileId: string): ProfileLook {
+function readLook(profile: PublicProfile): ProfileLook {
+  const remote: ProfileLook = {
+    frame: profile.frame || defaultLook.frame,
+    background: profile.background || defaultLook.background,
+    avatar: profile.avatar || '',
+    title: profile.title || defaultLook.title,
+    ownedItems: profile.ownedItems ?? [],
+    flames: profile.flames ?? 0,
+  };
   try {
-    const raw = window.localStorage.getItem(`jf-youth-look-${profileId}`);
-    if (!raw) return defaultLook;
+    const raw = window.localStorage.getItem(`jf-youth-look-${profile.id}`);
+    if (!raw) return remote;
     const parsed = JSON.parse(raw) as Partial<ProfileLook>;
-    const frame = ['ember', 'prism', 'ice', 'gold'].includes(String(parsed.frame))
-      ? parsed.frame as ProfileLook['frame'] : defaultLook.frame;
-    const background = ['aurora', 'fire', 'ocean', 'galaxy'].includes(String(parsed.background))
-      ? parsed.background as ProfileLook['background'] : defaultLook.background;
-    return {frame, background};
+    return {
+      ...remote,
+      frame: profile.frame || parsed.frame || remote.frame,
+      background: profile.background || parsed.background || remote.background,
+      avatar: profile.avatar || parsed.avatar || remote.avatar,
+      title: profile.title || parsed.title || remote.title,
+      ownedItems: profile.ownedItems ?? parsed.ownedItems ?? [],
+      flames: profile.flames ?? parsed.flames ?? 0,
+    };
   } catch {
-    return defaultLook;
+    return remote;
   }
 }
 
@@ -164,6 +243,8 @@ export default function YouthPortalPage() {
 
   const [look, setLook] = useState<ProfileLook>(defaultLook);
   const [editingLook, setEditingLook] = useState(false);
+  const [lookCategory, setLookCategory] = useState<LookShopCategory>('frames');
+  const [lookSaving, setLookSaving] = useState(false);
   const [activeGame, setActiveGame] = useState<MiniGame | null>(null);
 
   const [prayerName, setPrayerName] = useState('');
@@ -220,7 +301,7 @@ export default function YouthPortalPage() {
 
   useEffect(() => {
     if (selectedProfile) {
-      setLook(readLook(selectedProfile.id));
+      setLook(readLook(selectedProfile));
       // La selección pública no verifica identidad: no prellenar el nombre
       // evita enviar peticiones en nombre de otra persona.
       setPrayerName('');
@@ -255,14 +336,36 @@ export default function YouthPortalPage() {
     return activities.filter((activity) => activity.date >= weekStart && activity.date <= weekEnd);
   }, [activities]);
 
-  function saveLook(next: ProfileLook) {
+  async function equipLookItem(category: LookShopCategory, item: (typeof lookShop)[LookShopCategory][number]) {
     if (!selectedProfile) return;
+    const field = lookCategoryField[category];
+    const ownedKey = `${lookCategoryStorage[category]}:${item.key}`;
+    const alreadyOwned = item.cost === 0 || look.ownedItems.includes(ownedKey);
+    if (!alreadyOwned && look.flames < item.cost) {
+      setLookNotice(`Te faltan ${item.cost - look.flames} Llamas para desbloquear ${item.label}.`);
+      return;
+    }
+
+    const next: ProfileLook = {
+      ...look,
+      [field]: item.key,
+      ownedItems: alreadyOwned ? look.ownedItems : [...look.ownedItems, ownedKey],
+      flames: alreadyOwned ? look.flames : look.flames - item.cost,
+    };
     setLook(next);
+    setLookSaving(true);
+    setLookNotice('');
     try {
+      await saveYouthProfileAppearance(selectedProfile.id, next);
       window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
-      setLookNotice('Tu apariencia quedó guardada en este dispositivo.');
-    } catch {
-      setLookNotice('El navegador no permitió guardar la apariencia en este dispositivo.');
+      setLookNotice(`${item.label} equipado correctamente.`);
+    } catch (cause) {
+      setLookNotice(cause instanceof Error
+        ? cause.message
+        : 'No se pudo guardar el cambio. Comprueba tu conexión.');
+      setLook(readLook(selectedProfile));
+    } finally {
+      setLookSaving(false);
     }
   }
 
@@ -330,12 +433,13 @@ export default function YouthPortalPage() {
     setPrayerBusy(true);
     try {
       await sendPrayerRequest({
+        memberId: selectedProfile?.id ?? '',
         requester: prayerName.trim() || 'Anónimo',
         category: prayerCategory,
         message: prayerMessage.trim(),
       });
       setPrayerMessage('');
-      setPrayerStatus('Tu petición fue recibida. El equipo de oración podrá acompañarte.');
+      setPrayerStatus('Tu petición fue enviada al equipo de oración. Gracias por confiar.');
     } catch (cause) {
       setPrayerStatus(cause instanceof Error ? cause.message : 'No se pudo enviar la petición.');
     } finally {
@@ -378,18 +482,20 @@ export default function YouthPortalPage() {
             </button>
           </div>
 
-          <section className={`youth-welcome youth-home youth-frame-${look.frame}`}>
+          <section className={`youth-welcome youth-home youth-frame-${look.frame} youth-background-${look.background}`}>
             <div className="youth-welcome-decoration"><Sparkles size={24}/></div>
             <button type="button" className="youth-customize-trigger" onClick={() => setEditingLook((value) => !value)}>
               <Palette size={17}/> Personalizar perfil
             </button>
-            <YouthAvatar profile={selectedProfile} large/>
+            <YouthAvatar profile={{...selectedProfile, frame: look.frame, avatar: look.avatar}} large/>
             <span className="youth-brand-label">COMUNIDAD JÓVENES DE FUEGO</span>
             <h1>¡Hola, {selectedProfile.name}!</h1>
             <p>Tu espacio para crecer, servir, aprender y compartir.</p>
             {selectedProfile.nick && <span className="youth-profile-nick">@{selectedProfile.nick}</span>}
+            {look.title && <span className="youth-profile-title">{({chispa:'Chispa Encendida',valiente:'Valiente',guerrero:'Guerrero de Fe',intercesor:'Intercesor',adorador:'Adorador',sabio:'Sabio de la Palabra',leyenda:'Leyenda de Fuego'} as Record<string,string>)[look.title] ?? look.title}</span>}
             <div className="youth-profile-quickstats">
               <span><Star size={15}/> {selectedProfile.points > 0 ? `${selectedProfile.points} puntos públicos` : 'Puntos aún no publicados'}</span>
+              <span><Flame size={15}/> {look.flames} Llamas</span>
               <span><ShieldCheck size={15}/> Perfil comunitario</span>
             </div>
           </section>
@@ -398,13 +504,40 @@ export default function YouthPortalPage() {
 
           {editingLook && (
             <section className="youth-customizer">
-              <header><WandSparkles size={19}/><div><b>Tu identidad visual</b><span>Los cambios se guardan solo en este dispositivo.</span></div><button type="button" aria-label="Cerrar personalización" onClick={() => setEditingLook(false)}><X size={18}/></button></header>
-              <div className="youth-look-group"><strong>Marcos</strong><div className="youth-look-choices">
-                {(['ember','prism','ice','gold'] as const).map((frame) => <button type="button" key={frame} className={`look-choice frame-choice ${frame} ${look.frame === frame ? 'selected' : ''}`} onClick={() => saveLook({...look,frame})}><span/>{({ember:'Llama',prism:'Prisma',ice:'Cristal',gold:'Dorado'})[frame]}</button>)}
-              </div></div>
-              <div className="youth-look-group"><strong>Fondos</strong><div className="youth-look-choices">
-                {(['aurora','fire','ocean','galaxy'] as const).map((background) => <button type="button" key={background} className={`look-choice background-choice ${background} ${look.background === background ? 'selected' : ''}`} onClick={() => saveLook({...look,background})}>{({aurora:'Aurora',fire:'Fuego',ocean:'Océano',galaxy:'Galaxia'})[background]}</button>)}
-              </div></div>
+              <header>
+                <WandSparkles size={20}/>
+                <div><b>Forja tu identidad</b><span>Desbloquea marcos, avatares, títulos y mundos con tus Llamas.</span></div>
+                <strong className="youth-store-wallet"><Flame size={16}/> {look.flames}</strong>
+                <button type="button" aria-label="Cerrar personalización" onClick={() => setEditingLook(false)}><X size={18}/></button>
+              </header>
+              <nav className="youth-store-tabs" aria-label="Personalización">
+                {([
+                  ['frames','Marcos'],['avatars','Avatares'],['titles','Títulos'],['backgrounds','Fondos'],
+                ] as [LookShopCategory,string][]).map(([key,label]) => (
+                  <button type="button" key={key} className={lookCategory === key ? 'active' : ''} onClick={() => setLookCategory(key)}>{label}</button>
+                ))}
+              </nav>
+              <div className="youth-store-grid">
+                {lookShop[lookCategory].map((item) => {
+                  const field = lookCategoryField[lookCategory];
+                  const selected = look[field] === item.key;
+                  const unlocked = item.cost === 0 || look.ownedItems.includes(`${lookCategoryStorage[lookCategory]}:${item.key}`);
+                  return (
+                    <button
+                      type="button"
+                      key={item.key || 'default'}
+                      className={`youth-store-item ${selected ? 'selected' : ''} ${unlocked ? 'unlocked' : 'locked'}`}
+                      disabled={lookSaving}
+                      onClick={() => void equipLookItem(lookCategory,item)}
+                    >
+                      <span className="youth-store-item-art">{item.emoji}</span>
+                      <b>{item.label}</b>
+                      <small>{selected ? 'Equipado' : unlocked ? 'Desbloqueado · Equipar' : `${item.cost} Llamas`}</small>
+                    </button>
+                  );
+                })}
+              </div>
+              {lookSaving && <p className="youth-inline-warning">Guardando personalización...</p>}
             </section>
           )}
 
@@ -434,26 +567,20 @@ export default function YouthPortalPage() {
 
           <HallOfFame topPlayers={topPlayers} faithful={faithful} attendanceLimited={attendanceLimited}/>
 
-          {!firebaseReadOnlyMode && (
+          {(
             <section className="youth-prayer-panel">
               <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>Tu petición será recibida por el equipo autorizado de oración.</p></div></header>
+              <p className="youth-prayer-privacy"><ShieldCheck size={15}/> La petición se envía de forma privada a la bandeja del equipo pastoral. El selector de perfil es público y no verifica identidad.</p>
               <form onSubmit={(event) => void handlePrayerSubmit(event)}>
                 <label>Nombre (opcional)<input value={prayerName} onChange={(event) => setPrayerName(event.target.value)} maxLength={80} placeholder="Puedes enviarla como anónimo"/></label>
                 <label>Tipo de petición<select value={prayerCategory} onChange={(event) => setPrayerCategory(event.target.value)}><option>General</option><option>Familia</option><option>Estudios</option><option>Fortaleza espiritual</option><option>Agradecimiento</option><option>Otra</option></select></label>
-                <label className="prayer-message-field">Cuéntanos cómo podemos orar por ti<textarea value={prayerMessage} onChange={(event) => setPrayerMessage(event.target.value)} minLength={8} maxLength={1200} rows={4} required placeholder="Escribe tu petición con confianza..."/></label>
+                <label className="prayer-message-field">Cuéntanos cómo podemos orar por ti<textarea value={prayerMessage} onChange={(event) => setPrayerMessage(event.target.value)} minLength={8} maxLength={500} rows={4} required placeholder="Escribe tu petición con confianza..."/></label>
                 <div className="youth-prayer-submit-row"><small>{prayerMessage.length}/1200 caracteres. Evita compartir datos personales sensibles.</small><button type="submit" disabled={prayerBusy || prayerMessage.trim().length < 8}>{prayerBusy ? 'Enviando...' : 'Enviar petición'} <Send size={16}/></button></div>
                 {prayerStatus && <p className="youth-prayer-status" role="status">{prayerStatus}</p>}
               </form>
             </section>
           )}
-          {firebaseReadOnlyMode && (
-            <div className="youth-security-note">
-              <ShieldCheck size={17}/> Las peticiones se habilitarán cuando
-              esté listo el sistema de envíos protegido para producción.
-            </div>
-          )}
-
-          <div className="youth-security-note"><ShieldCheck size={17}/> La selección de perfil es pública. No permite consultar información privada ni acreditar la identidad del joven. Los juegos y puntuaciones visibles aquí no se guardan todavía en el ranking oficial.</div>
+          <div className="youth-security-note"><ShieldCheck size={17}/> Este acceso muestra únicamente información pública. No revela datos privados ni acredita la identidad; los puntos de partidas no se incorporan automáticamente al ranking oficial.</div>
         </div>
       </main>
     );
