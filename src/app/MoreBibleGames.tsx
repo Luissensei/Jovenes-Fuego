@@ -1,3 +1,4 @@
+import {playGameTone} from './gameAudio';
 import { useEffect, useState } from 'react';
 import { bibleQuestionBank, shuffleBibleQuestions } from './bibleQuestionBank';
 import {
@@ -77,12 +78,20 @@ const memoryPairs = [
   ['Daniel', 'Leones', '🦁'],
   ['Jonás', 'Gran pez', '🐋'],
   ['Jesús', 'Panes y peces', '🐟'],
+  ['Abraham', 'Isaac', '⛰️'],
+  ['José', 'Túnica de colores', '👘'],
+  ['Ester', 'Reina', '👑'],
+  ['Sansón', 'Fuerza', '💪'],
+  ['Rut', 'Noemí', '🌾'],
+  ['Elías', 'Fuego del cielo', '🔥'],
+  ['Jonatán', 'Amistad con David', '🤝'],
+  ['Pablo', 'Damasco', '🛤️'],
 ];
 
 type MemoryCard = { id: number; pair: number; text: string; symbol: string };
 
 function makeMemoryCards(): MemoryCard[] {
-  return shuffle(memoryPairs.flatMap((pair, index) => [
+  return shuffle(shuffle(memoryPairs).slice(0, 8).flatMap((pair, index) => [
     { id: index * 2, pair: index, text: pair[0], symbol: pair[2] },
     { id: index * 2 + 1, pair: index, text: pair[1], symbol: pair[2] },
   ]));
@@ -114,7 +123,10 @@ export function MemoryGame({ onExit }: { onExit: () => void }) {
     if (first.pair === card.pair) {
       const nextMatched = [...matched, card.pair];
       setMatched(nextMatched);
-      if (nextMatched.length === memoryPairs.length) setFinished(true);
+      playGameTone('success');
+      if (nextMatched.length === cards.length / 2) setFinished(true);
+    } else {
+      playGameTone('incorrect');
     }
 
     window.setTimeout(() => {
@@ -134,13 +146,13 @@ export function MemoryGame({ onExit }: { onExit: () => void }) {
 
   return (
     <section className="mbg-game">
-      <Header title="Memoria bíblica" subtitle="Encuentra las seis parejas relacionadas con historias de la Biblia." onExit={onExit} />
+      <Header title="Memoria bíblica" subtitle="Encuentra ocho parejas bíblicas diferentes en cada partida." onExit={onExit} />
       {finished ? (
-        <Result score={Math.max(0, 120 - moves * 5)} onRestart={restart} onExit={onExit} />
+        <Result score={Math.max(0, 160 - moves * 5)} onRestart={restart} onExit={onExit} />
       ) : (
         <>
           <div className="mbg-stats">
-            <span>Parejas: <b>{matched.length}/{memoryPairs.length}</b></span>
+            <span>Parejas: <b>{matched.length}/{cards.length / 2}</b></span>
             <span>Intentos: <b>{moves}</b></span>
           </div>
           <div className="mbg-memory-grid">
