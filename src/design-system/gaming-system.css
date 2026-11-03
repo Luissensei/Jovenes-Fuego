@@ -118,3 +118,22 @@ footer{color:var(--jf-muted)}
 @media(max-width:850px){.sidebar{width:265px}.main{padding:24px 18px}.jf-login-scene{grid-template-columns:1fr;gap:20px;min-height:auto}.jf-login-art{min-height:auto;padding:22px 12px}.jf-login-art__brand{margin-bottom:25px}.jf-login-art h1{font-size:clamp(2.5rem,9vw,4.2rem)}.jf-login-art__orb--one{right:5%;top:10%;width:180px;height:180px}.jf-login-art__orb--two{right:15%;bottom:0;width:120px;height:120px}}
 @media(max-width:560px){.main{padding:18px 13px 28px}.topline{align-items:flex-start;flex-direction:column}.project-label{max-width:100%;overflow-wrap:anywhere}.jf-login-scene{padding:16px}.jf-login-scene::before{border-radius:22px}.jf-login-art{padding:13px 6px 0}.jf-login-art__brand{margin-bottom:18px}.jf-login-art__copy{font-size:.88rem}.jf-login-art__motto{margin-top:18px}.jf-login-panel{padding:20px;border-radius:19px}.dashboard-hero{border-radius:20px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.jf-login-art__orb{animation:none}}
+
+/* Transición breve al cambiar de módulo; el contenido no se desmonta por efectos de animación. */
+.jf-route-screen{min-width:0;animation:jf-route-enter .28s cubic-bezier(.2,.7,.2,1) both}
+@keyframes jf-route-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* Superficies comunes para módulos de gestión, juegos y contenido. */
+.main .page-card,.main .management-card,.main .module-card,.main .ranking-card,.main .game-card,.main .report-card,.main .form-card{border:1px solid var(--jf-border);border-radius:var(--jf-radius);background:var(--jf-glass);box-shadow:var(--jf-shadow);backdrop-filter:blur(18px)}
+.main .page-card,.main .management-card,.main .module-card{padding:clamp(16px,2vw,26px)}
+.main .page-card h1,.main .management-card h1,.main .module-card h1{color:var(--jf-text)}
+.main .page-card p,.main .management-card p,.main .module-card p{color:var(--jf-muted)}
+.main .notice,.main .setup-warning{border:1px solid rgba(53,217,255,.22);border-radius:15px;background:rgba(53,217,255,.07);color:var(--jf-text)}
+.main form{gap:.8rem}
+.main button:focus-visible,.sidebar button:focus-visible,.sidebar a:focus-visible{outline:3px solid rgba(53,217,255,.78);outline-offset:3px}
+.main a:not([class]){color:#a98aff;text-decoration-thickness:1px;text-underline-offset:3px}
+.main a:not([class]):hover{color:#ff9a73}
+.main [role="alert"]{border-radius:13px}
+.main .empty-state,.main .empty,.main .empty-message{border:1px dashed var(--jf-border);border-radius:18px;background:var(--jf-panel);color:var(--jf-muted);padding:2rem}
+.main .spinner{border-color:rgba(128,71,255,.2);border-top-color:var(--jf-fire)}
+@media(max-width:850px){.jf-route-screen{animation-duration:.2s}.main table{display:block;max-width:100%;overflow-x:auto;white-space:nowrap}}
+@media(prefers-reduced-motion:reduce){.jf-route-screen{animation:none!important}}
