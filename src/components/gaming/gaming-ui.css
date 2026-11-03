@@ -69,3 +69,11 @@
 /* La capa decorativa queda detrás del contenido y nunca intercepta gestos. */
 .jf-background-effects{z-index:0}
 .layout,.login-shell{position:relative;z-index:1}
+
+.jf-player-profile-card__points{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.72rem .85rem;border:1px solid rgba(255,106,53,.2);border-radius:13px;background:rgba(255,106,53,.07)}
+.jf-player-profile-card__points span{color:var(--jf-muted);font-size:.65rem;font-weight:800;letter-spacing:.1em}
+.jf-player-profile-card__points strong{color:#ff9a73;font:800 1.25rem Rajdhani,Inter,sans-serif}
+.selected-profile-panel--gaming{grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:1rem}
+.selected-profile-panel--gaming .selected-profile-panel__content{min-width:0}
+.selected-profile-panel--gaming .selected-profile-panel__notice{margin:.7rem 0 0;color:var(--jf-muted);font-size:.75rem;line-height:1.5}
+@media(max-width:560px){.selected-profile-panel--gaming{grid-template-columns:1fr}.selected-profile-panel--gaming>button{width:100%}}
