@@ -1,4 +1,3 @@
-
 import {
   createContext,
   useContext,
@@ -15,11 +14,11 @@ import {
   type User,
 } from 'firebase/auth';
 
-import {httpsCallable} from 'firebase/functions';
+import { doc, getDoc } from 'firebase/firestore';
 
 import {
   auth,
-  functions,
+  db,
   firebaseConfigured,
 } from '../services/firebase/client';
 
@@ -51,6 +50,15 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+const allowedRoles = new Set([
+  'admin',
+  'administrador',
+  'pastor',
+  'lider',
+  'líder',
+  'user',
+]);
+
 export function AuthProvider({
   children,
 }: {
@@ -62,13 +70,13 @@ export function AuthProvider({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!firebaseConfigured || !auth || !functions) {
+    if (!firebaseConfigured || !auth || !db) {
       setLoading(false);
       return;
     }
 
     const authInstance = auth;
-    const functionsInstance = functions;
+    const firestore = db;
     let active = true;
     let authEvent = 0;
 
@@ -91,28 +99,36 @@ export function AuthProvider({
         setLoading(true);
 
         try {
-          const getApplicationProfile = httpsCallable<
-            Record<string, never>,
-            {profile: UserProfile}
-          >(functionsInstance, 'getMyApplicationProfile');
-          const profileResponse = await getApplicationProfile({});
-          const userProfile = profileResponse.data.profile;
+          // Read only the signed-in user's own application profile.
+          const profileSnapshot = await getDoc(
+            doc(firestore, 'users', currentUser.uid),
+          );
 
           if (!active || currentEvent !== authEvent) return;
 
-          if (
-            !userProfile ||
-            typeof userProfile.role !== 'string' ||
-            !userProfile.role.trim()
-          ) {
-            setError('La función no devolvió un perfil con un rol válido. Contacta al administrador.');
-            setProfile(null);
+          if (!profileSnapshot.exists()) {
+            setError(
+              'La sesión inició, pero no existe users/{uid} para esta cuenta.',
+            );
             return;
           }
 
-          setProfile(userProfile);
-          setError(null);
+          const data = profileSnapshot.data();
+          const role = String(data.role ?? '').trim().toLowerCase();
 
+          if (!allowedRoles.has(role)) {
+            setError(
+              'La cuenta no tiene un rol de aplicación reconocido en users/{uid}.',
+            );
+            return;
+          }
+
+          setProfile({
+            name: typeof data.name === 'string' ? data.name : '',
+            user: typeof data.user === 'string' ? data.user : '',
+            role,
+          });
+          setError(null);
         } catch (cause) {
           if (!active || currentEvent !== authEvent) return;
 
@@ -122,31 +138,26 @@ export function AuthProvider({
           };
 
           console.error(
-            'Error verificando el perfil:',
+            'Error leyendo el perfil de aplicación:',
             firebaseError.code,
-            firebaseError.message
+            firebaseError.message,
           );
 
-          if (
-            firebaseError.code === 'functions/permission-denied' ||
-            firebaseError.code === 'functions/not-found'
-          ) {
+          if (firebaseError.code === 'permission-denied') {
             setError(
-              'Tu cuenta no tiene un perfil autorizado en users o la función getMyApplicationProfile todavía no está desplegada en Firebase Staging.'
+              'Firebase no permite leer tu propio documento users/{uid}. No se abrirán permisos automáticamente; hay que revisar las reglas actuales.',
             );
-          } else if (firebaseError.code === 'functions/unauthenticated') {
-            setError('La sesión expiró. Inicia sesión nuevamente.');
+          } else if (firebaseError.code === 'unavailable') {
+            setError(
+              'Firebase no está disponible en este momento. Comprueba tu conexión e inténtalo de nuevo.',
+            );
           } else {
             setError(
-              'No se pudo validar tu perfil mediante Firebase Functions. Comprueba que las funciones estén desplegadas en Staging.'
+              'No se pudo leer tu perfil directamente desde Firestore.',
             );
           }
 
           setProfile(null);
-
-          // No cerrar automáticamente la sesión.
-          // El usuario podrá seguir autenticado mientras se
-          // identifica y corrige el problema del perfil.
         } finally {
           if (active && currentEvent === authEvent) {
             setLoading(false);
@@ -157,10 +168,9 @@ export function AuthProvider({
         if (!active) return;
 
         console.error('Error de autenticación:', cause);
-
         setError('No se pudo comprobar la sesión de Firebase.');
         setLoading(false);
-      }
+      },
     );
 
     return () => {
@@ -180,7 +190,7 @@ export function AuthProvider({
       async login(email, password) {
         if (!firebaseConfigured || !auth) {
           throw new Error(
-            'Firebase Staging no está configurado. Comprueba .env.local.'
+            'Firebase no está configurado. Comprueba las variables de entorno.',
           );
         }
 
@@ -190,7 +200,7 @@ export function AuthProvider({
           await signInWithEmailAndPassword(
             auth,
             email.trim(),
-            password
+            password,
           );
         } catch (cause) {
           const firebaseError = cause as {
@@ -201,7 +211,7 @@ export function AuthProvider({
           console.error(
             'Error de inicio de sesión:',
             firebaseError.code,
-            firebaseError.message
+            firebaseError.message,
           );
 
           if (
@@ -214,12 +224,12 @@ export function AuthProvider({
 
           if (firebaseError.code === 'auth/too-many-requests') {
             throw new Error(
-              'Demasiados intentos. Espera un momento y vuelve a intentar.'
+              'Demasiados intentos. Espera un momento y vuelve a intentar.',
             );
           }
 
           throw new Error(
-            'No se pudo iniciar sesión. Comprueba Firebase Authentication en Staging.'
+            'No se pudo iniciar sesión. Comprueba Firebase Authentication.',
           );
         }
       },
@@ -234,7 +244,7 @@ export function AuthProvider({
         setError(null);
       },
     }),
-    [user, profile, loading, error]
+    [user, profile, loading, error],
   );
 
   return (
@@ -249,7 +259,7 @@ export function useAuth() {
 
   if (!value) {
     throw new Error(
-      'useAuth debe utilizarse dentro de AuthProvider.'
+      'useAuth debe utilizarse dentro de AuthProvider.',
     );
   }
 
