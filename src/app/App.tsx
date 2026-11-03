@@ -154,11 +154,8 @@ function AdminApp() {
   const isStaff = isAdmin || isPastor || isLeader;
 
   const visibleModules = modules.filter((item) => {
-    // Production is intentionally limited to read-only profile and game pages.
-    if (firebaseReadOnlyMode) {
-      return ['ranking', 'games', 'profile'].includes(item.id);
-    }
-
+    // La conexión al Firebase original no debe ocultar módulos completos.
+    // La visibilidad sigue dependiendo del perfil y del rol autenticado.
     if (item.id === 'pastoral') {
       return isPastor || isAdmin;
     }
