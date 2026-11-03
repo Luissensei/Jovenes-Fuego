@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import {
   addDoc,
@@ -23,13 +23,10 @@ import {
   LockKeyhole,
 } from 'lucide-react';
 
-import './ManagementPages.css';
+import {createManagementRecord, getManagementData, type ManagementRecord} from '../../services/management';\n\nimport './ManagementPages.css';
 
 type ModuleKind = 'bonus' | 'pastoral' | 'leaders' | 'audit' | 'settings';
-
-type RecordItem = Record<string, unknown> & {
-  id: string;
-};
+type RecordItem = ManagementRecord;
 
 const configurations = {
   bonus: {
@@ -105,118 +102,71 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
   const [settingKey, setSettingKey] = useState('');
   const [settingValue, setSettingValue] = useState('');
 
-  useEffect(() => {
-    const database = db;
-
-    if (!database) {
-      setError('Firebase no está configurado en este entorno.');
-      setLoading(false);
-      return;
-    }
-
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError('');
+    try {
+      setRecords(await getManagementData(kind));
+    } catch (cause) {
+      console.error(`Error leyendo módulo ${kind}:`, cause);
+      setError(cause instanceof Error ? cause.message : 'No se pudo cargar la información.');
+    } finally {
+      setLoading(false);
+    }
+  }, [kind]);
 
-    const unsubscribe = onSnapshot(
-      collection(database, config.collection),
-      (snapshot) => {
-        const result = snapshot.docs.map((item) => ({
-          ...item.data(),
-          id: item.id,
-        })) as RecordItem[];
-
-        setRecords(result);
-        setLoading(false);
-      },
-      (err) => {
-        console.error(`Error leyendo ${config.collection}:`, err);
-        setError(
-          err.code === 'permission-denied'
-            ? 'No tienes permisos para consultar esta información. Revisa las reglas de Firebase Staging.'
-            : 'No se pudo cargar la información. Comprueba tu conexión.',
-        );
-        setLoading(false);
-      },
-    );
-
-    return unsubscribe;
-  }, [config.collection]);
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
 
   async function saveRecord(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    if (!db || !auth?.currentUser) {
-      setError('Debes iniciar sesión para realizar esta acción.');
-      return;
-    }
 
     setSaving(true);
     setError('');
     setMessage('');
 
     try {
+      let payload: Record<string, string | number> = {};
+
       if (kind === 'bonus') {
         const amount = Number(points);
-
-        if (!memberName.trim() || !reason.trim() || !Number.isFinite(amount) || amount <= 0) {
-          throw new Error('Completa el nombre, el motivo y una cantidad válida de puntos.');
+        if (!memberName.trim() || !reason.trim() || !Number.isInteger(amount) || amount < 1 || amount > 1000) {
+          throw new Error('Completa el nombre, el motivo y una cantidad entre 1 y 1.000 puntos.');
         }
-
-        await addDoc(collection(db, 'bonus'), {
-          memberName: memberName.trim(),
-          reason: reason.trim(),
-          points: amount,
-          createdAt: serverTimestamp(),
-          createdBy: auth.currentUser.uid,
-        });
-
-        setMemberName('');
-        setReason('');
-        setPoints('10');
-        setMessage('Los puntos extra fueron registrados.');
-      }
-
-      if (kind === 'pastoral') {
+        payload = {memberName: memberName.trim(), reason: reason.trim(), points: amount};
+      } else if (kind === 'pastoral') {
         if (!memberName.trim() || !noteTitle.trim() || !note.trim()) {
           throw new Error('Completa el nombre, el título y la nota.');
         }
-
-        await addDoc(collection(db, 'pastoral'), {
-          memberName: memberName.trim(),
-          title: noteTitle.trim(),
-          note: note.trim(),
-          createdAt: serverTimestamp(),
-          createdBy: auth.currentUser.uid,
-        });
-
-        setMemberName('');
-        setNoteTitle('');
-        setNote('');
-        setMessage('La nota pastoral fue guardada.');
-      }
-
-      if (kind === 'settings') {
+        payload = {memberName: memberName.trim(), title: noteTitle.trim(), note: note.trim()};
+      } else if (kind === 'settings') {
         const key = settingKey.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-');
-
         if (!key || !settingValue.trim()) {
           throw new Error('Escribe el nombre y el valor del ajuste.');
         }
-
-        await setDoc(
-          doc(db, 'settings', key),
-          {
-            key,
-            value: settingValue.trim(),
-            updatedAt: serverTimestamp(),
-            updatedBy: auth.currentUser.uid,
-          },
-          { merge: true },
-        );
-
-        setSettingKey('');
-        setSettingValue('');
-        setMessage('La configuración fue guardada.');
+        payload = {key, value: settingValue.trim()};
+      } else {
+        throw new Error('Este módulo es de consulta y no permite crear registros.');
       }
+
+      await createManagementRecord(kind, payload);
+      await loadData();
+
+      setMemberName('');
+      setReason('');
+      setPoints('10');
+      setNoteTitle('');
+      setNote('');
+      setSettingKey('');
+      setSettingValue('');
+      setMessage(
+        kind === 'bonus'
+          ? 'Los puntos extra fueron registrados.'
+          : kind === 'pastoral'
+            ? 'La nota pastoral fue guardada.'
+            : 'La configuración fue guardada.',
+      );
     } catch (err) {
       console.error(err);
       setError(
@@ -402,7 +352,7 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
 
           <button
             type="button"
-            onClick={() => window.location.reload()}
+            onClick={() => void loadData()}
             title="Actualizar"
           >
             <RefreshCw size={16} />
@@ -467,7 +417,7 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
                   <>
                     <p>{valueText(row.action ?? row.description ?? row.type)}</p>
                     <small>
-                      {valueText(row.createdAt)} · {valueText(row.userName ?? row.userId)}
+                      {valueText(row.createdAt)} · {valueText(row.actorUid ?? row.userName ?? row.userId)}
                     </small>
                   </>
                 )}
