@@ -138,3 +138,34 @@ Estos puntos se observaron en los archivos de esta rama y deben considerarse ant
 **Importante:** con las reglas actuales de Firestore cerradas, los módulos que todavía usan el SDK directamente no podrán completar esas operaciones. No se deben abrir las reglas para resolverlo. Primero hay que diseñar y probar endpoints con validación de identidad, rol, campos permitidos y límites de consulta.
 
 Los módulos de seguimiento y visitantes tienen datos de demostración locales; no deben tratarse como registros persistentes ni utilizarse para almacenar información real hasta terminar su conexión segura.
+
+## Actualización de implementación — 2 de noviembre de 2026
+
+Se han implementado en esta rama las siguientes migraciones de datos:
+
+| Módulo | Implementado en esta rama | Validación pendiente |
+|---|---|---|
+| Acceso juvenil y perfiles públicos | Mensajes de error según código de Firebase, función y región explícitas, normalización de perfiles y filtro nopub. | Desplegar getPublicProfiles en Staging y probar con perfiles ficticios. |
+| Informes | Consulta protegida de reuniones y miembros; actualización y CSV con protección frente a fórmulas. | Revisar totales con datos de prueba. |
+| Seguimiento | Alta, consulta, estado y eliminación mediante Cloud Functions; líderes limitados a sus propios registros. | Pruebas de roles y persistencia en Staging. |
+| Visitantes | Alta, consulta, estado y eliminación mediante Cloud Functions; datos privados limitados por rol/propietario. | Pruebas de privacidad por rol. |
+| Devocionales | Lectura y cambios mediante Functions; publicación y eliminación solo para administración/pastoral. | Verificar compatibilidad de documentos históricos. |
+| Bandeja y Turnos | CRUD por endpoints con colecciones y campos permitidos; la Bandeja queda para administración/pastoral. | Verificar campos históricos y autorización. |
+| Check-in QR | Consulta/registro por servidor y unificación con attendanceMeetings, con prevención de duplicados. | Probar conflictos concurrentes y reuniones antiguas. |
+| Fotos | Lectura, envío, aprobación, rechazo y eliminación por Functions; moderación admin/pastor. | Probar compatibilidad de imágenes/estados antiguos. |
+| Puntos extra, notas pastorales, usuarios, auditoría y ajustes | Lecturas allowlist y escrituras controladas mediante Functions. | Revisar los esquemas históricos y permisos reales de cada rol. |
+
+### Pendientes que no deben resolverse abriendo Firestore
+
+- Desplegar las Cloud Functions en jovenes-de-fuego-staging. El despliegue de Vercel no publica Cloud Functions. El flujo manual está documentado en FIREBASE-STAGING-DEPLOY.md.
+- Ejecutar los workflows de compilación. Se añadió cancelación de validaciones antiguas en cola para priorizar el commit más reciente.
+- Confirmar la región us-central1 o configurar VITE_FIREBASE_FUNCTIONS_REGION para que coincida con la región desplegada.
+- Terminar el mapeo y las pruebas de compatibilidad con los datos históricos. No se ha hecho migración de datos.
+- El sistema de puntos oficiales de juegos sigue pendiente: las puntuaciones actuales de las partidas son locales y no deben enviarse al ranking por un perfil público seleccionable. Antes se necesita una identidad juvenil vinculada a una cuenta autenticada y verificación de respuestas en servidor.
+- Terminar PWA instalable, panel resumen, filtros/paginación, accesibilidad, pruebas automatizadas y revisión integral en dispositivos móviles.
+
+### Estado de pruebas y despliegue
+
+El código de esta rama ha generado workflows de validación de frontend y Functions, pero sus ejecuciones más recientes están en cola. Vercel ha devuelto el estado build-rate-limit, que es un límite de builds del proveedor y no un error TypeScript. Ninguna de estas condiciones se considera una compilación aprobada.
+
+No se han desplegado Functions, reglas ni Hosting desde esta conversación. No se ha tocado producción. Firestore Rules permanecen cerradas.
