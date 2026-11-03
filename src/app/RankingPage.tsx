@@ -27,6 +27,11 @@ import {
   getPublicProfiles,
   type PublicProfile,
 } from '../services/publicProfiles';
+import {
+  getHallOfFame,
+  type HallOfFamePlayer,
+  type FaithfulPlayer,
+} from '../services/youthPortal';
 
 import TriviaGame from './TriviaGame';
 import VerseGame from './VerseGame';
@@ -123,6 +128,10 @@ export default function RankingPage({
     useState<PublicProfile | null>(null);
 
   const [activeGame, setActiveGame] = useState<string | null>(null);
+  const [topPlayers, setTopPlayers] = useState<HallOfFamePlayer[]>([]);
+  const [faithfulPlayers, setFaithfulPlayers] = useState<FaithfulPlayer[]>([]);
+  const [hallLoading, setHallLoading] = useState(true);
+  const [attendanceLimited, setAttendanceLimited] = useState(false);
 
   async function loadProfiles() {
     setLoading(true);
@@ -143,7 +152,24 @@ export default function RankingPage({
   }
 
   useEffect(() => {
+    let active = true;
     void loadProfiles();
+    getHallOfFame()
+      .then((result) => {
+        if (!active) return;
+        setTopPlayers(result.topPlayers ?? []);
+        setFaithfulPlayers(result.faithful ?? []);
+        setAttendanceLimited(result.attendanceLimited === true);
+      })
+      .catch((cause) => {
+        console.warn('No se pudo consultar el cuadro de honor:', cause);
+      })
+      .finally(() => {
+        if (active) setHallLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   // Búsqueda independiente para la sección de perfiles.
@@ -282,6 +308,49 @@ export default function RankingPage({
               <span>Mayor puntuación</span>
             </article>
           </div>
+
+          {/* CUADRO DE HONOR: datos publicados por el ranking original */}
+          <section className="youth-hall-grid ranking-hall-grid" aria-label="Cuadro de honor">
+            <article className="youth-hall-card youth-hall-points">
+              <header><Crown size={20} /><div><span>HALL OF FAME</span><h2>Top 3 de puntos</h2></div></header>
+              {hallLoading ? (
+                <p className="youth-data-empty">Consultando puntuaciones…</p>
+              ) : topPlayers.length ? (
+                <ol className="youth-podium-list">
+                  {topPlayers.slice(0, 3).map((player, index) => {
+                    const photo = profiles.find((profile) => profile.name === player.name || profile.nick === player.name)?.pic || player.pic;
+                    return (
+                      <li key={player.id} className={`podium-place place-${index + 1}`}>
+                        <span className="youth-podium-medal">{index === 0 ? <Crown size={17}/> : <Medal size={17}/>}</span>
+                        <span className="youth-podium-rank">0{index + 1}</span>
+                        {photo ? <img src={photo} alt="" /> : <b>{player.name.trim().split(/\\s+/).slice(0, 2).map((part) => part[0] ?? '').join('').toUpperCase()}</b>}
+                        <span className="youth-podium-name">{player.name}</span>
+                        <strong>{player.points} pts</strong>
+                      </li>
+                    );
+                  })}
+                </ol>
+              ) : <p className="youth-data-empty">Aún no se han publicado puntuaciones.</p>}
+            </article>
+            <article className="youth-hall-card youth-hall-faithful">
+              <header><Flame size={20}/><div><span>CONSTANCIA Y COMPROMISO</span><h2>Top 10 más fieles</h2></div></header>
+              <p className="youth-hall-caption">Según las asistencias consecutivas publicadas por el sistema original.</p>
+              {attendanceLimited && <p className="youth-hall-limited" role="note">El cálculo usa las reuniones recientes disponibles.</p>}
+              {hallLoading ? (
+                <p className="youth-data-empty">Consultando asistencias…</p>
+              ) : faithfulPlayers.length ? (
+                <ol className="youth-faithful-list">
+                  {faithfulPlayers.slice(0, 10).map((player, index) => (
+                    <li key={player.id}>
+                      <span className="youth-faithful-rank">{index + 1}</span>
+                      <span className="youth-faithful-name">{player.name}</span>
+                      <strong>{player.attendances} {player.attendances === 1 ? 'servicio seguido' : 'servicios seguidos'}</strong>
+                    </li>
+                  ))}
+                </ol>
+              ) : <p className="youth-data-empty">Aún no hay asistencias consecutivas publicadas.</p>}
+            </article>
+          </section>
 
           {/* CARGANDO */}
           {loading && (
