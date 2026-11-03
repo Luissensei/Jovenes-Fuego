@@ -491,3 +491,199 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (prefers-reduced-motion: reduce) {
   *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
 }
+
+
+/* ==========================================================
+   LIVING BACKDROP + ICON LANGUAGE — segunda capa de movimiento
+   ========================================================== */
+body::before {
+  transform-origin: 50% 50%;
+  will-change: transform, filter, background-position;
+  animation: jfFlameCanvas 34s ease-in-out infinite alternate;
+}
+body::after {
+  background-image:
+    radial-gradient(ellipse at 12% 12%, rgba(255,112,62,.20), transparent 32%),
+    radial-gradient(ellipse at 82% 16%, rgba(133,86,255,.22), transparent 34%),
+    radial-gradient(ellipse at 52% 100%, rgba(40,205,255,.14), transparent 42%),
+    radial-gradient(circle, rgba(255,198,135,.82) 0 1px, transparent 1.8px),
+    radial-gradient(circle, rgba(111,221,255,.72) 0 1px, transparent 1.8px);
+  background-size: auto, auto, auto, 190px 190px, 270px 270px;
+  background-position: 0 0, 0 0, 0 0, 0 0, 35px 55px;
+  animation: jfEmberField 26s linear infinite, jfAuroraPulse 13s ease-in-out infinite alternate;
+  will-change: background-position, opacity;
+}
+:root:not([data-theme="dark"]) body::after {
+  background-image:
+    radial-gradient(ellipse at 12% 12%, rgba(255,137,75,.20), transparent 32%),
+    radial-gradient(ellipse at 82% 16%, rgba(133,86,255,.17), transparent 34%),
+    radial-gradient(ellipse at 52% 100%, rgba(40,165,220,.13), transparent 42%),
+    radial-gradient(circle, rgba(200,112,57,.38) 0 1px, transparent 1.8px),
+    radial-gradient(circle, rgba(92,145,215,.36) 0 1px, transparent 1.8px);
+}
+.layout::after {
+  animation: jfAmbientDrift 15s ease-in-out infinite alternate, jfGlowPulse 8s ease-in-out infinite;
+}
+.dashboard-hero, .ranking-hero, .members-hero, .management-header,
+.managed-hero, .checkin-hero, .photos-hero, .reports-hero,
+.attendance-header, .followup-header, .visitors-header, .devotionals-feature {
+  background-size: auto, 112% auto !important;
+  background-position: center, 48% 50% !important;
+  animation: jfHeroBreath 22s ease-in-out infinite alternate;
+}
+.dashboard-hero-art, .ranking-hero-art, .dashboard-art-core {
+  filter: drop-shadow(0 12px 32px rgba(115,98,255,.14));
+}
+.dashboard-stat, .dashboard-shortcut, .ranking-info-grid article,
+.ranking-player, .game-card, .profile-card, .youth-profile-card,
+.member-row, .attendance-member, .followup-card, .visitor-card,
+.devotional-card, .management-record, .managed-record {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+.dashboard-stat:hover svg, .dashboard-shortcut:hover svg,
+.ranking-player:hover svg, .game-card:hover svg,
+.profile-card:hover svg, .youth-profile-card:hover svg,
+.member-row:hover svg, .attendance-member:hover svg,
+.followup-card:hover svg, .visitor-card:hover svg {
+  transform: translateY(-2px) rotate(-5deg) scale(1.07);
+  filter: drop-shadow(0 0 10px rgba(91,207,255,.34));
+}
+.dashboard-stat svg, .dashboard-shortcut svg, .ranking-player svg,
+.game-card svg, .profile-card svg, .youth-profile-card svg,
+.member-row svg, .attendance-member svg, .followup-card svg,
+.visitor-card svg, .devotional-card svg {
+  transition: transform .24s ease, filter .24s ease, color .24s ease;
+}
+
+/* Iconos reales y reconocibles en navegación; color sin cambiar su significado. */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 46px;
+  padding: 6px 12px;
+  border-radius: 13px;
+}
+.nav-item-icon {
+  display: grid;
+  width: 33px;
+  height: 33px;
+  flex: 0 0 33px;
+  place-items: center;
+  border: 1px solid rgba(220,231,255,.13);
+  border-radius: 11px;
+  background: linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.035));
+  color: #ffb36f;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+  transition: transform .22s ease, background .22s ease, color .22s ease, box-shadow .22s ease;
+}
+.nav-item:nth-child(5n + 2) .nav-item-icon { color: #a98aff; }
+.nav-item:nth-child(5n + 3) .nav-item-icon { color: #5bdfff; }
+.nav-item:nth-child(5n + 4) .nav-item-icon { color: #ff78c7; }
+.nav-item:nth-child(5n + 5) .nav-item-icon { color: #6ee5b7; }
+.nav-item > span:last-child {
+  min-width: 0;
+  line-height: 1.25;
+}
+.nav-item:hover .nav-item-icon {
+  transform: translateY(-1px) rotate(-4deg);
+  background: linear-gradient(145deg,rgba(255,255,255,.18),rgba(255,255,255,.065));
+  box-shadow: 0 5px 18px rgba(72,169,255,.12);
+}
+.nav-item.active .nav-item-icon {
+  color: #fff;
+  border-color: rgba(255,175,118,.34);
+  background: linear-gradient(140deg,rgba(255,160,83,.30),rgba(164,112,255,.25),rgba(69,208,255,.17));
+  box-shadow: 0 0 22px rgba(255,130,77,.13), inset 0 1px 0 rgba(255,255,255,.14);
+}
+.nav-item.active .nav-item-icon svg { filter: drop-shadow(0 0 6px rgba(255,190,125,.36)); }
+:root:not([data-theme="dark"]) .nav-item-icon {
+  border-color: rgba(53,68,112,.13);
+  background: linear-gradient(145deg,rgba(255,255,255,.88),rgba(225,232,250,.62));
+}
+:root:not([data-theme="dark"]) .nav-item.active .nav-item-icon {
+  color: #fff;
+  background: linear-gradient(140deg,#ff995c,#bd75e8,#56c9e8);
+}
+
+.ranking-tabs button svg, .dashboard-primary svg, .dashboard-secondary svg,
+.login-submit svg, .management-submit svg, .managed-primary svg,
+.checkin-primary svg, .photos-primary svg, .visitors-primary svg,
+.followup-primary svg, .devotionals-primary svg {
+  flex: 0 0 auto;
+  transition: transform .2s ease, filter .2s ease;
+}
+.ranking-tabs button:hover svg, .dashboard-primary:hover svg,
+.dashboard-secondary:hover svg, .management-submit:hover svg,
+.managed-primary:hover svg, .checkin-primary:hover svg {
+  transform: translateX(2px);
+  filter: drop-shadow(0 0 7px rgba(255,255,255,.42));
+}
+.dashboard-stat-icon, .dashboard-shortcut-icon, .game-icon,
+.ranking-heading-icon, .members-total-icon {
+  position: relative;
+  overflow: hidden;
+}
+.dashboard-stat-icon::after, .dashboard-shortcut-icon::after,
+.game-icon::after, .ranking-heading-icon::after,
+.members-total-icon::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(120deg,transparent 20%,rgba(255,255,255,.23) 48%,transparent 75%);
+  transform: translateX(-130%);
+  transition: transform .55s ease;
+}
+.dashboard-stat:hover .dashboard-stat-icon::after,
+.dashboard-shortcut:hover .dashboard-shortcut-icon::after,
+.game-card:hover .game-icon::after,
+.ranking-heading-icon:hover::after,
+.members-total-card:hover .members-total-icon::after {
+  transform: translateX(130%);
+}
+
+@keyframes jfFlameCanvas {
+  0% { transform: translate3d(-1.2%,-.6%,0) scale(1.02); filter: hue-rotate(-5deg) saturate(1.05); }
+  50% { transform: translate3d(.7%,.8%,0) scale(1.07); filter: hue-rotate(5deg) saturate(1.18); }
+  100% { transform: translate3d(1.1%,-.8%,0) scale(1.04); filter: hue-rotate(-2deg) saturate(1.1); }
+}
+@keyframes jfEmberField {
+  0% { background-position: 0 0,0 0,0 0,0 0,35px 55px; }
+  50% { background-position: 1% -2%, -2% 1%, 1% -1%, 80px -110px, -65px -70px; }
+  100% { background-position: -1% 2%, 2% -1%, -1% 1%, 155px -220px, -130px -140px; }
+}
+@keyframes jfAuroraPulse {
+  from { opacity: .44; }
+  to { opacity: .78; }
+}
+@keyframes jfHeroBreath {
+  from { background-position: center, 44% 46%; }
+  to { background-position: center, 56% 54%; }
+}
+@keyframes jfGlowPulse {
+  from { opacity: .1; }
+  to { opacity: .24; }
+}
+
+@media (max-width: 680px) {
+  .nav-item { min-height: 48px; gap: 10px; }
+  .nav-item-icon { width: 35px; height: 35px; flex-basis: 35px; }
+  .dashboard-hero, .ranking-hero, .members-hero, .management-header,
+  .managed-hero, .checkin-hero, .photos-hero, .reports-hero,
+  .attendance-header, .followup-header, .visitors-header, .devotionals-feature {
+    animation-duration: 30s;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after, .layout::after,
+  .dashboard-hero, .ranking-hero, .members-hero,
+  .management-header, .managed-hero, .checkin-hero,
+  .photos-hero, .reports-hero, .attendance-header,
+  .followup-header, .visitors-header, .devotionals-feature {
+    animation: none !important;
+    will-change: auto !important;
+  }
+}

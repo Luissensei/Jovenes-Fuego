@@ -272,6 +272,9 @@ function AdminApp() {
                 `nav-item ${isActive ? 'active' : ''}`
               }
             >
+              <span className="nav-item-icon" aria-hidden="true">
+                <item.icon size={17} strokeWidth={2.1} />
+              </span>
               <span>{item.label}</span>
             </NavLink>
           ))}
