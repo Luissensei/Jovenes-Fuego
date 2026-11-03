@@ -111,3 +111,14 @@ Los registros temporales que antes estaban codificados en las pantallas de Segui
 El callable getPublicProfiles se ejecuta en la región us-central1 por defecto. El cliente usa la misma región; puede configurarse mediante VITE_FIREBASE_FUNCTIONS_REGION, pero el valor del frontend y la región de despliegue deben coincidir. Una respuesta functions/not-found significa que el callable no está publicado en el proyecto/región consultado; un deploy de Vercel no despliega Firebase Functions.
 
 El archivo FIREBASE-STAGING-DEPLOY.md documenta un flujo manual que despliega únicamente Functions al proyecto jovenes-de-fuego-staging. No despliega reglas Firestore, Hosting ni recursos de producción.
+
+
+### Panel principal — getDashboardSummary
+
+Callable autenticada. Lee el rol del documento users/{uid} y devuelve un resumen calculado en servidor.
+
+- Roles admin, administrador y pastor: total de jóvenes, reuniones del mes en attendanceMeetings, asistencias presentes, seguimientos pendientes, visitantes nuevos, peticiones pendientes y actividades publicadas futuras.
+- Roles líder: mismos indicadores operativos, pero seguimientos y visitantes solo de sus propios registros; no recibe peticiones privadas.
+- Rol user: solo total de perfiles públicos visibles y actividades futuras. No recibe conteos de reuniones, asistencia, seguimientos, visitantes ni peticiones.
+- La fecha de corte del panel usa la zona horaria America/Bogota.
+- La función devuelve agregados; no envía documentos privados completos al navegador.
