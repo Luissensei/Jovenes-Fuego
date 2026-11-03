@@ -1445,3 +1445,23 @@ body::after {
   .youth-profile-exit .youth-prayer-panel,
   .youth-game-exit {animation:none!important;}
 }
+
+
+.member-detail-avatar {overflow:hidden;}
+.member-detail-avatar img {width:100%;height:100%;object-fit:cover;border-radius:14px;}
+.member-detail-photo-actions {display:flex;align-items:center;gap:6px;flex:none;}
+.member-detail-photo-actions label,
+.member-detail-photo-actions button {
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  min-height:35px;padding:0 10px;border:1px solid rgba(119,223,255,.22);
+  border-radius:10px;background:rgba(112,197,255,.08);color:#d8f5ff;
+  font-size:9px;font-weight:850;cursor:pointer;white-space:nowrap;
+}
+.member-detail-photo-actions input {display:none;}
+.member-detail-photo-actions button {border-color:rgba(255,143,143,.22);background:rgba(255,95,95,.07);color:#ffc1c1;}
+@media(max-width:700px) {
+  .member-detail-header {flex-wrap:wrap;gap:9px;padding:13px;}
+  .member-detail-header > div:nth-child(2) {flex:1 1 calc(100% - 70px);}
+  .member-detail-photo-actions {order:3;flex:1;}
+  .member-detail-window-actions {order:4;margin-left:auto;}
+}
