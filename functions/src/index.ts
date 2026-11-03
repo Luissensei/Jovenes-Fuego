@@ -1052,3 +1052,109 @@ export const deleteManagedRecord = onCall(async (request) => {
   await ref.delete();
   return {success: true};
 });
+
+export const getCheckins = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const snapshot = await db.collection("attendanceMeetings")
+    .orderBy("date", "desc")
+    .limit(300)
+    .get();
+
+  const items = snapshot.docs.flatMap((meeting) => {
+    const data = meeting.data();
+    const participants = Array.isArray(data.participants) ? data.participants : [];
+    return participants.flatMap((item) => {
+      if (typeof item !== "object" || item === null) return [];
+      const participant = item as Record<string, unknown>;
+      const status = text(participant.status, 20);
+      const memberId = text(participant.memberId, 150);
+      if (!memberId || !["Presente", "Ausente", "Justificado"].includes(status)) return [];
+      return [{
+        id: meeting.id + "_" + memberId,
+        memberId,
+        memberName: text(participant.name, 120),
+        meetingName: text(data.name, 100),
+        date: text(data.date, 10),
+        createdAt: isoValue(data.updatedAt ?? data.createdAt),
+      }];
+    });
+  });
+  return {items};
+});
+
+export const createCheckin = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const memberId = text(request.data?.memberId, 150);
+  const meetingName = text(request.data?.meetingName, 100);
+  const date = text(request.data?.date, 10);
+  if (!memberId || meetingName.length < 2 || !isValidDate(date)) {
+    throw new HttpsError("invalid-argument", "Selecciona un joven, servicio y fecha válidos.");
+  }
+
+  const memberSnapshot = await db.collection("members").doc(memberId).get();
+  if (!memberSnapshot.exists) {
+    throw new HttpsError("not-found", "El joven ya no existe en el registro de miembros.");
+  }
+  const memberName = text(memberSnapshot.data()?.name, 120);
+  if (!memberName) {
+    throw new HttpsError("failed-precondition", "El perfil del joven no tiene un nombre válido.");
+  }
+
+  // Consultamos por fecha (un único campo) para evitar exigir un índice
+  // compuesto durante esta migración. La comparación del servicio se hace
+  // en servidor y el documento determinista protege las carreras concurrentes.
+  const daySnapshot = await db.collection("attendanceMeetings")
+    .where("date", "==", date)
+    .limit(300)
+    .get();
+  const existing = daySnapshot.docs.find((document) =>
+    text(document.data().name, 100).toLowerCase() === meetingName.toLowerCase(),
+  );
+  const meetingId = existing?.id ?? createHash("sha256")
+    .update(date + "|" + meetingName.toLowerCase())
+    .digest("hex");
+  const meetingRef = db.collection("attendanceMeetings").doc(meetingId);
+  const now = new Date().toISOString();
+
+  await db.runTransaction(async (transaction) => {
+    const meetingSnapshot = await transaction.get(meetingRef);
+    if (!meetingSnapshot.exists) {
+      transaction.create(meetingRef, {
+        name: meetingName,
+        date,
+        createdBy: request.auth?.uid,
+        createdAt: now,
+        updatedAt: now,
+        participants: [{memberId, name: memberName, status: "Presente"}],
+      });
+      return;
+    }
+
+    const meetingData = meetingSnapshot.data() ?? {};
+    if (text(meetingData.date, 10) !== date ||
+      text(meetingData.name, 100).toLowerCase() !== meetingName.toLowerCase()) {
+      throw new HttpsError("already-exists", "Ya existe un servicio con ese identificador. Actualiza la lista e inténtalo de nuevo.");
+    }
+    const participants = Array.isArray(meetingData.participants)
+      ? meetingData.participants
+      : [];
+    if (participants.some((item) =>
+      typeof item === "object" && item !== null &&
+      (item as Record<string, unknown>).memberId === memberId,
+    )) {
+      throw new HttpsError("already-exists", memberName + " ya tiene asistencia en este servicio.");
+    }
+    transaction.update(meetingRef, {
+      participants: [...participants, {memberId, name: memberName, status: "Presente"}],
+      updatedAt: now,
+      updatedBy: request.auth?.uid,
+    });
+  });
+  return {success: true, meetingId};
+});
