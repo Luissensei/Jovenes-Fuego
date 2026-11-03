@@ -417,6 +417,11 @@ export default function RankingPage({
                   <p>
                     Prepárate para aprender y poner a prueba tus conocimientos.
                   </p>
+                  <p className="ranking-local-score-note" role="note">
+                    Las puntuaciones de estas partidas son de práctica.
+                    No se suman al ranking oficial hasta validar una cuenta
+                    juvenil y las respuestas desde el servidor.
+                  </p>
                 </div>
 
                 <span className="ranking-heading-icon">
