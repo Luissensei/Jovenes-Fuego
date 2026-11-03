@@ -18,6 +18,8 @@ const hasCompleteEnvironmentConfig = Boolean(
   env.VITE_FIREBASE_API_KEY?.trim()
   && env.VITE_FIREBASE_AUTH_DOMAIN?.trim()
   && env.VITE_FIREBASE_PROJECT_ID?.trim()
+  && env.VITE_FIREBASE_STORAGE_BUCKET?.trim()
+  && env.VITE_FIREBASE_MESSAGING_SENDER_ID?.trim()
   && env.VITE_FIREBASE_APP_ID?.trim(),
 );
 
