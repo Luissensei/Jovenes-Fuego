@@ -13,7 +13,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 
-import { db } from '../firebase/client';
+import { assertFirebaseWritesAllowed, db } from '../firebase/client';
 import { COLLECTIONS } from './collections';
 
 export type PhotoRecord = {
@@ -130,6 +130,8 @@ export function subscribeApprovedPhotos(
 export async function createPhotoRequest(
   input: CreatePhotoInput,
 ): Promise<string> {
+  assertFirebaseWritesAllowed();
+
   if (!db) throw new Error('Firebase Firestore no está configurado.');
 
   validatePhoto(input);
@@ -150,6 +152,8 @@ export async function createPhotoRequest(
 }
 
 export async function approvePhoto(item: PhotoRecord): Promise<void> {
+  assertFirebaseWritesAllowed();
+
   if (!db) throw new Error('Firebase Firestore no está configurado.');
 
   const batch = writeBatch(db);
@@ -175,6 +179,8 @@ export async function approvePhoto(item: PhotoRecord): Promise<void> {
 
 
 export async function rejectPhoto(id: string): Promise<void> {
+  assertFirebaseWritesAllowed();
+
   if (!db) {
     throw new Error('Firebase Firestore no está configurado.');
   }
@@ -193,6 +199,8 @@ export async function rejectPhoto(id: string): Promise<void> {
 
 
 export async function deleteApprovedPhoto(id: string): Promise<void> {
+  assertFirebaseWritesAllowed();
+
   if (!db) throw new Error('Firebase Firestore no está configurado.');
 
   await deleteDoc(doc(db, COLLECTIONS.photos, id));
