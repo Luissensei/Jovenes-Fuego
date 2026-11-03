@@ -18,15 +18,15 @@ jobs:
         with:
           persist-credentials: true
 
-      - name: Configurar Node.js 26
+      - name: Configurar Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: 26
+          node-version: 24.12.0
           cache: npm
 
       - name: Definir entorno Node compatible
         run: |
-          node -e "const fs=require('fs'); const p=require('./package.json'); p.engines={...(p.engines ?? {}), node: '>=24.12.0'}; fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\\n');"
+          node -e "const fs=require('fs'); const p=require('./package.json'); p.engines={...(p.engines ?? {}), node: '24.x'}; fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\\n');"
           echo "24.12.0" > .nvmrc
 
       - name: Actualizar SDK de Firebase
