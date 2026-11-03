@@ -282,7 +282,7 @@ export default function YouthPortalPage() {
       if (results[0].status === 'fulfilled') {
         setActivities(results[0].value);
       } else {
-        setPortalDataError('Las actividades todavía no se pueden consultar en este entorno.');
+        setPortalDataError('No se pudieron consultar las actividades publicadas en el ranking original.');
       }
       if (results[1].status === 'fulfilled') {
         setTopPlayers(results[1].value.topPlayers ?? []);
@@ -595,8 +595,8 @@ export default function YouthPortalPage() {
 
           {(
             <section className="youth-prayer-panel">
-              <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>Tu petición será recibida por el equipo autorizado de oración.</p></div></header>
-              <p className="youth-prayer-privacy"><ShieldCheck size={15}/> La petición se envía de forma privada a la bandeja del equipo pastoral. El selector de perfil es público y no verifica identidad.</p>
+              <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>Tu petición llegará a la bandeja de la comunidad para su acompañamiento.</p></div></header>
+              <p className="youth-prayer-privacy"><ShieldCheck size={15}/> La petición se envía a la bandeja interna de la aplicación. El selector de perfiles es público y no verifica quién está usando la cuenta.</p>
               <form onSubmit={(event) => void handlePrayerSubmit(event)}>
                 <label>Nombre (opcional)<input value={prayerName} onChange={(event) => setPrayerName(event.target.value)} maxLength={80} placeholder="Puedes enviarla como anónimo"/></label>
                 <label>Tipo de petición<select value={prayerCategory} onChange={(event) => setPrayerCategory(event.target.value)}><option>General</option><option>Familia</option><option>Estudios</option><option>Fortaleza espiritual</option><option>Agradecimiento</option><option>Otra</option></select></label>
