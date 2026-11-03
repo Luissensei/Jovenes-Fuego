@@ -65,3 +65,7 @@
 .jf-button:active:not(:disabled)::after{animation:jf-ripple .48s ease-out}
 @keyframes jf-ripple{0%{opacity:.5;transform:translate(-50%,-50%) scale(0)}100%{opacity:0;transform:translate(-50%,-50%) scale(12)}}
 @media(prefers-reduced-motion:reduce){.jf-button:active:not(:disabled)::after{animation:none;opacity:0}}
+
+/* La capa decorativa queda detrás del contenido y nunca intercepta gestos. */
+.jf-background-effects{z-index:0}
+.layout,.login-shell{position:relative;z-index:1}
