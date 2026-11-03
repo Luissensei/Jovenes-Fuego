@@ -5,6 +5,7 @@ import {
   Route,
   Routes,
   useNavigate,
+  useLocation,
 } from 'react-router-dom';
 
 import {
@@ -17,6 +18,7 @@ import {
   LogOut,
   UserRound,
 } from 'lucide-react';
+import { PlayerAvatar } from '../components/gaming/GamingUI';
 
 import { modules } from './modules';
 import { firebaseProjectId } from '../services/firebase/client';
@@ -96,6 +98,7 @@ function AdminApp() {
   });
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const theme = dark ? 'dark' : 'light';
@@ -175,6 +178,16 @@ function AdminApp() {
 
     return true;
   });
+
+  const currentModule = visibleModules.find((item) => item.path === location.pathname);
+  const navigationGroups = [
+    { label: 'LOBBY Y PROGRESO', ids: ['dashboard', 'ranking', 'games', 'profile'] },
+    { label: 'VIDA DE COMUNIDAD', ids: ['members', 'attendance', 'visitors', 'followups', 'devotionals', 'photos', 'events', 'checkins', 'prayers', 'inbox', 'turns'] },
+    { label: 'GESTIÓN Y CONTROL', ids: ['bonus', 'pastoral', 'leaders', 'reports', 'audit', 'settings'] },
+  ].map((group) => ({
+    ...group,
+    items: visibleModules.filter((item) => group.ids.includes(item.id)),
+  })).filter((group) => group.items.length > 0);
 
   function renderModule(
     id: string,
@@ -300,22 +313,25 @@ function AdminApp() {
             : 'VISTA PREVIA · SIN FIREBASE'}
         </div>
 
-        <nav aria-label="Módulos">
-          {visibleModules.map((item) => (
-            <NavLink
-              key={item.id}
-              to={item.path}
-              end={item.path === '/'}
-              onClick={() => setMenuOpen(false)}
-              className={({ isActive }) =>
-                `nav-item ${isActive ? 'active' : ''}`
-              }
-            >
-              <span className="nav-item-icon" aria-hidden="true">
-                <item.icon size={17} strokeWidth={2.1} />
-              </span>
-              <span>{item.label}</span>
-            </NavLink>
+        <nav className="jf-navigation" aria-label="Módulos">
+          {navigationGroups.map((group) => (
+            <div className="jf-navigation__group" key={group.label}>
+              <span className="jf-navigation__label">{group.label}</span>
+              {group.items.map((item) => (
+                <NavLink
+                  key={item.id}
+                  to={item.path}
+                  end={item.path === '/'}
+                  onClick={() => setMenuOpen(false)}
+                  className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                >
+                  <span className="nav-item-icon" aria-hidden="true">
+                    <item.icon size={17} strokeWidth={2.1} />
+                  </span>
+                  <span>{item.label}</span>
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
 
@@ -363,20 +379,21 @@ function AdminApp() {
 
       <main className="main">
         <div className="topline">
-          <div>
+          <div className="jf-topline-context">
             <span className="dot" />
             {configured
               ? 'Sesión autenticada · entorno de pruebas'
               : 'Vista previa · sin datos reales'}
+            <span className="jf-topline-divider">/</span>
+            <strong>{currentModule?.label ?? 'Panel principal'}</strong>
           </div>
 
           <span className="project-label">
             {user ? (
               <>
-                <UserRound size={13} />
-                {String(profile?.name ?? user.email ?? 'Usuario')}
-                {' · '}
-                {role || 'sin rol'}
+                <PlayerAvatar name={String(profile?.name ?? user.email ?? 'Usuario')} size="sm" frame="cyan" />
+                <span>{String(profile?.name ?? user.email ?? 'Usuario')}</span>
+                <span className="jf-role-chip">{role || 'sin rol'}</span>
               </>
             ) : (
               'Firebase: no configurado'
