@@ -21,6 +21,8 @@ import {
   auth,
   functions,
   firebaseConfigured,
+  firebaseProjectId,
+  firebaseFunctionsRegion,
 } from '../services/firebase/client';
 
 export type AppRole =
@@ -127,18 +129,26 @@ export function AuthProvider({
             firebaseError.message
           );
 
-          if (
-            firebaseError.code === 'functions/permission-denied' ||
-            firebaseError.code === 'functions/not-found'
-          ) {
+          if (firebaseError.code === 'functions/not-found') {
             setError(
-              'Tu cuenta no tiene un perfil autorizado en users o la función getMyApplicationProfile todavía no está desplegada en Firebase Staging.'
+              `La cuenta inició sesión, pero getMyApplicationProfile no está desplegada en ${firebaseProjectId || 'Firebase Staging'} (${firebaseFunctionsRegion}). Despliega las Cloud Functions en Staging.`
+            );
+          } else if (firebaseError.code === 'functions/permission-denied') {
+            setError(
+              'Firebase autenticó la cuenta, pero no encontró un documento users con un rol reconocido para este UID. Verifica el perfil de aplicación sin cambiar las reglas de Firestore.'
             );
           } else if (firebaseError.code === 'functions/unauthenticated') {
-            setError('La sesión expiró. Inicia sesión nuevamente.');
+            setError('La sesión no llegó correctamente a Firebase Functions. Cierra sesión y vuelve a ingresar.');
+          } else if (
+            firebaseError.code === 'functions/unavailable' ||
+            firebaseError.code === 'functions/deadline-exceeded'
+          ) {
+            setError(
+              `Firebase Functions no responde en ${firebaseProjectId || 'Staging'} (${firebaseFunctionsRegion}). Comprueba el despliegue y la región.`
+            );
           } else {
             setError(
-              'No se pudo validar tu perfil mediante Firebase Functions. Comprueba que las funciones estén desplegadas en Staging.'
+              `No se pudo validar el perfil de aplicación (código ${firebaseError.code || 'desconocido'}). Proyecto: ${firebaseProjectId || 'sin configurar'}; región: ${firebaseFunctionsRegion}.`
             );
           }
 
@@ -212,6 +222,21 @@ export function AuthProvider({
             throw new Error('Correo o contraseña incorrectos.');
           }
 
+          if (
+            firebaseError.code === 'auth/invalid-api-key' ||
+            firebaseError.code === 'auth/api-key-not-valid'
+          ) {
+            throw new Error('La clave API de Firebase Staging no está configurada correctamente en Vercel.');
+          }
+
+          if (firebaseError.code === 'auth/operation-not-allowed') {
+            throw new Error('El proveedor Correo/contraseña está desactivado en Firebase Authentication de Staging.');
+          }
+
+          if (firebaseError.code === 'auth/network-request-failed') {
+            throw new Error('No se pudo conectar con Firebase. Comprueba tu internet e inténtalo de nuevo.');
+          }
+
           if (firebaseError.code === 'auth/too-many-requests') {
             throw new Error(
               'Demasiados intentos. Espera un momento y vuelve a intentar.'
@@ -219,7 +244,7 @@ export function AuthProvider({
           }
 
           throw new Error(
-            'No se pudo iniciar sesión. Comprueba Firebase Authentication en Staging.'
+            `No se pudo iniciar sesión (código ${firebaseError.code || 'desconocido'}). Proyecto: ${firebaseProjectId || 'sin configurar'}.`
           );
         }
       },
