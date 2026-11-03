@@ -977,13 +977,13 @@ export const createManagedRecord = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
+  const kind = request.data?.kind as ManagedKind;
+  const config = managedCollectionConfig(kind);
   if (kind === "inbox") {
     await requireAdminOrPastor(request.auth.uid);
   } else {
     await requireAuthorizedRole(request.auth.uid);
   }
-  const kind = request.data?.kind as ManagedKind;
-  const config = managedCollectionConfig(kind);
   const fields = cleanManagedFields(request.data?.fields, config.fields);
   validateManagedFields(kind, fields);
   const status = text(request.data?.status, 40) || config.statuses[0];
@@ -1007,13 +1007,13 @@ export const updateManagedRecord = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
+  const kind = request.data?.kind as ManagedKind;
+  const config = managedCollectionConfig(kind);
   if (kind === "inbox") {
     await requireAdminOrPastor(request.auth.uid);
   } else {
     await requireAuthorizedRole(request.auth.uid);
   }
-  const kind = request.data?.kind as ManagedKind;
-  const config = managedCollectionConfig(kind);
   const id = text(request.data?.id, 150);
   if (!id) throw new HttpsError("invalid-argument", "Selecciona un registro válido.");
   const fields = cleanManagedFields(request.data?.fields, config.fields);
@@ -1033,13 +1033,13 @@ export const updateManagedRecordStatus = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
+  const kind = request.data?.kind as ManagedKind;
+  const config = managedCollectionConfig(kind);
   if (kind === "inbox") {
     await requireAdminOrPastor(request.auth.uid);
   } else {
     await requireAuthorizedRole(request.auth.uid);
   }
-  const kind = request.data?.kind as ManagedKind;
-  const config = managedCollectionConfig(kind);
   const id = text(request.data?.id, 150);
   const status = text(request.data?.status, 40);
   if (!id || !config.statuses.includes(status)) {
@@ -1060,13 +1060,13 @@ export const deleteManagedRecord = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
+  const kind = request.data?.kind as ManagedKind;
+  const config = managedCollectionConfig(kind);
   if (kind === "inbox") {
     await requireAdminOrPastor(request.auth.uid);
   } else {
     await requireAuthorizedRole(request.auth.uid);
   }
-  const kind = request.data?.kind as ManagedKind;
-  const config = managedCollectionConfig(kind);
   const id = text(request.data?.id, 150);
   if (!id) throw new HttpsError("invalid-argument", "Selecciona un registro válido.");
   const ref = db.collection(config.collection).doc(id);
