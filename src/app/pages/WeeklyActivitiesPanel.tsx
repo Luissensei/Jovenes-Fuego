@@ -131,7 +131,7 @@ export default function WeeklyActivitiesPanel() {
               <label>Lugar<input value={form.location} onChange={(event) => setForm({...form,location:event.target.value})} maxLength={120} placeholder="Lugar de encuentro"/></label>
               <label className="weekly-publish-check"><input type="checkbox" checked={form.published} onChange={(event) => setForm({...form,published:event.target.checked})}/><span><b>Publicar para los jóvenes</b><small>Al activar esta opción, la actividad aparecerá en el portal juvenil.</small></span></label>
               {error && <p className="weekly-admin-alert error">{error}</p>}
-              <footer><button type="button" className="weekly-cancel" onClick={() => setShowForm(false)} disabled={saving}>Cancelar</button><button type="submit" className="weekly-save" disabled={saving}><Save size={16}/>{saving ? 'Guardando...' : form.published ? 'Guardar y publicar' : 'Guardar borrador'}</button></footer>
+              <footer><button type="button" className="weekly-cancel" onClick={() => setShowForm(false)} disabled={saving}>Cancelar</button><button type="submit" className="weekly-save" disabled={saving || firebaseReadOnlyMode}><Save size={16}/>{saving ? 'Guardando...' : firebaseReadOnlyMode ? 'Solo lectura · Staging' : form.published ? 'Guardar y publicar' : 'Guardar borrador'}</button></footer>
             </form>
           </section>
         </div>
