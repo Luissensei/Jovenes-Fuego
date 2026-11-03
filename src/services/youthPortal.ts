@@ -202,8 +202,9 @@ export async function saveWeeklyActivity(
     n: activity.description.trim(),
     published: activity.published,
   };
-  const eventRef = activity.id && !activity.id.startsWith('legacy-event-')
-    ? doc(db, 'events', activity.id)
+  const isNewEvent = !activity.id || activity.id.startsWith('legacy-event-');
+  const eventRef = !isNewEvent
+    ? doc(db, 'events', activity.id as string)
     : doc(collection(db, 'events'));
   const rankingRef = doc(db, 'public', 'ranking');
 
@@ -230,7 +231,7 @@ export async function saveWeeklyActivity(
         n: payload.n,
       });
     }
-    transaction.set(eventRef, payload, {merge: true});
+    transaction.set(eventRef, isNewEvent ? {...payload, cf: {}, pg: {}, q: 0} : payload, {merge: true});
     transaction.update(rankingRef, {ev: nextEvents, u: Date.now()});
   });
 }
