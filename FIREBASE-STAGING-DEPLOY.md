@@ -12,6 +12,19 @@ firebase deploy --only functions --project jovenes-de-fuego-staging --non-intera
 
 No despliega Hosting, Firestore Rules, Storage Rules ni ningún recurso de producción.
 
+## Variables de Vercel para la vista previa
+
+En el proyecto Vercel `jovenes-fuego-staging`, configura estas variables con los valores de la aplicación web Firebase del proyecto `jovenes-de-fuego-staging`:
+
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+
+Para evitar conectar por error otra rama o producción, limita las variables a **Preview** y a la rama `fix/quality-final`. Al terminar, vuelve a desplegar la vista previa para que Vite incorpore los valores en la compilación. Las variables `VITE_*` forman parte de la configuración cliente que Vite expone al navegador; no almacenes contraseñas de cuentas ni claves de cuentas de servicio con ese prefijo.
+
 ## Configuración necesaria una sola vez
 
 1. En Google Cloud/Firebase, crea una cuenta de servicio dedicada exclusivamente al despliegue del proyecto `jovenes-de-fuego-staging`.
