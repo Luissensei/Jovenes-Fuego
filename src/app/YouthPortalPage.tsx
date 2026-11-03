@@ -6,10 +6,11 @@ import {
   Gamepad2, RefreshCw, ChevronRight, ShieldCheck, Sparkles,
   CalendarDays, Clock3, MapPin, HeartHandshake, Send, Medal, Crown,
   Palette, Volume2, VolumeX, Star, X, WandSparkles,
-  BookMarked, Timer, Swords, Brain, Layers,
+  BookMarked, Timer, Swords, Brain, Layers, Moon, Sun,
 } from 'lucide-react';
 
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
+import {firebaseReadOnlyMode} from '../services/firebase/client';
 import {
   getWeeklyActivities,
   getHallOfFame,
@@ -17,6 +18,7 @@ import {
   type WeeklyActivity,
   type HallOfFamePlayer,
   type FaithfulPlayer,
+  saveYouthProfileAppearance,
 } from '../services/youthPortal';
 
 import TriviaGame from './TriviaGame';
@@ -29,16 +31,84 @@ import {
   OrderVerseGame,
 } from './MoreBibleGames';
 
+import { useThemePreference } from './useThemePreference';
 import './YouthPortalPage.css';
 
 type ProfileLook = {
-  frame: 'ember' | 'prism' | 'ice' | 'gold';
-  background: 'aurora' | 'fire' | 'ocean' | 'galaxy';
+  frame: string;
+  background: string;
+  avatar: string;
+  title: string;
+  ownedItems: string[];
+  flames: number;
+};
+
+type LookShopCategory = 'frames' | 'avatars' | 'titles' | 'backgrounds';
+
+const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: string; cost: number}[]> = {
+  frames: [
+    {key:'fuego',label:'Fuego',emoji:'🔥',cost:0},
+    {key:'neon',label:'Neón',emoji:'💜',cost:40},
+    {key:'cielo',label:'Cielo',emoji:'🕊️',cost:40},
+    {key:'hielo',label:'Hielo',emoji:'❄️',cost:50},
+    {key:'arco',label:'Arcoíris',emoji:'🌈',cost:60},
+    {key:'esmeralda',label:'Esmeralda',emoji:'💚',cost:70},
+    {key:'rayo',label:'Rayo',emoji:'⚡',cost:80},
+    {key:'oro',label:'Oro',emoji:'👑',cost:120},
+    {key:'galaxia',label:'Galaxia',emoji:'🌌',cost:150},
+    {key:'corona',label:'Campeón',emoji:'🏆',cost:200},
+  ],
+  avatars: [
+    {key:'',label:'Iniciales',emoji:'🔤',cost:0},
+    {key:'paloma',label:'Paloma',emoji:'🕊️',cost:0},
+    {key:'leon',label:'León de Judá',emoji:'🦁',cost:0},
+    {key:'aguila',label:'Águila',emoji:'🦅',cost:0},
+    {key:'cordero',label:'Cordero',emoji:'🐑',cost:20},
+    {key:'mariposa',label:'Mariposa',emoji:'🦋',cost:25},
+    {key:'lobo',label:'Lobo',emoji:'🐺',cost:30},
+    {key:'estrella',label:'Estrella',emoji:'🌟',cost:40},
+    {key:'guerrero',label:'Guerrero',emoji:'🛡️',cost:50},
+    {key:'dragon',label:'Dragón',emoji:'🐉',cost:60},
+    {key:'cohete',label:'Cohete',emoji:'🚀',cost:70},
+    {key:'rey',label:'Rey',emoji:'👑',cost:80},
+    {key:'volcan',label:'Volcán',emoji:'🌋',cost:90},
+  ],
+  titles: [
+    {key:'chispa',label:'Chispa Encendida',emoji:'✨',cost:0},
+    {key:'valiente',label:'Valiente',emoji:'🛡️',cost:25},
+    {key:'guerrero',label:'Guerrero de Fe',emoji:'⚔️',cost:40},
+    {key:'intercesor',label:'Intercesor',emoji:'🙏',cost:50},
+    {key:'adorador',label:'Adorador',emoji:'🎵',cost:60},
+    {key:'sabio',label:'Sabio de la Palabra',emoji:'📖',cost:80},
+    {key:'leyenda',label:'Leyenda de Fuego',emoji:'🏆',cost:150},
+  ],
+  backgrounds: [
+    {key:'brasa',label:'Brasa',emoji:'🔥',cost:0},
+    {key:'ocaso',label:'Ocaso',emoji:'🌅',cost:30},
+    {key:'aurora',label:'Aurora',emoji:'🌌',cost:50},
+    {key:'noche',label:'Noche',emoji:'🌙',cost:50},
+    {key:'volcan',label:'Volcán',emoji:'🌋',cost:80},
+    {key:'galaxia',label:'Galaxia',emoji:'✨',cost:100},
+  ],
+};
+
+const lookCategoryField: Record<LookShopCategory, keyof ProfileLook> = {
+  frames: 'frame',
+  avatars: 'avatar',
+  titles: 'title',
+  backgrounds: 'background',
+};
+
+const lookCategoryStorage: Record<LookShopCategory, string> = {
+  frames: 'frames',
+  avatars: 'avs',
+  titles: 'tits',
+  backgrounds: 'bans',
 };
 
 type MiniGame = 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order';
 
-const defaultLook: ProfileLook = {frame: 'prism', background: 'aurora'};
+const defaultLook: ProfileLook = {frame: 'fuego', background: 'brasa', avatar: '', title: 'chispa', ownedItems: [], flames: 0};
 
 const games: {id: MiniGame; title: string; subtitle: string; icon: typeof Trophy; color: string}[] = [
   {id: 'trivia', title: 'Trivia bíblica', subtitle: 'Preguntas y conocimiento', icon: BookOpen, color: 'orange'},
@@ -59,26 +129,41 @@ function getInitials(name: string): string {
 function YouthAvatar({profile, large = false}: {profile: PublicProfile; large?: boolean}) {
   const [imageFailed, setImageFailed] = useState(false);
   return (
-    <div className={`youth-avatar ${large ? 'large' : ''}`}>
+    <div className={`youth-avatar youth-avatar-frame-${profile.frame || 'fuego'} ${large ? 'large' : ''}`}>
       {profile.pic && !imageFailed ? (
         <img src={profile.pic} alt={`Fotografía de ${profile.name}`} onError={() => setImageFailed(true)} />
-      ) : <span>{getInitials(profile.name)}</span>}
+      ) : <span className={profile.avatar ? 'youth-avatar-symbol' : ''}>{profile.avatar ? ({paloma:'🕊️',leon:'🦁',aguila:'🦅',cordero:'🐑',mariposa:'🦋',lobo:'🐺',estrella:'🌟',guerrero:'🛡️',dragon:'🐉',cohete:'🚀',rey:'👑',volcan:'🌋'} as Record<string,string>)[profile.avatar] ?? getInitials(profile.name) : getInitials(profile.name)}</span>}
     </div>
   );
 }
 
-function readLook(profileId: string): ProfileLook {
+function readLook(profile: PublicProfile): ProfileLook {
+  const remote: ProfileLook = {
+    frame: profile.frame || defaultLook.frame,
+    background: profile.background || defaultLook.background,
+    avatar: profile.avatar || '',
+    title: profile.title || defaultLook.title,
+    ownedItems: profile.ownedItems ?? [],
+    flames: profile.flames ?? 0,
+  };
   try {
-    const raw = window.localStorage.getItem(`jf-youth-look-${profileId}`);
-    if (!raw) return defaultLook;
+    const raw = window.localStorage.getItem(`jf-youth-look-${profile.id}`);
+    if (!raw) return remote;
     const parsed = JSON.parse(raw) as Partial<ProfileLook>;
-    const frame = ['ember', 'prism', 'ice', 'gold'].includes(String(parsed.frame))
-      ? parsed.frame as ProfileLook['frame'] : defaultLook.frame;
-    const background = ['aurora', 'fire', 'ocean', 'galaxy'].includes(String(parsed.background))
-      ? parsed.background as ProfileLook['background'] : defaultLook.background;
-    return {frame, background};
+    // En producción solo lectura, la personalización queda en este dispositivo.
+    // En Staging prevalecen siempre los valores sincronizados con Firebase.
+    const local = firebaseReadOnlyMode ? parsed : {};
+    return {
+      ...remote,
+      frame: local.frame || remote.frame,
+      background: local.background || remote.background,
+      avatar: typeof local.avatar === 'string' ? local.avatar : remote.avatar,
+      title: local.title || remote.title,
+      ownedItems: local.ownedItems ?? remote.ownedItems,
+      flames: local.flames ?? remote.flames,
+    };
   } catch {
-    return defaultLook;
+    return remote;
   }
 }
 
@@ -130,7 +215,7 @@ function HallOfFame({topPlayers, faithful, attendanceLimited}: {
 
       <article className="youth-hall-card youth-hall-faithful">
         <header><Flame size={20} /><div><span>CONSTANCIA Y COMPROMISO</span><h2>Top 10 más fieles</h2></div></header>
-        <p className="youth-hall-caption">Según asistencias marcadas como presentes en el módulo nuevo de asistencia.</p>
+        <p className="youth-hall-caption">Según los servicios seguidos sin faltar que publica el ranking original.</p>
         {attendanceLimited && <p className="youth-hall-limited" role="note">El cálculo está limitado a las 1.000 reuniones más recientes. Revisa el informe completo si la comunidad supera ese volumen.</p>}
         {faithful.length ? (
           <ol className="youth-faithful-list">
@@ -138,7 +223,7 @@ function HallOfFame({topPlayers, faithful, attendanceLimited}: {
               <li key={player.id}>
                 <span className="youth-faithful-rank">{index + 1}</span>
                 <span className="youth-faithful-name">{player.name}</span>
-                <strong>{player.attendances} {player.attendances === 1 ? 'asistencia' : 'asistencias'}</strong>
+                <strong>{player.attendances} {player.attendances === 1 ? 'servicio seguido' : 'servicios seguidos'}</strong>
               </li>
             ))}
           </ol>
@@ -149,6 +234,7 @@ function HallOfFame({topPlayers, faithful, attendanceLimited}: {
 }
 
 export default function YouthPortalPage() {
+  const { isDark, toggleTheme } = useThemePreference();
   const [profiles, setProfiles] = useState<PublicProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -163,6 +249,10 @@ export default function YouthPortalPage() {
 
   const [look, setLook] = useState<ProfileLook>(defaultLook);
   const [editingLook, setEditingLook] = useState(false);
+  const [lookCategory, setLookCategory] = useState<LookShopCategory>('frames');
+  const [lookSaving, setLookSaving] = useState(false);
+  const [portalExiting, setPortalExiting] = useState(false);
+  const [gameExiting, setGameExiting] = useState(false);
   const [activeGame, setActiveGame] = useState<MiniGame | null>(null);
 
   const [prayerName, setPrayerName] = useState('');
@@ -175,6 +265,7 @@ export default function YouthPortalPage() {
   const [soundOn, setSoundOn] = useState(false);
   const [soundError, setSoundError] = useState('');
   const audioRef = useRef<AudioContext | null>(null);
+  const audioMasterRef = useRef<GainNode | null>(null);
 
   async function loadProfiles() {
     setLoading(true);
@@ -198,14 +289,14 @@ export default function YouthPortalPage() {
       if (results[0].status === 'fulfilled') {
         setActivities(results[0].value);
       } else {
-        setPortalDataError('Las actividades todavía no se pueden consultar en este entorno.');
+        setPortalDataError('No se pudieron consultar las actividades publicadas en el ranking original.');
       }
       if (results[1].status === 'fulfilled') {
         setTopPlayers(results[1].value.topPlayers ?? []);
         setFaithful(results[1].value.faithful ?? []);
         setAttendanceLimited(results[1].value.attendanceLimited === true);
       } else {
-        setPortalDataError((previous) => previous || 'Las clasificaciones estarán disponibles cuando se conecten sus funciones de Staging.');
+        setPortalDataError((previous) => previous || 'Las clasificaciones estarán disponibles cuando se publiquen los datos del ranking original.');
       }
     });
     return () => {
@@ -213,13 +304,14 @@ export default function YouthPortalPage() {
       if (audioRef.current) {
         void audioRef.current.close().catch(() => undefined);
         audioRef.current = null;
+        audioMasterRef.current = null;
       }
     };
   }, []);
 
   useEffect(() => {
     if (selectedProfile) {
-      setLook(readLook(selectedProfile.id));
+      setLook(readLook(selectedProfile));
       // La selección pública no verifica identidad: no prellenar el nombre
       // evita enviar peticiones en nombre de otra persona.
       setPrayerName('');
@@ -230,6 +322,7 @@ export default function YouthPortalPage() {
       if (audioRef.current) {
         void audioRef.current.close().catch(() => undefined);
         audioRef.current = null;
+        audioMasterRef.current = null;
       }
       setSoundOn(false);
     }
@@ -240,6 +333,21 @@ export default function YouthPortalPage() {
     if (!query) return profiles;
     return profiles.filter((profile) => `${profile.name} ${profile.nick}`.toLocaleLowerCase('es').includes(query));
   }, [profiles, search]);
+
+  const topPlayersWithPhotos = useMemo(() => topPlayers.map((player) => ({
+    ...player,
+    pic: player.pic || profiles.find((profile) =>
+      profile.name === player.name || (profile.nick && profile.nick === player.name),
+    )?.pic || '',
+  })), [topPlayers, profiles]);
+
+  const faithfulWithPhotos = useMemo(() => faithful.map((player) => ({
+    ...player,
+    pic: player.pic || profiles.find((profile) =>
+      profile.name === player.name || (profile.nick && profile.nick === player.name),
+    )?.pic || '',
+  })), [faithful, profiles]);
+
 
   const publishedActivities = useMemo(() => {
     const today = new Date();
@@ -254,87 +362,163 @@ export default function YouthPortalPage() {
     return activities.filter((activity) => activity.date >= weekStart && activity.date <= weekEnd);
   }, [activities]);
 
-  function saveLook(next: ProfileLook) {
+  async function equipLookItem(category: LookShopCategory, item: (typeof lookShop)[LookShopCategory][number]) {
     if (!selectedProfile) return;
-    setLook(next);
-    try {
-      window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
-      setLookNotice('Tu apariencia quedó guardada en este dispositivo.');
-    } catch {
-      setLookNotice('El navegador no permitió guardar la apariencia en este dispositivo.');
+    const ownedKey = `${lookCategoryStorage[category]}:${item.key}`;
+    const alreadyOwned = item.cost === 0 || look.ownedItems.includes(ownedKey);
+    if (!alreadyOwned && look.flames < item.cost) {
+      setLookNotice(`Te faltan ${item.cost - look.flames} Llamas para desbloquear ${item.label}.`);
+      return;
     }
+
+    const next: ProfileLook = {
+      ...look,
+      frame: category === 'frames' ? item.key : look.frame,
+      avatar: category === 'avatars' ? item.key : look.avatar,
+      title: category === 'titles' ? item.key : look.title,
+      background: category === 'backgrounds' ? item.key : look.background,
+      ownedItems: alreadyOwned ? look.ownedItems : [...look.ownedItems, ownedKey],
+      flames: alreadyOwned ? look.flames : look.flames - item.cost,
+    };
+    setLook(next);
+    setLookSaving(true);
+    setLookNotice('');
+    try {
+      if (firebaseReadOnlyMode) {
+        // Permite probar marcos y fondos localmente sin escribir en producción.
+        window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
+        setLookNotice(`${item.label} equipado en este dispositivo. La sincronización de la comunidad se habilita en Staging.`);
+        return;
+      }
+      await saveYouthProfileAppearance(selectedProfile.id, next);
+      window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
+      setLookNotice(`${item.label} equipado correctamente.`);
+    } catch (cause) {
+      setLookNotice(cause instanceof Error
+        ? cause.message
+        : 'No se pudo guardar el cambio. Comprueba tu conexión.');
+      setLook(readLook(selectedProfile));
+    } finally {
+      setLookSaving(false);
+    }
+  }
+
+  function leaveProfile() {
+    setPortalExiting(true);
+    window.setTimeout(() => {
+      setSelectedProfile(null);
+      setPortalExiting(false);
+    }, 360);
   }
 
   async function toggleAmbientSound() {
     setSoundError('');
     if (audioRef.current) {
-      await audioRef.current.close().catch(() => undefined);
+      const context = audioRef.current;
+      const master = audioMasterRef.current;
       audioRef.current = null;
+      audioMasterRef.current = null;
+      if (master && context.state !== 'closed') {
+        master.gain.cancelScheduledValues(context.currentTime);
+        master.gain.setValueAtTime(master.gain.value, context.currentTime);
+        master.gain.linearRampToValueAtTime(0.0001, context.currentTime + 0.55);
+        window.setTimeout(() => {
+          void context.close().catch(() => undefined);
+        }, 650);
+      } else {
+        await context.close().catch(() => undefined);
+      }
       setSoundOn(false);
       return;
     }
+
     try {
       const context = new AudioContext();
       await context.resume();
-      audioRef.current = context;
       const master = context.createGain();
       master.gain.setValueAtTime(0, context.currentTime);
-      master.gain.linearRampToValueAtTime(0.035, context.currentTime + 1.2);
+      master.gain.linearRampToValueAtTime(0.045, context.currentTime + 1.4);
       master.connect(context.destination);
+      audioRef.current = context;
+      audioMasterRef.current = master;
 
-      const low = context.createOscillator();
-      const lowGain = context.createGain();
-      low.type = 'sine';
-      low.frequency.value = 110;
-      lowGain.gain.value = 0.20;
-      low.connect(lowGain);
-      lowGain.connect(master);
-      low.start();
+      // Armonías cálidas y suaves para crear un ambiente discreto.
+      [[110, 0.15], [164.81, 0.075], [220, 0.025]].forEach(([frequency, volume]) => {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = frequency;
+        gain.gain.value = volume;
+        oscillator.connect(gain);
+        gain.connect(master);
+        oscillator.start();
+      });
 
-      const high = context.createOscillator();
-      const highGain = context.createGain();
-      high.type = 'sine';
-      high.frequency.value = 164.81;
-      highGain.gain.value = 0.11;
-      high.connect(highGain);
-      highGain.connect(master);
-      high.start();
-
-      const noiseBuffer = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
+      // Ruido marrón filtrado: textura semejante a viento y brasas, sin archivos externos.
+      const noiseBuffer = context.createBuffer(1, context.sampleRate * 4, context.sampleRate);
       const channel = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < channel.length; i += 1) channel[i] = (Math.random() * 2 - 1) * 0.16;
+      let previous = 0;
+      for (let index = 0; index < channel.length; index += 1) {
+        const white = Math.random() * 2 - 1;
+        previous = (previous + 0.025 * white) / 1.025;
+        channel[index] = previous * 3.2;
+      }
+
       const noise = context.createBufferSource();
       const filter = context.createBiquadFilter();
       const noiseGain = context.createGain();
       noise.buffer = noiseBuffer;
       noise.loop = true;
       filter.type = 'lowpass';
-      filter.frequency.value = 420;
-      noiseGain.gain.value = 0.10;
+      filter.frequency.value = 360;
+      noiseGain.gain.value = 0.34;
       noise.connect(filter);
       filter.connect(noiseGain);
       noiseGain.connect(master);
       noise.start();
 
+      // Movimiento lento del filtro para que el sonido no sea estático.
+      const breeze = context.createOscillator();
+      const breezeDepth = context.createGain();
+      breeze.type = 'sine';
+      breeze.frequency.value = 0.075;
+      breezeDepth.gain.value = 95;
+      breeze.connect(breezeDepth);
+      breezeDepth.connect(filter.frequency);
+      breeze.start();
+
       setSoundOn(true);
     } catch {
       setSoundError('Este navegador no permite reproducir el ambiente sonoro.');
       setSoundOn(false);
+      if (audioRef.current) {
+        void audioRef.current.close().catch(() => undefined);
+        audioRef.current = null;
+        audioMasterRef.current = null;
+      }
     }
   }
 
   async function handlePrayerSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    let lastSent = 0;
+    try { lastSent = Number(window.localStorage.getItem('jf-youth-prayer-last') ?? 0); } catch { /* almacenamiento opcional */ }
+    if (Date.now() - lastSent < 30_000) {
+      setPrayerStatus('Espera unos segundos antes de enviar otra petición.');
+      return;
+    }
     setPrayerStatus('');
     setPrayerBusy(true);
     try {
       await sendPrayerRequest({
+        memberId: selectedProfile?.id ?? '',
         requester: prayerName.trim() || 'Anónimo',
         category: prayerCategory,
         message: prayerMessage.trim(),
       });
+      try { window.localStorage.setItem('jf-youth-prayer-last', String(Date.now())); } catch { /* almacenamiento opcional */ }
       setPrayerMessage('');
-      setPrayerStatus('Tu petición fue recibida. El equipo de oración podrá acompañarte.');
+      setPrayerStatus('Tu petición fue enviada al equipo de oración. Gracias por confiar.');
     } catch (cause) {
       setPrayerStatus(cause instanceof Error ? cause.message : 'No se pudo enviar la petición.');
     } finally {
@@ -343,13 +527,23 @@ export default function YouthPortalPage() {
   }
 
   if (selectedProfile && activeGame) {
-    const exitGame = () => setActiveGame(null);
+    const exitGame = () => {
+      setGameExiting(true);
+      window.setTimeout(() => {
+        setActiveGame(null);
+        setGameExiting(false);
+      }, 300);
+    };
     return (
       <main className="youth-portal">
-        <div className="youth-container youth-game-shell">
+        <div className={`youth-container youth-game-shell ${gameExiting ? "youth-game-exit" : ""}`}>
           <div className="youth-game-topbar">
             <button className="youth-back" type="button" onClick={exitGame}><ArrowLeft size={17}/> Volver a mi espacio</button>
             <span><Gamepad2 size={16}/> JUGADOR · {selectedProfile.name}</span>
+            <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'} aria-pressed={isDark}>
+              {isDark ? <Sun size={17}/> : <Moon size={17}/>}
+              <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>
+            </button>
           </div>
           {activeGame === 'trivia' && <TriviaGame onExit={exitGame}/>}
           {activeGame === 'verse' && <VerseGame onExit={exitGame}/>}
@@ -365,30 +559,36 @@ export default function YouthPortalPage() {
 
   if (selectedProfile) {
     return (
-      <main className={`youth-portal youth-look-${look.background}`}>
+      <main className={`youth-portal youth-look-${look.background} ${portalExiting ? "youth-profile-exit" : ""}`}>
         <div className="youth-container youth-home-enter">
           <div className="youth-home-toolbar">
-            <button type="button" className="youth-back" onClick={() => setSelectedProfile(null)}>
+            <button type="button" className="youth-back" onClick={leaveProfile}>
               <ArrowLeft size={17}/> Cambiar de perfil
             </button>
             <button type="button" aria-pressed={soundOn} className={`youth-sound-toggle ${soundOn ? 'active' : ''}`} onClick={() => void toggleAmbientSound()}>
               {soundOn ? <Volume2 size={17}/> : <VolumeX size={17}/>}
               {soundOn ? 'Ambiente activado' : 'Activar ambiente'}
             </button>
+            <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'} aria-pressed={isDark}>
+              {isDark ? <Sun size={17}/> : <Moon size={17}/>}
+              <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>
+            </button>
           </div>
 
-          <section className={`youth-welcome youth-home youth-frame-${look.frame}`}>
+          <section className={`youth-welcome youth-home youth-frame-${look.frame} youth-background-${look.background}`}>
             <div className="youth-welcome-decoration"><Sparkles size={24}/></div>
             <button type="button" className="youth-customize-trigger" onClick={() => setEditingLook((value) => !value)}>
               <Palette size={17}/> Personalizar perfil
             </button>
-            <YouthAvatar profile={selectedProfile} large/>
+            <YouthAvatar profile={{...selectedProfile, frame: look.frame, avatar: look.avatar}} large/>
             <span className="youth-brand-label">COMUNIDAD JÓVENES DE FUEGO</span>
             <h1>¡Hola, {selectedProfile.name}!</h1>
             <p>Tu espacio para crecer, servir, aprender y compartir.</p>
             {selectedProfile.nick && <span className="youth-profile-nick">@{selectedProfile.nick}</span>}
+            {look.title && <span className="youth-profile-title">{({chispa:'Chispa Encendida',valiente:'Valiente',guerrero:'Guerrero de Fe',intercesor:'Intercesor',adorador:'Adorador',sabio:'Sabio de la Palabra',leyenda:'Leyenda de Fuego'} as Record<string,string>)[look.title] ?? look.title}</span>}
             <div className="youth-profile-quickstats">
               <span><Star size={15}/> {selectedProfile.points > 0 ? `${selectedProfile.points} puntos públicos` : 'Puntos aún no publicados'}</span>
+              <span><Flame size={15}/> {look.flames} Llamas</span>
               <span><ShieldCheck size={15}/> Perfil comunitario</span>
             </div>
           </section>
@@ -397,13 +597,42 @@ export default function YouthPortalPage() {
 
           {editingLook && (
             <section className="youth-customizer">
-              <header><WandSparkles size={19}/><div><b>Tu identidad visual</b><span>Los cambios se guardan solo en este dispositivo.</span></div><button type="button" aria-label="Cerrar personalización" onClick={() => setEditingLook(false)}><X size={18}/></button></header>
-              <div className="youth-look-group"><strong>Marcos</strong><div className="youth-look-choices">
-                {(['ember','prism','ice','gold'] as const).map((frame) => <button type="button" key={frame} className={`look-choice frame-choice ${frame} ${look.frame === frame ? 'selected' : ''}`} onClick={() => saveLook({...look,frame})}><span/>{({ember:'Llama',prism:'Prisma',ice:'Cristal',gold:'Dorado'})[frame]}</button>)}
-              </div></div>
-              <div className="youth-look-group"><strong>Fondos</strong><div className="youth-look-choices">
-                {(['aurora','fire','ocean','galaxy'] as const).map((background) => <button type="button" key={background} className={`look-choice background-choice ${background} ${look.background === background ? 'selected' : ''}`} onClick={() => saveLook({...look,background})}>{({aurora:'Aurora',fire:'Fuego',ocean:'Océano',galaxy:'Galaxia'})[background]}</button>)}
-              </div></div>
+              <header>
+                <WandSparkles size={20}/>
+                <div><b>Forja tu identidad</b><span>Desbloquea marcos, avatares, títulos y mundos con tus Llamas.</span></div>
+                <strong className="youth-store-wallet"><Flame size={16}/> {look.flames}</strong>
+                <button type="button" aria-label="Cerrar personalización" onClick={() => setEditingLook(false)}><X size={18}/></button>
+              </header>
+              <nav className="youth-store-tabs" aria-label="Personalización">
+                {([
+                  ['frames','Marcos'],['avatars','Avatares'],['titles','Títulos'],['backgrounds','Fondos'],
+                ] as [LookShopCategory,string][]).map(([key,label]) => (
+                  <button type="button" key={key} className={lookCategory === key ? 'active' : ''} onClick={() => setLookCategory(key)}>{label}</button>
+                ))}
+              </nav>
+              <div className="youth-store-grid">
+                {lookShop[lookCategory].map((item) => {
+                  const field = lookCategoryField[lookCategory];
+                  const selected = look[field] === item.key;
+                  const unlocked = item.cost === 0 || look.ownedItems.includes(`${lookCategoryStorage[lookCategory]}:${item.key}`);
+                  return (
+                    <button
+                      type="button"
+                      key={item.key || 'default'}
+                      className={`youth-store-item ${selected ? 'selected' : ''} ${unlocked ? 'unlocked' : 'locked'}`}
+                      disabled={lookSaving}
+                      onClick={() => void equipLookItem(lookCategory,item)}
+                    >
+                      <span className="youth-store-item-art">{item.emoji}</span>
+                      <b>{item.label}</b>
+                      <small>{selected ? 'Equipado' : unlocked ? 'Desbloqueado · Equipar' : `${item.cost} Llamas`}</small>
+                    </button>
+                  );
+                })}
+              </div>
+              {lookNotice && <p className="youth-inline-warning" role="status">{lookNotice}</p>}
+              {firebaseReadOnlyMode && <p className="youth-inline-warning">En solo lectura, los cambios cosméticos se guardan solo en este dispositivo. Para sincronizarlos con todos los móviles usa Staging.</p>}
+              {lookSaving && <p className="youth-inline-warning">Guardando personalización...</p>}
             </section>
           )}
 
@@ -417,7 +646,9 @@ export default function YouthPortalPage() {
             ) : (
               <div className="youth-empty-activities"><CalendarDays size={25}/><strong>No hay actividades publicadas por ahora</strong><span>Cuando el equipo publique la agenda, aparecerá aquí al entrar.</span></div>
             )}
-          </section>
+ 
+          <HallOfFame topPlayers={topPlayersWithPhotos} faithful={faithfulWithPhotos} attendanceLimited={attendanceLimited}/>
+         </section>
 
           <section className="youth-game-hub">
             <header><div><span>ENTRENA Y APRENDE</span><h2>Zona de juegos bíblicos</h2></div><Gamepad2 size={22}/></header>
@@ -431,20 +662,20 @@ export default function YouthPortalPage() {
             </div>
           </section>
 
-          <HallOfFame topPlayers={topPlayers} faithful={faithful} attendanceLimited={attendanceLimited}/>
-
-          <section className="youth-prayer-panel">
-            <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>Tu petición será recibida por el equipo autorizado de oración.</p></div></header>
-            <form onSubmit={(event) => void handlePrayerSubmit(event)}>
-              <label>Nombre (opcional)<input value={prayerName} onChange={(event) => setPrayerName(event.target.value)} maxLength={80} placeholder="Puedes enviarla como anónimo"/></label>
-              <label>Tipo de petición<select value={prayerCategory} onChange={(event) => setPrayerCategory(event.target.value)}><option>General</option><option>Familia</option><option>Estudios</option><option>Fortaleza espiritual</option><option>Agradecimiento</option><option>Otra</option></select></label>
-              <label className="prayer-message-field">Cuéntanos cómo podemos orar por ti<textarea value={prayerMessage} onChange={(event) => setPrayerMessage(event.target.value)} minLength={8} maxLength={1200} rows={4} required placeholder="Escribe tu petición con confianza..."/></label>
-              <div className="youth-prayer-submit-row"><small>{prayerMessage.length}/1200 caracteres. Evita compartir datos personales sensibles.</small><button type="submit" disabled={prayerBusy || prayerMessage.trim().length < 8}>{prayerBusy ? 'Enviando...' : 'Enviar petición'} <Send size={16}/></button></div>
-              {prayerStatus && <p className="youth-prayer-status" role="status">{prayerStatus}</p>}
-            </form>
-          </section>
-
-          <div className="youth-security-note"><ShieldCheck size={17}/> La selección de perfil es pública. No permite consultar información privada ni acreditar la identidad del joven. Los juegos y puntuaciones visibles aquí no se guardan todavía en el ranking oficial.</div>
+          {(
+            <section className="youth-prayer-panel">
+              <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>{firebaseReadOnlyMode ? 'El envío se habilita al conectar el entorno seguro de pruebas.' : 'Tu mensaje llegará a la bandeja interna del equipo de oración.'}</p></div></header>
+              <p className="youth-prayer-privacy"><ShieldCheck size={15}/> El formulario está preparado para la bandeja interna. El selector de perfiles es público y no verifica quién está usando la cuenta; evita compartir datos sensibles.</p>
+              <form onSubmit={(event) => void handlePrayerSubmit(event)}>
+                <label>Nombre (opcional)<input value={prayerName} onChange={(event) => setPrayerName(event.target.value)} maxLength={80} placeholder="Puedes enviarla como anónimo"/></label>
+                <label>Tipo de petición<select value={prayerCategory} onChange={(event) => setPrayerCategory(event.target.value)}><option>General</option><option>Familia</option><option>Estudios</option><option>Fortaleza espiritual</option><option>Agradecimiento</option><option>Otra</option></select></label>
+                <label className="prayer-message-field">Cuéntanos cómo podemos orar por ti<textarea value={prayerMessage} onChange={(event) => setPrayerMessage(event.target.value)} minLength={8} maxLength={500} rows={4} required placeholder="Escribe tu petición con confianza..."/></label>
+                <div className="youth-prayer-submit-row"><small>{prayerMessage.length}/500 caracteres. Evita compartir datos personales sensibles.</small><button type="submit" disabled={firebaseReadOnlyMode || prayerBusy || prayerMessage.trim().length < 8}>{firebaseReadOnlyMode ? 'Disponible en Staging' : prayerBusy ? 'Enviando...' : 'Enviar petición'} <Send size={16}/></button></div>
+                {prayerStatus && <p className="youth-prayer-status" role="status">{prayerStatus}</p>}
+              </form>
+            </section>
+          )}
+          <div className="youth-security-note"><ShieldCheck size={17}/> Este acceso muestra únicamente información pública. No revela datos privados ni acredita la identidad; los puntos de partidas no se incorporan automáticamente al ranking oficial.</div>
         </div>
       </main>
     );
@@ -465,7 +696,13 @@ export default function YouthPortalPage() {
         <section className="youth-selector">
           <div className="youth-selector-heading">
             <div><span>ACCESO JUVENIL</span><h3>Nuestra comunidad</h3></div>
-            <div className="youth-total"><Users size={17}/>{profiles.length} perfiles</div>
+            <div className="youth-selector-actions">
+              <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'} aria-pressed={isDark}>
+                {isDark ? <Sun size={17}/> : <Moon size={17}/>}
+                <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>
+              </button>
+              <div className="youth-total"><Users size={17}/>{profiles.length} perfiles</div>
+            </div>
           </div>
 
           <label className="youth-search">

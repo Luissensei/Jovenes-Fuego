@@ -132,8 +132,8 @@ export default function AttendancePage() {
   }
 
   const presentCount = members.filter((member) => attendance[member.id] === 'Presente').length;
-  const absentCount = members.filter((member) => attendance[member.id] === 'Ausente').length;
-  const justifiedCount = members.filter((member) => attendance[member.id] === 'Justificado').length;
+  const absentCount = members.filter((member) => ['Ausente', 'Falta'].includes(attendance[member.id] ?? 'Ausente')).length;
+  const justifiedCount = members.filter((member) => attendance[member.id] === 'Justificada').length;
 
   return (
     <main className="attendance-page">
@@ -225,8 +225,10 @@ export default function AttendancePage() {
                     aria-label={`Estado de asistencia de ${member.name || 'joven'}`}
                   >
                     <option value="Presente">Presente</option>
+                    <option value="Tarde">Tarde</option>
+                    <option value="Falta">Falta</option>
+                    <option value="Justificada">Justificada</option>
                     <option value="Ausente">Ausente</option>
-                    <option value="Justificado">Justificado</option>
                   </select>
                 </div>
               ))}

@@ -93,13 +93,13 @@ export default function ReportsPage() {
           justified: 0,
         };
 
-        if (participant.status === 'Presente') {
+        if (participant.status === 'Presente' || participant.status === 'Tarde') {
           present++;
           current.present++;
-        } else if (participant.status === 'Ausente') {
+        } else if (participant.status === 'Ausente' || participant.status === 'Falta') {
           absent++;
           current.absent++;
-        } else if (participant.status === 'Justificado') {
+        } else if (participant.status === 'Justificada') {
           justified++;
           current.justified++;
         }

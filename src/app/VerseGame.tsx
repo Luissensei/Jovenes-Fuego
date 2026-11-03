@@ -1,5 +1,7 @@
+import {playGameTone} from './gameAudio';
 import { useState } from 'react';
-import { bibleVerseChallenges, type VerseChallenge } from './bibleQuestionBank';
+import { shuffleBibleQuestions, type VerseChallenge } from './bibleQuestionBank';
+import { expandedBibleVerseChallenges } from './extendedBibleQuestionBank';
 import {
   BookOpen,
   CheckCircle2,
@@ -15,13 +17,12 @@ import './VerseGame.css';
 
 type Question = VerseChallenge;
 
-const questions: Question[] = bibleVerseChallenges;
-
 export default function VerseGame({
   onExit,
 }: {
   onExit: () => void;
 }) {
+  const [questions, setQuestions] = useState<Question[]>(() => shuffleBibleQuestions(expandedBibleVerseChallenges));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [score, setScore] = useState(0);
@@ -41,6 +42,7 @@ export default function VerseGame({
     if (selectedAnswer !== null) return;
 
     setSelectedAnswer(option);
+    playGameTone(option === currentQuestion.answer ? 'success' : 'incorrect');
 
     if (option === currentQuestion.answer) {
       setScore((previous) => previous + 10);
@@ -60,6 +62,7 @@ export default function VerseGame({
   }
 
   function restartGame() {
+    setQuestions(shuffleBibleQuestions(expandedBibleVerseChallenges));
     setCurrentIndex(0);
     setSelectedAnswer(null);
     setScore(0);

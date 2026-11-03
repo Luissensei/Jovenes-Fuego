@@ -1,6 +1,8 @@
+import {playGameTone} from './gameAudio';
 
 import { useEffect, useState } from 'react';
-import { bibleQuestionBank, shuffleBibleQuestions, type BibleQuestion } from './bibleQuestionBank';
+import { shuffleBibleQuestions, type BibleQuestion } from './bibleQuestionBank';
+import { expandedBibleQuestionBank } from './extendedBibleQuestionBank';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -24,7 +26,7 @@ type Props = {
 
 export default function TriviaGame({ onExit }: Props) {
   const [started, setStarted] = useState(false);
-  const [roundQuestions, setRoundQuestions] = useState<Question[]>(bibleQuestionBank.slice(0, 10));
+  const [roundQuestions, setRoundQuestions] = useState<Question[]>(expandedBibleQuestionBank.slice(0, 10));
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [seconds, setSeconds] = useState(20);
@@ -78,7 +80,7 @@ export default function TriviaGame({ onExit }: Props) {
   }, [started, finished, selected, current, roundQuestions.length]);
 
   function startGame() {
-    setRoundQuestions(shuffleBibleQuestions(bibleQuestionBank).slice(0, 10));
+    setRoundQuestions(shuffleBibleQuestions(expandedBibleQuestionBank).slice(0, 10));
     setStarted(true);
     setFinished(false);
     setCurrent(0);
@@ -97,6 +99,7 @@ export default function TriviaGame({ onExit }: Props) {
     if (selected !== null || finished) return;
 
     setSelected(index);
+    playGameTone(index === question.answer ? 'success' : 'incorrect');
 
     if (index === question.answer) {
       const newStreak = streak + 1;

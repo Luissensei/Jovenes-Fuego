@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import type {FormEvent} from 'react';
 import {CalendarDays, Plus, RefreshCw, Save, Eye, EyeOff, Pencil, X} from 'lucide-react';
+import {firebaseReadOnlyMode} from '../../services/firebase/client';
 import {
   getAdminWeeklyActivities,
   saveWeeklyActivity,
@@ -68,6 +69,10 @@ export default function WeeklyActivitiesPanel() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (firebaseReadOnlyMode) {
+      setError('La base original está protegida. Conecta Staging para publicar actividades sin modificar producción.');
+      return;
+    }
     setSaving(true);
     setError('');
     setMessage('');
@@ -110,6 +115,8 @@ export default function WeeklyActivitiesPanel() {
         </div>
       )}
 
+      {firebaseReadOnlyMode && <p className="weekly-admin-alert" role="note">La agenda original se consulta en modo de solo lectura. La creación y publicación se habilitan al conectar Staging.</p>}
+
       {showForm && (
         <div className="weekly-form-backdrop" role="presentation" onMouseDown={(event) => {if (event.target === event.currentTarget && !saving) setShowForm(false);}}>
           <section className="weekly-form-modal" role="dialog" aria-modal="true" aria-labelledby="weekly-form-title">
@@ -124,7 +131,7 @@ export default function WeeklyActivitiesPanel() {
               <label>Lugar<input value={form.location} onChange={(event) => setForm({...form,location:event.target.value})} maxLength={120} placeholder="Lugar de encuentro"/></label>
               <label className="weekly-publish-check"><input type="checkbox" checked={form.published} onChange={(event) => setForm({...form,published:event.target.checked})}/><span><b>Publicar para los jóvenes</b><small>Al activar esta opción, la actividad aparecerá en el portal juvenil.</small></span></label>
               {error && <p className="weekly-admin-alert error">{error}</p>}
-              <footer><button type="button" className="weekly-cancel" onClick={() => setShowForm(false)} disabled={saving}>Cancelar</button><button type="submit" className="weekly-save" disabled={saving}><Save size={16}/>{saving ? 'Guardando...' : form.published ? 'Guardar y publicar' : 'Guardar borrador'}</button></footer>
+              <footer><button type="button" className="weekly-cancel" onClick={() => setShowForm(false)} disabled={saving}>Cancelar</button><button type="submit" className="weekly-save" disabled={saving || firebaseReadOnlyMode}><Save size={16}/>{saving ? 'Guardando...' : firebaseReadOnlyMode ? 'Solo lectura · Staging' : form.published ? 'Guardar y publicar' : 'Guardar borrador'}</button></footer>
             </form>
           </section>
         </div>

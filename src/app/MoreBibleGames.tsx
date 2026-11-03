@@ -1,5 +1,7 @@
+import {playGameTone} from './gameAudio';
 import { useEffect, useState } from 'react';
-import { bibleQuestionBank, shuffleBibleQuestions } from './bibleQuestionBank';
+import { shuffleBibleQuestions } from './bibleQuestionBank';
+import { expandedBibleQuestionBank } from './extendedBibleQuestionBank';
 import {
   Heart, Swords, Trophy,
   ChevronLeft, ChevronRight, RotateCcw, CheckCircle2,
@@ -25,13 +27,15 @@ function shuffle<T,>(items: T[]): T[] {
   return result;
 }
 
-const bank: Question[] = shuffleBibleQuestions(bibleQuestionBank).map((question) => ({
-  prompt: question.question,
-  options: question.options,
-  answer: question.options[question.answer],
-  reference: question.reference,
-  explanation: question.explanation,
-}));
+function makeQuestionBank(): Question[] {
+  return shuffleBibleQuestions(expandedBibleQuestionBank).map((question) => ({
+    prompt: question.question,
+    options: question.options,
+    answer: question.options[question.answer],
+    reference: question.reference,
+    explanation: question.explanation,
+  }));
+}
 
 function Header({ title, subtitle, onExit }: {
   title: string;
@@ -77,12 +81,41 @@ const memoryPairs = [
   ['Daniel', 'Leones', '🦁'],
   ['Jonás', 'Gran pez', '🐋'],
   ['Jesús', 'Panes y peces', '🐟'],
+  ['Abraham', 'Isaac', '⛰️'],
+  ['José', 'Túnica de colores', '👘'],
+  ['Ester', 'Reina', '👑'],
+  ['Sansón', 'Fuerza', '💪'],
+  ['Rut', 'Noemí', '🌾'],
+  ['Elías', 'Fuego del cielo', '🔥'],
+  ['Jonatán', 'Amistad con David', '🤝'],
+  ['Pablo', 'Damasco', '🛤️'],
+  ['Miriam', 'Canasta del Nilo', '🧺'],
+  ['Moisés', 'Tablas de la ley', '📜'],
+  ['Isaac', 'Carnero', '🐏'],
+  ['Jacob', 'Escalera', '🪜'],
+  ['Josué', 'Jericó', '🏰'],
+  ['Débora', 'Barac', '⚔️'],
+  ['Samuel', 'Voz en la noche', '🌙'],
+  ['Salomón', 'Templo', '🏛️'],
+  ['Nehemías', 'Murallas', '🧱'],
+  ['Job', 'Perseverancia', '🌿'],
+  ['Pedro', 'Caminar sobre el agua', '🌊'],
+  ['Tomás', 'Duda', '❔'],
+  ['Marta', 'Betania', '🍞'],
+  ['María Magdalena', 'Sepulcro vacío', '🌅'],
+  ['Esteban', 'Primer mártir', '🕊️'],
+  ['Timoteo', 'Pablo', '📖'],
+  ['Bernabé', 'Compañero de Pablo', '🤝'],
+  ['Lidia', 'Púrpura', '🟣'],
+  ['Priscila', 'Aquila', '⛺'],
+  ['Cornelio', 'Cesarea', '🏠'],
+  ['Bartimeo', 'Ceguera sanada', '👀'],
 ];
 
 type MemoryCard = { id: number; pair: number; text: string; symbol: string };
 
 function makeMemoryCards(): MemoryCard[] {
-  return shuffle(memoryPairs.flatMap((pair, index) => [
+  return shuffle(shuffle(memoryPairs).slice(0, 8).flatMap((pair, index) => [
     { id: index * 2, pair: index, text: pair[0], symbol: pair[2] },
     { id: index * 2 + 1, pair: index, text: pair[1], symbol: pair[2] },
   ]));
@@ -114,7 +147,10 @@ export function MemoryGame({ onExit }: { onExit: () => void }) {
     if (first.pair === card.pair) {
       const nextMatched = [...matched, card.pair];
       setMatched(nextMatched);
-      if (nextMatched.length === memoryPairs.length) setFinished(true);
+      playGameTone('success');
+      if (nextMatched.length === cards.length / 2) setFinished(true);
+    } else {
+      playGameTone('incorrect');
     }
 
     window.setTimeout(() => {
@@ -134,13 +170,13 @@ export function MemoryGame({ onExit }: { onExit: () => void }) {
 
   return (
     <section className="mbg-game">
-      <Header title="Memoria bíblica" subtitle="Encuentra las seis parejas relacionadas con historias de la Biblia." onExit={onExit} />
+      <Header title="Memoria bíblica" subtitle="Encuentra ocho parejas por partida usando un banco de personajes y relatos más amplio." onExit={onExit} />
       {finished ? (
-        <Result score={Math.max(0, 120 - moves * 5)} onRestart={restart} onExit={onExit} />
+        <Result score={Math.max(0, 160 - moves * 5)} onRestart={restart} onExit={onExit} />
       ) : (
         <>
           <div className="mbg-stats">
-            <span>Parejas: <b>{matched.length}/{memoryPairs.length}</b></span>
+            <span>Parejas: <b>{matched.length}/{cards.length / 2}</b></span>
             <span>Intentos: <b>{moves}</b></span>
           </div>
           <div className="mbg-memory-grid">
@@ -175,6 +211,7 @@ export function MemoryGame({ onExit }: { onExit: () => void }) {
 export function ChallengeGame({ onExit }: { onExit: () => void }) {
   const [seconds, setSeconds] = useState(60);
   const [index, setIndex] = useState(0);
+  const [questions, setQuestions] = useState<Question[]>(makeQuestionBank);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
@@ -191,11 +228,12 @@ export function ChallengeGame({ onExit }: { onExit: () => void }) {
     if (seconds === 0) setFinished(true);
   }, [seconds]);
 
-  const question = bank[index % bank.length];
+  const question = questions[index % questions.length];
 
   function answer(option: string) {
     if (answered !== null || finished) return;
     setAnswered(option);
+    playGameTone(option === question.answer ? 'success' : 'incorrect');
     if (option === question.answer) setScore((value) => value + 10);
   }
 
@@ -208,6 +246,7 @@ export function ChallengeGame({ onExit }: { onExit: () => void }) {
   function restart() {
     setSeconds(60);
     setIndex(0);
+    setQuestions(makeQuestionBank());
     setScore(0);
     setAnswered(null);
     setFinished(false);
@@ -235,17 +274,19 @@ export function ChallengeGame({ onExit }: { onExit: () => void }) {
 /* SUPERVIVENCIA */
 export function SurvivalGame({ onExit }: { onExit: () => void }) {
   const [index, setIndex] = useState(0);
+  const [questions, setQuestions] = useState<Question[]>(makeQuestionBank);
   const [lives, setLives] = useState(3);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
 
-  const question = bank[index % bank.length];
+  const question = questions[index % questions.length];
   const correct = answered === question.answer;
 
   function answer(option: string) {
     if (answered !== null || finished) return;
     setAnswered(option);
+    playGameTone(option === question.answer ? 'success' : 'incorrect');
     if (option === question.answer) {
       setScore((value) => value + 10);
     } else {
@@ -265,6 +306,7 @@ export function SurvivalGame({ onExit }: { onExit: () => void }) {
 
   function restart() {
     setIndex(0);
+    setQuestions(makeQuestionBank());
     setLives(3);
     setScore(0);
     setAnswered(null);
@@ -303,15 +345,17 @@ export function DuelGame({ onExit }: { onExit: () => void }) {
   const [started, setStarted] = useState(false);
   const [turn, setTurn] = useState(0);
   const [round, setRound] = useState(0);
+  const [questions, setQuestions] = useState<Question[]>(makeQuestionBank);
   const [scores, setScores] = useState([0, 0]);
   const [answered, setAnswered] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
 
-  const question = bank[(round) % bank.length];
+  const question = questions[round % questions.length];
 
   function answer(option: string) {
     if (answered !== null) return;
     setAnswered(option);
+    playGameTone(option === question.answer ? 'success' : 'incorrect');
     if (option === question.answer) {
       setScores((old) => old.map((score, i) => i === turn ? score + 10 : score));
     }
@@ -331,6 +375,7 @@ export function DuelGame({ onExit }: { onExit: () => void }) {
   function restart() {
     setTurn(0);
     setRound(0);
+    setQuestions(makeQuestionBank());
     setScores([0, 0]);
     setAnswered(null);
     setFinished(false);
@@ -399,28 +444,58 @@ const verseLevels = [
   { ref: 'Juan 11:35', text: 'Jesús lloró' },
   { ref: 'Génesis 1:1', text: 'En el principio creó Dios los cielos y la tierra' },
   { ref: 'Salmo 119:105', text: 'Lámpara es a mis pies tu palabra y lumbrera a mi camino' },
+  { ref: 'Juan 3:16', text: 'Porque de tal manera amó Dios al mundo que ha dado a su Hijo unigénito' },
+  { ref: 'Proverbios 3:5', text: 'Fíate de Jehová de todo tu corazón y no te apoyes en tu propia prudencia' },
+  { ref: 'Josué 1:9', text: 'Mira que te mando que te esfuerces y seas valiente no temas ni desmayes' },
+  { ref: 'Mateo 6:33', text: 'Mas buscad primeramente el reino de Dios y su justicia y todas estas cosas os serán añadidas' },
+  { ref: 'Salmo 46:1', text: 'Dios es nuestro amparo y fortaleza nuestro pronto auxilio en las tribulaciones' },
+  { ref: '1 Corintios 13:4', text: 'El amor es sufrido es benigno el amor no tiene envidia' },
+  { ref: 'Romanos 8:28', text: 'Y sabemos que a los que aman a Dios todas las cosas les ayudan a bien' },
+  { ref: 'Mateo 11:28', text: 'Venid a mí todos los que estáis trabajados y cargados y yo os haré descansar' },
+  { ref: 'Gálatas 5:22', text: 'Mas el fruto del Espíritu es amor gozo paz paciencia benignidad bondad fe' },
+  { ref: '1 Juan 4:19', text: 'Nosotros le amamos a él porque él nos amó primero' },
+  { ref: 'Mateo 5:16', text: 'Así alumbre vuestra luz delante de los hombres para que vean vuestras buenas obras' },
+  { ref: '1 Corintios 16:14', text: 'Todas vuestras cosas sean hechas con amor' },
+  { ref: 'Salmo 150:6', text: 'Todo lo que respira alabe a JAH Aleluya' },
+  { ref: '2 Timoteo 1:7', text: 'Porque no nos ha dado Dios espíritu de cobardía sino de poder de amor y de dominio propio' },
+  { ref: 'Juan 10:10', text: 'Yo he venido para que tengan vida y para que la tengan en abundancia' },
+  { ref: 'Salmo 34:8', text: 'Gustad y ved que es bueno Jehová dichoso el hombre que confía en él' },
+  { ref: 'Salmo 37:5', text: 'Encomienda a Jehová tu camino y confía en él y él hará' },
+  { ref: 'Isaías 41:10', text: 'No temas porque yo estoy contigo no desmayes porque yo soy tu Dios que te esfuerzo' },
+  { ref: 'Romanos 12:21', text: 'No seas vencido de lo malo sino vence con el bien el mal' },
+  { ref: 'Salmo 56:3', text: 'En el día que temo yo en ti confío' },
+  { ref: 'Mateo 5:14', text: 'Vosotros sois la luz del mundo' },
+  { ref: 'Proverbios 17:17', text: 'En todo tiempo ama el amigo y es como un hermano en tiempo de angustia' },
+  { ref: 'Isaías 26:3', text: 'Tú guardarás en completa paz a aquel cuyo pensamiento en ti persevera' },
+  { ref: 'Gálatas 6:9', text: 'No nos cansemos pues de hacer bien porque a su tiempo segaremos si no desmayamos' },
+  { ref: 'Colosenses 3:23', text: 'Y todo lo que hagáis hacedlo de corazón como para el Señor y no para los hombres' },
+  { ref: 'Salmo 121:1', text: 'Alzaré mis ojos a los montes de dónde vendrá mi socorro' },
+  { ref: '1 Tesalonicenses 5:16', text: 'Estad siempre gozosos' },
+  { ref: '1 Tesalonicenses 5:17', text: 'Orad sin cesar' },
 ];
 
 type Word = { id: number; text: string };
 
-function makeWords(level: number): Word[] {
-  return shuffle(verseLevels[level].text.split(' ').map((text, id) => ({ id, text })));
+function makeWords(level: number, source: typeof verseLevels = verseLevels): Word[] {
+  return shuffle(source[level].text.split(' ').map((text, id) => ({ id, text })));
 }
 
 export function OrderVerseGame({ onExit }: { onExit: () => void }) {
+  const [roundVerses, setRoundVerses] = useState(() => shuffle(verseLevels));
   const [level, setLevel] = useState(0);
-  const [words, setWords] = useState(() => makeWords(0));
+  const [words, setWords] = useState(() => makeWords(0, roundVerses));
   const [selected, setSelected] = useState<number[]>([]);
   const [feedback, setFeedback] = useState('');
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
 
-  const current = verseLevels[level];
+  const current = roundVerses[level];
   const arranged = selected.map((id) => words.find((word) => word.id === id)?.text ?? '');
   const correct = arranged.join(' ') === current.text;
 
   function choose(id: number) {
     if (selected.includes(id) || feedback === 'correcto') return;
+    playGameTone('tap');
     setSelected((old) => [...old, id]);
     setFeedback('');
   }
@@ -437,9 +512,11 @@ export function OrderVerseGame({ onExit }: { onExit: () => void }) {
       return;
     }
     if (correct) {
+      playGameTone('success');
       setFeedback('correcto');
       setScore((value) => value + 20);
     } else {
+      playGameTone('incorrect');
       setFeedback('Inténtalo otra vez. El orden todavía no es correcto.');
     }
   }
@@ -451,14 +528,16 @@ export function OrderVerseGame({ onExit }: { onExit: () => void }) {
     }
     const nextLevel = level + 1;
     setLevel(nextLevel);
-    setWords(makeWords(nextLevel));
+    setWords(makeWords(nextLevel, roundVerses));
     setSelected([]);
     setFeedback('');
   }
 
   function restart() {
+    const nextVerses = shuffle(verseLevels);
+    setRoundVerses(nextVerses);
     setLevel(0);
-    setWords(makeWords(0));
+    setWords(makeWords(0, nextVerses));
     setSelected([]);
     setFeedback('');
     setScore(0);

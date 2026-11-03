@@ -2,7 +2,6 @@ import {useEffect, useState} from 'react';
 import {HeartHandshake, RefreshCw, ShieldCheck, Clock3, MessageCircle} from 'lucide-react';
 import {
   getPrayerRequestsForAdministration,
-  updatePrayerRequestStatus,
   type AdminPrayerRequest,
 } from '../../services/youthPortal';
 
@@ -10,8 +9,6 @@ export default function PrayersPage() {
   const [items,setItems] = useState<AdminPrayerRequest[]>([]);
   const [loading,setLoading] = useState(true);
   const [error,setError] = useState('');
-  const [message,setMessage] = useState('');
-  const [savingId,setSavingId] = useState('');
 
   async function load() {
     setLoading(true);
@@ -27,20 +24,7 @@ export default function PrayersPage() {
 
   useEffect(() => {void load();}, []);
 
-  async function changeStatus(item: AdminPrayerRequest, status: string) {
-    setSavingId(item.id);
-    setMessage('');
-    setError('');
-    try {
-      await updatePrayerRequestStatus(item.id,status);
-      setItems((current) => current.map((row) => row.id === item.id ? {...row,status} : row));
-      setMessage('Estado de la petición actualizado.');
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'No se pudo actualizar el estado.');
-    } finally {
-      setSavingId('');
-    }
-  }
+
 
   return (
     <main className="prayers-admin-page">
@@ -50,7 +34,7 @@ export default function PrayersPage() {
       </header>
       <section className="prayers-admin-summary"><span><ShieldCheck size={17}/> Acceso para administración y pastoral</span><button type="button" onClick={() => void load()} disabled={loading}><RefreshCw size={16}/> Actualizar</button></section>
       {error && <p className="prayers-admin-alert error" role="alert">{error}</p>}
-      {message && <p className="prayers-admin-alert success" role="status">{message}</p>}
+      <p className="prayers-admin-alert" role="note">Las solicitudes se consultan desde la bandeja original. Su esquema de seguridad permite recibirlas y leerlas, pero no modificar su estado desde esta pantalla.</p>
       {loading ? <div className="prayers-admin-empty"><RefreshCw size={23}/> Cargando peticiones...</div> : items.length === 0 ? (
         <div className="prayers-admin-empty"><MessageCircle size={32}/><strong>No hay peticiones recibidas</strong><span>Las solicitudes enviadas desde el portal juvenil aparecerán aquí.</span></div>
       ) : (
@@ -59,7 +43,7 @@ export default function PrayersPage() {
             <article className="prayer-admin-card" key={item.id}>
               <header><div><span>{item.category}</span><h2>{item.requester || 'Anónimo'}</h2></div><small><Clock3 size={13}/> {item.createdAt ? new Date(item.createdAt).toLocaleString('es-CO') : 'Fecha no disponible'}</small></header>
               <p>{item.message}</p>
-              <footer><span className={`prayer-status-chip ${item.status.toLowerCase().replace(/ /g,'-')}`}>{item.status}</span><label>Estado<select value={item.status} disabled={savingId === item.id} onChange={(event) => void changeStatus(item,event.target.value)}><option>Pendiente</option><option>En oración</option><option>Atendida</option></select></label>{savingId === item.id && <small>Guardando...</small>}</footer>
+              <footer><span className={`prayer-status-chip ${item.status.toLowerCase().replace(/ /g,'-')}`}>{item.status}</span></footer>
             </article>
           ))}
         </section>

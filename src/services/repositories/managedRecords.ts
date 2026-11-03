@@ -11,7 +11,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 
-import { db } from '../firebase/client';
+import { assertFirebaseWritesAllowed, db } from '../firebase/client';
 import { COLLECTIONS } from './collections';
 
 export type ManagedCollection =
@@ -81,6 +81,8 @@ export async function createManagedRecord(
   collectionName: ManagedCollection,
   data: Record<string, string>,
 ): Promise<string> {
+  assertFirebaseWritesAllowed();
+
   if (!db) {
     throw new Error('Firebase Firestore no está configurado.');
   }
@@ -110,6 +112,8 @@ export async function updateManagedRecord(
   recordId: string,
   data: Record<string, string>,
 ): Promise<void> {
+  assertFirebaseWritesAllowed();
+
   if (!db) {
     throw new Error('Firebase Firestore no está configurado.');
   }
@@ -137,6 +141,8 @@ export async function updateManagedRecordStatus(
   recordId: string,
   status: string,
 ): Promise<void> {
+  assertFirebaseWritesAllowed();
+
   if (!db) {
     throw new Error('Firebase Firestore no está configurado.');
   }
@@ -158,6 +164,8 @@ export async function deleteManagedRecord(
   collectionName: ManagedCollection,
   recordId: string,
 ): Promise<void> {
+  assertFirebaseWritesAllowed();
+
   if (!db) {
     throw new Error('Firebase Firestore no está configurado.');
   }

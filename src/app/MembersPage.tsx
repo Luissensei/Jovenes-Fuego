@@ -2,9 +2,9 @@ import {useEffect, useMemo, useState} from 'react';
 import type {FormEvent} from 'react';
 import {
   AlertCircle, Search, Users, RefreshCw, CalendarDays, Phone,
-  UserRound, Flame, X, Save, Edit3, ShieldCheck, MapPin,
+  UserRound, Flame, X, Save, Edit3, ShieldCheck, MapPin, Minimize2, Maximize2, Camera,
 } from 'lucide-react';
-import {firebaseConfigured} from '../services/firebase/client';
+import {firebaseConfigured, firebaseReadOnlyMode} from '../services/firebase/client';
 import {
   getMembersForAdministration,
   updateMemberForAdministration,
@@ -26,13 +26,14 @@ const editableFields: EditableField[] = [
   {key: 'phone', label: 'Teléfono', type: 'tel'},
   {key: 'bd', label: 'Fecha de nacimiento'},
   {key: 'from', label: 'Lugar de procedencia'},
-  {key: 'ap', label: 'Apuntes / información adicional', multiline: true},
+  {key: 'ac', label: 'Nombre del acudiente'},
+  {key: 'ap', label: 'Teléfono del acudiente', type: 'tel'},
   {key: 'br', label: 'Barrio o sector'},
+  {key: 'bau', label: 'Fecha de bautismo', type: 'date'},
+  {key: 'con', label: 'Fecha de consagración', type: 'date'},
+  {key: 'dis', label: 'Fecha de discipulado completado', type: 'date'},
   {key: 'mn', label: 'Ministerio o grupo'},
-  {key: 'con', label: 'Contacto adicional'},
-  {key: 'dis', label: 'Disponibilidad'},
   {key: 'nt', label: 'Notas administrativas', multiline: true},
-  {key: 'pic', label: 'URL de fotografía', type: 'url'},
   {key: 'nopub', label: 'Ocultar perfil en el portal público', boolean: true},
 ];
 
@@ -43,6 +44,7 @@ function initials(name?: string) {
 
 function toDraft(member: MemberAdminRecord): AdminMemberPatch {
   const draft: AdminMemberPatch = {};
+  if (typeof member.pic === 'string') draft.pic = member.pic;
   editableFields.forEach(({key}) => {
     const value = member[key];
     if (typeof value === 'string' || typeof value === 'boolean') {
@@ -52,10 +54,54 @@ function toDraft(member: MemberAdminRecord): AdminMemberPatch {
   return draft;
 }
 
+function memberImage(value: unknown): string {
+  return typeof value === 'string' && (/^https:\/\//i.test(value) || /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(value))
+    ? value : '';
+}
+
+function compressMemberPhoto(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      if (!context) {
+        reject(new Error('Este navegador no pudo procesar la fotografía.'));
+        return;
+      }
+      try {
+        for (const size of [220, 180, 144, 120]) {
+          const scale = Math.min(1, size / Math.max(image.width, image.height));
+          canvas.width = Math.max(1, Math.round(image.width * scale));
+          canvas.height = Math.max(1, Math.round(image.height * scale));
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          for (const quality of [0.66, 0.56, 0.46, 0.36]) {
+            const encoded = canvas.toDataURL('image/jpeg', quality);
+            if (encoded.length < 58000) {
+              resolve(encoded);
+              return;
+            }
+          }
+        }
+        reject(new Error('La imagen es demasiado pesada incluso después de comprimirla.'));
+      } catch {
+        reject(new Error('No se pudo comprimir la fotografía. Usa una imagen JPG, PNG o WebP.'));
+      }
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('No se pudo abrir el archivo de imagen.'));
+    };
+    image.src = objectUrl;
+  });
+}
+
 function MemberAvatar({member}: {member: MemberAdminRecord}) {
   const [failed, setFailed] = useState(false);
-  const image = typeof member.pic === 'string' && /^https:\/\//i.test(member.pic)
-    ? member.pic : '';
+  const image = memberImage(member.pic);
 
   return (
     <div className="member-avatar">
@@ -72,8 +118,11 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [selectedMember, setSelectedMember] = useState<MemberAdminRecord | null>(null);
+  const [detailMinimized, setDetailMinimized] = useState(false);
+  const [detailClosing, setDetailClosing] = useState(false);
   const [draft, setDraft] = useState<AdminMemberPatch>({});
   const [saving, setSaving] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
   const [message, setMessage] = useState('');
 
   async function loadMembers() {
@@ -107,15 +156,22 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
 
   function openMember(member: MemberAdminRecord) {
     setSelectedMember(member);
+    setDetailMinimized(false);
+    setDetailClosing(false);
     setDraft(toDraft(member));
     setMessage('');
     setError('');
   }
 
   function closeMember() {
-    if (saving) return;
-    setSelectedMember(null);
-    setDraft({});
+    if (saving || detailClosing) return;
+    setDetailClosing(true);
+    window.setTimeout(() => {
+      setSelectedMember(null);
+      setDetailMinimized(false);
+      setDetailClosing(false);
+      setDraft({});
+    }, 220);
   }
 
   function changeField(key: keyof AdminMemberPatch, value: string) {
@@ -126,11 +182,43 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
     setDraft((current) => ({...current, [key]: value}));
   }
 
+  async function choosePhoto(file?: File) {
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setError('Selecciona una fotografía JPG, PNG o WebP.');
+      return;
+    }
+    if (file.size > 12 * 1024 * 1024) {
+      setError('La fotografía original debe pesar menos de 12 MB.');
+      return;
+    }
+    setPhotoBusy(true);
+    setError('');
+    try {
+      const imageData = await compressMemberPhoto(file);
+      setDraft((current) => ({...current, pic: imageData}));
+      setMessage('Fotografía preparada. Guarda los cambios para publicarla en el perfil.');
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'No se pudo procesar la fotografía.');
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
+
+  function removePhoto() {
+    setDraft((current) => ({...current, pic: ''}));
+    setMessage('La fotografía se quitará al guardar la ficha.');
+  }
+
   async function saveMember(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedMember) return;
     if (!canEdit) {
       setError('Tu rol puede consultar la ficha, pero no editar datos personales.');
+      return;
+    }
+    if (firebaseReadOnlyMode) {
+      setError('La base original está protegida. Conecta Staging para guardar cambios sin modificar producción.');
       return;
     }
     setSaving(true);
@@ -190,8 +278,12 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
 
       {!loading && firebaseConfigured && !error && filtered.length > 0 && (
         <div className="members-grid">
-          {filtered.map((member) => (
-            <article className="member-card" key={member.id}>
+          {filtered.map((member, index) => (
+            <article
+              className="member-card"
+              key={member.id}
+              style={{animationDelay: `${Math.min(index, 14) * 45}ms`}}
+            >
               <div className="member-card-top">
                 <MemberAvatar member={member} />
                 <span className={`member-status ${member.nopub === true ? 'private' : 'public'}`}><span/>{member.nopub === true ? 'No publicado' : 'Perfil público'}</span>
@@ -212,15 +304,25 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
         </div>
       )}
 
-      <footer className="members-footer"><span/>Datos consultados mediante una función protegida · Acceso administrativo</footer>
+      <footer className="members-footer"><span/>Datos consultados desde Firestore · Acceso sujeto a las reglas administrativas</footer>
 
-      {selectedMember && (
-        <div className="member-detail-backdrop" role="presentation" onMouseDown={(event) => {if (event.target === event.currentTarget) closeMember();}}>
-          <section className="member-detail-modal" role="dialog" aria-modal="true" aria-labelledby="member-detail-title">
+      {selectedMember && detailMinimized && (
+        <button type="button" className="member-detail-minimized" onClick={() => setDetailMinimized(false)}>
+          <Maximize2 size={16}/><span>{String(selectedMember.name ?? 'Ficha del joven')}</span><small>Restaurar ficha</small>
+        </button>
+      )}
+
+      {selectedMember && !detailMinimized && (
+        <div className={`member-detail-backdrop ${detailClosing ? 'closing' : ''}`} role="presentation" onMouseDown={(event) => {if (event.target === event.currentTarget) closeMember();}}>
+          <section className={`member-detail-modal ${detailClosing ? 'closing' : ''}`} role="dialog" aria-modal="true" aria-labelledby="member-detail-title">
             <header className="member-detail-header">
-              <div className="member-detail-avatar">{initials(String(draft.name ?? selectedMember.name))}</div>
-              <div><span>FICHA DE LA COMUNIDAD</span><h2 id="member-detail-title">{String(selectedMember.name ?? 'Joven')}</h2><small>ID: {selectedMember.id}{typeof selectedMember.created === 'string' || typeof selectedMember.created === 'number' ? ` · Registro: ${String(selectedMember.created)}` : ''}</small></div>
-              <button type="button" onClick={closeMember} aria-label="Cerrar ficha"><X size={20}/></button>
+              <div className="member-detail-avatar">{memberImage(draft.pic) ? <img src={memberImage(draft.pic)} alt={String(draft.name ?? selectedMember.name)}/> : initials(String(draft.name ?? selectedMember.name))}</div>
+              <div><span>FICHA DE LA COMUNIDAD</span><h2 id="member-detail-title">{String(draft.name ?? selectedMember.name ?? 'Joven')}</h2><small>ID: {selectedMember.id}{typeof selectedMember.created === 'string' || typeof selectedMember.created === 'number' ? ` · Registro: ${String(selectedMember.created)}` : ''}</small></div>
+              {canEdit && <div className="member-detail-photo-actions"><label><Camera size={15}/>{photoBusy ? 'Procesando...' : 'Cambiar foto'}<input type="file" accept="image/*" disabled={photoBusy || saving} onChange={(event) => {const file = event.target.files?.[0]; if (file) void choosePhoto(file); event.currentTarget.value = '';}}/></label>{draft.pic && <button type="button" onClick={removePhoto} disabled={saving || photoBusy}>Quitar</button>}</div>}
+              <div className="member-detail-window-actions">
+                <button type="button" onClick={() => setDetailMinimized(true)} aria-label="Minimizar ficha"><Minimize2 size={18}/></button>
+                <button type="button" onClick={closeMember} aria-label="Cerrar ficha"><X size={20}/></button>
+              </div>
             </header>
             <form onSubmit={(event) => void saveMember(event)}>
               <div className="member-detail-fields">
@@ -251,7 +353,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
               <div className="member-detail-privacy"><ShieldCheck size={16}/>{canEdit ? 'Solo administración y pastoral pueden guardar cambios. Los campos históricos no enviados se conservan.' : 'Vista de solo lectura. Solicita a administración o pastoral cualquier corrección.'}</div>
               {error && <p className="member-detail-error" role="alert">{error}</p>}
               {message && <p className="member-detail-success" role="status">{message}</p>}
-              <footer><button type="button" className="member-detail-cancel" onClick={closeMember} disabled={saving}>Cerrar</button>{canEdit && <button type="submit" className="member-detail-save" disabled={saving}><Save size={17}/>{saving ? 'Guardando...' : 'Guardar cambios'}</button>}</footer>
+              <footer><button type="button" className="member-detail-cancel" onClick={closeMember} disabled={saving}>Cerrar</button>{canEdit && <button type="submit" className="member-detail-save" disabled={saving || firebaseReadOnlyMode}><Save size={17}/>{saving ? 'Guardando...' : firebaseReadOnlyMode ? 'Solo lectura · Staging' : 'Guardar cambios'}</button>}</footer>
             </form>
           </section>
         </div>
