@@ -56,7 +56,7 @@ function toDraft(member: MemberAdminRecord): AdminMemberPatch {
 
 function MemberAvatar({member}: {member: MemberAdminRecord}) {
   const [failed, setFailed] = useState(false);
-  const image = typeof member.pic === 'string' && (/^https:\/\//i.test(member.pic) || /^data:image\\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(member.pic))
+  const image = typeof member.pic === 'string' && (/^https:\/\//i.test(member.pic) || /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(member.pic))
     ? member.pic : '';
 
   return (
