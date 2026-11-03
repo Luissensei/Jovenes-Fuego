@@ -28,7 +28,7 @@ export function LoginPage() {
         <span className="login-logo"><Flame size={28} /></span>
         <p className="eyebrow">ENTORNO SEGURO DE PRUEBAS</p>
         <h1>Jóvenes de Fuego</h1>
-        <p className="login-intro">Inicia sesión con una cuenta creada en Firebase staging.</p>
+        <p className="login-intro">Inicia sesión con tu usuario o correo de la aplicación original.</p>
         {!configured && (
           <div className="setup-warning">
             <ShieldCheck size={18} />
@@ -37,15 +37,15 @@ export function LoginPage() {
         )}
         {(error || authError) && <p className="form-error" role="alert">{error || authError}</p>}
         <form onSubmit={submit}>
-          <label htmlFor="email">Correo electrónico</label>
-          <input id="email" autoComplete="username" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu-correo@ejemplo.com" required />
+          <label htmlFor="email">Usuario o correo electrónico</label>
+          <input id="email" autoComplete="username" type="text" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin o correo@ejemplo.com" required />
           <label htmlFor="password">Contraseña</label>
-          <input id="password" autoComplete="current-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Contraseña de staging" required />
+          <input id="password" autoComplete="current-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Tu contraseña habitual" required />
           <button className="login-submit" type="submit" disabled={!configured || busy}>
             <LockKeyhole size={17} /> {busy ? 'Comprobando…' : 'Iniciar sesión'}
           </button>
         </form>
-        <p className="login-foot"><ShieldCheck size={15} /> No uses aquí contraseñas de producción durante el desarrollo.</p>
+        <p className="login-foot"><ShieldCheck size={15} /> La autenticación se valida con Firebase original.</p>
       </section>
     </main>
   );
