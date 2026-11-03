@@ -868,7 +868,13 @@ export const deleteDevotional = onCall(async (request) => {
 
 type ManagedKind = "inbox" | "turns";
 
-function managedCollectionConfig(kind: unknown) {
+type ManagedCollectionConfig = {
+  collection: string;
+  fields: Record<string, number>;
+  statuses: string[];
+};
+
+function managedCollectionConfig(kind: unknown): ManagedCollectionConfig {
   if (kind === "inbox") {
     return {
       collection: "inbox",
