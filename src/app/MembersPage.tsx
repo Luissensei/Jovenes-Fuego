@@ -1,5 +1,6 @@
 import {useEffect, useMemo, useState} from 'react';
 import type {FormEvent} from 'react';
+import {createPortal} from 'react-dom';
 import {
   AlertCircle, Search, Users, RefreshCw, CalendarDays, Phone,
   UserRound, Flame, X, Save, Edit3, ShieldCheck, MapPin, Minimize2, Maximize2, Camera,
@@ -124,6 +125,17 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
   const [saving, setSaving] = useState(false);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [message, setMessage] = useState('');
+
+  const detailIsOpen = Boolean(selectedMember && !detailMinimized);
+
+  useEffect(() => {
+    if (!detailIsOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [detailIsOpen]);
 
   async function loadMembers() {
     setLoading(true);
@@ -312,7 +324,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
         </button>
       )}
 
-      {selectedMember && !detailMinimized && (
+      {selectedMember && !detailMinimized && createPortal((
         <div className={`member-detail-backdrop ${detailClosing ? 'closing' : ''}`} role="presentation" onMouseDown={(event) => {if (event.target === event.currentTarget) closeMember();}}>
           <section className={`member-detail-modal ${detailClosing ? 'closing' : ''}`} role="dialog" aria-modal="true" aria-labelledby="member-detail-title">
             <header className="member-detail-header">
@@ -357,7 +369,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
             </form>
           </section>
         </div>
-      )}
+      ), document.body)}
     </section>
   );
 }

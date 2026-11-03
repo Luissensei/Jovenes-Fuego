@@ -1,0 +1,317 @@
+/* Correcciones de ficha y asistencia. Este archivo se carga después de los estilos globales. */
+
+/* La ficha se renderiza en document.body mediante un portal para que ningún
+   contenedor animado, con filtros o con overflow pueda desplazar el fondo fijo. */
+.member-detail-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 10000 !important;
+  display: grid !important;
+  place-items: center !important;
+  align-content: center;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: clamp(8px, 2vw, 22px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  isolation: isolate;
+  background: rgba(3, 7, 18, .72);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.member-detail-modal {
+  width: min(100%, 820px) !important;
+  max-width: 820px;
+  max-height: min(88vh, 860px);
+  max-height: min(88dvh, 860px) !important;
+  min-height: 0;
+  height: auto;
+  margin: auto;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  border-radius: 20px;
+  scrollbar-gutter: stable;
+}
+
+.member-detail-modal form {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.member-detail-header {
+  z-index: 4;
+}
+
+@media (max-width: 700px) {
+  .member-detail-backdrop {
+    place-items: center !important;
+    padding: max(8px, env(safe-area-inset-top)) 8px max(8px, env(safe-area-inset-bottom));
+  }
+
+  .member-detail-modal {
+    width: 100% !important;
+    max-height: calc(100vh - 16px);
+    max-height: calc(100dvh - 16px) !important;
+    border-radius: 17px;
+  }
+
+  .member-detail-modal form {
+    padding: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .member-detail-backdrop,
+  .member-detail-modal {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Tarjetas de asistencia: tamaños consistentes y sin desbordes. */
+.attendance-page {
+  display: grid;
+  align-content: start;
+  width: min(100%, 1280px);
+  max-width: 1280px;
+  min-width: 0;
+  margin-inline: auto;
+  gap: 20px;
+}
+
+.attendance-page > * {
+  min-width: 0;
+}
+
+.attendance-header {
+  min-width: 0;
+  min-height: 132px;
+  box-sizing: border-box;
+  padding: clamp(20px, 3vw, 32px);
+}
+
+.attendance-card {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: clamp(16px, 2.2vw, 24px);
+  border-radius: 18px;
+}
+
+.attendance-card form {
+  grid-template-columns: minmax(0, 1.5fr) minmax(170px, 1fr) auto;
+  align-items: end;
+}
+
+.attendance-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 14px;
+}
+
+.attendance-summary .attendance-card {
+  display: flex;
+  min-height: 112px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.attendance-summary .attendance-card h3 {
+  margin: 0;
+}
+
+.attendance-list {
+  display: grid;
+  min-width: 0;
+  gap: 11px;
+  margin: 18px 0;
+}
+
+.attendance-member {
+  display: grid;
+  grid-template-columns: minmax(150px, .72fr) minmax(0, 1.28fr);
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 14px;
+  border-radius: 14px;
+}
+
+.attendance-member-info {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.attendance-member-info strong {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+.attendance-member-info > span {
+  color: var(--jf-muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.attendance-status-options {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
+  min-width: 0;
+}
+
+.attendance-member .attendance-status-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 39px;
+  padding: 7px 8px;
+  border: 1px solid var(--jf-glass-edge);
+  border-radius: 10px;
+  background: var(--jf-glass-soft);
+  color: var(--jf-text);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  box-shadow: none;
+  transform: none;
+  transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+}
+
+.attendance-member .attendance-status-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: none;
+  box-shadow: 0 5px 13px rgba(20, 30, 55, .10);
+}
+
+.attendance-member .attendance-status-button[aria-pressed="true"] {
+  border-color: currentColor;
+  box-shadow: inset 0 0 0 1px currentColor, 0 0 0 2px rgba(80, 150, 220, .10);
+}
+
+.attendance-member .tone-present { color: #16865c; }
+.attendance-member .tone-late { color: #a66b0b; }
+.attendance-member .tone-missing { color: #c34252; }
+.attendance-member .tone-justified { color: #3479bd; }
+.attendance-member .tone-absent { color: #657086; }
+
+:root[data-theme="dark"] .attendance-member .attendance-status-button {
+  background: rgba(255, 255, 255, .045);
+}
+
+:root[data-theme="dark"] .attendance-member .tone-present { color: #70ddb2; }
+:root[data-theme="dark"] .attendance-member .tone-late { color: #f2c16e; }
+:root[data-theme="dark"] .attendance-member .tone-missing { color: #ff8b9a; }
+:root[data-theme="dark"] .attendance-member .tone-justified { color: #8bc5ff; }
+:root[data-theme="dark"] .attendance-member .tone-absent { color: #c0c8d8; }
+
+.attendance-member .attendance-status-button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+.attendance-page .attendance-card > button {
+  min-height: 44px;
+  padding-inline: 18px;
+}
+
+@media (max-width: 900px) {
+  .attendance-card form {
+    grid-template-columns: minmax(0, 1fr) minmax(0, .8fr);
+  }
+
+  .attendance-card form > button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .attendance-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .attendance-member {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .attendance-status-options {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .attendance-page {
+    gap: 15px;
+  }
+
+  .attendance-header {
+    min-height: 0;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 13px;
+  }
+
+  .attendance-summary {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .attendance-summary .attendance-card {
+    display: flex;
+    min-height: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+  }
+
+  .attendance-summary .attendance-card strong {
+    font-size: 24px;
+  }
+
+  .attendance-card form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .attendance-card form > button {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 430px) {
+  .attendance-status-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .attendance-member .attendance-status-button {
+    min-height: 42px;
+    padding-inline: 6px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 350px) {
+  .attendance-status-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -6,6 +6,7 @@ import './styles.css';
 import './modern-design.css';
 import './tactical-ui.css';
 import './visual-overhaul.css';
+import './ui-fixes.css';
 
 try {
   const savedTheme = window.localStorage.getItem('jf-theme');

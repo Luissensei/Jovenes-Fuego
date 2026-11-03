@@ -14,6 +14,14 @@ import {
 import {getMembersForAdministration} from '../services/youthPortal';
 import type {MemberAdminRecord} from '../services/youthPortal';
 
+const attendanceOptions: Array<{value: AttendanceStatus; label: string; tone: string}> = [
+  {value: 'Presente', label: 'Presente', tone: 'present'},
+  {value: 'Tarde', label: 'Tarde', tone: 'late'},
+  {value: 'Falta', label: 'Falta', tone: 'missing'},
+  {value: 'Justificada', label: 'Justificada', tone: 'justified'},
+  {value: 'Ausente', label: 'Ausente', tone: 'absent'},
+];
+
 function localDateInput() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -132,6 +140,7 @@ export default function AttendancePage() {
   }
 
   const presentCount = members.filter((member) => attendance[member.id] === 'Presente').length;
+  const lateCount = members.filter((member) => attendance[member.id] === 'Tarde').length;
   const absentCount = members.filter((member) => ['Ausente', 'Falta'].includes(attendance[member.id] ?? 'Ausente')).length;
   const justifiedCount = members.filter((member) => attendance[member.id] === 'Justificada').length;
 
@@ -198,6 +207,7 @@ export default function AttendancePage() {
       {selectedMeeting && (
         <section className="attendance-summary">
           <div className="attendance-card"><h3>Presentes</h3><strong>{presentCount}</strong></div>
+          <div className="attendance-card"><h3>Llegadas tarde</h3><strong>{lateCount}</strong></div>
           <div className="attendance-card"><h3>Ausentes</h3><strong>{absentCount}</strong></div>
           <div className="attendance-card"><h3>Justificados</h3><strong>{justifiedCount}</strong></div>
         </section>
@@ -215,23 +225,31 @@ export default function AttendancePage() {
           <>
             <p>Reunión: <strong>{selectedMeeting.name}</strong> · {selectedMeeting.date}</p>
             <div className="attendance-list">
-              {members.map((member) => (
-                <div key={member.id} className="attendance-member">
-                  <div><strong>{member.name || 'Joven sin nombre'}</strong></div>
-                  <select
-                    value={attendance[member.id] ?? 'Ausente'}
-                    onChange={(event) => handleStatusChange(member.id, event.target.value as AttendanceStatus)}
-                    disabled={saving}
-                    aria-label={`Estado de asistencia de ${member.name || 'joven'}`}
-                  >
-                    <option value="Presente">Presente</option>
-                    <option value="Tarde">Tarde</option>
-                    <option value="Falta">Falta</option>
-                    <option value="Justificada">Justificada</option>
-                    <option value="Ausente">Ausente</option>
-                  </select>
-                </div>
-              ))}
+              {members.map((member) => {
+                const currentStatus = attendance[member.id] ?? 'Ausente';
+                return (
+                  <article key={member.id} className="attendance-member">
+                    <div className="attendance-member-info">
+                      <strong>{member.name || 'Joven sin nombre'}</strong>
+                      <span>Marca el estado de asistencia</span>
+                    </div>
+                    <div className="attendance-status-options" role="group" aria-label={`Estado de asistencia de ${member.name || 'joven'}`}>
+                      {attendanceOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          className={`attendance-status-button tone-${option.tone}`}
+                          aria-pressed={currentStatus === option.value}
+                          onClick={() => handleStatusChange(member.id, option.value)}
+                          disabled={saving}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </article>
+                );
+              })}
             </div>
             <button type="button" onClick={() => void handleSaveAttendance()} disabled={saving || loading || members.length === 0}>
               {saving ? 'Guardando asistencia...' : 'Guardar asistencia'}
