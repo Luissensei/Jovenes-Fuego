@@ -131,7 +131,7 @@ function HallOfFame({topPlayers, faithful, attendanceLimited}: {
 
       <article className="youth-hall-card youth-hall-faithful">
         <header><Flame size={20} /><div><span>CONSTANCIA Y COMPROMISO</span><h2>Top 10 más fieles</h2></div></header>
-        <p className="youth-hall-caption">Según asistencias marcadas como presentes en el módulo nuevo de asistencia.</p>
+        <p className="youth-hall-caption">Según los servicios seguidos sin faltar que publica el ranking original.</p>
         {attendanceLimited && <p className="youth-hall-limited" role="note">El cálculo está limitado a las 1.000 reuniones más recientes. Revisa el informe completo si la comunidad supera ese volumen.</p>}
         {faithful.length ? (
           <ol className="youth-faithful-list">
@@ -139,7 +139,7 @@ function HallOfFame({topPlayers, faithful, attendanceLimited}: {
               <li key={player.id}>
                 <span className="youth-faithful-rank">{index + 1}</span>
                 <span className="youth-faithful-name">{player.name}</span>
-                <strong>{player.attendances} {player.attendances === 1 ? 'asistencia' : 'asistencias'}</strong>
+                <strong>{player.attendances} {player.attendances === 1 ? 'servicio seguido' : 'servicios seguidos'}</strong>
               </li>
             ))}
           </ol>
