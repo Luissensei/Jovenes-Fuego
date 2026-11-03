@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import {
   NavLink,
   Navigate,
@@ -24,32 +24,29 @@ import { modules } from './modules';
 import { firebaseProjectId } from '../services/firebase/client';
 import { AuthProvider, useAuth } from './AuthContext';
 
-import { LoginPage } from './LoginPage';
-import { MembersPage } from './MembersPage';
+import { LoadingScreen, PlayerAvatar } from '../components/gaming/GamingUI';
 
-import DashboardPage from './DashboardPage';
-import AttendancePage from './AttendancePage';
-import FollowupPage from './FollowupPage';
-import DevotionalsPage from './DevotionalsPage';
-import VisitorsPage from './VisitorsPage';
-import RankingPage from './RankingPage';
-import YouthPortalPage from './YouthPortalPage';
-
-import PrayersPage from './pages/PrayersPage';
-import EventsPage from './pages/EventsPage';
-import InboxPage from './pages/InboxPage';
-import TurnsPage from './pages/TurnsPage';
-
-import CheckinPage from './pages/CheckinPage';
-import PhotosPage from './pages/PhotosPage';
-import ReportsPage from './pages/ReportsPage';
-import {
-  BonusPage,
-  PastoralPage,
-  LeadersPage,
-  AuditPage,
-  SettingsPage,
-} from './pages/ManagementPages';
+const LoginPage = lazy(() => import('./LoginPage').then((module) => ({ default: module.LoginPage })));
+const MembersPage = lazy(() => import('./MembersPage').then((module) => ({ default: module.MembersPage })));
+const DashboardPage = lazy(() => import('./DashboardPage'));
+const AttendancePage = lazy(() => import('./AttendancePage'));
+const FollowupPage = lazy(() => import('./FollowupPage'));
+const DevotionalsPage = lazy(() => import('./DevotionalsPage'));
+const VisitorsPage = lazy(() => import('./VisitorsPage'));
+const RankingPage = lazy(() => import('./RankingPage'));
+const YouthPortalPage = lazy(() => import('./YouthPortalPage'));
+const PrayersPage = lazy(() => import('./pages/PrayersPage'));
+const EventsPage = lazy(() => import('./pages/EventsPage'));
+const InboxPage = lazy(() => import('./pages/InboxPage'));
+const TurnsPage = lazy(() => import('./pages/TurnsPage'));
+const CheckinPage = lazy(() => import('./pages/CheckinPage'));
+const PhotosPage = lazy(() => import('./pages/PhotosPage'));
+const ReportsPage = lazy(() => import('./pages/ReportsPage'));
+const BonusPage = lazy(() => import('./pages/ManagementPages').then((module) => ({ default: module.BonusPage })));
+const PastoralPage = lazy(() => import('./pages/ManagementPages').then((module) => ({ default: module.PastoralPage })));
+const LeadersPage = lazy(() => import('./pages/ManagementPages').then((module) => ({ default: module.LeadersPage })));
+const AuditPage = lazy(() => import('./pages/ManagementPages').then((module) => ({ default: module.AuditPage })));
+const SettingsPage = lazy(() => import('./pages/ManagementPages').then((module) => ({ default: module.SettingsPage })));
 
 function ModulePage({
   label,
@@ -457,20 +454,22 @@ function AdminApp() {
 
 export function App() {
   return (
-    <Routes>
-      <Route
-        path="/portal-joven/*"
-        element={<YouthPortalPage />}
-      />
+    <Suspense fallback={<LoadingScreen label="Preparando tu espacio…" />}>
+      <Routes>
+        <Route
+          path="/portal-joven/*"
+          element={<YouthPortalPage />}
+        />
 
-      <Route
-        path="/*"
-        element={
-          <AuthProvider>
-            <AdminApp />
-          </AuthProvider>
-        }
-      />
-    </Routes>
+        <Route
+          path="/*"
+          element={
+            <AuthProvider>
+              <AdminApp />
+            </AuthProvider>
+          }
+        />
+      </Routes>
+    </Suspense>
   );
 }
