@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { bibleQuestionBank, shuffleBibleQuestions } from './bibleQuestionBank';
 import {
   Heart, Swords, Trophy,
   ChevronLeft, ChevronRight, RotateCcw, CheckCircle2,
@@ -12,53 +13,7 @@ type Question = {
   options: string[];
   answer: string;
   reference: string;
-};
-
-const bank: Question[] = [
-  { prompt: '¿Quién construyó el arca?', options: ['Moisés', 'Noé', 'Abraham', 'David'], answer: 'Noé', reference: 'Génesis 6' },
-  { prompt: '¿Quién derrotó a Goliat?', options: ['Saúl', 'Salomón', 'David', 'Jonatán'], answer: 'David', reference: '1 Samuel 17' },
-  { prompt: '¿Quién fue tragado por un gran pez?', options: ['Pedro', 'Jonás', 'Pablo', 'Elías'], answer: 'Jonás', reference: 'Jonás 1' },
-  { prompt: '¿Quién interpretó los sueños del faraón?', options: ['José', 'Daniel', 'Moisés', 'Josué'], answer: 'José', reference: 'Génesis 41' },
-  { prompt: '¿Quién recibió los diez mandamientos?', options: ['Aarón', 'Moisés', 'Isaías', 'Josué'], answer: 'Moisés', reference: 'Éxodo 20' },
-  { prompt: '¿En qué ciudad nació Jesús?', options: ['Nazaret', 'Jerusalén', 'Belén', 'Jericó'], answer: 'Belén', reference: 'Mateo 2:1' },
-  { prompt: '¿Quién negó a Jesús tres veces?', options: ['Juan', 'Pedro', 'Tomás', 'Judas'], answer: 'Pedro', reference: 'Mateo 26:69-75' },
-  { prompt: '¿Quién fue la madre de Samuel?', options: ['Rut', 'Ester', 'Ana', 'Marta'], answer: 'Ana', reference: '1 Samuel 1' },
-  { prompt: '¿Quién fue conocido por su gran fuerza?', options: ['Sansón', 'Gedeón', 'Isaac', 'Esdras'], answer: 'Sansón', reference: 'Jueces 13-16' },
-  { prompt: '¿Quién subió a un árbol para ver a Jesús?', options: ['Nicodemo', 'Zaqueo', 'Lázaro', 'Bartimeo'], answer: 'Zaqueo', reference: 'Lucas 19:1-4' },
-  { prompt: '¿Cuántos discípulos escogió Jesús?', options: ['7', '10', '12', '15'], answer: '12', reference: 'Lucas 6:13' },
-  { prompt: '¿Quién recibió una túnica de colores?', options: ['Benjamín', 'José', 'Rubén', 'Judá'], answer: 'José', reference: 'Génesis 37:3' },
-  { prompt: '¿Quién fue lanzado al foso de los leones?', options: ['Daniel', 'Jeremías', 'Ezequiel', 'Nehemías'], answer: 'Daniel', reference: 'Daniel 6' },
-  { prompt: '¿Quién bautizó a Jesús?', options: ['Pedro', 'Juan el Bautista', 'Andrés', 'Felipe'], answer: 'Juan el Bautista', reference: 'Mateo 3:13' },
-  { prompt: '¿Cuál fue el primer libro de la Biblia?', options: ['Éxodo', 'Salmos', 'Génesis', 'Mateo'], answer: 'Génesis', reference: 'Antiguo Testamento' },
-  { prompt: '¿Quién pidió sabiduría a Dios?', options: ['Saúl', 'Salomón', 'David', 'Job'], answer: 'Salomón', reference: '1 Reyes 3:9-12' },
-  { prompt: '¿Qué mar abrió Dios por medio de Moisés?', options: ['Mar Muerto', 'Mar Rojo', 'Mar de Galilea', 'Mar Mediterráneo'], answer: 'Mar Rojo', reference: 'Éxodo 14' },
-  { prompt: '¿Quién fue la esposa de Abraham?', options: ['Rebeca', 'Raquel', 'Sara', 'Lea'], answer: 'Sara', reference: 'Génesis 17' },
-  { prompt: '¿Quién escribió muchas cartas del Nuevo Testamento?', options: ['Pablo', 'Marcos', 'Lucas', 'Mateo'], answer: 'Pablo', reference: 'Nuevo Testamento' },
-  { prompt: '¿Qué hizo Jesús en las bodas de Caná?', options: ['Sanó a un ciego', 'Multiplicó panes', 'Convirtió agua en vino', 'Calmó una tormenta'], answer: 'Convirtió agua en vino', reference: 'Juan 2:1-11' },
-];
-
-
-const biblicalExplanations: Record<string, string> = {
-  'Génesis 6': 'Dios indicó a Noé que construyera un arca. Noé obedeció y su familia fue preservada durante el diluvio.',
-  '1 Samuel 17': 'David enfrentó a Goliat confiando en el poder de Dios y no en sus propias fuerzas.',
-  'Jonás 1': 'Jonás intentó huir de la misión que Dios le había encargado. Durante su huida fue tragado por un gran pez.',
-  'Génesis 41': 'José interpretó los sueños del faraón y explicó que vendrían siete años de abundancia y siete de hambre.',
-  'Éxodo 20': 'En el monte Sinaí, Dios entregó a Moisés los mandamientos para orientar la vida de su pueblo.',
-  'Mateo 2:1': 'El evangelio de Mateo relata que Jesús nació en Belén de Judea durante el reinado de Herodes.',
-  'Mateo 26:69-75': 'Pedro negó conocer a Jesús tres veces, tal como Jesús había anunciado. Después recordó sus palabras y lloró amargamente.',
-  '1 Samuel 1': 'Ana oró con profunda angustia y Dios escuchó su petición. Samuel fue la respuesta a su oración.',
-  'Jueces 13-16': 'Sansón recibió una fuerza extraordinaria como parte de su llamado, pero también enfrentó las consecuencias de sus decisiones.',
-  'Lucas 19:1-4': 'Zaqueo, que era de baja estatura, subió a un sicómoro para poder ver a Jesús entre la multitud.',
-  'Lucas 6:13': 'Jesús escogió a doce discípulos para que estuvieran con él y participaran en su misión.',
-  'Génesis 37:3': 'Jacob amaba especialmente a José y le regaló una túnica especial, lo que provocó celos entre sus hermanos.',
-  'Daniel 6': 'Daniel siguió orando a Dios aunque estaba prohibido. Dios lo protegió en el foso de los leones.',
-  'Mateo 3:13': 'Juan el Bautista bautizó a Jesús en el río Jordán, dando inicio a una etapa importante de su ministerio público.',
-  'Antiguo Testamento': 'Génesis es el primer libro de la Biblia y presenta la creación, los primeros seres humanos y los patriarcas.',
-  '1 Reyes 3:9-12': 'Salomón pidió sabiduría para gobernar al pueblo. Dios se agradó de su petición y le concedió sabiduría.',
-  'Éxodo 14': 'Dios abrió el mar Rojo para que los israelitas cruzaran y escaparan del ejército egipcio.',
-  'Génesis 17': 'Sara fue la esposa de Abraham. Dios prometió que ella tendría un hijo llamado Isaac.',
-  'Nuevo Testamento': 'Pablo escribió numerosas cartas a las primeras comunidades cristianas para enseñar, corregir y animar a los creyentes.',
-  'Juan 2:1-11': 'En las bodas de Caná, Jesús realizó su primera señal registrada en el evangelio de Juan al convertir el agua en vino.'
+  explanation: string;
 };
 
 function shuffle<T,>(items: T[]): T[] {
@@ -69,6 +24,14 @@ function shuffle<T,>(items: T[]): T[] {
   }
   return result;
 }
+
+const bank: Question[] = shuffleBibleQuestions(bibleQuestionBank).map((question) => ({
+  prompt: question.question,
+  options: question.options,
+  answer: question.options[question.answer],
+  reference: question.reference,
+  explanation: question.explanation,
+}));
 
 function Header({ title, subtitle, onExit }: {
   title: string;
@@ -602,8 +565,7 @@ function QuizQuestion({ question, answered, onAnswer }: {
             <BookOpenIcon /> Referencia: {question.reference}
           </span>
           <p className="mbg-bible-explanation">
-            {biblicalExplanations[question.reference] ??
-              'Consulta este pasaje en tu Biblia y reflexiona sobre su enseñanza.'}
+            {question.explanation}
           </p>
         </div>
       )}

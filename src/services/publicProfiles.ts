@@ -1,9 +1,5 @@
-import {
-  collection,
-  getDocs,
-} from 'firebase/firestore';
-
-import { db } from './firebase/client';
+import {httpsCallable} from "firebase/functions";
+import {functions} from "./firebase/client";
 
 export type PublicProfile = {
   id: string;
@@ -13,99 +9,34 @@ export type PublicProfile = {
   points: number;
 };
 
-function readText(data: Record<string, unknown>, fields: string[]): string {
-  for (const field of fields) {
-    const value = data[field];
-
-    if (typeof value === 'string' && value.trim()) {
-      return value.trim();
-    }
-  }
-
-  return '';
-}
-
-function readPoints(data: Record<string, unknown>): number {
-  const value = Number(data.points ?? data.puntos ?? 0);
-
-  return Number.isFinite(value) && value >= 0 ? value : 0;
-}
-
-function validImageUrl(value: string): string {
-  if (
-    value.startsWith('https://') ||
-    value.startsWith('http://') ||
-    value.startsWith('data:image/')
-  ) {
-    return value;
-  }
-
-  return '';
-}
+type PublicProfilesResponse = {profiles: PublicProfile[]};
 
 export async function getPublicProfiles(): Promise<PublicProfile[]> {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
+  if (!functions) {
+    throw new Error("Firebase Functions no está configurado en este entorno.");
   }
 
   try {
-    // No utilizamos orderBy porque excluye documentos
-    // que no tengan el campo name.
-    const snapshot = await getDocs(
-      collection(db, 'publicProfiles'),
+    const callable = httpsCallable<Record<string, never>, PublicProfilesResponse>(
+      functions,
+      "getPublicProfiles",
     );
-
-    const profiles = snapshot.docs.map((document) => {
-      const data = document.data() as Record<string, unknown>;
-
-      const nick = readText(data, [
-        'nick',
-        'nickname',
-        'username',
-        'apodo',
-        'userName',
-      ]);
-
-      const name = readText(data, [
-        'name',
-        'nombre',
-        'displayName',
-        'fullName',
-        'nombreCompleto',
-        'nombre_completo',
-        'publicName',
-        'user',
-      ]) || nick || 'Perfil sin nombre';
-
-      const pic = validImageUrl(
-        readText(data, [
-          'pic',
-          'photoURL',
-          'photoUrl',
-          'avatar',
-          'imageUrl',
-          'foto',
-          'picture',
-        ]),
-      );
-
-      return {
-        id: document.id,
-        name,
-        nick,
-        pic,
-        points: readPoints(data),
-      };
-    });
-
-    return profiles.sort((a, b) =>
-      a.name.localeCompare(b.name, 'es'),
-    );
+    const response = await callable({});
+    return (response.data.profiles ?? []).map((profile) => ({
+      id: String(profile.id),
+      name: String(profile.name || profile.nick || "Perfil sin nombre"),
+      nick: String(profile.nick ?? ""),
+      pic: typeof profile.pic === "string" && profile.pic.startsWith("https://")
+        ? profile.pic
+        : "",
+      points: Number.isFinite(Number(profile.points)) && Number(profile.points) >= 0
+        ? Number(profile.points)
+        : 0,
+    }));
   } catch (error) {
-    console.error('Error consultando perfiles públicos:', error);
-
+    console.error("Error consultando perfiles públicos:", error);
     throw new Error(
-      'No se pudieron cargar los perfiles. Verifica los permisos de Firebase Staging.',
+      "No se pudieron cargar los perfiles. Comprueba que las funciones de Staging estén desplegadas.",
     );
   }
 }

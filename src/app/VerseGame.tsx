@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { bibleVerseChallenges, type VerseChallenge } from './bibleQuestionBank';
 import {
   BookOpen,
   CheckCircle2,
@@ -12,89 +13,9 @@ import {
 
 import './VerseGame.css';
 
-type Question = {
-  reference: string;
-  prompt: string;
-  options: string[];
-  answer: string;
-};
+type Question = VerseChallenge;
 
-const questions: Question[] = [
-  {
-    reference: 'Salmo 23:1',
-    prompt: 'David presenta al Señor como el buen...',
-    options: ['Pastor', 'Rey', 'Juez', 'Soldado'],
-    answer: 'Pastor',
-  },
-  {
-    reference: 'Filipenses 4:13',
-    prompt: 'Pablo enseña que puede enfrentar cualquier situación gracias a...',
-    options: ['Sus riquezas', 'Cristo', 'Sus amigos', 'Su inteligencia'],
-    answer: 'Cristo',
-  },
-  {
-    reference: 'Proverbios 3:5',
-    prompt: 'El proverbio invita a confiar en el Señor con todo el...',
-    options: ['Dinero', 'Tiempo', 'Corazón', 'Talento'],
-    answer: 'Corazón',
-  },
-  {
-    reference: 'Josué 1:9',
-    prompt: 'Dios anima a Josué a ser fuerte y...',
-    options: ['Famoso', 'Valiente', 'Rico', 'Veloz'],
-    answer: 'Valiente',
-  },
-  {
-    reference: 'Mateo 5:14',
-    prompt: 'Jesús compara a sus seguidores con la luz del...',
-    options: ['Templo', 'Desierto', 'Mundo', 'Cielo'],
-    answer: 'Mundo',
-  },
-  {
-    reference: '1 Corintios 13:4',
-    prompt: 'Entre las cualidades del amor se menciona la...',
-    options: ['Envidia', 'Paciencia', 'Vanidad', 'Prisa'],
-    answer: 'Paciencia',
-  },
-  {
-    reference: 'Romanos 12:2',
-    prompt: 'Pablo aconseja no adoptar los criterios de este...',
-    options: ['Templo', 'Pueblo', 'Mundo', 'Desierto'],
-    answer: 'Mundo',
-  },
-  {
-    reference: 'Efesios 6:11',
-    prompt: 'Pablo enseña a ponerse toda la armadura de...',
-    options: ['Hierro', 'Dios', 'Un soldado', 'Un rey'],
-    answer: 'Dios',
-  },
-  {
-    reference: 'Génesis 1:1',
-    prompt: 'En el principio, Dios creó los cielos y la...',
-    options: ['Luna', 'Luz', 'Tierra', 'Mar'],
-    answer: 'Tierra',
-  },
-  {
-    reference: 'Juan 11:35',
-    prompt: 'Cuando llegó a la tumba de Lázaro, Jesús...',
-    options: ['Cantó', 'Lloró', 'Corrió', 'Durmió'],
-    answer: 'Lloró',
-  },
-];
-
-
-const verseExplanations: Record<string, string> = {
-  'Salmo 23:1': 'David expresa su confianza en Dios usando la imagen de un pastor que cuida, guía y provee para sus ovejas.',
-  'Filipenses 4:13': 'Pablo enseña que Cristo le da fuerzas para enfrentar tanto la abundancia como las dificultades.',
-  'Proverbios 3:5': 'Este proverbio invita a confiar plenamente en Dios y no depender solamente de nuestro propio entendimiento.',
-  'Josué 1:9': 'Dios anima a Josué a ser valiente y recuerda que estará con él dondequiera que vaya.',
-  'Mateo 5:14': 'Jesús enseña que sus seguidores deben reflejar la luz de Dios mediante su manera de vivir.',
-  '1 Corintios 13:4': 'Pablo describe el amor verdadero: es paciente, bondadoso y no actúa con envidia ni orgullo.',
-  'Romanos 12:2': 'Pablo anima a renovar la manera de pensar para conocer y practicar la voluntad de Dios.',
-  'Efesios 6:11': 'La armadura de Dios representa los recursos espirituales para mantenerse firme ante las dificultades y tentaciones.',
-  'Génesis 1:1': 'La Biblia comienza afirmando que Dios es el creador de los cielos y de la tierra.',
-  'Juan 11:35': 'Jesús lloró ante la muerte de Lázaro. Este pasaje muestra su compasión y cercanía con quienes sufren.'
-};
+const questions: Question[] = bibleVerseChallenges;
 
 export default function VerseGame({
   onExit,
@@ -114,6 +35,7 @@ export default function VerseGame({
     100;
 
   const isCorrect = selectedAnswer === currentQuestion.answer;
+  const percentage = Math.round((score / (questions.length * 10)) * 100);
 
   function selectAnswer(option: string) {
     if (selectedAnswer !== null) return;
@@ -270,8 +192,7 @@ export default function VerseGame({
                   </span>
 
                   <p>
-                    {verseExplanations[currentQuestion.reference] ??
-                      'Consulta este pasaje en tu Biblia y reflexiona sobre su enseñanza.'}
+                    {currentQuestion.explanation}
                   </p>
                 </div>
               </div>
@@ -306,15 +227,15 @@ export default function VerseGame({
           <div className="verse-final-score">
             <span>Tu puntuación final</span>
             <strong>{score}</strong>
-            <small>de 100 puntos</small>
+            <small>de {questions.length * 10} puntos · {percentage}%</small>
           </div>
 
           <div className="verse-result-message">
-            {score === 100
+            {percentage === 100
               ? '¡Excelente! Conoces muy bien las Escrituras.'
-              : score >= 70
+              : percentage >= 70
                 ? '¡Muy bien! Sigue fortaleciendo tu conocimiento bíblico.'
-                : score >= 40
+                : percentage >= 40
                   ? 'Vas por buen camino. Sigue estudiando la Palabra.'
                   : '¡No te rindas! Practica y vuelve a intentarlo.'}
           </div>

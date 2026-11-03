@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react';
+import { bibleQuestionBank, shuffleBibleQuestions, type BibleQuestion } from './bibleQuestionBank';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -15,138 +16,15 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-type Question = {
-  question: string;
-  options: string[];
-  answer: number;
-  explanation: string;
-  reference: string;
-  biblicalNote: string;
-  hint: string;
-  level: 'Básico' | 'Intermedio' | 'Avanzado';
-};
-
-const questions: Question[] = [
-  {
-    question: '¿Quién construyó el arca por orden de Dios?',
-    options: ['Abraham', 'Noé', 'Moisés', 'David'],
-    answer: 1,
-    explanation: 'Dios le indicó a Noé cómo construir el arca para preservar a su familia y a los animales del diluvio.',
-    reference: 'Génesis 6:13-22',
-    biblicalNote: 'Lee cómo Dios le dio instrucciones a Noé para construir el arca.',
-    hint: 'Fue un hombre que caminó con Dios y vivió antes de Abraham.',
-    level: 'Básico',
-  },
-  {
-    question: '¿Quién derrotó al gigante Goliat?',
-    options: ['Saúl', 'Salomón', 'David', 'Josué'],
-    answer: 2,
-    explanation: 'David enfrentó al gigante confiando en Dios y lo venció con una piedra lanzada con su honda.',
-    reference: '1 Samuel 17:40-50',
-    biblicalNote: 'Lee el enfrentamiento entre David y Goliat en el valle de Ela.',
-    hint: 'Antes de ser rey, este joven cuidaba las ovejas de su padre.',
-    level: 'Básico',
-  },
-  {
-    question: '¿Cuántos apóstoles escogió Jesús?',
-    options: ['7', '10', '12', '15'],
-    answer: 2,
-    explanation: 'Jesús escogió a doce apóstoles para que estuvieran con Él y fueran enviados a predicar.',
-    reference: 'Lucas 6:12-16',
-    biblicalNote: 'Lee los nombres de los doce apóstoles que Jesús escogió.',
-    hint: 'Es el mismo número de tribus que tuvo Israel.',
-    level: 'Básico',
-  },
-  {
-    question: '¿Quién fue tragado por un gran pez?',
-    options: ['Jonás', 'Pedro', 'Pablo', 'Elías'],
-    answer: 0,
-    explanation: 'Jonás fue lanzado al mar durante la tormenta y Dios dispuso un gran pez para que lo tragara.',
-    reference: 'Jonás 1:17',
-    biblicalNote: 'Lee lo que ocurrió con Jonás después de ser lanzado al mar.',
-    hint: 'Dios lo había enviado a predicar a la ciudad de Nínive.',
-    level: 'Básico',
-  },
-  {
-    question: '¿Cuál es el primer libro de la Biblia?',
-    options: ['Éxodo', 'Génesis', 'Levítico', 'Salmos'],
-    answer: 1,
-    explanation: 'Génesis es el primer libro de la Biblia y comienza con el relato de la creación.',
-    reference: 'Génesis 1:1',
-    biblicalNote: 'Lee el primer versículo de la Biblia, que presenta la creación de los cielos y la tierra.',
-    hint: 'Su nombre está relacionado con el origen o comienzo de las cosas.',
-    level: 'Intermedio',
-  },
-  {
-    question: '¿Quién interpretó los sueños del faraón?',
-    options: ['Moisés', 'Daniel', 'José', 'Aarón'],
-    answer: 2,
-    explanation: 'José explicó que los sueños anunciaban siete años de abundancia seguidos de siete años de hambre.',
-    reference: 'Génesis 41:14-32',
-    biblicalNote: 'Lee cómo José explicó los sueños del faraón y lo que sucedería en Egipto.',
-    hint: 'Era hijo de Jacob y había sido vendido por sus hermanos.',
-    level: 'Intermedio',
-  },
-  {
-    question: '¿En qué ciudad nació Jesús?',
-    options: ['Nazaret', 'Jerusalén', 'Belén', 'Jericó'],
-    answer: 2,
-    explanation: 'Jesús nació en Belén de Judea, donde María dio a luz y lo acostó en un pesebre.',
-    reference: 'Lucas 2:1-7',
-    biblicalNote: 'Lee el relato del nacimiento de Jesús durante el censo ordenado por César Augusto.',
-    hint: 'Miqueas también había anunciado que de esta pequeña ciudad saldría el gobernante de Israel.',
-    level: 'Intermedio',
-  },
-  {
-    question: '¿Quién recibió los Diez Mandamientos?',
-    options: ['Abraham', 'Moisés', 'Isaac', 'Josué'],
-    answer: 1,
-    explanation: 'Moisés recibió de Dios los mandamientos en el monte Sinaí.',
-    reference: 'Éxodo 20:1-17',
-    biblicalNote: 'Lee los mandamientos que Dios entregó al pueblo de Israel.',
-    hint: 'Fue el hombre que guio al pueblo de Israel fuera de Egipto.',
-    level: 'Intermedio',
-  },
-  {
-    question: '¿Quién fue llamado a llevar el nombre de Jesús ante los gentiles?',
-    options: ['Pedro', 'Juan', 'Pablo', 'Andrés'],
-    answer: 2,
-    explanation: 'El Señor le mostró a Ananías que había escogido a Saulo, conocido como Pablo, para llevar su nombre ante los gentiles.',
-    reference: 'Hechos 9:10-16',
-    biblicalNote: 'Lee las instrucciones que el Señor dio a Ananías acerca de Saulo.',
-    hint: 'Antes de convertirse, perseguía a los seguidores de Jesús.',
-    level: 'Avanzado',
-  },
-  {
-    question: '¿En qué isla recibió Juan la revelación del Apocalipsis?',
-    options: ['Creta', 'Patmos', 'Chipre', 'Malta'],
-    answer: 1,
-    explanation: 'Juan dijo que se encontraba en la isla de Patmos por causa de la palabra de Dios y el testimonio de Jesucristo.',
-    reference: 'Apocalipsis 1:9-11',
-    biblicalNote: 'Lee dónde estaba Juan y cómo recibió la orden de escribir lo que veía.',
-    hint: 'Es una isla del mar Egeo.',
-    level: 'Avanzado',
-  },
-];
+type Question = BibleQuestion;
 
 type Props = {
   onExit: () => void;
 };
 
-function shuffleQuestions(items: Question[]) {
-  const shuffled = [...items];
-
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-
-  return shuffled;
-}
-
 export default function TriviaGame({ onExit }: Props) {
   const [started, setStarted] = useState(false);
-  const [roundQuestions, setRoundQuestions] = useState<Question[]>(questions);
+  const [roundQuestions, setRoundQuestions] = useState<Question[]>(bibleQuestionBank.slice(0, 10));
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [seconds, setSeconds] = useState(20);
@@ -200,7 +78,7 @@ export default function TriviaGame({ onExit }: Props) {
   }, [started, finished, selected, current, roundQuestions.length]);
 
   function startGame() {
-    setRoundQuestions(shuffleQuestions(questions));
+    setRoundQuestions(shuffleBibleQuestions(bibleQuestionBank).slice(0, 10));
     setStarted(true);
     setFinished(false);
     setCurrent(0);

@@ -687,3 +687,418 @@ body::after {
     will-change: auto !important;
   }
 }
+
+
+
+/* ==========================================================
+   EXPERIENCIA JUVENIL + FICHAS ADMINISTRATIVAS
+   ========================================================== */
+.youth-portal {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  overflow-x: clip;
+}
+.youth-portal::before {
+  z-index: -1;
+  opacity: .56;
+  background:
+    radial-gradient(ellipse at 7% 18%,rgba(255,119,67,.20),transparent 35%),
+    radial-gradient(ellipse at 90% 18%,rgba(152,100,255,.20),transparent 35%),
+    radial-gradient(ellipse at 55% 100%,rgba(58,204,255,.16),transparent 40%);
+  animation: jfYouthNebula 18s ease-in-out infinite alternate;
+}
+.youth-home-enter { animation: jfYouthEnter .82s cubic-bezier(.18,.78,.18,1) both; }
+.youth-home-toolbar {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin:0 0 16px;
+}
+.youth-sound-toggle {
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:42px;padding:0 15px;border-radius:999px;
+  border:1px solid rgba(226,238,255,.2);
+  background:rgba(11,18,38,.58);color:#e9edff;
+  backdrop-filter:blur(18px);font-size:11px;font-weight:800;
+}
+.youth-sound-toggle.active {
+  border-color:rgba(107,231,188,.45);
+  background:rgba(44,179,133,.14);color:#a9f4d5;
+  box-shadow:0 0 24px rgba(94,226,183,.12);
+}
+.youth-home {
+  min-height:350px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:48px 24px 34px !important;
+  animation:jfYouthHomeReveal .9s cubic-bezier(.16,.8,.2,1) both;
+}
+.youth-home::before {
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(255,173,90,.15),transparent 45%),
+    radial-gradient(ellipse at 8% 90%,rgba(72,197,255,.10),transparent 35%),
+    linear-gradient(135deg,transparent 25%,rgba(255,255,255,.055) 50%,transparent 72%);
+  background-size:auto,auto,220% 220%;
+  animation:jfGlassSheen 12s ease-in-out infinite;
+}
+.youth-home::after {
+  content:"";position:absolute;inset:auto 6% -100px;height:190px;
+  border-radius:50%;pointer-events:none;
+  background:radial-gradient(ellipse,rgba(130,92,255,.17),transparent 68%);
+  filter:blur(22px);
+}
+.youth-home .youth-avatar.large {
+  width:126px;height:126px;margin-bottom:18px;
+  border-width:4px;
+  box-shadow:0 0 0 8px rgba(255,255,255,.06),0 0 50px rgba(125,130,255,.24),0 20px 55px rgba(0,0,0,.35);
+  animation:jfAvatarFloat 5.5s ease-in-out infinite;
+}
+.youth-home h1 {
+  max-width:100%;overflow-wrap:anywhere;
+  font-size:clamp(32px,6vw,58px) !important;
+  line-height:1.02 !important;
+  margin:12px 0 7px !important;
+}
+.youth-home > p {margin:0 0 8px;font-size:13px;}
+.youth-customize-trigger {
+  position:absolute;top:17px;right:17px;z-index:3;
+  display:inline-flex;align-items:center;gap:7px;
+  min-height:38px;padding:0 12px;border:1px solid rgba(226,238,255,.2);
+  border-radius:999px;background:rgba(9,16,36,.55);color:#e7eaff;
+  backdrop-filter:blur(14px);font-size:10px;font-weight:800;
+}
+.youth-profile-quickstats {
+  position:relative;z-index:2;display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin-top:16px;
+}
+.youth-profile-quickstats span {
+  display:inline-flex;align-items:center;gap:6px;padding:8px 11px;
+  border:1px solid rgba(225,235,255,.15);border-radius:999px;
+  background:rgba(255,255,255,.055);color:rgba(245,247,255,.82);font-size:10px;
+}
+.youth-profile-quickstats svg {color:#ffc47b;}
+.youth-frame-ember {border-color:rgba(255,125,69,.50) !important;box-shadow:0 0 0 1px rgba(255,125,69,.1),0 28px 75px rgba(255,94,59,.13) !important;}
+.youth-frame-prism {border-color:rgba(190,135,255,.52) !important;box-shadow:0 0 0 1px rgba(190,135,255,.1),0 28px 75px rgba(133,105,255,.15) !important;}
+.youth-frame-ice {border-color:rgba(75,218,255,.52) !important;box-shadow:0 0 0 1px rgba(75,218,255,.1),0 28px 75px rgba(53,179,255,.14) !important;}
+.youth-frame-gold {border-color:rgba(255,211,104,.58) !important;box-shadow:0 0 0 1px rgba(255,211,104,.12),0 28px 75px rgba(238,181,63,.16) !important;}
+
+.youth-look-fire::before {
+  background:radial-gradient(ellipse at 10% 12%,rgba(255,90,45,.25),transparent 38%),radial-gradient(ellipse at 80% 85%,rgba(255,153,57,.16),transparent 40%);
+}
+.youth-look-ocean::before {
+  background:radial-gradient(ellipse at 10% 12%,rgba(35,174,255,.22),transparent 38%),radial-gradient(ellipse at 80% 85%,rgba(48,230,198,.16),transparent 40%);
+}
+.youth-look-galaxy::before {
+  background:radial-gradient(ellipse at 10% 12%,rgba(159,79,255,.25),transparent 38%),radial-gradient(ellipse at 80% 85%,rgba(255,75,179,.16),transparent 40%);
+}
+.youth-customizer,.youth-activities,.youth-game-hub,.youth-prayer-panel,
+.youth-hall-card {
+  position:relative;overflow:hidden;
+  border:1px solid rgba(224,235,255,.17);border-radius:22px;
+  background:rgba(11,18,38,.62);color:#f5f5ff;
+  box-shadow:0 20px 55px rgba(0,0,0,.16);
+  backdrop-filter:blur(24px) saturate(145%);
+  -webkit-backdrop-filter:blur(24px) saturate(145%);
+}
+.youth-customizer {margin:14px 0;padding:20px 22px;animation:jfDetailDrop .42s cubic-bezier(.18,.8,.2,1) both;}
+.youth-customizer > header {
+  display:flex;align-items:center;gap:11px;margin-bottom:17px;color:#ffc58a;
+}
+.youth-customizer > header > div {display:grid;gap:3px;flex:1;}
+.youth-customizer > header b {font-size:14px;color:#fff;}
+.youth-customizer > header span {font-size:10px;color:rgba(231,237,255,.57);}
+.youth-customizer > header button {
+  width:34px;height:34px;display:grid;place-items:center;
+  border:1px solid rgba(224,235,255,.15);border-radius:50%;
+  background:rgba(255,255,255,.05);color:#e9ecff;
+}
+.youth-look-group {display:grid;gap:9px;margin-top:14px;}
+.youth-look-group > strong {font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#b4bdd8;}
+.youth-look-choices {display:flex;flex-wrap:wrap;gap:9px;}
+.look-choice {
+  display:inline-flex;align-items:center;gap:8px;min-height:40px;
+  padding:0 12px;border:1px solid rgba(220,233,255,.15);border-radius:12px;
+  background:rgba(255,255,255,.055);color:#e9edff;font-size:11px;font-weight:750;
+}
+.look-choice.selected {border-color:rgba(255,190,126,.7);box-shadow:0 0 0 2px rgba(255,164,100,.13),0 0 18px rgba(255,137,88,.12);}
+.frame-choice > span {width:15px;height:15px;border-radius:50%;border:2px solid rgba(255,255,255,.8);}
+.frame-choice.ember > span {background:linear-gradient(135deg,#ffc467,#fa593c);}
+.frame-choice.prism > span {background:linear-gradient(135deg,#62dcff,#aa75ff);}
+.frame-choice.ice > span {background:linear-gradient(135deg,#c3fbff,#429bff);}
+.frame-choice.gold > span {background:linear-gradient(135deg,#fff0a1,#bb7d27);}
+.background-choice.aurora {background:linear-gradient(110deg,#101a40,#7545a2,#145f83);}
+.background-choice.fire {background:linear-gradient(110deg,#451b28,#cf4928,#f5a34e);}
+.background-choice.ocean {background:linear-gradient(110deg,#0a3550,#117e9c,#48b9a8);}
+.background-choice.galaxy {background:linear-gradient(110deg,#211044,#783ba4,#bd4b96);}
+
+.youth-activities,.youth-game-hub,.youth-prayer-panel {margin-top:17px;padding:clamp(18px,3vw,27px);}
+.youth-activities > header,.youth-game-hub > header {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;
+}
+.youth-activities > header > div,.youth-game-hub > header > div {display:grid;gap:3px;}
+.youth-activities > header span,.youth-game-hub > header span,
+.youth-prayer-panel > header span {
+  color:#72ddff;font-size:9px;font-weight:900;letter-spacing:.15em;
+}
+.youth-activities h2,.youth-game-hub h2,.youth-prayer-panel h2 {
+  margin:0;color:#fff;font-family:var(--jf-display);font-size:clamp(22px,3.5vw,32px);text-transform:uppercase;
+}
+.youth-activities > header > svg,.youth-game-hub > header > svg {color:#ffb36c;}
+.youth-activities-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
+.youth-activity-card {
+  position:relative;overflow:hidden;min-width:0;padding:17px;
+  border:1px solid rgba(223,235,255,.15);border-radius:17px;
+  background:linear-gradient(145deg,rgba(255,255,255,.085),rgba(255,255,255,.025));
+  animation:jfYouthEnter .55s cubic-bezier(.18,.8,.2,1) both;
+  transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+}
+.youth-activity-card:hover {transform:translateY(-4px);border-color:rgba(86,218,255,.4);box-shadow:0 16px 32px rgba(0,0,0,.18);}
+.youth-activity-card::after {
+  content:"";position:absolute;right:-35px;top:-55px;width:110px;height:110px;
+  border-radius:50%;background:rgba(108,120,255,.10);filter:blur(4px);pointer-events:none;
+}
+.youth-activity-date,.youth-activity-meta span {display:inline-flex;align-items:center;gap:6px;color:#9ce9ff;font-size:10px;}
+.youth-activity-date {text-transform:capitalize;}
+.youth-activity-card h3 {margin:12px 0 7px;color:#fff;font-size:17px;font-weight:850;}
+.youth-activity-card p {margin:0 0 13px;color:rgba(234,239,255,.7);font-size:12px;line-height:1.6;}
+.youth-activity-meta {display:flex;flex-wrap:wrap;gap:12px;padding-top:10px;border-top:1px solid rgba(225,235,255,.10);}
+.youth-activity-meta span {color:rgba(226,237,255,.7);}
+.youth-empty-activities {
+  min-height:125px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;text-align:center;border:1px dashed rgba(218,233,255,.19);border-radius:16px;
+  background:rgba(255,255,255,.025);color:#9de6ff;padding:18px;
+}
+.youth-empty-activities strong {color:#f5f6ff;font-size:13px;}
+.youth-empty-activities span {color:rgba(231,237,255,.56);font-size:11px;}
+
+.youth-games-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:11px;}
+.youth-game-tile {
+  min-height:145px;display:flex;flex-direction:column;align-items:flex-start;gap:7px;
+  padding:15px;text-align:left;border:1px solid rgba(224,235,255,.15);border-radius:17px;
+  background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
+  color:#fff;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+}
+.youth-game-tile:hover {transform:translateY(-5px) scale(1.015);border-color:rgba(125,213,255,.4);box-shadow:0 16px 34px rgba(0,0,0,.2);}
+.youth-game-tile > span {width:37px;height:37px;display:grid;place-items:center;border-radius:12px;background:rgba(255,255,255,.09);color:#ffb66e;}
+.youth-game-tile b {font-size:13px;line-height:1.25;}
+.youth-game-tile small {color:rgba(232,238,255,.57);font-size:10px;}
+.youth-game-tile i {display:flex;align-items:center;gap:4px;margin-top:auto;color:#8ee6ff;font-size:9px;font-style:normal;font-weight:900;letter-spacing:.13em;}
+.youth-game-tile.violet > span {color:#c19aff;}
+.youth-game-tile.cyan > span {color:#62e1ff;}
+.youth-game-tile.green > span {color:#75edbd;}
+.youth-game-tile.rose > span {color:#ff89bd;}
+.youth-game-tile.gold > span {color:#ffd36f;}
+.youth-game-tile.blue > span {color:#8db7ff;}
+.youth-game-topbar {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px;}
+.youth-game-topbar > span {display:inline-flex;align-items:center;gap:7px;color:#a9dfff;font-size:10px;font-weight:850;letter-spacing:.09em;}
+.youth-game-shell > .verse-game,.youth-game-shell > .mbg-game,.youth-game-shell > .trivia-game {animation:jfYouthEnter .55s ease both;}
+
+.youth-hall-grid {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-top:17px;}
+.youth-hall-card {padding:20px;}
+.youth-hall-card > header {display:flex;align-items:center;gap:10px;margin-bottom:12px;color:#ffc36e;}
+.youth-hall-card > header div {display:grid;gap:2px;}
+.youth-hall-card > header span {color:#8cdbff;font-size:8px;font-weight:900;letter-spacing:.13em;}
+.youth-hall-card h2 {margin:0;color:#fff;font-family:var(--jf-display);font-size:23px;text-transform:uppercase;}
+.youth-hall-caption {margin:0 0 12px;color:rgba(231,238,255,.54);font-size:10px;line-height:1.5;}
+.youth-podium-list,.youth-faithful-list {display:grid;gap:7px;list-style:none;padding:0;margin:0;}
+.youth-podium-list li {
+  display:flex;align-items:center;gap:9px;min-height:52px;padding:8px 10px;
+  border:1px solid rgba(220,235,255,.11);border-radius:13px;background:rgba(255,255,255,.045);
+}
+.youth-podium-medal {display:grid;place-items:center;color:#ffc66b;}
+.youth-podium-rank {color:rgba(230,238,255,.42);font-family:var(--jf-display);font-size:17px;font-weight:900;}
+.youth-podium-list img,.youth-podium-list li > b {width:33px;height:33px;display:grid;place-items:center;border-radius:50%;object-fit:cover;background:linear-gradient(140deg,#ff9c59,#9d70ff);color:#fff;font-size:11px;}
+.youth-podium-name {flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f7f7ff;font-size:11px;font-weight:800;}
+.youth-podium-list li > strong {color:#ffd58b;font-size:10px;white-space:nowrap;}
+.place-1 {border-color:rgba(255,202,101,.35) !important;background:linear-gradient(100deg,rgba(255,193,84,.12),rgba(255,255,255,.035)) !important;}
+.youth-faithful-list li {display:flex;align-items:center;gap:10px;min-height:35px;padding:6px 3px;border-bottom:1px solid rgba(222,234,255,.09);}
+.youth-faithful-rank {width:22px;height:22px;display:grid;place-items:center;border-radius:7px;background:rgba(91,208,255,.10);color:#91e7ff;font-size:10px;font-weight:900;}
+.youth-faithful-name {flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f1f3ff;font-size:11px;}
+.youth-faithful-list li > strong {color:#9de7ff;font-size:10px;white-space:nowrap;}
+.youth-data-empty {margin:0;padding:18px 10px;text-align:center;color:rgba(231,237,255,.54);font-size:11px;line-height:1.6;}
+
+.youth-prayer-panel > header {display:flex;align-items:flex-start;gap:12px;color:#ff99c7;margin-bottom:17px;}
+.youth-prayer-panel > header > svg {flex:none;margin-top:3px;}
+.youth-prayer-panel > header p {margin:5px 0 0;color:rgba(231,237,255,.58);font-size:11px;}
+.youth-prayer-panel form {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;}
+.youth-prayer-panel label {display:grid;gap:6px;color:#cbd4f0;font-size:10px;font-weight:800;}
+.youth-prayer-panel input,.youth-prayer-panel select,.youth-prayer-panel textarea {
+  width:100%;min-width:0;border:1px solid rgba(221,234,255,.17) !important;border-radius:12px !important;
+  background:rgba(2,10,28,.32) !important;color:#f3f5ff !important;padding:11px 12px;
+  font:inherit;font-size:12px;box-sizing:border-box;
+}
+.youth-prayer-panel textarea {resize:vertical;line-height:1.6;}
+.youth-prayer-panel .prayer-message-field {grid-column:1/-1;}
+.youth-prayer-submit-row {grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.youth-prayer-submit-row small {color:rgba(229,237,255,.48);font-size:9px;line-height:1.5;}
+.youth-prayer-submit-row button {
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:43px;padding:0 17px;
+  border:1px solid rgba(255,255,255,.22);border-radius:12px;
+  background:linear-gradient(110deg,#ff9f59,#ea5575 58%,#985ce7);color:#fff;
+  font-size:11px;font-weight:900;box-shadow:0 9px 24px rgba(232,76,111,.2);
+}
+.youth-prayer-submit-row button:disabled {opacity:.48;cursor:not-allowed;}
+.youth-prayer-status,.youth-inline-warning {grid-column:1/-1;margin:0;padding:10px 12px;border-radius:11px;background:rgba(70,198,255,.08);color:#aeeaff;font-size:11px;}
+.youth-security-note {margin-top:18px;line-height:1.6;}
+
+.youth-profile-card {
+  translate:0 0;
+  animation:youthCardAppear .65s ease both,jfYouthLevitate 6.8s ease-in-out infinite;
+  will-change:translate;
+}
+.youth-profile-card:nth-child(4n + 2) {animation-duration:.65s,7.8s;}
+.youth-profile-card:nth-child(4n + 3) {animation-duration:.65s,6.1s;}
+.youth-profile-card:nth-child(4n + 4) {animation-duration:.65s,8.4s;}
+.youth-profile-card:hover {translate:0 -9px;transform:scale(1.025);animation-play-state:paused;box-shadow:0 23px 54px rgba(0,0,0,.3),0 0 28px rgba(104,198,255,.13);}
+.youth-profile-card:active {translate:0 -2px;transform:scale(.985);}
+.youth-profile-card .youth-avatar {transition:transform .4s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease;}
+.youth-profile-card:hover .youth-avatar {transform:scale(1.08) rotate(-3deg);box-shadow:0 0 0 8px rgba(255,255,255,.06),0 0 38px rgba(88,204,255,.22);}
+.youth-card-action {transition:letter-spacing .2s ease,color .2s ease;}
+.youth-profile-card:hover .youth-card-action {letter-spacing:.11em;color:#d4f9ff;}
+
+.youth-portal .youth-options {animation:jfYouthEnter .7s .12s both;}
+.youth-portal .youth-options article {animation:jfYouthEnter .55s cubic-bezier(.18,.8,.2,1) both;}
+.youth-portal .youth-options article:nth-child(2) {animation-delay:.07s;}
+.youth-portal .youth-options article:nth-child(3) {animation-delay:.14s;}
+.youth-portal .youth-options article:nth-child(4) {animation-delay:.21s;}
+
+.member-detail-backdrop,.weekly-form-backdrop {
+  position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:18px;
+  background:rgba(3,7,18,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  animation:jfOverlayIn .24s ease both;
+}
+.member-detail-modal,.weekly-form-modal {
+  width:min(100%,760px);max-height:min(88svh,880px);overflow:auto;
+  border:1px solid rgba(222,235,255,.2);border-radius:23px;
+  background:linear-gradient(145deg,rgba(19,28,53,.98),rgba(9,16,34,.97));
+  color:#f6f7ff;box-shadow:0 32px 110px rgba(0,0,0,.5);
+  animation:jfModalIn .42s cubic-bezier(.17,.8,.22,1) both;
+}
+.member-detail-header {
+  position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:13px;padding:19px 22px;
+  border-bottom:1px solid rgba(224,235,255,.12);
+  background:rgba(15,23,45,.92);backdrop-filter:blur(20px);
+}
+.member-detail-avatar {width:52px;height:52px;flex:none;display:grid;place-items:center;border:2px solid rgba(111,214,255,.5);border-radius:17px;background:linear-gradient(140deg,#ff9b62,#9b68e9);color:#fff;font-weight:900;font-size:17px;}
+.member-detail-header > div:nth-child(2) {flex:1;min-width:0;}
+.member-detail-header > div:nth-child(2) > span {color:#77dfff;font-size:8px;font-weight:900;letter-spacing:.15em;}
+.member-detail-header h2 {margin:3px 0;color:#fff;font-family:var(--jf-display);font-size:26px;text-transform:uppercase;}
+.member-detail-header small {color:rgba(228,236,255,.43);font-size:9px;}
+.member-detail-header > button,.weekly-form-modal > header > button {width:36px;height:36px;display:grid;place-items:center;border:1px solid rgba(222,235,255,.15);border-radius:50%;background:rgba(255,255,255,.045);color:#eef1ff;}
+.member-detail-modal form {padding:20px 22px 22px;}
+.member-detail-fields {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;}
+.member-detail-fields label,.weekly-form-modal form > label,.weekly-form-row label {display:grid;gap:6px;color:#d5ddf8;font-size:10px;font-weight:800;}
+.member-detail-fields label.wide {grid-column:1/-1;}
+.member-detail-fields input,.member-detail-fields textarea,.weekly-form-modal input,.weekly-form-modal textarea {
+  width:100%;min-width:0;box-sizing:border-box;border:1px solid rgba(220,234,255,.16) !important;border-radius:11px !important;
+  background:rgba(2,9,26,.38) !important;color:#f3f5ff !important;padding:10px 11px;font:inherit;font-size:12px;
+}
+.member-detail-fields textarea,.weekly-form-modal textarea {resize:vertical;line-height:1.5;}
+.member-detail-privacy {display:flex;align-items:flex-start;gap:8px;margin-top:16px;color:rgba(222,234,255,.55);font-size:10px;line-height:1.5;}
+.member-detail-privacy svg {flex:none;color:#75ddb9;}
+.member-detail-modal form > footer,.weekly-form-modal form > footer {display:flex;justify-content:flex-end;gap:9px;margin-top:18px;padding-top:15px;border-top:1px solid rgba(222,235,255,.12);}
+.member-detail-cancel,.weekly-cancel {min-height:42px;padding:0 15px;border:1px solid rgba(220,235,255,.17);border-radius:11px;background:rgba(255,255,255,.045);color:#e5eaff;font-size:11px;font-weight:800;}
+.member-detail-save,.weekly-save {display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 16px;border:1px solid rgba(255,255,255,.2);border-radius:11px;background:linear-gradient(110deg,#ff9e58,#eb5b7a 55%,#965be8);color:#fff;font-size:11px;font-weight:900;}
+.member-detail-save:disabled,.weekly-save:disabled {opacity:.55;cursor:wait;}
+.member-detail-error,.weekly-admin-alert.error {padding:10px 12px;border-radius:10px;background:rgba(255,82,105,.1);color:#ff9eae;font-size:11px;}
+.member-detail-success,.weekly-admin-alert.success {padding:10px 12px;border-radius:10px;background:rgba(65,211,159,.1);color:#8cf0c4;font-size:11px;}
+.member-detail-button {display:flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:40px;margin-top:14px;border:1px solid rgba(109,210,255,.23);border-radius:11px;background:rgba(77,193,255,.08);color:#a7eaff;font-size:10px;font-weight:850;}
+.member-detail-button span {margin-left:auto;color:rgba(225,238,255,.55);font-size:9px;}
+.member-card {animation:jfYouthEnter .5s ease both;}
+
+.weekly-admin-panel {margin-top:18px;padding:clamp(17px,2.7vw,26px);border:1px solid var(--jf-glass-border);border-radius:20px;background:var(--jf-glass);color:var(--jf-text);box-shadow:var(--jf-shadow);backdrop-filter:blur(22px) saturate(145%);}
+.weekly-admin-heading {display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;}
+.weekly-admin-heading > div > span {color:#5ccfff;font-size:9px;font-weight:900;letter-spacing:.14em;}
+.weekly-admin-heading h2 {margin:4px 0;color:var(--jf-text);font-family:var(--jf-display);font-size:clamp(24px,3vw,32px);text-transform:uppercase;}
+.weekly-admin-heading p {margin:0;color:var(--jf-muted);font-size:11px;line-height:1.5;}
+.weekly-add-button,.weekly-admin-empty button {display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:0 14px;border:1px solid rgba(255,255,255,.2);border-radius:11px;background:linear-gradient(110deg,#ff9d58,#e95a7b);color:#fff;font-size:10px;font-weight:900;}
+.weekly-admin-list {display:grid;gap:9px;}
+.weekly-admin-item {display:flex;align-items:center;gap:12px;min-width:0;padding:13px;border:1px solid var(--jf-border);border-radius:15px;background:var(--jf-glass);}
+.weekly-admin-item-icon {width:39px;height:39px;flex:none;display:grid;place-items:center;border-radius:12px;background:rgba(78,200,255,.12);color:#72ddff;}
+.weekly-admin-item-copy {flex:1;min-width:0;}
+.weekly-admin-item-copy > span,.weekly-admin-item-copy small {color:var(--jf-muted);font-size:9px;}
+.weekly-admin-item-copy h3 {margin:3px 0;color:var(--jf-text);font-size:13px;}
+.weekly-admin-item-copy p {margin:0 0 3px;color:var(--jf-muted);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.weekly-publish-status {display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-size:9px;font-weight:850;}
+.weekly-publish-status.published {color:#48c99b;}
+.weekly-publish-status.draft {color:#d2ac65;}
+.weekly-edit-button {width:35px;height:35px;flex:none;display:grid;place-items:center;border:1px solid var(--jf-border);border-radius:10px;background:var(--jf-glass);color:var(--jf-text);}
+.weekly-admin-loading,.weekly-admin-empty,.prayers-admin-empty {min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;color:var(--jf-muted);text-align:center;font-size:11px;}
+.weekly-admin-empty strong,.prayers-admin-empty strong {color:var(--jf-text);font-size:13px;}
+.weekly-admin-empty > svg,.prayers-admin-empty > svg {color:#63d9ff;}
+.weekly-form-modal {width:min(100%,600px);}
+.weekly-form-modal > header {position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;padding:18px 21px;border-bottom:1px solid rgba(224,235,255,.12);background:rgba(15,23,45,.94);backdrop-filter:blur(18px);}
+.weekly-form-modal > header span {color:#7cdefe;font-size:8px;font-weight:900;letter-spacing:.14em;}
+.weekly-form-modal > header h3 {margin:3px 0 0;color:#fff;font-family:var(--jf-display);font-size:24px;text-transform:uppercase;}
+.weekly-form-modal form {display:grid;gap:13px;padding:20px;}
+.weekly-form-row {display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.weekly-publish-check {display:flex !important;align-items:center;gap:10px;padding:12px;border:1px solid rgba(100,220,177,.18);border-radius:12px;background:rgba(69,211,155,.06);}
+.weekly-publish-check input {width:18px;height:18px;flex:none;accent-color:#55dba6;}
+.weekly-publish-check span {display:grid;gap:3px;}
+.weekly-publish-check b {color:#b5f4d7;font-size:10px;}
+.weekly-publish-check small {color:rgba(229,242,255,.52);font-size:9px;}
+
+.prayers-admin-page {display:grid;gap:15px;}
+.prayers-admin-icon {width:60px;height:60px;display:grid;place-items:center;border:1px solid rgba(255,134,190,.35);border-radius:18px;background:rgba(255,111,179,.12);color:#ff8bc4;}
+.prayers-admin-summary {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--jf-border);border-radius:14px;background:var(--jf-glass);color:var(--jf-muted);font-size:10px;}
+.prayers-admin-summary > span {display:flex;align-items:center;gap:7px;}
+.prayers-admin-summary > span svg {color:#59d6b4;}
+.prayers-admin-summary button {display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 10px;border:1px solid var(--jf-border);border-radius:9px;background:var(--jf-glass);color:var(--jf-text);font-size:10px;}
+.prayers-admin-list {display:grid;gap:11px;}
+.prayer-admin-card {padding:17px;border:1px solid var(--jf-border);border-radius:17px;background:var(--jf-glass);color:var(--jf-text);box-shadow:var(--jf-shadow);backdrop-filter:blur(18px);}
+.prayer-admin-card > header {display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.prayer-admin-card > header div > span {color:#8fdfff;font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;}
+.prayer-admin-card h2 {margin:4px 0;color:var(--jf-text);font-family:var(--jf-display);font-size:21px;text-transform:uppercase;}
+.prayer-admin-card > header small {display:flex;align-items:center;gap:5px;color:var(--jf-muted);font-size:9px;}
+.prayer-admin-card > p {margin:12px 0;padding:13px;border-radius:12px;background:rgba(255,255,255,.035);color:var(--jf-text);font-size:12px;line-height:1.7;white-space:pre-wrap;}
+.prayer-admin-card > footer {display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.prayer-admin-card > footer label {display:flex;align-items:center;gap:7px;color:var(--jf-muted);font-size:10px;}
+.prayer-admin-card > footer select {min-height:35px;padding:0 9px;border:1px solid var(--jf-border)!important;border-radius:9px!important;background:var(--jf-surface-2)!important;color:var(--jf-text)!important;font-size:10px;}
+.prayer-status-chip {padding:6px 9px;border:1px solid var(--jf-border);border-radius:999px;color:var(--jf-muted);font-size:9px;font-weight:850;}
+.prayer-status-chip.en-oración {border-color:rgba(95,192,255,.25);background:rgba(95,192,255,.08);color:#8ddfff;}
+.prayer-status-chip.atendida {border-color:rgba(70,211,159,.25);background:rgba(70,211,159,.08);color:#8cefc4;}
+
+@keyframes jfYouthEnter {from{opacity:0;transform:translate3d(0,24px,0) scale(.985);filter:blur(5px);}to{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0);}}
+@keyframes jfYouthHomeReveal {0%{opacity:0;transform:perspective(900px) translateY(28px) scale(.94) rotateX(7deg);filter:blur(10px);}70%{opacity:1;filter:blur(0);}100%{transform:perspective(900px) translateY(0) scale(1) rotateX(0);}}
+@keyframes jfAvatarFloat {0%,100%{transform:translateY(0) rotate(-1deg);}50%{transform:translateY(-12px) rotate(1.5deg);}}
+@keyframes jfYouthLevitate {0%,100%{translate:0 0;}50%{translate:0 -9px;}}
+@keyframes jfYouthNebula {from{filter:hue-rotate(-8deg) saturate(1);opacity:.38;}to{filter:hue-rotate(14deg) saturate(1.25);opacity:.72;}}
+@keyframes jfGlassSheen {0%,100%{background-position:0 0,0 0,-100% 50%;}50%{background-position:0 0,0 0,100% 50%;}}
+@keyframes jfDetailDrop {from{opacity:0;transform:translateY(-10px) scale(.985);}to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes jfOverlayIn {from{opacity:0;}to{opacity:1;}}
+@keyframes jfModalIn {from{opacity:0;transform:translateY(26px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}
+
+@media (max-width:760px) {
+  .youth-hall-grid {grid-template-columns:1fr;}
+  .youth-home {min-height:300px;padding:48px 16px 26px !important;}
+  .youth-customize-trigger {top:10px;right:10px;min-height:34px;font-size:9px;}
+  .youth-home .youth-avatar.large {width:108px;height:108px;}
+  .weekly-admin-heading {align-items:flex-start;flex-direction:column;}
+  .weekly-add-button {width:100%;justify-content:center;}
+  .member-detail-modal,.weekly-form-modal {max-height:calc(100svh - 20px);border-radius:18px;}
+  .member-detail-backdrop,.weekly-form-backdrop {padding:10px;}
+  .member-detail-fields {grid-template-columns:1fr;}
+  .member-detail-fields label.wide {grid-column:auto;}
+}
+@media (max-width:540px) {
+  .youth-home-toolbar {align-items:stretch;}
+  .youth-home-toolbar > button {min-height:40px;flex:1;padding:0 8px;font-size:9px;}
+  .youth-game-topbar {align-items:flex-start;flex-direction:column;}
+  .youth-prayer-panel form {grid-template-columns:1fr;}
+  .youth-prayer-panel .prayer-message-field,.youth-prayer-submit-row {grid-column:auto;}
+  .youth-prayer-submit-row {align-items:stretch;flex-direction:column;}
+  .youth-prayer-submit-row button {width:100%;}
+  .weekly-admin-item {align-items:flex-start;flex-wrap:wrap;}
+  .weekly-admin-item-copy {min-width:calc(100% - 58px);}
+  .weekly-publish-status {margin-left:51px;}
+  .weekly-form-row {grid-template-columns:1fr;}
+  .prayer-admin-card > header {flex-direction:column;}
+  .prayer-admin-card > footer {align-items:flex-start;flex-direction:column;}
+}
+@media (prefers-reduced-motion:reduce) {
+  .youth-home-enter,.youth-home,.youth-home .youth-avatar.large,
+  .youth-profile-card,.youth-activity-card,.youth-options,.youth-options article,
+  .youth-customizer,.member-detail-backdrop,.weekly-form-backdrop,
+  .member-detail-modal,.weekly-form-modal,.youth-portal::before {
+    animation:none !important;filter:none !important;will-change:auto !important;
+  }
+  .youth-profile-card:hover,.youth-game-tile:hover,.youth-activity-card:hover {transform:none;translate:none;}
+}
