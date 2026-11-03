@@ -1451,3 +1451,105 @@ export const createManagementRecord = onCall(async (request) => {
 
   throw new HttpsError("permission-denied", "Este módulo no permite crear registros.");
 });
+
+
+function currentBogotaDate(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Bogota",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+export const getDashboardSummary = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+
+  const userSnapshot = await db.collection("users").doc(request.auth.uid).get();
+  const role = text(userSnapshot.data()?.role, 40).toLowerCase();
+  const recognized = ["admin", "administrador", "pastor", "lider", "líder", "user"];
+  if (!userSnapshot.exists || !recognized.includes(role)) {
+    throw new HttpsError("permission-denied", "Tu cuenta no tiene un rol válido para consultar el panel.");
+  }
+
+  const today = currentBogotaDate();
+  const monthStart = today.slice(0, 7) + "-01";
+
+  const [activitySnapshot, publicProfiles] = await Promise.all([
+    db.collection("weeklyActivities").limit(120).get(),
+    role === "user" ? loadVisiblePublicProfiles() : Promise.resolve([]),
+  ]);
+
+  const upcomingActivities = activitySnapshot.docs.filter((document) => {
+    const data = document.data();
+    const date = text(data.date, 10);
+    return data.published === true && isValidDate(date) && date >= today;
+  }).length;
+
+  if (role === "user") {
+    return {
+      role,
+      memberCount: publicProfiles.length,
+      meetingsThisMonth: 0,
+      attendancePresent: 0,
+      followupsPending: null,
+      visitorsNew: null,
+      prayersPending: null,
+      upcomingActivities,
+    };
+  }
+
+  const [memberCountSnapshot, meetingsSnapshot, followupsSnapshot, visitorsSnapshot] =
+    await Promise.all([
+      db.collection("members").count().get(),
+      db.collection("attendanceMeetings")
+        .where("date", ">=", monthStart)
+        .where("date", "<=", today)
+        .limit(300)
+        .get(),
+      db.collection("followups").limit(500).get(),
+      db.collection("visitors").limit(500).get(),
+    ]);
+
+  const isLeader = role === "lider" || role === "líder";
+  const followups = followupsSnapshot.docs.filter((document) => {
+    const data = document.data();
+    return (!isLeader || data.createdBy === request.auth?.uid) &&
+      text(data.status, 30) === "Pendiente";
+  });
+  const visitors = visitorsSnapshot.docs.filter((document) => {
+    const data = document.data();
+    return (!isLeader || data.createdBy === request.auth?.uid) &&
+      text(data.status, 30) === "Nuevo";
+  });
+
+  const attendancePresent = meetingsSnapshot.docs.reduce((total, meeting) => {
+    const participants = meeting.data().participants;
+    if (!Array.isArray(participants)) return total;
+    return total + participants.filter((item) =>
+      typeof item === "object" && item !== null &&
+      (item as Record<string, unknown>).status === "Presente",
+    ).length;
+  }, 0);
+
+  let prayersPending: number | null = null;
+  if (role === "admin" || role === "administrador" || role === "pastor") {
+    const prayerSnapshot = await db.collection("publicPrayerRequests").limit(200).get();
+    prayersPending = prayerSnapshot.docs.filter((document) =>
+      text(document.data().status, 30) === "Pendiente",
+    ).length;
+  }
+
+  return {
+    role,
+    memberCount: memberCountSnapshot.data().count,
+    meetingsThisMonth: meetingsSnapshot.size,
+    attendancePresent,
+    followupsPending: followups.length,
+    visitorsNew: visitors.length,
+    prayersPending,
+    upcomingActivities,
+  };
+});
