@@ -419,28 +419,46 @@ const verseLevels = [
   { ref: 'Juan 11:35', text: 'Jesús lloró' },
   { ref: 'Génesis 1:1', text: 'En el principio creó Dios los cielos y la tierra' },
   { ref: 'Salmo 119:105', text: 'Lámpara es a mis pies tu palabra y lumbrera a mi camino' },
+  { ref: 'Juan 3:16', text: 'Porque de tal manera amó Dios al mundo que ha dado a su Hijo unigénito' },
+  { ref: 'Proverbios 3:5', text: 'Fíate de Jehová de todo tu corazón y no te apoyes en tu propia prudencia' },
+  { ref: 'Josué 1:9', text: 'Mira que te mando que te esfuerces y seas valiente no temas ni desmayes' },
+  { ref: 'Mateo 6:33', text: 'Mas buscad primeramente el reino de Dios y su justicia y todas estas cosas os serán añadidas' },
+  { ref: 'Salmo 46:1', text: 'Dios es nuestro amparo y fortaleza nuestro pronto auxilio en las tribulaciones' },
+  { ref: '1 Corintios 13:4', text: 'El amor es sufrido es benigno el amor no tiene envidia' },
+  { ref: 'Romanos 8:28', text: 'Y sabemos que a los que aman a Dios todas las cosas les ayudan a bien' },
+  { ref: 'Mateo 11:28', text: 'Venid a mí todos los que estáis trabajados y cargados y yo os haré descansar' },
+  { ref: 'Gálatas 5:22', text: 'Mas el fruto del Espíritu es amor gozo paz paciencia benignidad bondad fe' },
+  { ref: '1 Juan 4:19', text: 'Nosotros le amamos a él porque él nos amó primero' },
+  { ref: 'Mateo 5:16', text: 'Así alumbre vuestra luz delante de los hombres para que vean vuestras buenas obras' },
+  { ref: '1 Corintios 16:14', text: 'Todas vuestras cosas sean hechas con amor' },
+  { ref: 'Salmo 150:6', text: 'Todo lo que respira alabe a JAH Aleluya' },
+  { ref: '2 Timoteo 1:7', text: 'Porque no nos ha dado Dios espíritu de cobardía sino de poder de amor y de dominio propio' },
+  { ref: 'Juan 10:10', text: 'Yo he venido para que tengan vida y para que la tengan en abundancia' },
+  { ref: 'Salmo 34:8', text: 'Gustad y ved que es bueno Jehová dichoso el hombre que confía en él' },
 ];
 
 type Word = { id: number; text: string };
 
-function makeWords(level: number): Word[] {
-  return shuffle(verseLevels[level].text.split(' ').map((text, id) => ({ id, text })));
+function makeWords(level: number, source: typeof verseLevels = verseLevels): Word[] {
+  return shuffle(source[level].text.split(' ').map((text, id) => ({ id, text })));
 }
 
 export function OrderVerseGame({ onExit }: { onExit: () => void }) {
+  const [roundVerses, setRoundVerses] = useState(() => shuffle(verseLevels));
   const [level, setLevel] = useState(0);
-  const [words, setWords] = useState(() => makeWords(0));
+  const [words, setWords] = useState(() => makeWords(0, roundVerses));
   const [selected, setSelected] = useState<number[]>([]);
   const [feedback, setFeedback] = useState('');
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
 
-  const current = verseLevels[level];
+  const current = roundVerses[level];
   const arranged = selected.map((id) => words.find((word) => word.id === id)?.text ?? '');
   const correct = arranged.join(' ') === current.text;
 
   function choose(id: number) {
     if (selected.includes(id) || feedback === 'correcto') return;
+    playGameTone('tap');
     setSelected((old) => [...old, id]);
     setFeedback('');
   }
@@ -457,9 +475,11 @@ export function OrderVerseGame({ onExit }: { onExit: () => void }) {
       return;
     }
     if (correct) {
+      playGameTone('success');
       setFeedback('correcto');
       setScore((value) => value + 20);
     } else {
+      playGameTone('incorrect');
       setFeedback('Inténtalo otra vez. El orden todavía no es correcto.');
     }
   }
@@ -471,14 +491,16 @@ export function OrderVerseGame({ onExit }: { onExit: () => void }) {
     }
     const nextLevel = level + 1;
     setLevel(nextLevel);
-    setWords(makeWords(nextLevel));
+    setWords(makeWords(nextLevel, roundVerses));
     setSelected([]);
     setFeedback('');
   }
 
   function restart() {
+    const nextVerses = shuffle(verseLevels);
+    setRoundVerses(nextVerses);
     setLevel(0);
-    setWords(makeWords(0));
+    setWords(makeWords(0, nextVerses));
     setSelected([]);
     setFeedback('');
     setScore(0);
