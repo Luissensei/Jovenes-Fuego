@@ -135,7 +135,9 @@ export default function RankingPage({
       console.error('Error cargando perfiles públicos:', err);
 
       setError(
-        'No se pudieron cargar los perfiles. Verifica Firebase Staging y sus permisos.',
+        err instanceof Error
+          ? err.message
+          : 'No se pudieron cargar los perfiles públicos. Revisa la configuración de Firebase Staging.',
       );
     } finally {
       setLoading(false);
