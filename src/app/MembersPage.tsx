@@ -26,11 +26,13 @@ const editableFields: EditableField[] = [
   {key: 'phone', label: 'Teléfono', type: 'tel'},
   {key: 'bd', label: 'Fecha de nacimiento'},
   {key: 'from', label: 'Lugar de procedencia'},
-  {key: 'ap', label: 'Apuntes / información adicional', multiline: true},
+  {key: 'ac', label: 'Nombre del acudiente'},
+  {key: 'ap', label: 'Teléfono del acudiente', type: 'tel'},
   {key: 'br', label: 'Barrio o sector'},
+  {key: 'bau', label: 'Fecha de bautismo', type: 'date'},
+  {key: 'con', label: 'Fecha de consagración', type: 'date'},
+  {key: 'dis', label: 'Fecha de discipulado completado', type: 'date'},
   {key: 'mn', label: 'Ministerio o grupo'},
-  {key: 'con', label: 'Contacto adicional'},
-  {key: 'dis', label: 'Disponibilidad'},
   {key: 'nt', label: 'Notas administrativas', multiline: true},
   {key: 'pic', label: 'URL de fotografía', type: 'url'},
   {key: 'nopub', label: 'Ocultar perfil en el portal público', boolean: true},
@@ -54,7 +56,7 @@ function toDraft(member: MemberAdminRecord): AdminMemberPatch {
 
 function MemberAvatar({member}: {member: MemberAdminRecord}) {
   const [failed, setFailed] = useState(false);
-  const image = typeof member.pic === 'string' && /^https:\/\//i.test(member.pic)
+  const image = typeof member.pic === 'string' && (/^https:\/\//i.test(member.pic) || /^data:image\\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(member.pic))
     ? member.pic : '';
 
   return (
