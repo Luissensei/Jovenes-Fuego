@@ -1,7 +1,7 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
-import { getFunctions, type Functions } from 'firebase/functions';
+import type { Functions } from 'firebase/functions';
 
 // Firebase original de Jóvenes de Fuego.
 // La conexión está configurada en modo de lectura desde la interfaz.
