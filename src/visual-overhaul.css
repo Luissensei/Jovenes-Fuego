@@ -2661,3 +2661,540 @@ img {max-width:100%;}
     background:var(--jf-surface-2) !important;
   }
 }
+
+
+/* ==========================================================
+   PROFUNDIDAD 3D Y CORRECCIONES RESPONSIVE DE PANTALLAS
+   ========================================================== */
+:root {
+  --jf-depth-shadow:
+    0 5px 10px rgba(0,0,0,.10),
+    0 16px 30px rgba(0,0,0,.14),
+    0 32px 65px rgba(0,0,0,.15),
+    inset 0 1px 0 rgba(255,255,255,.17),
+    inset 0 -1px 0 rgba(0,0,0,.06);
+  --jf-depth-shadow-hover:
+    0 8px 14px rgba(0,0,0,.12),
+    0 25px 42px rgba(0,0,0,.18),
+    0 48px 90px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.24),
+    inset 0 -1px 0 rgba(0,0,0,.08);
+}
+:root:not([data-theme="dark"]) {
+  --jf-depth-shadow:
+    0 5px 10px rgba(34,48,87,.05),
+    0 16px 30px rgba(34,48,87,.08),
+    0 32px 65px rgba(34,48,87,.10),
+    inset 0 1px 0 rgba(255,255,255,.95);
+  --jf-depth-shadow-hover:
+    0 8px 14px rgba(34,48,87,.07),
+    0 25px 42px rgba(34,48,87,.12),
+    0 48px 90px rgba(34,48,87,.15),
+    inset 0 1px 0 rgba(255,255,255,1);
+}
+
+.main, .main > *, .main section, .main article,
+.dashboard-page, .members-page, .attendance-page,
+.followup-page, .visitors-page, .devotionals-page,
+.photos-page, .reports-page, .checkin-page,
+.management-page, .managed-page, .prayers-admin-page {
+  min-width:0;
+}
+.main {
+  width:100%;
+  overflow-x:clip;
+  padding-bottom:clamp(28px,4vw,58px);
+}
+.main > * {max-width:100%;}
+.dashboard-page, .members-page, .attendance-page,
+.followup-page, .visitors-page, .devotionals-page,
+.photos-page, .reports-page, .checkin-page,
+.management-page, .managed-page, .prayers-admin-page {
+  width:min(100%,1380px);
+  margin-inline:auto;
+}
+h1,h2,h3,h4,p,small,strong,span,label {
+  overflow-wrap:anywhere;
+}
+input,select,textarea,button {max-width:100%;}
+
+/* Deeper extruded glass surfaces across all modules. */
+.dashboard-stat, .dashboard-shortcut, .dashboard-bottom-note,
+.dashboard-community-stat, .dashboard-chart-card,
+.ranking-info-grid article, .ranking-player, .game-card,
+.profile-card, .selected-profile-panel,
+.members-total-card, .members-controls, .member-card,
+.attendance-card, .attendance-member,
+.followup-stat, .followup-content, .followup-card,
+.visitors-stat, .visitors-content, .visitor-card,
+.devotionals-feature, .devotionals-controls, .devotional-card,
+.photos-stats article, .photo-card, .reports-card,
+.reports-stats article, .checkin-config, .checkin-panel,
+.checkin-summary article, .management-summary, .management-form,
+.management-records, .management-record, .managed-stat,
+.managed-record, .prayer-admin-card, .weekly-admin-panel,
+.weekly-admin-item, .youth-hall-card, .youth-activity-card,
+.youth-store-item, .youth-game-tile, .youth-prayer-panel,
+.youth-profile-card, .youth-options article,
+.mbg-game, .mbg-result, .mbg-question, .mbg-memory-card,
+.mbg-duel-setup, .mbg-word-board, .verse-game,
+.verse-question-card, .verse-results {
+  position:relative;
+  transform-style:preserve-3d;
+  backface-visibility:hidden;
+  box-shadow:var(--jf-depth-shadow);
+  transition:
+    transform .32s cubic-bezier(.2,.7,.2,1),
+    box-shadow .32s ease,
+    border-color .25s ease,
+    background .25s ease;
+}
+@media (hover:hover) and (pointer:fine) {
+  .dashboard-stat:hover, .dashboard-shortcut:hover,
+  .dashboard-bottom-note:hover, .dashboard-community-stat:hover,
+  .dashboard-chart-card:hover, .ranking-info-grid article:hover,
+  .ranking-player:hover, .game-card:hover, .profile-card:hover,
+  .selected-profile-panel:hover, .members-total-card:hover,
+  .members-controls:hover, .member-card:hover,
+  .attendance-card:hover, .attendance-member:hover,
+  .followup-stat:hover, .followup-content:hover, .followup-card:hover,
+  .visitors-stat:hover, .visitors-content:hover, .visitor-card:hover,
+  .devotionals-feature:hover, .devotionals-controls:hover,
+  .devotional-card:hover, .photos-stats article:hover, .photo-card:hover,
+  .reports-card:hover, .reports-stats article:hover,
+  .checkin-config:hover, .checkin-panel:hover, .checkin-summary article:hover,
+  .management-summary:hover, .management-form:hover,
+  .management-records:hover, .management-record:hover,
+  .managed-stat:hover, .managed-record:hover,
+  .prayer-admin-card:hover, .weekly-admin-panel:hover,
+  .weekly-admin-item:hover, .youth-hall-card:hover,
+  .youth-activity-card:hover, .youth-store-item:hover,
+  .youth-game-tile:hover, .youth-prayer-panel:hover,
+  .youth-profile-card:hover, .youth-options article:hover,
+  .mbg-game:hover, .mbg-result:hover, .mbg-question:hover,
+  .mbg-memory-card:hover, .mbg-duel-setup:hover,
+  .mbg-word-board:hover, .verse-game:hover,
+  .verse-question-card:hover, .verse-results:hover {
+    transform:perspective(1400px) translate3d(0,-8px,18px)
+      rotateX(2.8deg) rotateY(-1.35deg) scale(1.012);
+    box-shadow:var(--jf-depth-shadow-hover);
+    z-index:2;
+  }
+}
+
+/* Consistent page headers and responsive content widths. */
+.members-hero, .attendance-header, .followup-header,
+.visitors-header, .devotionals-hero, .photos-hero,
+.reports-hero, .checkin-hero, .managed-hero,
+.management-header {
+  max-width:100%;
+  min-width:0;
+}
+.members-hero > *, .attendance-header > *,
+.followup-header > *, .visitors-header > *,
+.devotionals-hero > *, .photos-hero > *,
+.reports-hero > *, .checkin-hero > *,
+.managed-hero > *, .management-header > * {min-width:0;}
+.members-hero h1, .attendance-header h1, .followup-header h1,
+.visitors-header h1, .devotionals-hero h1, .photos-hero h1,
+.reports-hero h1, .checkin-hero h1, .managed-hero h1,
+.management-header h1 {
+  font-size:clamp(27px,3.5vw,44px);
+  line-height:1.08;
+}
+.members-hero p, .attendance-header p, .followup-header p,
+.visitors-header p, .devotionals-hero p, .photos-hero p,
+.reports-hero p, .checkin-hero p, .managed-hero p,
+.management-header p {
+  max-width:680px;
+  font-size:clamp(12px,1.2vw,14px);
+  line-height:1.65;
+}
+.members-total-card, .members-controls, .attendance-card,
+.followup-content, .visitors-content, .devotionals-controls,
+.photos-tabs, .reports-card, .checkin-panel,
+.management-summary, .management-form, .management-records,
+.managed-stat, .managed-record, .prayer-admin-card,
+.weekly-admin-panel {
+  border:1px solid var(--jf-glass-edge);
+  border-radius:19px;
+  background:var(--jf-glass);
+  color:var(--jf-text);
+  backdrop-filter:blur(22px) saturate(145%);
+  -webkit-backdrop-filter:blur(22px) saturate(145%);
+}
+
+/* Grids must shrink before their content can force horizontal scrolling. */
+.members-grid, .attendance-summary, .followup-stats,
+.followup-list, .visitors-stats, .visitors-list,
+.devotionals-grid, .photos-grid, .reports-stats,
+.reports-breakdown, .checkin-summary, .checkin-grid,
+.management-list, .managed-stat-grid, .managed-record-list,
+.youth-hall-grid, .youth-activities-grid,
+.youth-games-grid, .youth-store-grid {
+  min-width:0;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));
+  gap:clamp(10px,1.5vw,16px);
+}
+.attendance-summary, .visitors-stats, .reports-stats,
+.checkin-summary, .managed-stat-grid {
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,155px),1fr));
+}
+.attendance-list, .members-list, .followup-list,
+.visitors-list, .management-list, .managed-record-list {
+  min-width:0;
+}
+.member-card, .attendance-member, .followup-card,
+.visitor-card, .devotional-card, .photo-card,
+.management-record, .managed-record, .weekly-admin-item {
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.member-card-info, .followup-person, .visitor-person,
+.photo-card-content, .managed-record-main,
+.management-record-top {min-width:0;}
+.member-card-info strong, .ranking-player-info strong,
+.followup-person strong, .visitor-person h3,
+.photo-card-content h3, .management-record-top strong,
+.managed-record-heading strong {
+  overflow-wrap:anywhere;
+}
+
+/* Check-in: two clear columns on desktop, one column on phones. */
+.checkin-config.card {
+  display:grid;
+  gap:16px;
+  padding:clamp(17px,2.5vw,26px);
+  border:1px solid var(--jf-glass-edge);
+  border-radius:19px;
+  background:var(--jf-glass);
+  color:var(--jf-text);
+}
+.checkin-fields {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.checkin-fields label, .checkin-form label {
+  display:grid;
+  gap:7px;
+  min-width:0;
+  color:var(--jf-text);
+  font-size:12px;
+  font-weight:750;
+}
+.checkin-fields input, .checkin-fields select,
+.checkin-search input, .checkin-panel input,
+.checkin-panel select {
+  width:100%;
+  min-width:0;
+}
+.checkin-summary article {
+  display:grid;
+  gap:8px;
+  padding:16px;
+  min-width:0;
+  border:1px solid var(--jf-glass-edge);
+  border-radius:16px;
+  background:var(--jf-glass);
+  color:var(--jf-text);
+}
+.checkin-summary article svg {color:var(--jf-accent);}
+.checkin-summary article span {font-size:11px;color:var(--jf-muted);}
+.checkin-summary article strong {font-size:27px;font-weight:900;}
+.checkin-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;}
+.checkin-panel {min-width:0;padding:clamp(15px,2vw,22px);}
+#checkin-qr-reader {
+  width:100%;
+  max-width:100%;
+  overflow:hidden;
+  border:1px solid var(--jf-glass-edge);
+  border-radius:15px;
+  background:#fff;
+}
+#checkin-qr-reader video, #checkin-qr-reader img {
+  display:block;
+  width:100% !important;
+  max-width:100% !important;
+  height:auto !important;
+  object-fit:cover;
+}
+.checkin-qr-result {
+  display:grid;
+  justify-items:center;
+  gap:10px;
+  width:100%;
+  min-width:0;
+  margin:16px 0;
+  padding:17px;
+  border:1px solid var(--jf-glass-edge);
+  border-radius:17px;
+  background:rgba(255,255,255,.08);
+  text-align:center;
+}
+.checkin-qr-result svg {max-width:100%;height:auto;}
+.checkin-list article {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-width:0;
+}
+
+/* Photo cards and preview: keep original aspect ratio without clipping forms. */
+.photo-preview {
+  aspect-ratio:16 / 10;
+  overflow:hidden;
+  background:rgba(115,130,160,.12);
+}
+.photo-preview img, .photo-form-preview {
+  display:block;
+  width:100%;
+  max-width:100%;
+  object-fit:cover;
+}
+.photo-preview img {height:100%;}
+.photo-form-preview {
+  max-height:260px;
+  aspect-ratio:16 / 9;
+  border:1px solid var(--jf-glass-edge);
+  border-radius:14px;
+  background:rgba(115,130,160,.10);
+}
+.photo-card-content {display:flex;flex-direction:column;gap:8px;}
+.photo-card-content h3 {margin:4px 0 0;}
+.photo-card-content p {line-height:1.55;}
+
+/* Modals stay inside the viewport and scroll internally on small screens. */
+.photos-overlay, .visitors-overlay, .devotionals-overlay,
+.member-detail-backdrop, .managed-overlay,
+.weekly-form-backdrop, .followup-modal-backdrop {
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:clamp(10px,3vw,28px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+.photos-modal, .visitors-modal, .devotionals-modal,
+.member-detail-modal, .managed-modal, .weekly-form-modal,
+.followup-modal {
+  width:min(100%,620px);
+  max-width:100%;
+  max-height:min(92svh,900px);
+  min-width:0;
+  margin:auto;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  box-sizing:border-box;
+  border-radius:22px;
+}
+.photos-modal form, .visitors-modal form,
+.devotionals-modal form, .managed-modal form,
+.weekly-form-modal form, .followup-modal form {
+  min-width:0;
+}
+.photos-modal input, .photos-modal textarea,
+.visitors-modal input, .visitors-modal textarea,
+.devotionals-modal input, .devotionals-modal textarea,
+.managed-modal input, .managed-modal textarea,
+.weekly-form-modal input, .weekly-form-modal textarea,
+.followup-modal input, .followup-modal textarea,
+.photos-modal select, .visitors-modal select,
+.devotionals-modal select, .managed-modal select {
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+}
+.photos-modal header, .visitors-modal header,
+.devotionals-modal header, .managed-modal header,
+.weekly-form-modal header, .followup-modal header {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+.photos-modal header > *, .visitors-modal header > *,
+.devotionals-modal header > *, .managed-modal header > *,
+.weekly-form-modal header > *, .followup-modal header > * {min-width:0;}
+
+/* Specific visual gaps found in the youth honor cards. */
+.youth-hall-points, .youth-hall-faithful {
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+.youth-hall-points {gap:13px;}
+.youth-hall-faithful {gap:12px;}
+.youth-podium-list {display:grid;gap:9px;list-style:none;margin:0;padding:0;}
+.youth-podium-list li, .podium-place {
+  display:grid;
+  grid-template-columns:25px minmax(0,1fr) auto;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+.youth-podium-name {min-width:0;overflow-wrap:anywhere;}
+.youth-faithful-list {display:grid;gap:8px;list-style:none;margin:0;padding:0;}
+.youth-faithful-list li {
+  display:grid;
+  grid-template-columns:28px minmax(0,1fr) auto;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+.youth-faithful-name {min-width:0;overflow-wrap:anywhere;}
+
+/* Form fields and tables: predictable sizing across every page. */
+.main input, .main select, .main textarea {
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+}
+.main textarea {min-height:100px;line-height:1.55;resize:vertical;}
+.shared-table-wrapper, .reports-table-wrapper, .management-table-wrapper {
+  max-width:100%;
+  overflow-x:auto;
+  overscroll-behavior-x:contain;
+}
+.shared-table, .reports-table {min-width:600px;}
+.main button {touch-action:manipulation;}
+button:disabled {cursor:not-allowed;opacity:.58;}
+
+/* Mobile screens: no 3D tilt, clipped cards, or narrow tap targets. */
+@media(max-width:900px) {
+  .main {width:100%;padding-inline:clamp(12px,3vw,22px);}
+  .checkin-grid {grid-template-columns:1fr;}
+  .members-grid, .devotionals-grid, .photos-grid,
+  .followup-list, .managed-record-list {
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));
+  }
+  .management-page, .managed-page, .reports-page,
+  .photos-page, .checkin-page, .members-page,
+  .followup-page, .visitors-page, .devotionals-page {
+    max-width:100%;
+  }
+}
+@media(max-width:600px) {
+  .main {padding:13px 11px 26px;}
+  .members-hero, .attendance-header, .followup-header,
+  .visitors-header, .devotionals-hero, .photos-hero,
+  .reports-hero, .checkin-hero, .managed-hero,
+  .management-header {
+    flex-wrap:wrap;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .members-hero > div, .attendance-header > div,
+  .followup-header > div, .visitors-header > div,
+  .devotionals-hero > div, .photos-hero > div,
+  .reports-hero > div, .checkin-hero > div,
+  .managed-hero > div, .management-header > div {
+    flex:1 1 100%;
+  }
+  .members-total-card, .attendance-card, .followup-content,
+  .visitors-content, .devotionals-controls, .reports-card,
+  .checkin-config, .checkin-panel, .management-summary,
+  .management-form, .management-records {
+    padding:14px !important;
+    border-radius:16px !important;
+  }
+  .members-grid, .devotionals-grid, .photos-grid,
+  .followup-list, .managed-record-list {
+    grid-template-columns:1fr;
+  }
+  .attendance-summary, .visitors-stats, .reports-stats,
+  .checkin-summary, .managed-stat-grid {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .checkin-fields {grid-template-columns:1fr;}
+  .checkin-list article {align-items:flex-start;flex-direction:column;gap:5px;}
+  .management-record-top {align-items:flex-start;}
+  .photos-overlay, .visitors-overlay, .devotionals-overlay,
+  .member-detail-backdrop, .managed-overlay,
+  .weekly-form-backdrop, .followup-modal-backdrop {
+    align-items:flex-end;
+    padding:8px;
+  }
+  .photos-modal, .visitors-modal, .devotionals-modal,
+  .member-detail-modal, .managed-modal, .weekly-form-modal,
+  .followup-modal {
+    width:100%;
+    max-height:92svh;
+    border-radius:20px 20px 14px 14px;
+    padding-bottom:max(18px,env(safe-area-inset-bottom));
+  }
+  .photo-form-preview {max-height:200px;}
+  .youth-faithful-list li {grid-template-columns:25px minmax(0,1fr);}
+  .youth-faithful-list li > strong {grid-column:2;text-align:left;white-space:normal;}
+  .youth-podium-list li, .podium-place {grid-template-columns:23px minmax(0,1fr) auto;}
+  .dashboard-stat, .dashboard-shortcut, .dashboard-bottom-note,
+  .dashboard-community-stat, .dashboard-chart-card,
+  .ranking-info-grid article, .ranking-player, .game-card,
+  .profile-card, .selected-profile-panel, .members-total-card,
+  .members-controls, .member-card, .attendance-card,
+  .attendance-member, .followup-stat, .followup-content,
+  .followup-card, .visitors-stat, .visitors-content,
+  .visitor-card, .devotionals-feature, .devotionals-controls,
+  .devotional-card, .photos-stats article, .photo-card,
+  .reports-card, .reports-stats article, .checkin-config,
+  .checkin-panel, .checkin-summary article, .management-summary,
+  .management-form, .management-records, .management-record,
+  .managed-stat, .managed-record, .prayer-admin-card,
+  .weekly-admin-panel, .weekly-admin-item, .youth-hall-card,
+  .youth-activity-card, .youth-store-item, .youth-game-tile,
+  .youth-prayer-panel, .youth-profile-card, .youth-options article {
+    transform:none !important;
+    backface-visibility:visible;
+  }
+}
+@media(max-width:380px) {
+  .attendance-summary, .visitors-stats, .reports-stats,
+  .checkin-summary, .managed-stat-grid {grid-template-columns:1fr;}
+  .main {padding-inline:9px;}
+  .photos-modal, .visitors-modal, .devotionals-modal,
+  .member-detail-modal, .managed-modal, .weekly-form-modal,
+  .followup-modal {padding:14px !important;}
+}
+@media(prefers-reduced-motion:reduce) {
+  .dashboard-stat, .dashboard-shortcut, .dashboard-bottom-note,
+  .dashboard-community-stat, .dashboard-chart-card,
+  .ranking-info-grid article, .ranking-player, .game-card,
+  .profile-card, .selected-profile-panel, .members-total-card,
+  .members-controls, .member-card, .attendance-card,
+  .attendance-member, .followup-stat, .followup-content,
+  .followup-card, .visitors-stat, .visitors-content,
+  .visitor-card, .devotionals-feature, .devotionals-controls,
+  .devotional-card, .photos-stats article, .photo-card,
+  .reports-card, .reports-stats article, .checkin-config,
+  .checkin-panel, .checkin-summary article, .management-summary,
+  .management-form, .management-records, .management-record,
+  .managed-stat, .managed-record, .prayer-admin-card,
+  .weekly-admin-panel, .weekly-admin-item, .youth-hall-card,
+  .youth-activity-card, .youth-store-item, .youth-game-tile,
+  .youth-prayer-panel, .youth-profile-card, .youth-options article {
+    transform:none !important;
+    transition:none !important;
+  }
+}
+@media(prefers-reduced-transparency:reduce) {
+  .dashboard-stat, .dashboard-shortcut, .dashboard-bottom-note,
+  .dashboard-community-stat, .dashboard-chart-card,
+  .members-total-card, .members-controls, .member-card,
+  .attendance-card, .attendance-member, .followup-stat,
+  .followup-content, .followup-card, .visitors-stat,
+  .visitors-content, .visitor-card, .devotionals-feature,
+  .devotionals-controls, .devotional-card, .photos-stats article,
+  .photo-card, .reports-card, .checkin-config, .checkin-panel,
+  .management-summary, .management-form, .management-records,
+  .management-record, .managed-stat, .managed-record,
+  .youth-hall-card, .youth-profile-card, .youth-game-tile {
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    background:var(--jf-surface-2) !important;
+  }
+}
