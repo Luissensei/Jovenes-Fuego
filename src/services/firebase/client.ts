@@ -46,7 +46,8 @@ if (hasMinimumConfig) {
 
   authInstance = getAuth(app);
   dbInstance = getFirestore(app);
-  functionsInstance = getFunctions(app);
+  const functionsRegion = import.meta.env.VITE_FIREBASE_FUNCTIONS_REGION?.trim() || 'us-central1';
+  functionsInstance = getFunctions(app, functionsRegion);
 
   if (
     import.meta.env.DEV &&
@@ -63,6 +64,7 @@ export const firebaseConfigured = Boolean(
 );
 
 export const firebaseProjectId = rawProjectId || null;
+export const firebaseFunctionsRegion = import.meta.env.VITE_FIREBASE_FUNCTIONS_REGION?.trim() || 'us-central1';
 export const auth: Auth | null = authInstance;
 export const db: Firestore | null = dbInstance;
 export const functions: Functions | null = functionsInstance;
