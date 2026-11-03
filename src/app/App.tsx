@@ -24,7 +24,7 @@ import { modules } from './modules';
 import { firebaseProjectId } from '../services/firebase/client';
 import { AuthProvider, useAuth } from './AuthContext';
 
-import { LoadingScreen, PlayerAvatar } from '../components/gaming/GamingUI';
+import { LoadingScreen } from '../components/gaming/GamingUI';
 
 const LoginPage = lazy(() => import('./LoginPage').then((module) => ({ default: module.LoginPage })));
 const MembersPage = lazy(() => import('./MembersPage').then((module) => ({ default: module.MembersPage })));
