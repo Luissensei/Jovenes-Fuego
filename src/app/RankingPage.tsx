@@ -29,6 +29,7 @@ import {
 } from '../services/publicProfiles';
 
 import TriviaGame from './TriviaGame';
+import VerseGame from './VerseGame';
 
 type Tab = 'ranking' | 'games' | 'profiles';
 
@@ -49,7 +50,7 @@ const games = [
     detail: 'Pon a prueba tu memoria bíblica.',
     icon: Star,
     color: 'purple',
-    available: false,
+    available: true,
   },
   {
     id: 'memory',
@@ -378,6 +379,10 @@ export default function RankingPage({
 
           {activeGame === 'trivia' ? (
             <TriviaGame
+              onExit={() => setActiveGame(null)}
+            />
+          ) : activeGame === 'verse' ? (
+            <VerseGame
               onExit={() => setActiveGame(null)}
             />
           ) : (
