@@ -248,7 +248,7 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
                 <input
                   type="number"
                   min="1"
-                  max="10000"
+                  max="1000"
                   value={points}
                   onChange={(e) => setPoints(e.target.value)}
                   required
