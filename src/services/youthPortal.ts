@@ -146,6 +146,7 @@ export async function getHallOfFame(): Promise<{
         points: Number.isFinite(points) && points >= 0 ? points : 0,
       }];
     })
+    .sort((a, b) => b.points - a.points)
     .slice(0, 3);
 
   const faithful = (Array.isArray(ranking?.fiel) ? ranking.fiel : [])
@@ -164,6 +165,7 @@ export async function getHallOfFame(): Promise<{
           : 0,
       }];
     })
+    .sort((a, b) => b.attendances - a.attendances)
     .slice(0, 10);
 
   return {topPlayers, faithful, attendanceLimited: false};
