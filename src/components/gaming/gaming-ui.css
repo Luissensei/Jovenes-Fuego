@@ -60,3 +60,8 @@
 .jf-sidebar{display:flex;flex-direction:column;min-width:0;padding:1rem;border:1px solid var(--jf-border);border-radius:20px;background:var(--jf-panel);backdrop-filter:blur(18px)}
 @media(max-width:560px){.jf-player-profile-card__top{align-items:flex-start;flex-wrap:wrap}.jf-player-profile-card__level{margin-left:auto}.jf-background-effects__orb{filter:blur(55px)}}
 @media(prefers-reduced-motion:reduce){.jf-animated-card{transition:none}.jf-animated-card:hover{transform:none}}
+
+.jf-button::after{content:"";position:absolute;left:50%;top:50%;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.42);opacity:0;transform:translate(-50%,-50%) scale(0);pointer-events:none}
+.jf-button:active:not(:disabled)::after{animation:jf-ripple .48s ease-out}
+@keyframes jf-ripple{0%{opacity:.5;transform:translate(-50%,-50%) scale(0)}100%{opacity:0;transform:translate(-50%,-50%) scale(12)}}
+@media(prefers-reduced-motion:reduce){.jf-button:active:not(:disabled)::after{animation:none;opacity:0}}
