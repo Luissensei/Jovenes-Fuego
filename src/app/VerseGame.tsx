@@ -84,8 +84,10 @@ const questions: Question[] = [
 
 export default function VerseGame({
   onExit,
+  playerName,
 }: {
   onExit: () => void;
+  playerName?: string;
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -149,6 +151,7 @@ export default function VerseGame({
 
         <h2>Completa el versículo</h2>
         <p>Demuestra cuánto recuerdas de las Escrituras.</p>
+        {playerName && <small>Jugando como {playerName}</small>}
       </header>
 
       {!finished ? (
@@ -292,6 +295,9 @@ export default function VerseGame({
                   ? 'Vas por buen camino. Sigue estudiando la Palabra.'
                   : '¡No te rindas! Practica y vuelve a intentarlo.'}
           </div>
+          <p className="verse-instruction">
+            Puntuación de práctica: todavía no se guarda en el ranking.
+          </p>
 
           <div className="verse-result-actions">
             <button
