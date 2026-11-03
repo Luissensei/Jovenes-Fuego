@@ -11,7 +11,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 
-import { db } from '../firebase/client';
+import { assertFirebaseWritesAllowed, db } from '../firebase/client';
 import { COLLECTIONS } from './collections';
 
 export type DevotionalRecord = {
@@ -58,6 +58,8 @@ function validateDevotional(data: CreateDevotionalInput) {
 export async function createDevotional(
   input: CreateDevotionalInput,
 ): Promise<string> {
+  assertFirebaseWritesAllowed();
+
   if (!db) {
     throw new Error('Firebase Firestore no está configurado.');
   }
@@ -129,6 +131,8 @@ export function subscribeDevotionals(
 }
 
 export async function deleteDevotional(id: string): Promise<void> {
+  assertFirebaseWritesAllowed();
+
   if (!db) {
     throw new Error('Firebase Firestore no está configurado.');
   }
