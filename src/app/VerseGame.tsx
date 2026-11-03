@@ -1,3 +1,4 @@
+import {playGameTone} from './gameAudio';
 import { useState } from 'react';
 import { bibleVerseChallenges, type VerseChallenge } from './bibleQuestionBank';
 import {
@@ -41,6 +42,7 @@ export default function VerseGame({
     if (selectedAnswer !== null) return;
 
     setSelectedAnswer(option);
+    playGameTone(option === currentQuestion.answer ? 'success' : 'incorrect');
 
     if (option === currentQuestion.answer) {
       setScore((previous) => previous + 10);
