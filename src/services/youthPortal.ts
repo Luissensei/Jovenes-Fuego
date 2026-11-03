@@ -51,13 +51,14 @@ export type AdminMemberPatch = {
   from?: string;
   bd?: string;
   ap?: string;
+  bau?: string;
   br?: string;
   mn?: string;
   nt?: string;
   con?: string;
   dis?: string;
   pic?: string;
-  ac?: boolean;
+  ac?: string;
   nopub?: boolean;
 };
 
