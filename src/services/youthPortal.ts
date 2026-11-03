@@ -1,7 +1,6 @@
-import {collection, doc, getDoc, getDocs} from 'firebase/firestore';
-import {httpsCallable} from 'firebase/functions';
+import {addDoc, collection, doc, getDoc, getDocs, setDoc, updateDoc} from 'firebase/firestore';
 
-import {db, functions} from './firebase/client';
+import {db} from './firebase/client';
 
 export type WeeklyActivity = {
   id: string;
@@ -30,9 +29,19 @@ export type FaithfulPlayer = {
 };
 
 export type PrayerRequestInput = {
+  memberId: string;
   requester: string;
   category: string;
   message: string;
+};
+
+export type YouthProfileAppearance = {
+  frame: string;
+  avatar: string;
+  background: string;
+  title: string;
+  ownedItems: string[];
+  flames: number;
 };
 
 export type AdminMemberPatch = {
@@ -85,18 +94,6 @@ async function getLegacyPublicRanking(): Promise<LegacyPublicRanking | null> {
   if (data.off === true) return null;
 
   return data as LegacyPublicRanking;
-}
-
-async function call<T>(name: string, payload: unknown = {}): Promise<T> {
-  if (!functions) {
-    throw new Error(
-      'Esta operación todavía requiere Firebase Functions y no está habilitada en el modo de solo lectura.',
-    );
-  }
-
-  const callable = httpsCallable<unknown, T>(functions, name);
-  const result = await callable(payload);
-  return result.data;
 }
 
 /**
@@ -172,28 +169,92 @@ export async function getHallOfFame(): Promise<{
 }
 
 export async function getAdminWeeklyActivities(): Promise<WeeklyActivity[]> {
-  const result = await call<{activities: WeeklyActivity[]}>(
-    'adminListWeeklyActivities',
-  );
-  return result.activities ?? [];
+  if (!db) throw new Error('Firebase Firestore no está configurado.');
+  const snapshot = await getDocs(collection(db, 'events'));
+  const items = snapshot.docs.flatMap((item) => {
+    const data = item.data();
+    const title = typeof data.t === 'string' ? data.t.trim() : '';
+    const date = typeof data.d === 'string' ? data.d : '';
+    if (!title || !/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) return [];
+    return [{
+      id: item.id,
+      title,
+      description: typeof data.n === 'string' ? data.n : '',
+      date,
+      time: typeof data.h === 'string' ? data.h : '',
+      location: typeof data.p === 'string' ? data.p : '',
+      published: data.published !== false,
+    }];
+  });
+  if (items.length) return items.sort((a, b) => a.date.localeCompare(b.date));
+  return getWeeklyActivities();
 }
 
 export async function saveWeeklyActivity(
   activity: Omit<WeeklyActivity, 'id'> & {id?: string},
 ): Promise<void> {
-  await call<{success: boolean; id: string}>(
-    'adminSaveWeeklyActivity',
-    activity,
-  );
+  if (!db) throw new Error('Firebase Firestore no está configurado.');
+  const payload = {
+    t: activity.title.trim(),
+    d: activity.date,
+    h: activity.time.trim(),
+    p: activity.location.trim(),
+    n: activity.description.trim(),
+    published: activity.published,
+  };
+  let eventId = activity.id;
+  if (eventId && !eventId.startsWith('legacy-event-')) {
+    await setDoc(doc(db, 'events', eventId), payload, {merge: true});
+  } else {
+    const created = await addDoc(collection(db, 'events'), {
+      ...payload, cf: {}, pg: {}, q: 0,
+    });
+    eventId = created.id;
+  }
+
+  // El portal juvenil lee únicamente el documento público existente.
+  // Actualizamos solo su campo ev y conservamos el resto del ranking.
+  const rankingRef = doc(db, 'public', 'ranking');
+  const rankingSnapshot = await getDoc(rankingRef);
+  if (!rankingSnapshot.exists()) {
+    throw new Error('No existe public/ranking para publicar actividades.');
+  }
+  const current = rankingSnapshot.data();
+  const currentEvents = Array.isArray(current.ev)
+    ? current.ev.filter((entry): entry is Record<string, unknown> =>
+        Boolean(entry) && typeof entry === 'object')
+    : [];
+  const nextEvents = currentEvents.filter((entry) =>
+    !(entry.t === payload.t && entry.d === payload.d));
+  if (activity.published) {
+    nextEvents.push({t: payload.t, d: payload.d, h: payload.h, p: payload.p});
+  }
+  await updateDoc(rankingRef, {ev: nextEvents, u: Date.now()});
 }
 
-export async function sendPrayerRequest(
-  input: PrayerRequestInput,
-): Promise<void> {
-  await call<{success: boolean; id: string}>(
-    'submitPublicPrayerRequest',
-    input,
-  );
+export async function sendPrayerRequest(input: PrayerRequestInput): Promise<void> {
+  if (!db) throw new Error('Firebase Firestore no está configurado.');
+  const memberId = input.memberId.trim();
+  const requester = input.requester.trim().slice(0, 59) || 'Anónimo';
+  const message = input.message.trim();
+  const category = input.category.trim().slice(0, 40) || 'General';
+  if (!memberId || memberId.length >= 40 || memberId.startsWith('public-profile-')) {
+    throw new Error('Este perfil no está vinculado a un registro de joven válido.');
+  }
+  if (message.length < 3 || message.length > 500) {
+    throw new Error('La petición debe tener entre 3 y 500 caracteres.');
+  }
+  const now = new Date();
+  const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const id = `i${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
+  await setDoc(doc(db, 'inbox', id), {
+    k: 'p',
+    i: memberId,
+    n: requester,
+    t: `[${category}] ${message}`.slice(0, 600),
+    d: date,
+    c: Date.now(),
+  });
 }
 
 export async function getMembersForAdministration(): Promise<MemberAdminRecord[]> {
@@ -214,19 +275,63 @@ export async function updateMemberForAdministration(
   memberId: string,
   patch: AdminMemberPatch,
 ): Promise<void> {
-  await call('adminUpdateMember', {memberId, patch});
+  if (!db) throw new Error('Firebase Firestore no está configurado.');
+  await updateDoc(doc(db, 'members', memberId), patch);
 }
 
 export async function getPrayerRequestsForAdministration(): Promise<AdminPrayerRequest[]> {
-  const result = await call<{petitions: AdminPrayerRequest[]}>(
-    'adminGetPrayerRequests',
-  );
-  return result.petitions ?? [];
+  if (!db) throw new Error('Firebase Firestore no está configurado.');
+  const snapshot = await getDocs(collection(db, 'inbox'));
+  return snapshot.docs.flatMap((item) => {
+    const data = item.data();
+    if (data.k !== 'p') return [];
+    const raw = typeof data.t === 'string' ? data.t : '';
+    const categoryMatch = raw.match(/^\\[([^\\]]{1,40})\\]\\s*/);
+    const timestamp = typeof data.c === 'number'
+      ? new Date(data.c).toISOString()
+      : typeof data.d === 'string' ? data.d : '';
+    return [{
+      id: item.id,
+      requester: typeof data.n === 'string' ? data.n : 'Anónimo',
+      category: categoryMatch?.[1] ?? 'General',
+      message: categoryMatch ? raw.slice(categoryMatch[0].length) : raw,
+      status: 'Pendiente',
+      createdAt: timestamp,
+    }];
+  }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 export async function updatePrayerRequestStatus(
   id: string,
   status: string,
 ): Promise<void> {
-  await call('adminUpdatePrayerStatus', {id, status});
+  void id; void status;
+  throw new Error('La bandeja de entrada original permite recibir y consultar peticiones, pero sus reglas no permiten cambiarles el estado.');
+}
+
+/** Guarda la personalización en photos/{memberId}, siguiendo el esquema y las reglas históricas. */
+export async function saveYouthProfileAppearance(
+  memberId: string,
+  appearance: YouthProfileAppearance,
+): Promise<void> {
+  if (!db) throw new Error('Firebase Firestore no está configurado.');
+  if (!memberId || memberId.length >= 40 || memberId.startsWith('public-profile-')) {
+    throw new Error('Este perfil no está vinculado a un registro de joven válido.');
+  }
+  const photoRef = doc(db, 'photos', memberId);
+  const existing = await getDoc(photoRef);
+  const values = {
+    f: appearance.frame,
+    a: appearance.avatar,
+    b: appearance.background,
+    t: appearance.title,
+    u: appearance.ownedItems.slice(0, 400),
+    w: Math.max(0, Math.min(100000, appearance.flames)),
+    c: Date.now(),
+  };
+  if (existing.exists()) {
+    await updateDoc(photoRef, values);
+  } else {
+    await setDoc(photoRef, {p: '', ...values});
+  }
 }
