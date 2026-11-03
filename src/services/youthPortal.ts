@@ -280,10 +280,20 @@ export async function getMembersForAdministration(): Promise<MemberAdminRecord[]
 
   // El directorio original vive directamente en members; no depende de
   // Firebase Functions, que no están desplegadas en el proyecto original.
-  const snapshot = await getDocs(collection(db, 'members'));
-  return snapshot.docs.map((item) => ({
+  const [membersSnapshot, photosSnapshot] = await Promise.all([
+    getDocs(collection(db, 'members')),
+    getDocs(collection(db, 'photos')),
+  ]);
+  const photos = new Map(
+    photosSnapshot.docs.map((item) => [
+      item.id,
+      typeof item.data().p === 'string' ? item.data().p : '',
+    ]),
+  );
+  return membersSnapshot.docs.map((item) => ({
     ...(item.data() as AdminMemberPatch),
     id: item.id,
+    pic: photos.get(item.id) || (typeof item.data().pic === 'string' ? item.data().pic : ''),
   }));
 }
 
