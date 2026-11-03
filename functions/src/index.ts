@@ -717,7 +717,9 @@ export const getVisitors = onCall(async (request) => {
         : "",
       date: text(data.date, 10),
       source: text(data.source, 120),
-      notes: text(data.notes, 1000),
+      notes: role === "admin" || role === "administrador" || role === "pastor"
+        ? text(data.notes, 1000)
+        : "",
       status: visitorStatuses.includes(String(data.status))
         ? String(data.status)
         : "Nuevo",
@@ -949,8 +951,9 @@ export const getManagedRecords = onCall(async (request) => {
   const items = snapshot.docs.map((document) => {
     const data = document.data();
     const fields: Record<string, string> = {};
-    for (const field of Object.keys(config.fields)) {
-      fields[field] = text(data[field], config.fields[field]);
+    const fieldLimits = config.fields as Record<string, number>;
+    for (const field of Object.keys(fieldLimits)) {
+      fields[field] = text(data[field], fieldLimits[field]);
     }
     return {
       ...fields,
