@@ -169,3 +169,10 @@ Se han implementado en esta rama las siguientes migraciones de datos:
 El código de esta rama ha generado workflows de validación de frontend y Functions, pero sus ejecuciones más recientes están en cola. Vercel ha devuelto el estado build-rate-limit, que es un límite de builds del proveedor y no un error TypeScript. Ninguna de estas condiciones se considera una compilación aprobada.
 
 No se han desplegado Functions, reglas ni Hosting desde esta conversación. No se ha tocado producción. Firestore Rules permanecen cerradas.
+
+
+### Actualización adicional del panel y la instalación
+
+- El panel principal ahora consume getDashboardSummary y muestra indicadores reales con respuesta distinta según el rol. Las cuentas juveniles solo reciben agregados públicos; no ven métricas internas de seguimiento, visitantes o peticiones.
+- La aplicación ya cuenta con manifest, iconos instalables y service worker. El service worker está limitado a la carcasa estática y recursos del mismo origen; no almacena respuestas de Firebase ni documentos privados. Se añadió el icono de inicio de iOS.
+- El repositorio conserva una capa de compatibilidad para subscribeMembers, pero ahora obtiene los datos a través de la callable protegida en lugar de Firestore directo.
