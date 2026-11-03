@@ -2080,3 +2080,16 @@ button:not(:disabled):active {
   border-radius: 12px;
   color: var(--muted, inherit);
 }
+
+
+.ranking-local-score-note {
+  max-width: 760px;
+  margin-top: 10px;
+  padding: 11px 13px;
+  border-left: 3px solid var(--accent, #e58a44);
+  border-radius: 8px;
+  background: var(--surface, rgba(255,255,255,.05));
+  font-size: 13px;
+  line-height: 1.55;
+  opacity: .9;
+}
