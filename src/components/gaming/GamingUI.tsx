@@ -218,7 +218,6 @@ export function PlayerProfileCard({
   points?: number;
   badges?: ReactNode;
 }) {
-  const hasExperience = typeof xp === 'number' && typeof xpToNext === 'number' && xpToNext > 0;
   return (
     <GlassCard className="jf-player-profile-card">
       <div className="jf-player-profile-card__top">
@@ -239,7 +238,9 @@ export function PlayerProfileCard({
           <strong>{Math.max(0, points).toLocaleString('es-CO')}</strong>
         </div>
       )}
-      {hasExperience && <ExperienceBar value={xp!} max={xpToNext!} />}
+      {typeof xp === 'number' && typeof xpToNext === 'number' && xpToNext > 0 && (
+        <ExperienceBar value={xp} max={xpToNext} />
+      )}
       {badges && <div className="jf-player-profile-card__badges">{badges}</div>}
     </GlassCard>
   );
