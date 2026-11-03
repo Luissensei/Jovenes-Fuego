@@ -188,12 +188,13 @@ export function AuthProvider({
       error,
 
       async login(email, password) {
-        if (!firebaseConfigured || !auth) {
+        if (!firebaseConfigured || !auth || !db) {
           throw new Error(
             'Firebase no está configurado. Comprueba las variables de entorno.',
           );
         }
 
+        const firestore = db;
         setError(null);
 
         try {
@@ -207,7 +208,7 @@ export function AuthProvider({
 
             try {
               const usernameLookup = await getDoc(
-                doc(db, 'public', `al_${identifier}`),
+                doc(firestore, 'public', `al_${identifier}`),
               );
               const mappedEmail = usernameLookup.data()?.e;
               if (
