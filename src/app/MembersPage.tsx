@@ -215,7 +215,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
         </div>
       )}
 
-      <footer className="members-footer"><span/>Datos consultados mediante una función protegida · Acceso administrativo</footer>
+      <footer className="members-footer"><span/>Datos consultados desde Firestore · Acceso sujeto a las reglas administrativas</footer>
 
       {selectedMember && detailMinimized && (
         <button type="button" className="member-detail-minimized" onClick={() => setDetailMinimized(false)}>
