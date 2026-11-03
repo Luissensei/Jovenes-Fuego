@@ -1021,7 +1021,6 @@ export const bibleQuestionBank: BibleQuestion[] = [
     "hint": "El cántico celebra la liberación de Egipto.",
     "level": "Avanzado"
   },
-[
   {
     id: "jf-064",
     question: "¿Qué señal puso Dios en las nubes como pacto después del diluvio?",
@@ -1614,7 +1613,6 @@ export const bibleQuestionBank: BibleQuestion[] = [
     hint: "También se le conoce como Leví.",
     level: "Intermedio"
   }
-]
 ];
 
 export type VerseChallenge = {
@@ -1950,7 +1948,6 @@ export const bibleVerseChallenges: VerseChallenge[] = [
     "answer": "Bueno",
     "explanation": "El salmo invita a confiar en la bondad de Dios."
   },
-[
   {
     reference: "Salmo 119:105",
     prompt: "El salmista compara la palabra de Dios con una lámpara a mis pies y una...",
@@ -2107,7 +2104,6 @@ export const bibleVerseChallenges: VerseChallenge[] = [
     answer: "Dios",
     explanation: "El salmo llama a reconocer la soberanía de Dios."
   }
-]
 ];
 
 export function shuffleBibleQuestions<T>(items: T[]): T[] {
