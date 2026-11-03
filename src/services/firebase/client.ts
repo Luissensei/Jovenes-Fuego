@@ -3,8 +3,7 @@ import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import type { Functions } from 'firebase/functions';
 
-// Firebase original de Jóvenes de Fuego.
-// La conexión está configurada en modo de lectura desde la interfaz.
+// Firebase original: respaldo de lectura cuando no se proporciona un entorno.
 const originalConfig = {
   apiKey: 'AIzaSyA3jQcyTX6q1D5ior7j3zJUfaQy_31RQ88',
   authDomain: 'jovenes-de-fuego.firebaseapp.com',
@@ -14,10 +13,30 @@ const originalConfig = {
   appId: '1:222344810816:web:91898b0e914ce5f40b6aa5',
 };
 
-// El proyecto destino es fijo: la base original de Jóvenes de Fuego.
-// No permitimos que variables antiguas de staging cambien el proyecto.
-const config = originalConfig;
+const env = import.meta.env;
+const hasCompleteEnvironmentConfig = Boolean(
+  env.VITE_FIREBASE_API_KEY?.trim()
+  && env.VITE_FIREBASE_AUTH_DOMAIN?.trim()
+  && env.VITE_FIREBASE_PROJECT_ID?.trim()
+  && env.VITE_FIREBASE_APP_ID?.trim(),
+);
 
+const config = hasCompleteEnvironmentConfig
+  ? {
+      apiKey: env.VITE_FIREBASE_API_KEY,
+      authDomain: env.VITE_FIREBASE_AUTH_DOMAIN,
+      projectId: env.VITE_FIREBASE_PROJECT_ID,
+      storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || originalConfig.storageBucket,
+      messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || originalConfig.messagingSenderId,
+      appId: env.VITE_FIREBASE_APP_ID,
+    }
+  : originalConfig;
+
+// El proyecto original nunca acepta escrituras desde esta aplicación.
+// Staging puede habilitarlas de forma explícita en sus variables de entorno.
+const isOriginalProject = config.projectId === originalConfig.projectId;
+export const firebaseReadOnlyMode = isOriginalProject
+  || env.VITE_FIREBASE_READ_ONLY_PRODUCTION === 'true';
 
 let app: FirebaseApp | null = null;
 let authInstance: Auth | null = null;
@@ -28,24 +47,23 @@ app = getApps()[0] ?? initializeApp(config);
 authInstance = getAuth(app);
 dbInstance = getFirestore(app);
 
-// Do not initialize production callable Functions from this frontend.
+// Las funciones callable no se inicializan desde este frontend.
 functionsInstance = null;
 
 export const firebaseConfigured = Boolean(app && authInstance && dbInstance);
-export const firebaseProjectId = originalConfig.projectId;
-export const firebaseReadOnlyMode = originalConfig.projectId === 'jovenes-de-fuego';
+export const firebaseProjectId = config.projectId;
 export const auth: Auth | null = authInstance;
 export const db: Firestore | null = dbInstance;
 export const functions: Functions | null = functionsInstance;
 
 /**
- * Frontend guard only. Firestore rules are still the final authority.
- * Do not remove this guard or add writes to the original project.
+ * El cliente impide escrituras en producción. Firestore Rules siguen siendo
+ * la autoridad final también cuando se habilita el proyecto de Staging.
  */
 export function assertFirebaseWritesAllowed(): void {
   if (firebaseReadOnlyMode) {
     throw new Error(
-      'La base original está protegida en modo de solo lectura. Conecta y prueba Staging antes de habilitar escrituras.',
+      'La base original está protegida en modo de solo lectura. Conecta Staging y habilita sus escrituras para probar esta función.',
     );
   }
 }
