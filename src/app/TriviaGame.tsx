@@ -1,3 +1,4 @@
+import {playGameTone} from './gameAudio';
 
 import { useEffect, useState } from 'react';
 import { bibleQuestionBank, shuffleBibleQuestions, type BibleQuestion } from './bibleQuestionBank';
@@ -97,6 +98,7 @@ export default function TriviaGame({ onExit }: Props) {
     if (selected !== null || finished) return;
 
     setSelected(index);
+    playGameTone(index === question.answer ? 'success' : 'incorrect');
 
     if (index === question.answer) {
       const newStreak = streak + 1;
