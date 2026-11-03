@@ -1,5 +1,12 @@
-import {httpsCallable} from "firebase/functions";
-import {functions} from "./firebase/client";
+import {
+  collection,
+  getDocs,
+  limit,
+  query,
+  where,
+} from 'firebase/firestore';
+
+import {db} from './firebase/client';
 
 export type PublicProfile = {
   id: string;
@@ -9,34 +16,54 @@ export type PublicProfile = {
   points: number;
 };
 
-type PublicProfilesResponse = {profiles: PublicProfile[]};
-
 export async function getPublicProfiles(): Promise<PublicProfile[]> {
-  if (!functions) {
-    throw new Error("Firebase Functions no está configurado en este entorno.");
+  if (!db) {
+    throw new Error('Firebase Firestore no está configurado.');
   }
 
   try {
-    const callable = httpsCallable<Record<string, never>, PublicProfilesResponse>(
-      functions,
-      "getPublicProfiles",
+    // Only the curated public collection is queried. Never read members
+    // here because those documents can contain private contact information.
+    // An explicit nopub=false filter also lets Firestore Rules enforce
+    // visibility for the no-password profile selector.
+    const profilesQuery = query(
+      collection(db, 'publicProfiles'),
+      where('nopub', '==', false),
+      limit(200),
     );
-    const response = await callable({});
-    return (response.data.profiles ?? []).map((profile) => ({
-      id: String(profile.id),
-      name: String(profile.name || profile.nick || "Perfil sin nombre"),
-      nick: String(profile.nick ?? ""),
-      pic: typeof profile.pic === "string" && profile.pic.startsWith("https://")
-        ? profile.pic
-        : "",
-      points: Number.isFinite(Number(profile.points)) && Number(profile.points) >= 0
-        ? Number(profile.points)
-        : 0,
-    }));
+
+    const snapshot = await getDocs(profilesQuery);
+
+    return snapshot.docs.map((profileDoc) => {
+      const data = profileDoc.data();
+      const rawPoints = Number(data.points ?? data.puntos ?? 0);
+      const pic = typeof data.pic === 'string' &&
+        data.pic.startsWith('https://')
+        ? data.pic
+        : '';
+
+      return {
+        id: profileDoc.id,
+        name: String(data.name || data.nick || 'Perfil sin nombre'),
+        nick: typeof data.nick === 'string' ? data.nick : '',
+        pic,
+        points: Number.isFinite(rawPoints) && rawPoints >= 0
+          ? rawPoints
+          : 0,
+      };
+    });
   } catch (error) {
-    console.error("Error consultando perfiles públicos:", error);
+    const firebaseError = error as {code?: string};
+    console.error('Error consultando perfiles públicos:', error);
+
+    if (firebaseError.code === 'permission-denied') {
+      throw new Error(
+        'Firestore no permite consultar los perfiles públicos. Revisa las reglas existentes de publicProfiles.',
+      );
+    }
+
     throw new Error(
-      "No se pudieron cargar los perfiles. Comprueba que las funciones de Staging estén desplegadas.",
+      'No se pudieron cargar los perfiles públicos directamente desde Firestore.',
     );
   }
 }
