@@ -32,7 +32,8 @@ Este documento registra el esquema observado en el código legado. Es un contrat
 | `events/{id}` | `t`, `d`, `h`, `p`, `n`, `by`, `cf`, `pg`, `q` | Pendiente. |
 | `settings/main` | ajustes anidados, incluyendo `pub`, `pts`, `goal`, `rt`, `jw` | Pendiente. |
 | `checkins/{code}_{memberId}` | `m`, `d`, `s`, `c`, `t` | Pendiente; no implementar sin validar el flujo QR y sus reglas. |
-| `public/ranking` | resumen agregado del ranking | Pendiente. |
+| `public/ranking` | resumen agregado del ranking | Pendiente de validar con los datos originales. |
+| `publicProfiles/{memberId}` | proyección pública `name`, `nick`, `pic` y `points` opcional | Usada por el selector y la clasificación; lectura mediante callable allowlisted. No se escribe desde el frontend. Su origen y sincronización con los miembros todavía deben validarse. |
 | `photos/{memberId}` | avatar, accesorios, saldo y puntos | Pendiente; validar titularidad y reglas. |
 | `fotoPend/{memberId}` | `p`, `c` | Pendiente. |
 | `bonus/{id}` | `m`, `p`, `why`, `d`, `u`, `c` | Pendiente. |
