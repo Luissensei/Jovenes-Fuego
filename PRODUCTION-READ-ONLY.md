@@ -75,7 +75,9 @@ match /users/{uid} {
 }
 
 match /publicProfiles/{profileId} {
-  allow get, list: if resource.data.nopub == false;
+  allow get: if resource.data.nopub == false;
+  allow list: if resource.data.nopub == false
+    && request.query.limit <= 200;
   allow create, update, delete: if false;
 }
 ```
