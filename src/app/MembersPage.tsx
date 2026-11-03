@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState} from 'react';
 import type {FormEvent} from 'react';
 import {
   AlertCircle, Search, Users, RefreshCw, CalendarDays, Phone,
-  UserRound, Flame, X, Save, Edit3, ShieldCheck, MapPin, Minimize2, Maximize2,
+  UserRound, Flame, X, Save, Edit3, ShieldCheck, MapPin, Minimize2, Maximize2, Camera,
 } from 'lucide-react';
 import {firebaseConfigured} from '../services/firebase/client';
 import {
@@ -34,7 +34,6 @@ const editableFields: EditableField[] = [
   {key: 'dis', label: 'Fecha de discipulado completado', type: 'date'},
   {key: 'mn', label: 'Ministerio o grupo'},
   {key: 'nt', label: 'Notas administrativas', multiline: true},
-  {key: 'pic', label: 'URL de fotografía', type: 'url'},
   {key: 'nopub', label: 'Ocultar perfil en el portal público', boolean: true},
 ];
 
@@ -45,6 +44,7 @@ function initials(name?: string) {
 
 function toDraft(member: MemberAdminRecord): AdminMemberPatch {
   const draft: AdminMemberPatch = {};
+  if (typeof member.pic === 'string') draft.pic = member.pic;
   editableFields.forEach(({key}) => {
     const value = member[key];
     if (typeof value === 'string' || typeof value === 'boolean') {
@@ -54,10 +54,14 @@ function toDraft(member: MemberAdminRecord): AdminMemberPatch {
   return draft;
 }
 
+function memberImage(value: unknown): string {
+  return typeof value === 'string' && (/^https:\/\//i.test(value) || /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(value))
+    ? value : '';
+}
+
 function MemberAvatar({member}: {member: MemberAdminRecord}) {
   const [failed, setFailed] = useState(false);
-  const image = typeof member.pic === 'string' && (/^https:\/\//i.test(member.pic) || /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(member.pic))
-    ? member.pic : '';
+  const image = memberImage(member.pic);
 
   return (
     <div className="member-avatar">
@@ -77,6 +81,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
   const [detailMinimized, setDetailMinimized] = useState(false);
   const [draft, setDraft] = useState<AdminMemberPatch>({});
   const [saving, setSaving] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
   const [message, setMessage] = useState('');
 
   async function loadMembers() {
@@ -129,6 +134,30 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
 
   function changeBoolean(key: keyof AdminMemberPatch, value: boolean) {
     setDraft((current) => ({...current, [key]: value}));
+  }
+
+  async function choosePhoto(file?: File) {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Selecciona un archivo de imagen válido.');
+      return;
+    }
+    setPhotoBusy(true);
+    setError('');
+    try {
+      const imageData = await compressMemberPhoto(file);
+      setDraft((current) => ({...current, pic: imageData}));
+      setMessage('Fotografía preparada. Guarda los cambios para publicarla en el perfil.');
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'No se pudo procesar la fotografía.');
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
+
+  function removePhoto() {
+    setDraft((current) => ({...current, pic: ''}));
+    setMessage('La fotografía se quitará al guardar la ficha.');
   }
 
   async function saveMember(event: FormEvent<HTMLFormElement>) {
@@ -229,8 +258,9 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
         <div className="member-detail-backdrop" role="presentation" onMouseDown={(event) => {if (event.target === event.currentTarget) closeMember();}}>
           <section className="member-detail-modal" role="dialog" aria-modal="true" aria-labelledby="member-detail-title">
             <header className="member-detail-header">
-              <div className="member-detail-avatar">{initials(String(draft.name ?? selectedMember.name))}</div>
+              <div className="member-detail-avatar">{memberImage(draft.pic) ? <img src={memberImage(draft.pic)} alt={String(draft.name ?? selectedMember.name)}/> : initials(String(draft.name ?? selectedMember.name))}</div>
               <div><span>FICHA DE LA COMUNIDAD</span><h2 id="member-detail-title">{String(selectedMember.name ?? 'Joven')}</h2><small>ID: {selectedMember.id}{typeof selectedMember.created === 'string' || typeof selectedMember.created === 'number' ? ` · Registro: ${String(selectedMember.created)}` : ''}</small></div>
+              {canEdit && <div className="member-detail-photo-actions"><label><Camera size={15}/>{photoBusy ? 'Procesando...' : 'Cambiar foto'}<input type="file" accept="image/*" disabled={photoBusy || saving} onChange={(event) => {const file = event.target.files?.[0]; if (file) void choosePhoto(file); event.currentTarget.value = '';}}/></label>{draft.pic && <button type="button" onClick={removePhoto} disabled={saving || photoBusy}>Quitar</button>}</div>}
               <div className="member-detail-window-actions">
                 <button type="button" onClick={() => setDetailMinimized(true)} aria-label="Minimizar ficha"><Minimize2 size={18}/></button>
                 <button type="button" onClick={closeMember} aria-label="Cerrar ficha"><X size={20}/></button>
