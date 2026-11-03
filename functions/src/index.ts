@@ -709,15 +709,18 @@ export const getVisitors = onCall(async (request) => {
     return [{
       id: document.id,
       name: text(data.name, 120),
-      phone: role === "admin" || role === "administrador" || role === "pastor"
+      phone: role === "admin" || role === "administrador" || role === "pastor" ||
+        data.createdBy === request.auth?.uid
         ? text(data.phone, 40)
         : "",
-      email: role === "admin" || role === "administrador" || role === "pastor"
+      email: role === "admin" || role === "administrador" || role === "pastor" ||
+        data.createdBy === request.auth?.uid
         ? text(data.email, 160)
         : "",
       date: text(data.date, 10),
       source: text(data.source, 120),
-      notes: role === "admin" || role === "administrador" || role === "pastor"
+      notes: role === "admin" || role === "administrador" || role === "pastor" ||
+        data.createdBy === request.auth?.uid
         ? text(data.notes, 1000)
         : "",
       status: visitorStatuses.includes(String(data.status))
@@ -946,7 +949,11 @@ export const getManagedRecords = onCall(async (request) => {
   }
   const kind = request.data?.kind as ManagedKind;
   const config = managedCollectionConfig(kind);
-  await requireAuthorizedRole(request.auth.uid);
+  if (kind === "inbox") {
+    await requireAdminOrPastor(request.auth.uid);
+  } else {
+    await requireAuthorizedRole(request.auth.uid);
+  }
   const snapshot = await db.collection(config.collection).limit(500).get();
   const items = snapshot.docs.map((document) => {
     const data = document.data();
@@ -970,7 +977,11 @@ export const createManagedRecord = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  await requireAuthorizedRole(request.auth.uid);
+  if (kind === "inbox") {
+    await requireAdminOrPastor(request.auth.uid);
+  } else {
+    await requireAuthorizedRole(request.auth.uid);
+  }
   const kind = request.data?.kind as ManagedKind;
   const config = managedCollectionConfig(kind);
   const fields = cleanManagedFields(request.data?.fields, config.fields);
@@ -996,7 +1007,11 @@ export const updateManagedRecord = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  await requireAuthorizedRole(request.auth.uid);
+  if (kind === "inbox") {
+    await requireAdminOrPastor(request.auth.uid);
+  } else {
+    await requireAuthorizedRole(request.auth.uid);
+  }
   const kind = request.data?.kind as ManagedKind;
   const config = managedCollectionConfig(kind);
   const id = text(request.data?.id, 150);
@@ -1018,7 +1033,11 @@ export const updateManagedRecordStatus = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  await requireAuthorizedRole(request.auth.uid);
+  if (kind === "inbox") {
+    await requireAdminOrPastor(request.auth.uid);
+  } else {
+    await requireAuthorizedRole(request.auth.uid);
+  }
   const kind = request.data?.kind as ManagedKind;
   const config = managedCollectionConfig(kind);
   const id = text(request.data?.id, 150);
@@ -1041,7 +1060,11 @@ export const deleteManagedRecord = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  await requireAuthorizedRole(request.auth.uid);
+  if (kind === "inbox") {
+    await requireAdminOrPastor(request.auth.uid);
+  } else {
+    await requireAuthorizedRole(request.auth.uid);
+  }
   const kind = request.data?.kind as ManagedKind;
   const config = managedCollectionConfig(kind);
   const id = text(request.data?.id, 150);
@@ -1169,7 +1192,7 @@ export const createCheckin = onCall(async (request) => {
 
 
 // Galería: moderación y publicación protegidas por rol.
-function photoResult(id: string, data: FirebaseFirestore.DocumentData) {
+function photoResult(id: string, data: Record<string, unknown>) {
   const imageUrl = text(data.imageUrl, 2000);
   return {
     id,
