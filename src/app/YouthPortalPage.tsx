@@ -317,6 +317,7 @@ export default function YouthPortalPage() {
       if (audioRef.current) {
         void audioRef.current.close().catch(() => undefined);
         audioRef.current = null;
+        audioMasterRef.current = null;
       }
       setSoundOn(false);
     }
