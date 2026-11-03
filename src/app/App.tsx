@@ -225,7 +225,7 @@ function AdminApp() {
         return <CheckinPage />;
 
       case 'photos':
-        return <PhotosPage />;
+        return <PhotosPage canModerate={isAdmin || isPastor} />;
 
       case 'reports':
         return <ReportsPage />;
