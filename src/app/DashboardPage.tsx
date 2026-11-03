@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react';
 import {
   Activity,
   ArrowDownRight,
@@ -11,13 +12,19 @@ import {
   Swords,
   Trophy,
   Users,
+  UserPlus,
+  HeartHandshake,
   QrCode,
   Sparkles,
+  CheckCircle2,
+  ClipboardList,
+  RefreshCw,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 import { useAuth } from './AuthContext';
 import { modules } from './modules';
+import {getDashboardSummary, type DashboardSummary} from '../services/dashboard';
 
 const quickActions = [
   {
@@ -78,6 +85,27 @@ const quickActions = [
 
 export default function DashboardPage() {
   const { profile, user, configured } = useAuth();
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryError, setSummaryError] = useState('');
+
+  const loadSummary = useCallback(async () => {
+    if (!configured) return;
+    setSummaryLoading(true);
+    setSummaryError('');
+    try {
+      setSummary(await getDashboardSummary());
+    } catch (cause) {
+      setSummaryError(cause instanceof Error ? cause.message : 'No se pudo cargar el resumen.');
+    } finally {
+      setSummaryLoading(false);
+    }
+  }, [configured]);
+
+  useEffect(() => {
+    void loadSummary();
+  }, [loadSummary]);
+
   const firstName = String(profile?.name ?? user?.email?.split('@')[0] ?? 'equipo')
     .trim()
     .split(/\s+/)[0];
@@ -159,7 +187,7 @@ export default function DashboardPage() {
             <span className="dashboard-section-kicker">INFORMACIÓN DEL SISTEMA</span>
             <h2>Estado de la operación</h2>
           </div>
-          <span className="dashboard-section-note">DATOS DE CONFIGURACIÓN · NO ESTADÍSTICAS</span>
+          <span className="dashboard-section-note">ESTADO DE APLICACIÓN</span>
         </div>
 
         <div className="dashboard-stats">
@@ -194,6 +222,108 @@ export default function DashboardPage() {
             </div>
           </article>
         </div>
+      </section>
+
+      <section className="dashboard-briefing">
+        <div className="dashboard-section-title">
+          <div>
+            <span className="dashboard-section-kicker">ACTIVIDAD DE LA COMUNIDAD</span>
+            <h2>Resumen actualizado</h2>
+          </div>
+          <button
+            type="button"
+            className="dashboard-summary-refresh"
+            onClick={() => void loadSummary()}
+            disabled={!configured || summaryLoading}
+          >
+            <RefreshCw size={15} />
+            Actualizar
+          </button>
+        </div>
+
+        {summaryError && (
+          <div className="attendance-error" role="alert">{summaryError}</div>
+        )}
+
+        {!configured ? (
+          <p className="dashboard-summary-state">Conecta Firebase Staging para consultar las estadísticas reales.</p>
+        ) : summaryLoading && !summary ? (
+          <p className="dashboard-summary-state" role="status">Consultando datos de la comunidad...</p>
+        ) : summary ? (
+          <div className="dashboard-stats dashboard-live-stats">
+            <article className="dashboard-stat">
+              <span className="dashboard-stat-index">01</span>
+              <div className="dashboard-stat-icon"><Users size={19} /></div>
+              <div className="dashboard-stat-copy">
+                <small>JÓVENES REGISTRADOS</small>
+                <strong>{summary.memberCount}</strong>
+                <span>Perfiles que pueden mostrarse según privacidad</span>
+              </div>
+            </article>
+            <article className="dashboard-stat">
+              <span className="dashboard-stat-index">02</span>
+              <div className="dashboard-stat-icon"><CalendarDays size={19} /></div>
+              <div className="dashboard-stat-copy">
+                <small>REUNIONES DEL MES</small>
+                <strong>{summary.meetingsThisMonth}</strong>
+                <span>Reuniones nuevas registradas</span>
+              </div>
+            </article>
+            <article className="dashboard-stat">
+              <span className="dashboard-stat-index">03</span>
+              <div className="dashboard-stat-icon"><CheckCircle2 size={19} /></div>
+              <div className="dashboard-stat-copy">
+                <small>ASISTENCIAS PRESENTES</small>
+                <strong>{summary.attendancePresent}</strong>
+                <span>Registros de presencia del mes</span>
+              </div>
+            </article>
+            {summary.followupsPending !== null && (
+              <article className="dashboard-stat">
+                <span className="dashboard-stat-index">04</span>
+                <div className="dashboard-stat-icon"><ClipboardList size={19} /></div>
+                <div className="dashboard-stat-copy">
+                  <small>SEGUIMIENTOS PENDIENTES</small>
+                  <strong>{summary.followupsPending}</strong>
+                  <span>Registros que requieren acompañamiento</span>
+                </div>
+              </article>
+            )}
+            {summary.visitorsNew !== null && (
+              <article className="dashboard-stat">
+                <span className="dashboard-stat-index">05</span>
+                <div className="dashboard-stat-icon"><UserPlus size={19} /></div>
+                <div className="dashboard-stat-copy">
+                  <small>VISITANTES NUEVOS</small>
+                  <strong>{summary.visitorsNew}</strong>
+                  <span>Personas por contactar o integrar</span>
+                </div>
+              </article>
+            )}
+            {summary.prayersPending !== null && (
+              <article className="dashboard-stat">
+                <span className="dashboard-stat-index">06</span>
+                <div className="dashboard-stat-icon"><HeartHandshake size={19} /></div>
+                <div className="dashboard-stat-copy">
+                  <small>PETICIONES PENDIENTES</small>
+                  <strong>{summary.prayersPending}</strong>
+                  <span>Solicitudes sin atender</span>
+                </div>
+              </article>
+            )}
+            <article className="dashboard-stat">
+              <span className="dashboard-stat-index">07</span>
+              <div className="dashboard-stat-icon"><BookOpen size={19} /></div>
+              <div className="dashboard-stat-copy">
+                <small>PRÓXIMAS ACTIVIDADES</small>
+                <strong>{summary.upcomingActivities}</strong>
+                <span>Actividades publicadas por venir</span>
+              </div>
+            </article>
+          </div>
+        ) : (
+          <p className="dashboard-summary-state">Aún no hay información para mostrar.</p>
+        )}
       </section>
 
       <section className="dashboard-launch">
