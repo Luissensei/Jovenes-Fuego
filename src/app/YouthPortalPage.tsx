@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
+import {firebaseReadOnlyMode} from '../services/firebase/client';
 import {
   getWeeklyActivities,
   getHallOfFame,
@@ -567,7 +568,7 @@ export default function YouthPortalPage() {
                       type="button"
                       key={item.key || 'default'}
                       className={`youth-store-item ${selected ? 'selected' : ''} ${unlocked ? 'unlocked' : 'locked'}`}
-                      disabled={lookSaving}
+                      disabled={lookSaving || firebaseReadOnlyMode}
                       onClick={() => void equipLookItem(lookCategory,item)}
                     >
                       <span className="youth-store-item-art">{item.emoji}</span>
@@ -578,6 +579,7 @@ export default function YouthPortalPage() {
                 })}
               </div>
               {lookNotice && <p className="youth-inline-warning" role="status">{lookNotice}</p>}
+              {firebaseReadOnlyMode && <p className="youth-inline-warning">Personalización disponible al conectar Staging. La base original está protegida en solo lectura.</p>}
               {lookSaving && <p className="youth-inline-warning">Guardando personalización...</p>}
             </section>
           )}
@@ -610,13 +612,13 @@ export default function YouthPortalPage() {
 
           {(
             <section className="youth-prayer-panel">
-              <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>Tu petición llegará a la bandeja de la comunidad para su acompañamiento.</p></div></header>
+              <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>Tu petición llegará a la bandeja de la comunidad cuando las escrituras estén habilitadas en Staging.</p></div></header>
               <p className="youth-prayer-privacy"><ShieldCheck size={15}/> La petición se envía a la bandeja interna de la aplicación. El selector de perfiles es público y no verifica quién está usando la cuenta.</p>
               <form onSubmit={(event) => void handlePrayerSubmit(event)}>
                 <label>Nombre (opcional)<input value={prayerName} onChange={(event) => setPrayerName(event.target.value)} maxLength={80} placeholder="Puedes enviarla como anónimo"/></label>
                 <label>Tipo de petición<select value={prayerCategory} onChange={(event) => setPrayerCategory(event.target.value)}><option>General</option><option>Familia</option><option>Estudios</option><option>Fortaleza espiritual</option><option>Agradecimiento</option><option>Otra</option></select></label>
                 <label className="prayer-message-field">Cuéntanos cómo podemos orar por ti<textarea value={prayerMessage} onChange={(event) => setPrayerMessage(event.target.value)} minLength={8} maxLength={500} rows={4} required placeholder="Escribe tu petición con confianza..."/></label>
-                <div className="youth-prayer-submit-row"><small>{prayerMessage.length}/500 caracteres. Evita compartir datos personales sensibles.</small><button type="submit" disabled={prayerBusy || prayerMessage.trim().length < 8}>{prayerBusy ? 'Enviando...' : 'Enviar petición'} <Send size={16}/></button></div>
+                <div className="youth-prayer-submit-row"><small>{prayerMessage.length}/500 caracteres. Evita compartir datos personales sensibles.</small><button type="submit" disabled={firebaseReadOnlyMode || prayerBusy || prayerMessage.trim().length < 8}>{firebaseReadOnlyMode ? 'Disponible en Staging' : prayerBusy ? 'Enviando...' : 'Enviar petición'} <Send size={16}/></button></div>
                 {prayerStatus && <p className="youth-prayer-status" role="status">{prayerStatus}</p>}
               </form>
             </section>
