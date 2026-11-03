@@ -87,3 +87,27 @@ El código de Cloud Functions y frontend debe compilarse y probarse en Staging, 
 ### `attendanceMeetings/{id}` — reuniones de la reconstrucción
 
 Colección nueva y aislada para el módulo de asistencia de esta reconstrucción. Campos: `name`, `date` (AAAA-MM-DD), `createdBy`, `createdAt`, `participants` (lista de `{ memberId, name, status }`) y, después del primer guardado, `updatedAt`/`updatedBy`. Las funciones `getAttendanceMeetings`, `createAttendanceMeeting` y `saveMeetingAttendance` requieren autenticación y un rol reconocido. La función vuelve a consultar el nombre real del joven en `members/{id}` y valida los estados permitidos. Esta colección no reemplaza ni modifica `attendance/{fecha}_{servicio}`.
+
+## Extensiones protegidas de la reconstrucción
+
+Las siguientes funciones usan Firebase Admin SDK desde Cloud Functions. El navegador no debe leer ni escribir directamente estas colecciones para que los módulos funcionen:
+
+| Callable | Colección histórica/nueva | Permisos |
+|---|---|---|
+| getFollowups, createFollowup, updateFollowupStatus, deleteFollowup | followups | Autenticado con rol staff; líderes solo consultan/modifican sus propios registros. |
+| getVisitors, createVisitor, updateVisitorStatus, deleteVisitor | visitors | Autenticado con rol staff; teléfono/correo/notas solo para admin/pastor o propietario del registro. |
+| getDevotionals, createDevotional, deleteDevotional | devotionals | Lectura staff; escritura admin/pastor. |
+| getManagedRecords, createManagedRecord, updateManagedRecord, updateManagedRecordStatus, deleteManagedRecord | inbox, turnos | Lista cerrada de colecciones y campos; Bandeja solo admin/pastor, Turnos staff. |
+| getCheckins, createCheckin | attendanceMeetings | Autenticado con rol staff; servidor valida miembro/fecha/servicio y previene duplicados. QR comparte el historial nuevo de Asistencia. |
+| getPhotos, createPhotoRequest, approvePhoto, rejectPhoto, deleteApprovedPhoto | fotoPend, photos | Lectura/envío staff; moderación admin/pastor; enlaces HTTPS. |
+| getManagementData, createManagementRecord | bonus, pastoral, users, audit, settings | Lectura y escritura con allowlist; notas pastorales admin/pastor; módulos de administración restringidos. |
+
+Todas las funciones requieren identidad Firebase cuando manejan datos internos. Las validaciones de rol se realizan en el servidor leyendo users/{uid}; los botones ocultos en React son únicamente experiencia de usuario y no sustituyen autorización.
+
+Los registros temporales que antes estaban codificados en las pantallas de Seguimiento y Visitantes se han retirado. Esas pantallas ahora utilizan las colecciones existentes followups y visitors, con metadatos createdBy, createdAt, updatedBy y updatedAt. Los datos ficticios no se migran ni se guardan.
+
+## Acceso juvenil a perfiles públicos
+
+El callable getPublicProfiles se ejecuta en la región us-central1 por defecto. El cliente usa la misma región; puede configurarse mediante VITE_FIREBASE_FUNCTIONS_REGION, pero el valor del frontend y la región de despliegue deben coincidir. Una respuesta functions/not-found significa que el callable no está publicado en el proyecto/región consultado; un deploy de Vercel no despliega Firebase Functions.
+
+El archivo FIREBASE-STAGING-DEPLOY.md documenta un flujo manual que despliega únicamente Functions al proyecto jovenes-de-fuego-staging. No despliega reglas Firestore, Hosting ni recursos de producción.
