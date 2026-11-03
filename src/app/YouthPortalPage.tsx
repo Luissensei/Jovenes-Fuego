@@ -594,7 +594,9 @@ export default function YouthPortalPage() {
             ) : (
               <div className="youth-empty-activities"><CalendarDays size={25}/><strong>No hay actividades publicadas por ahora</strong><span>Cuando el equipo publique la agenda, aparecerá aquí al entrar.</span></div>
             )}
-          </section>
+ 
+          <HallOfFame topPlayers={topPlayersWithPhotos} faithful={faithfulWithPhotos} attendanceLimited={attendanceLimited}/>
+         </section>
 
           <section className="youth-game-hub">
             <header><div><span>ENTRENA Y APRENDE</span><h2>Zona de juegos bíblicos</h2></div><Gamepad2 size={22}/></header>
@@ -607,8 +609,6 @@ export default function YouthPortalPage() {
               })}
             </div>
           </section>
-
-          <HallOfFame topPlayers={topPlayersWithPhotos} faithful={faithfulWithPhotos} attendanceLimited={attendanceLimited}/>
 
           {(
             <section className="youth-prayer-panel">
