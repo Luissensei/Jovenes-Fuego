@@ -21,6 +21,7 @@ import {
   auth,
   functions,
   firebaseConfigured,
+  firebaseReadOnly,
 } from '../services/firebase/client';
 
 export type AppRole =
