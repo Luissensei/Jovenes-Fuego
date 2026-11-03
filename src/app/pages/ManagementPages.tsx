@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { auth, db } from '../../services/firebase/client';
-
 import {
   ShieldCheck,
   Users,
@@ -14,7 +12,9 @@ import {
   LockKeyhole,
 } from 'lucide-react';
 
-import {createManagementRecord, getManagementData, type ManagementRecord} from '../../services/management';\n\nimport './ManagementPages.css';
+import {createManagementRecord, getManagementData, type ManagementRecord} from '../../services/management';
+
+import './ManagementPages.css';
 
 type ModuleKind = 'bonus' | 'pastoral' | 'leaders' | 'audit' | 'settings';
 type RecordItem = ManagementRecord;
