@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Image,
   Plus,
@@ -12,15 +12,14 @@ import {
 
 import {
   createPhotoRequest,
-  subscribePendingPhotos,
-  subscribeApprovedPhotos,
+  getPhotos,
   approvePhoto,
   rejectPhoto,
   deleteApprovedPhoto,
   type PhotoRecord,
 } from '../../services/repositories/photos';
 
-export default function PhotosPage() {
+export default function PhotosPage({canModerate = false}: {canModerate?: boolean}) {
   const [pending, setPending] = useState<PhotoRecord[]>([]);
   const [approved, setApproved] = useState<PhotoRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,44 +34,23 @@ export default function PhotosPage() {
   const [imageUrl, setImageUrl] = useState('');
   const [authorName, setAuthorName] = useState('');
 
-  useEffect(() => {
-    let pendingUnsubscribe: (() => void) | undefined;
-    let approvedUnsubscribe: (() => void) | undefined;
-
+  const loadPhotos = useCallback(async () => {
+    setLoading(true);
+    setError('');
     try {
-      pendingUnsubscribe = subscribePendingPhotos(
-        (items) => {
-          setPending(items.filter((item) => item.status !== 'Rechazada'));
-          setLoading(false);
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
-
-      approvedUnsubscribe = subscribeApprovedPhotos(
-        (items) => {
-          setApproved(items);
-          setLoading(false);
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
+      const result = await getPhotos();
+      setPending(result.pending);
+      setApproved(result.approved);
     } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : 'No se pudieron cargar las fotografías.',
-      );
+      setError(cause instanceof Error ? cause.message : 'No se pudieron cargar las fotografías.');
+    } finally {
       setLoading(false);
     }
-
-    return () => {
-      pendingUnsubscribe?.();
-      approvedUnsubscribe?.();
-    };
   }, []);
+
+  useEffect(() => {
+    void loadPhotos();
+  }, [loadPhotos]);
 
   function resetForm() {
     setTitle('');
@@ -94,6 +72,7 @@ export default function PhotosPage() {
         imageUrl,
         authorName,
       });
+      await loadPhotos();
 
       resetForm();
       setShowForm(false);
@@ -116,6 +95,7 @@ export default function PhotosPage() {
 
     try {
       await approvePhoto(item);
+      await loadPhotos();
       setMessage('Fotografía aprobada y publicada.');
     } catch (cause) {
       setError(
@@ -135,6 +115,7 @@ export default function PhotosPage() {
 
     try {
       await rejectPhoto(item.id);
+      await loadPhotos();
       setMessage('Fotografía rechazada.');
     } catch (cause) {
       setError(
@@ -154,6 +135,7 @@ export default function PhotosPage() {
 
     try {
       await deleteApprovedPhoto(item.id);
+      await loadPhotos();
       setMessage('Fotografía eliminada.');
     } catch (cause) {
       setError(
@@ -260,23 +242,23 @@ export default function PhotosPage() {
 
                 {activeTab === 'pending' ? (
                   <div className="photo-actions">
-                    <button
+                    {canModerate && <button
                       className="photos-approve"
                       onClick={() => void handleApprove(item)}
                       disabled={saving}
                     >
                       <CheckCircle2 size={16} /> Aprobar
-                    </button>
+                    </button>}
 
-                    <button
+                    {canModerate && <button
                       className="photos-reject"
                       onClick={() => void handleReject(item)}
                       disabled={saving}
                     >
                       <XCircle size={16} /> Rechazar
-                    </button>
+                    </button>}
                   </div>
-                ) : (
+                ) : canModerate ? (
                   <button
                     className="photos-reject"
                     onClick={() => void handleDelete(item)}
@@ -284,6 +266,8 @@ export default function PhotosPage() {
                   >
                     <Trash2 size={16} /> Eliminar publicación
                   </button>
+                ) : (
+                  <small>Publicación aprobada</small>
                 )}
               </div>
             </article>
