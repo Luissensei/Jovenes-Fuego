@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
+import {firebaseReadOnlyMode} from '../services/firebase/client';
 import {
   getWeeklyActivities,
   getHallOfFame,
@@ -433,16 +434,24 @@ export default function YouthPortalPage() {
 
           <HallOfFame topPlayers={topPlayers} faithful={faithful} attendanceLimited={attendanceLimited}/>
 
-          <section className="youth-prayer-panel">
-            <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>Tu petición será recibida por el equipo autorizado de oración.</p></div></header>
-            <form onSubmit={(event) => void handlePrayerSubmit(event)}>
-              <label>Nombre (opcional)<input value={prayerName} onChange={(event) => setPrayerName(event.target.value)} maxLength={80} placeholder="Puedes enviarla como anónimo"/></label>
-              <label>Tipo de petición<select value={prayerCategory} onChange={(event) => setPrayerCategory(event.target.value)}><option>General</option><option>Familia</option><option>Estudios</option><option>Fortaleza espiritual</option><option>Agradecimiento</option><option>Otra</option></select></label>
-              <label className="prayer-message-field">Cuéntanos cómo podemos orar por ti<textarea value={prayerMessage} onChange={(event) => setPrayerMessage(event.target.value)} minLength={8} maxLength={1200} rows={4} required placeholder="Escribe tu petición con confianza..."/></label>
-              <div className="youth-prayer-submit-row"><small>{prayerMessage.length}/1200 caracteres. Evita compartir datos personales sensibles.</small><button type="submit" disabled={prayerBusy || prayerMessage.trim().length < 8}>{prayerBusy ? 'Enviando...' : 'Enviar petición'} <Send size={16}/></button></div>
-              {prayerStatus && <p className="youth-prayer-status" role="status">{prayerStatus}</p>}
-            </form>
-          </section>
+          {!firebaseReadOnlyMode && (
+            <section className="youth-prayer-panel">
+              <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>Tu petición será recibida por el equipo autorizado de oración.</p></div></header>
+              <form onSubmit={(event) => void handlePrayerSubmit(event)}>
+                <label>Nombre (opcional)<input value={prayerName} onChange={(event) => setPrayerName(event.target.value)} maxLength={80} placeholder="Puedes enviarla como anónimo"/></label>
+                <label>Tipo de petición<select value={prayerCategory} onChange={(event) => setPrayerCategory(event.target.value)}><option>General</option><option>Familia</option><option>Estudios</option><option>Fortaleza espiritual</option><option>Agradecimiento</option><option>Otra</option></select></label>
+                <label className="prayer-message-field">Cuéntanos cómo podemos orar por ti<textarea value={prayerMessage} onChange={(event) => setPrayerMessage(event.target.value)} minLength={8} maxLength={1200} rows={4} required placeholder="Escribe tu petición con confianza..."/></label>
+                <div className="youth-prayer-submit-row"><small>{prayerMessage.length}/1200 caracteres. Evita compartir datos personales sensibles.</small><button type="submit" disabled={prayerBusy || prayerMessage.trim().length < 8}>{prayerBusy ? 'Enviando...' : 'Enviar petición'} <Send size={16}/></button></div>
+                {prayerStatus && <p className="youth-prayer-status" role="status">{prayerStatus}</p>}
+              </form>
+            </section>
+          )}
+          {firebaseReadOnlyMode && (
+            <div className="youth-security-note">
+              <ShieldCheck size={17}/> Las peticiones se habilitarán cuando
+              esté listo el sistema de envíos protegido para producción.
+            </div>
+          )}
 
           <div className="youth-security-note"><ShieldCheck size={17}/> La selección de perfil es pública. No permite consultar información privada ni acreditar la identidad del joven. Los juegos y puntuaciones visibles aquí no se guardan todavía en el ranking oficial.</div>
         </div>
