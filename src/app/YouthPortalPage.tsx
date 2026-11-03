@@ -289,7 +289,7 @@ export default function YouthPortalPage() {
         setFaithful(results[1].value.faithful ?? []);
         setAttendanceLimited(results[1].value.attendanceLimited === true);
       } else {
-        setPortalDataError((previous) => previous || 'Las clasificaciones estarán disponibles cuando se conecten sus funciones de Staging.');
+        setPortalDataError((previous) => previous || 'Las clasificaciones estarán disponibles cuando se publiquen los datos del ranking original.');
       }
     });
     return () => {
@@ -441,6 +441,12 @@ export default function YouthPortalPage() {
 
   async function handlePrayerSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    let lastSent = 0;
+    try { lastSent = Number(window.localStorage.getItem('jf-youth-prayer-last') ?? 0); } catch { /* almacenamiento opcional */ }
+    if (Date.now() - lastSent < 30_000) {
+      setPrayerStatus('Espera unos segundos antes de enviar otra petición.');
+      return;
+    }
     setPrayerStatus('');
     setPrayerBusy(true);
     try {
@@ -450,6 +456,7 @@ export default function YouthPortalPage() {
         category: prayerCategory,
         message: prayerMessage.trim(),
       });
+      try { window.localStorage.setItem('jf-youth-prayer-last', String(Date.now())); } catch { /* almacenamiento opcional */ }
       setPrayerMessage('');
       setPrayerStatus('Tu petición fue enviada al equipo de oración. Gracias por confiar.');
     } catch (cause) {
