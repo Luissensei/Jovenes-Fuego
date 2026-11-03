@@ -2,6 +2,7 @@ import {playGameTone} from './gameAudio';
 import { useState } from 'react';
 import { shuffleBibleQuestions, type VerseChallenge } from './bibleQuestionBank';
 import { expandedBibleVerseChallenges } from './extendedBibleQuestionBank';
+import { expandedBibleVerseChallenges } from './extendedBibleQuestionBank';
 import {
   BookOpen,
   CheckCircle2,
@@ -62,7 +63,7 @@ export default function VerseGame({
   }
 
   function restartGame() {
-    setQuestions(shuffleBibleQuestions(bibleVerseChallenges));
+    setQuestions(shuffleBibleQuestions(expandedBibleVerseChallenges));
     setCurrentIndex(0);
     setSelectedAnswer(null);
     setScore(0);
