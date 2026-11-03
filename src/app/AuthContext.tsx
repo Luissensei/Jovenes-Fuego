@@ -49,6 +49,7 @@ type AuthContextValue = {
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  retryProfile: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -246,6 +247,51 @@ export function AuthProvider({
           throw new Error(
             `No se pudo iniciar sesión (código ${firebaseError.code || 'desconocido'}). Proyecto: ${firebaseProjectId || 'sin configurar'}.`
           );
+        }
+      },
+
+      async retryProfile() {
+        if (!user || !functions) {
+          setError(
+            'No hay una sesión de Firebase activa o Functions no está configurado.'
+          );
+          return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+          const getApplicationProfile = httpsCallable<
+            Record<string, never>,
+            {profile: UserProfile}
+          >(functions, 'getMyApplicationProfile');
+          const response = await getApplicationProfile({});
+          const userProfile = response.data.profile;
+
+          if (!userProfile || typeof userProfile.role !== 'string' ||
+            !userProfile.role.trim()) {
+            throw new Error('La función no devolvió un rol de aplicación válido.');
+          }
+
+          setProfile(userProfile);
+          setError(null);
+        } catch (cause) {
+          const firebaseError = cause as {
+            code?: string;
+            message?: string;
+          };
+          console.error(
+            'Error reintentando la consulta del perfil:',
+            firebaseError.code,
+            firebaseError.message
+          );
+          setProfile(null);
+          setError(
+            `No se pudo consultar getMyApplicationProfile (${firebaseError.code || 'error desconocido'}) en ${firebaseProjectId || 'Firebase Staging'}, región ${firebaseFunctionsRegion}. Comprueba que la función esté desplegada y que el documento users coincida con el UID autenticado.`
+          );
+        } finally {
+          setLoading(false);
         }
       },
 
