@@ -3198,3 +3198,77 @@ button:disabled {cursor:not-allowed;opacity:.58;}
     background:var(--jf-surface-2) !important;
   }
 }
+
+
+/* Last pass: modifier states and visible internal layers for 3D cards. */
+.dashboard-stat.stat-wide {
+  grid-template-columns:42px minmax(0,1fr);
+}
+.dashboard-stat.stat-wide .dashboard-stat-copy strong {font-size:clamp(36px,4vw,48px);}
+.dashboard-score-chart .dashboard-chart-header-icon {color:#ffb56b;}
+.dashboard-distribution-chart .dashboard-chart-header-icon {color:#8bcfff;}
+.dashboard-stats, .dashboard-shortcuts, .dashboard-community-stats,
+.dashboard-charts-grid, .ranking-info-grid, .ranking-list,
+.members-grid, .attendance-summary, .followup-stats,
+.visitors-stats, .devotionals-grid, .photos-grid,
+.reports-stats, .checkin-summary, .checkin-grid,
+.management-list, .managed-stat-grid, .managed-record-list,
+.youth-hall-grid, .youth-activities-grid, .youth-games-grid {
+  perspective:1500px;
+  transform-style:preserve-3d;
+}
+.dashboard-stat > *, .dashboard-shortcut > *,
+.dashboard-community-stat > *, .dashboard-chart-card > *,
+.dashboard-bottom-note > *, .ranking-info-grid article > *,
+.ranking-player > *, .game-card > *, .profile-card > *,
+.selected-profile-panel > *, .members-total-card > *,
+.member-card > *, .attendance-card > *, .attendance-member > *,
+.followup-stat > *, .followup-card > *, .visitor-card > *,
+.devotional-card > *, .photo-card > *, .reports-card > *,
+.checkin-config > *, .checkin-panel > *, .checkin-summary article > *,
+.management-summary > *, .management-form > *,
+.management-record > *, .managed-stat > *, .managed-record > *,
+.weekly-admin-item > *, .youth-hall-card > *,
+.youth-activity-card > *, .youth-store-item > *,
+.youth-game-tile > *, .youth-profile-card > *,
+.mbg-memory-card > *, .verse-question-card > * {
+  transform:translateZ(9px);
+}
+@media (hover:none), (pointer:coarse) {
+  .dashboard-stat > *, .dashboard-shortcut > *,
+  .dashboard-community-stat > *, .dashboard-chart-card > *,
+  .dashboard-bottom-note > *, .ranking-info-grid article > *,
+  .ranking-player > *, .game-card > *, .profile-card > *,
+  .selected-profile-panel > *, .members-total-card > *,
+  .member-card > *, .attendance-card > *, .attendance-member > *,
+  .followup-stat > *, .followup-card > *, .visitor-card > *,
+  .devotional-card > *, .photo-card > *, .reports-card > *,
+  .checkin-config > *, .checkin-panel > *, .checkin-summary article > *,
+  .management-summary > *, .management-form > *,
+  .management-record > *, .managed-stat > *, .managed-record > *,
+  .weekly-admin-item > *, .youth-hall-card > *,
+  .youth-activity-card > *, .youth-store-item > *,
+  .youth-game-tile > *, .youth-profile-card > *,
+  .mbg-memory-card > *, .verse-question-card > * {
+    transform:none;
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  .dashboard-stat > *, .dashboard-shortcut > *,
+  .dashboard-community-stat > *, .dashboard-chart-card > *,
+  .dashboard-bottom-note > *, .ranking-info-grid article > *,
+  .ranking-player > *, .game-card > *, .profile-card > *,
+  .selected-profile-panel > *, .members-total-card > *,
+  .member-card > *, .attendance-card > *, .attendance-member > *,
+  .followup-stat > *, .followup-card > *, .visitor-card > *,
+  .devotional-card > *, .photo-card > *, .reports-card > *,
+  .checkin-config > *, .checkin-panel > *, .checkin-summary article > *,
+  .management-summary > *, .management-form > *,
+  .management-record > *, .managed-stat > *, .managed-record > *,
+  .weekly-admin-item > *, .youth-hall-card > *,
+  .youth-activity-card > *, .youth-store-item > *,
+  .youth-game-tile > *, .youth-profile-card > *,
+  .mbg-memory-card > *, .verse-question-card > * {
+    transform:none !important;
+  }
+}
