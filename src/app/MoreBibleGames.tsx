@@ -1,0 +1,617 @@
+import { useEffect, useState } from 'react';
+import {
+  Heart, Swords, Trophy,
+  ChevronLeft, ChevronRight, RotateCcw, CheckCircle2,
+  XCircle, Star, Users, Timer, Shuffle
+} from 'lucide-react';
+
+import './MoreBibleGames.css';
+
+type Question = {
+  prompt: string;
+  options: string[];
+  answer: string;
+  reference: string;
+};
+
+const bank: Question[] = [
+  { prompt: '¿Quién construyó el arca?', options: ['Moisés', 'Noé', 'Abraham', 'David'], answer: 'Noé', reference: 'Génesis 6' },
+  { prompt: '¿Quién derrotó a Goliat?', options: ['Saúl', 'Salomón', 'David', 'Jonatán'], answer: 'David', reference: '1 Samuel 17' },
+  { prompt: '¿Quién fue tragado por un gran pez?', options: ['Pedro', 'Jonás', 'Pablo', 'Elías'], answer: 'Jonás', reference: 'Jonás 1' },
+  { prompt: '¿Quién interpretó los sueños del faraón?', options: ['José', 'Daniel', 'Moisés', 'Josué'], answer: 'José', reference: 'Génesis 41' },
+  { prompt: '¿Quién recibió los diez mandamientos?', options: ['Aarón', 'Moisés', 'Isaías', 'Josué'], answer: 'Moisés', reference: 'Éxodo 20' },
+  { prompt: '¿En qué ciudad nació Jesús?', options: ['Nazaret', 'Jerusalén', 'Belén', 'Jericó'], answer: 'Belén', reference: 'Mateo 2:1' },
+  { prompt: '¿Quién negó a Jesús tres veces?', options: ['Juan', 'Pedro', 'Tomás', 'Judas'], answer: 'Pedro', reference: 'Mateo 26:69-75' },
+  { prompt: '¿Quién fue la madre de Samuel?', options: ['Rut', 'Ester', 'Ana', 'Marta'], answer: 'Ana', reference: '1 Samuel 1' },
+  { prompt: '¿Quién fue conocido por su gran fuerza?', options: ['Sansón', 'Gedeón', 'Isaac', 'Esdras'], answer: 'Sansón', reference: 'Jueces 13-16' },
+  { prompt: '¿Quién subió a un árbol para ver a Jesús?', options: ['Nicodemo', 'Zaqueo', 'Lázaro', 'Bartimeo'], answer: 'Zaqueo', reference: 'Lucas 19:1-4' },
+  { prompt: '¿Cuántos discípulos escogió Jesús?', options: ['7', '10', '12', '15'], answer: '12', reference: 'Lucas 6:13' },
+  { prompt: '¿Quién recibió una túnica de colores?', options: ['Benjamín', 'José', 'Rubén', 'Judá'], answer: 'José', reference: 'Génesis 37:3' },
+  { prompt: '¿Quién fue lanzado al foso de los leones?', options: ['Daniel', 'Jeremías', 'Ezequiel', 'Nehemías'], answer: 'Daniel', reference: 'Daniel 6' },
+  { prompt: '¿Quién bautizó a Jesús?', options: ['Pedro', 'Juan el Bautista', 'Andrés', 'Felipe'], answer: 'Juan el Bautista', reference: 'Mateo 3:13' },
+  { prompt: '¿Cuál fue el primer libro de la Biblia?', options: ['Éxodo', 'Salmos', 'Génesis', 'Mateo'], answer: 'Génesis', reference: 'Antiguo Testamento' },
+  { prompt: '¿Quién pidió sabiduría a Dios?', options: ['Saúl', 'Salomón', 'David', 'Job'], answer: 'Salomón', reference: '1 Reyes 3:9-12' },
+  { prompt: '¿Qué mar abrió Dios por medio de Moisés?', options: ['Mar Muerto', 'Mar Rojo', 'Mar de Galilea', 'Mar Mediterráneo'], answer: 'Mar Rojo', reference: 'Éxodo 14' },
+  { prompt: '¿Quién fue la esposa de Abraham?', options: ['Rebeca', 'Raquel', 'Sara', 'Lea'], answer: 'Sara', reference: 'Génesis 17' },
+  { prompt: '¿Quién escribió muchas cartas del Nuevo Testamento?', options: ['Pablo', 'Marcos', 'Lucas', 'Mateo'], answer: 'Pablo', reference: 'Nuevo Testamento' },
+  { prompt: '¿Qué hizo Jesús en las bodas de Caná?', options: ['Sanó a un ciego', 'Multiplicó panes', 'Convirtió agua en vino', 'Calmó una tormenta'], answer: 'Convirtió agua en vino', reference: 'Juan 2:1-11' },
+];
+
+
+const biblicalExplanations: Record<string, string> = {
+  'Génesis 6': 'Dios indicó a Noé que construyera un arca. Noé obedeció y su familia fue preservada durante el diluvio.',
+  '1 Samuel 17': 'David enfrentó a Goliat confiando en el poder de Dios y no en sus propias fuerzas.',
+  'Jonás 1': 'Jonás intentó huir de la misión que Dios le había encargado. Durante su huida fue tragado por un gran pez.',
+  'Génesis 41': 'José interpretó los sueños del faraón y explicó que vendrían siete años de abundancia y siete de hambre.',
+  'Éxodo 20': 'En el monte Sinaí, Dios entregó a Moisés los mandamientos para orientar la vida de su pueblo.',
+  'Mateo 2:1': 'El evangelio de Mateo relata que Jesús nació en Belén de Judea durante el reinado de Herodes.',
+  'Mateo 26:69-75': 'Pedro negó conocer a Jesús tres veces, tal como Jesús había anunciado. Después recordó sus palabras y lloró amargamente.',
+  '1 Samuel 1': 'Ana oró con profunda angustia y Dios escuchó su petición. Samuel fue la respuesta a su oración.',
+  'Jueces 13-16': 'Sansón recibió una fuerza extraordinaria como parte de su llamado, pero también enfrentó las consecuencias de sus decisiones.',
+  'Lucas 19:1-4': 'Zaqueo, que era de baja estatura, subió a un sicómoro para poder ver a Jesús entre la multitud.',
+  'Lucas 6:13': 'Jesús escogió a doce discípulos para que estuvieran con él y participaran en su misión.',
+  'Génesis 37:3': 'Jacob amaba especialmente a José y le regaló una túnica especial, lo que provocó celos entre sus hermanos.',
+  'Daniel 6': 'Daniel siguió orando a Dios aunque estaba prohibido. Dios lo protegió en el foso de los leones.',
+  'Mateo 3:13': 'Juan el Bautista bautizó a Jesús en el río Jordán, dando inicio a una etapa importante de su ministerio público.',
+  'Antiguo Testamento': 'Génesis es el primer libro de la Biblia y presenta la creación, los primeros seres humanos y los patriarcas.',
+  '1 Reyes 3:9-12': 'Salomón pidió sabiduría para gobernar al pueblo. Dios se agradó de su petición y le concedió sabiduría.',
+  'Éxodo 14': 'Dios abrió el mar Rojo para que los israelitas cruzaran y escaparan del ejército egipcio.',
+  'Génesis 17': 'Sara fue la esposa de Abraham. Dios prometió que ella tendría un hijo llamado Isaac.',
+  'Nuevo Testamento': 'Pablo escribió numerosas cartas a las primeras comunidades cristianas para enseñar, corregir y animar a los creyentes.',
+  'Juan 2:1-11': 'En las bodas de Caná, Jesús realizó su primera señal registrada en el evangelio de Juan al convertir el agua en vino.'
+};
+
+function shuffle<T,>(items: T[]): T[] {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+function Header({ title, subtitle, onExit }: {
+  title: string;
+  subtitle: string;
+  onExit: () => void;
+}) {
+  return (
+    <header className="mbg-header">
+      <button className="mbg-back" onClick={onExit} type="button">
+        <ChevronLeft size={18} /> Volver a los juegos
+      </button>
+      <span className="mbg-eyebrow">ZONA DE DESAFÍOS</span>
+      <h2>{title}</h2>
+      <p>{subtitle}</p>
+    </header>
+  );
+}
+
+function Result({ score, onRestart, onExit }: {
+  score: number;
+  onRestart: () => void;
+  onExit: () => void;
+}) {
+  return (
+    <section className="mbg-result">
+      <Trophy size={48} />
+      <h3>¡Desafío completado!</h3>
+      <p>Tu puntuación final</p>
+      <strong>{score} puntos</strong>
+      <div className="mbg-actions">
+        <button onClick={onRestart}><RotateCcw size={17} /> Volver a jugar</button>
+        <button className="secondary" onClick={onExit}>Volver a los juegos</button>
+      </div>
+    </section>
+  );
+}
+
+/* MEMORIA BÍBLICA */
+const memoryPairs = [
+  ['David', 'Goliat', '🪨'],
+  ['Noé', 'Arca', '🚢'],
+  ['Moisés', 'Mar Rojo', '🌊'],
+  ['Daniel', 'Leones', '🦁'],
+  ['Jonás', 'Gran pez', '🐋'],
+  ['Jesús', 'Panes y peces', '🐟'],
+];
+
+type MemoryCard = { id: number; pair: number; text: string; symbol: string };
+
+function makeMemoryCards(): MemoryCard[] {
+  return shuffle(memoryPairs.flatMap((pair, index) => [
+    { id: index * 2, pair: index, text: pair[0], symbol: pair[2] },
+    { id: index * 2 + 1, pair: index, text: pair[1], symbol: pair[2] },
+  ]));
+}
+
+export function MemoryGame({ onExit }: { onExit: () => void }) {
+  const [cards, setCards] = useState(makeMemoryCards);
+  const [opened, setOpened] = useState<number[]>([]);
+  const [matched, setMatched] = useState<number[]>([]);
+  const [moves, setMoves] = useState(0);
+  const [finished, setFinished] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  function flip(card: MemoryCard) {
+    if (busy || opened.includes(card.id) || matched.includes(card.pair)) return;
+
+    if (opened.length === 0) {
+      setOpened([card.id]);
+      return;
+    }
+
+    const first = cards.find((item) => item.id === opened[0]);
+    if (!first) return;
+
+    setOpened([opened[0], card.id]);
+    setMoves((value) => value + 1);
+    setBusy(true);
+
+    if (first.pair === card.pair) {
+      const nextMatched = [...matched, card.pair];
+      setMatched(nextMatched);
+      if (nextMatched.length === memoryPairs.length) setFinished(true);
+    }
+
+    window.setTimeout(() => {
+      setOpened([]);
+      setBusy(false);
+    }, 850);
+  }
+
+  function restart() {
+    setCards(makeMemoryCards());
+    setOpened([]);
+    setMatched([]);
+    setMoves(0);
+    setFinished(false);
+    setBusy(false);
+  }
+
+  return (
+    <section className="mbg-game">
+      <Header title="Memoria bíblica" subtitle="Encuentra las seis parejas relacionadas con historias de la Biblia." onExit={onExit} />
+      {finished ? (
+        <Result score={Math.max(0, 120 - moves * 5)} onRestart={restart} onExit={onExit} />
+      ) : (
+        <>
+          <div className="mbg-stats">
+            <span>Parejas: <b>{matched.length}/{memoryPairs.length}</b></span>
+            <span>Intentos: <b>{moves}</b></span>
+          </div>
+          <div className="mbg-memory-grid">
+            {cards.map((card) => {
+              const visible = opened.includes(card.id) || matched.includes(card.pair);
+              return (
+                <button
+                  type="button"
+                  key={card.id}
+                  className={`mbg-memory-card ${visible ? 'revealed' : ''} ${matched.includes(card.pair) ? 'matched' : ''}`}
+                  onClick={() => flip(card)}
+                  disabled={visible || busy}
+                >
+                  {visible ? (
+                    <>
+                      <span>{card.symbol}</span>
+                      <b>{card.text}</b>
+                    </>
+                  ) : <span className="mbg-card-question">?</span>}
+                </button>
+              );
+            })}
+          </div>
+          <button className="mbg-secondary-button" onClick={restart}><Shuffle size={16} /> Mezclar y reiniciar</button>
+        </>
+      )}
+    </section>
+  );
+}
+
+/* RETO DE 60 SEGUNDOS */
+export function ChallengeGame({ onExit }: { onExit: () => void }) {
+  const [seconds, setSeconds] = useState(60);
+  const [index, setIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [answered, setAnswered] = useState<string | null>(null);
+  const [finished, setFinished] = useState(false);
+
+  useEffect(() => {
+    if (finished) return;
+    const timer = window.setInterval(() => {
+      setSeconds((value) => Math.max(0, value - 1));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [finished]);
+
+  useEffect(() => {
+    if (seconds === 0) setFinished(true);
+  }, [seconds]);
+
+  const question = bank[index % bank.length];
+
+  function answer(option: string) {
+    if (answered !== null || finished) return;
+    setAnswered(option);
+    if (option === question.answer) setScore((value) => value + 10);
+  }
+
+  function next() {
+    if (answered === null) return;
+    setIndex((value) => value + 1);
+    setAnswered(null);
+  }
+
+  function restart() {
+    setSeconds(60);
+    setIndex(0);
+    setScore(0);
+    setAnswered(null);
+    setFinished(false);
+  }
+
+  return (
+    <section className="mbg-game">
+      <Header title="Reto de 60 segundos" subtitle="Responde correctamente antes de que se acabe el tiempo." onExit={onExit} />
+      {finished ? <Result score={score} onRestart={restart} onExit={onExit} /> : (
+        <>
+          <div className="mbg-stats">
+            <span><Timer size={17} /> Tiempo: <b>{seconds}s</b></span>
+            <span><Star size={17} /> Puntos: <b>{score}</b></span>
+          </div>
+          <QuizQuestion question={question} answered={answered} onAnswer={answer} />
+          <button className="mbg-primary-button" disabled={answered === null} onClick={next}>
+            Siguiente pregunta <ChevronRight size={17} />
+          </button>
+        </>
+      )}
+    </section>
+  );
+}
+
+/* SUPERVIVENCIA */
+export function SurvivalGame({ onExit }: { onExit: () => void }) {
+  const [index, setIndex] = useState(0);
+  const [lives, setLives] = useState(3);
+  const [score, setScore] = useState(0);
+  const [answered, setAnswered] = useState<string | null>(null);
+  const [finished, setFinished] = useState(false);
+
+  const question = bank[index % bank.length];
+  const correct = answered === question.answer;
+
+  function answer(option: string) {
+    if (answered !== null || finished) return;
+    setAnswered(option);
+    if (option === question.answer) {
+      setScore((value) => value + 10);
+    } else {
+      setLives((value) => value - 1);
+    }
+  }
+
+  function next() {
+    if (answered === null) return;
+    if (!correct && lives <= 1) {
+      setFinished(true);
+      return;
+    }
+    setIndex((value) => value + 1);
+    setAnswered(null);
+  }
+
+  function restart() {
+    setIndex(0);
+    setLives(3);
+    setScore(0);
+    setAnswered(null);
+    setFinished(false);
+  }
+
+  return (
+    <section className="mbg-game">
+      <Header title="Supervivencia" subtitle="Tienes tres vidas. ¿Cuántas preguntas puedes superar?" onExit={onExit} />
+      {finished ? <Result score={score} onRestart={restart} onExit={onExit} /> : (
+        <>
+          <div className="mbg-stats">
+            <span><Heart size={17} /> Vidas: <b>{'❤️'.repeat(lives)}{'🖤'.repeat(3 - lives)}</b></span>
+            <span><Star size={17} /> Puntos: <b>{score}</b></span>
+            <span>Nivel: <b>{index + 1}</b></span>
+          </div>
+          <QuizQuestion question={question} answered={answered} onAnswer={answer} />
+          {answered !== null && (
+            <div className={`mbg-feedback ${correct ? 'good' : 'bad'}`}>
+              {correct ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
+              {correct ? '¡Correcto! Conservas tus vidas.' : `Respuesta correcta: ${question.answer}`}
+            </div>
+          )}
+          <button className="mbg-primary-button" disabled={answered === null} onClick={next}>
+            Continuar <ChevronRight size={17} />
+          </button>
+        </>
+      )}
+    </section>
+  );
+}
+
+/* DUELO 1 CONTRA 1: LOCAL EN UN MISMO DISPOSITIVO */
+export function DuelGame({ onExit }: { onExit: () => void }) {
+  const [names, setNames] = useState(['Jugador 1', 'Jugador 2']);
+  const [started, setStarted] = useState(false);
+  const [turn, setTurn] = useState(0);
+  const [round, setRound] = useState(0);
+  const [scores, setScores] = useState([0, 0]);
+  const [answered, setAnswered] = useState<string | null>(null);
+  const [finished, setFinished] = useState(false);
+
+  const question = bank[(round) % bank.length];
+
+  function answer(option: string) {
+    if (answered !== null) return;
+    setAnswered(option);
+    if (option === question.answer) {
+      setScores((old) => old.map((score, i) => i === turn ? score + 10 : score));
+    }
+  }
+
+  function next() {
+    if (answered === null) return;
+    if (round === 9) {
+      setFinished(true);
+      return;
+    }
+    setRound((value) => value + 1);
+    setTurn((value) => value === 0 ? 1 : 0);
+    setAnswered(null);
+  }
+
+  function restart() {
+    setTurn(0);
+    setRound(0);
+    setScores([0, 0]);
+    setAnswered(null);
+    setFinished(false);
+    setStarted(false);
+  }
+
+  if (!started) {
+    return (
+      <section className="mbg-game">
+        <Header title="Duelo 1 contra 1" subtitle="Dos jóvenes, diez turnos y un ganador." onExit={onExit} />
+        <div className="mbg-duel-setup">
+          <label>Nombre del jugador 1<input value={names[0]} onChange={(e) => setNames([e.target.value, names[1]])} /></label>
+          <label>Nombre del jugador 2<input value={names[1]} onChange={(e) => setNames([names[0], e.target.value])} /></label>
+          <p><Users size={17} /> El duelo se juega por turnos en este mismo dispositivo.</p>
+          <button className="mbg-primary-button" onClick={() => setStarted(true)} disabled={!names[0].trim() || !names[1].trim()}>
+            Comenzar duelo <Swords size={17} />
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mbg-game">
+      <Header title="Duelo 1 contra 1" subtitle="Responde por turnos y consigue más puntos." onExit={onExit} />
+      {finished ? (
+        <section className="mbg-result">
+          <Trophy size={48} />
+          <h3>{scores[0] === scores[1] ? '¡Empate!' : `¡Ganó ${scores[0] > scores[1] ? names[0] : names[1]}!`}</h3>
+          <p>{names[0]}: {scores[0]} puntos · {names[1]}: {scores[1]} puntos</p>
+          <div className="mbg-actions">
+            <button onClick={restart}><RotateCcw size={17} /> Nuevo duelo</button>
+            <button className="secondary" onClick={onExit}>Volver a los juegos</button>
+          </div>
+        </section>
+      ) : (
+        <>
+          <div className="mbg-duel-scores">
+            <div className={turn === 0 ? 'turn-active' : ''}><b>{names[0]}</b><strong>{scores[0]}</strong></div>
+            <span>VS</span>
+            <div className={turn === 1 ? 'turn-active' : ''}><b>{names[1]}</b><strong>{scores[1]}</strong></div>
+          </div>
+          <div className="mbg-stats">
+            <span>Turno <b>{round + 1} de 10</b></span>
+            <span>Juega <b>{names[turn]}</b></span>
+          </div>
+          <QuizQuestion question={question} answered={answered} onAnswer={answer} />
+          {answered !== null && (
+            <div className={`mbg-feedback ${answered === question.answer ? 'good' : 'bad'}`}>
+              {answered === question.answer ? '¡Punto para este jugador!' : `La respuesta era ${question.answer}.`}
+            </div>
+          )}
+          <button className="mbg-primary-button" disabled={answered === null} onClick={next}>
+            {round === 9 ? 'Ver ganador' : 'Pasar al siguiente jugador'} <ChevronRight size={17} />
+          </button>
+        </>
+      )}
+    </section>
+  );
+}
+
+/* ORDENAR VERSÍCULOS */
+const verseLevels = [
+  { ref: 'Salmo 23:1', text: 'Jehová es mi pastor nada me faltará' },
+  { ref: 'Filipenses 4:13', text: 'Todo lo puedo en Cristo que me fortalece' },
+  { ref: 'Juan 11:35', text: 'Jesús lloró' },
+  { ref: 'Génesis 1:1', text: 'En el principio creó Dios los cielos y la tierra' },
+  { ref: 'Salmo 119:105', text: 'Lámpara es a mis pies tu palabra y lumbrera a mi camino' },
+];
+
+type Word = { id: number; text: string };
+
+function makeWords(level: number): Word[] {
+  return shuffle(verseLevels[level].text.split(' ').map((text, id) => ({ id, text })));
+}
+
+export function OrderVerseGame({ onExit }: { onExit: () => void }) {
+  const [level, setLevel] = useState(0);
+  const [words, setWords] = useState(() => makeWords(0));
+  const [selected, setSelected] = useState<number[]>([]);
+  const [feedback, setFeedback] = useState('');
+  const [score, setScore] = useState(0);
+  const [finished, setFinished] = useState(false);
+
+  const current = verseLevels[level];
+  const arranged = selected.map((id) => words.find((word) => word.id === id)?.text ?? '');
+  const correct = arranged.join(' ') === current.text;
+
+  function choose(id: number) {
+    if (selected.includes(id) || feedback === 'correcto') return;
+    setSelected((old) => [...old, id]);
+    setFeedback('');
+  }
+
+  function removeWord(id: number) {
+    if (feedback === 'correcto') return;
+    setSelected((old) => old.filter((item) => item !== id));
+    setFeedback('');
+  }
+
+  function check() {
+    if (selected.length !== words.length) {
+      setFeedback('Te faltan palabras por ordenar.');
+      return;
+    }
+    if (correct) {
+      setFeedback('correcto');
+      setScore((value) => value + 20);
+    } else {
+      setFeedback('Inténtalo otra vez. El orden todavía no es correcto.');
+    }
+  }
+
+  function next() {
+    if (level === verseLevels.length - 1) {
+      setFinished(true);
+      return;
+    }
+    const nextLevel = level + 1;
+    setLevel(nextLevel);
+    setWords(makeWords(nextLevel));
+    setSelected([]);
+    setFeedback('');
+  }
+
+  function restart() {
+    setLevel(0);
+    setWords(makeWords(0));
+    setSelected([]);
+    setFeedback('');
+    setScore(0);
+    setFinished(false);
+  }
+
+  return (
+    <section className="mbg-game">
+      <Header title="Ordena el versículo" subtitle="Toca las palabras en el orden correcto para reconstruir cada versículo." onExit={onExit} />
+      {finished ? <Result score={score} onRestart={restart} onExit={onExit} /> : (
+        <>
+          <div className="mbg-stats">
+            <span>Nivel: <b>{level + 1}/{verseLevels.length}</b></span>
+            <span><Star size={17} /> Puntos: <b>{score}</b></span>
+          </div>
+          <div className="mbg-word-board">
+            <span className="mbg-eyebrow">{current.ref}</span>
+            <p className="mbg-word-instruction">Tu versículo ordenado:</p>
+            <div className="mbg-arranged">
+              {selected.length === 0 && <span className="mbg-placeholder">Selecciona las palabras de abajo</span>}
+              {selected.map((id) => {
+                const word = words.find((item) => item.id === id);
+                return word ? <button key={id} onClick={() => removeWord(id)}>{word.text} ×</button> : null;
+              })}
+            </div>
+            <div className="mbg-word-options">
+              {words.filter((word) => !selected.includes(word.id)).map((word) => (
+                <button key={word.id} onClick={() => choose(word.id)}>{word.text}</button>
+              ))}
+            </div>
+            {feedback && (
+              <div className={`mbg-feedback ${feedback === 'correcto' ? 'good' : 'bad'}`}>
+                {feedback === 'correcto' ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
+                {feedback === 'correcto' ? '¡Excelente! El versículo está correcto. +20 puntos.' : feedback}
+              </div>
+            )}
+            <div className="mbg-actions">
+              {feedback === 'correcto' ? (
+                <button onClick={next}>{level === verseLevels.length - 1 ? 'Ver resultados' : 'Siguiente versículo'} <ChevronRight size={17} /></button>
+              ) : (
+                <>
+                  <button onClick={check} disabled={selected.length !== words.length}>Comprobar</button>
+                  <button className="secondary" onClick={() => { setSelected([]); setFeedback(''); }}>Reiniciar palabras</button>
+                </>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
+function QuizQuestion({ question, answered, onAnswer }: {
+  question: Question;
+  answered: string | null;
+  onAnswer: (option: string) => void;
+}) {
+  return (
+    <article className="mbg-question">
+      <span className="mbg-eyebrow">{question.reference}</span>
+      <h3>{question.prompt}</h3>
+      <div className="mbg-options">
+        {question.options.map((option) => {
+          const isAnswer = option === question.answer;
+          const isSelected = answered === option;
+          const cls = answered !== null && isAnswer
+            ? 'correct'
+            : isSelected && !isAnswer
+              ? 'incorrect'
+              : '';
+          return (
+            <button
+              type="button"
+              key={option}
+              className={cls}
+              disabled={answered !== null}
+              onClick={() => onAnswer(option)}
+            >
+              {option}
+              {answered !== null && isAnswer && <CheckCircle2 size={18} />}
+              {isSelected && !isAnswer && <XCircle size={18} />}
+            </button>
+          );
+        })}
+      </div>
+
+      {answered !== null && (
+        <div className={`mbg-answer-detail ${answered === question.answer ? 'good' : 'bad'}`}>
+          <div className="mbg-answer-heading">
+            {answered === question.answer
+              ? <CheckCircle2 size={20} />
+              : <XCircle size={20} />}
+            <strong>
+              {answered === question.answer
+                ? '¡Respuesta correcta!'
+                : 'Respuesta bíblica correcta'}
+            </strong>
+          </div>
+          <p>
+            <b>Respuesta:</b> {question.answer}
+          </p>
+          <span className="mbg-bible-reference">
+            <BookOpenIcon /> Referencia: {question.reference}
+          </span>
+          <p className="mbg-bible-explanation">
+            {biblicalExplanations[question.reference] ??
+              'Consulta este pasaje en tu Biblia y reflexiona sobre su enseñanza.'}
+          </p>
+        </div>
+      )}
+    </article>
+  );
+}
+
+
+function BookOpenIcon() {
+  return <Star size={15} />;
+}

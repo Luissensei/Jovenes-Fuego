@@ -30,6 +30,13 @@ import {
 
 import TriviaGame from './TriviaGame';
 import VerseGame from './VerseGame';
+import {
+  MemoryGame,
+  ChallengeGame,
+  SurvivalGame,
+  DuelGame,
+  OrderVerseGame,
+} from './MoreBibleGames';
 
 type Tab = 'ranking' | 'games' | 'profiles';
 
@@ -59,7 +66,7 @@ const games = [
     detail: 'Relaciona personajes y acontecimientos.',
     icon: Brain,
     color: 'blue',
-    available: false,
+    available: true,
   },
   {
     id: 'challenge',
@@ -68,7 +75,7 @@ const games = [
     detail: 'Responde rápido y consigue puntos.',
     icon: Timer,
     color: 'green',
-    available: false,
+    available: true,
   },
   {
     id: 'survival',
@@ -77,7 +84,7 @@ const games = [
     detail: 'Avanza de nivel sin perder oportunidades.',
     icon: Flame,
     color: 'red',
-    available: false,
+    available: true,
   },
   {
     id: 'duel',
@@ -86,7 +93,7 @@ const games = [
     detail: 'Demuestra tus conocimientos.',
     icon: Swords,
     color: 'purple',
-    available: false,
+    available: true,
   },
   {
     id: 'order',
@@ -95,7 +102,7 @@ const games = [
     detail: 'Reconstruye versículos.',
     icon: Puzzle,
     color: 'blue',
-    available: false,
+    available: true,
   },
 ];
 
@@ -385,6 +392,16 @@ export default function RankingPage({
             <VerseGame
               onExit={() => setActiveGame(null)}
             />
+          ) : activeGame === 'memory' ? (
+            <MemoryGame onExit={() => setActiveGame(null)} />
+          ) : activeGame === 'challenge' ? (
+            <ChallengeGame onExit={() => setActiveGame(null)} />
+          ) : activeGame === 'survival' ? (
+            <SurvivalGame onExit={() => setActiveGame(null)} />
+          ) : activeGame === 'duel' ? (
+            <DuelGame onExit={() => setActiveGame(null)} />
+          ) : activeGame === 'order' ? (
+            <OrderVerseGame onExit={() => setActiveGame(null)} />
           ) : (
             <>
               <div className="ranking-section-heading">

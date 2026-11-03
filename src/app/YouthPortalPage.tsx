@@ -1,17 +1,19 @@
-
 import { useEffect, useMemo, useState } from 'react';
+
 import {
   Search,
   Users,
   AlertCircle,
   ArrowLeft,
-  UserRound,
   Flame,
   Trophy,
   BookOpen,
   Gamepad2,
   Activity,
   RefreshCw,
+  ChevronRight,
+  ShieldCheck,
+  Sparkles,
 } from 'lucide-react';
 
 import {
@@ -19,11 +21,53 @@ import {
   type PublicProfile,
 } from '../services/publicProfiles';
 
+import './YouthPortalPage.css';
+
+function getInitials(name: string): string {
+  const cleanName = name.trim();
+
+  if (!cleanName || cleanName === 'Perfil sin nombre') {
+    return 'JF';
+  }
+
+  return cleanName
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0] || '')
+    .join('')
+    .toUpperCase();
+}
+
+function YouthAvatar({
+  profile,
+  large = false,
+}: {
+  profile: PublicProfile;
+  large?: boolean;
+}) {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  return (
+    <div className={`youth-avatar ${large ? 'large' : ''}`}>
+      {profile.pic && !imageFailed ? (
+        <img
+          src={profile.pic}
+          alt={`Fotografía de ${profile.name}`}
+          onError={() => setImageFailed(true)}
+        />
+      ) : (
+        <span>{getInitials(profile.name)}</span>
+      )}
+    </div>
+  );
+}
+
 export default function YouthPortalPage() {
   const [profiles, setProfiles] = useState<PublicProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+
   const [selectedProfile, setSelectedProfile] =
     useState<PublicProfile | null>(null);
 
@@ -66,180 +110,233 @@ export default function YouthPortalPage() {
   if (selectedProfile) {
     return (
       <main className="youth-portal">
-        <button
-          type="button"
-          className="youth-back"
-          onClick={() => setSelectedProfile(null)}
-        >
-          <ArrowLeft size={18} />
-          Volver a los perfiles
-        </button>
+        <div className="youth-container">
+          <button
+            type="button"
+            className="youth-back"
+            onClick={() => setSelectedProfile(null)}
+          >
+            <ArrowLeft size={18} />
+            Volver a los perfiles
+          </button>
 
-        <section className="youth-welcome">
-          <div className="youth-avatar large">
-            {selectedProfile.pic ? (
-              <img
-                src={selectedProfile.pic}
-                alt={selectedProfile.name}
-              />
-            ) : (
-              String(selectedProfile.name || '?')
-                .trim()
-                .split(/\s+/)
-                .slice(0, 2)
-                .map((part) => part[0] || '')
-                .join('')
-                .toUpperCase()
-            )}
-          </div>
+          <section className="youth-welcome">
+            <div className="youth-welcome-decoration">
+              <Sparkles size={23} />
+            </div>
 
-          <h1>¡Hola, {selectedProfile.name || 'joven'}!</h1>
-          <p>Bienvenido a Jóvenes de Fuego.</p>
+            <YouthAvatar profile={selectedProfile} large />
 
-          {selectedProfile.nick && (
-            <span className="youth-profile-nick">
-              @{selectedProfile.nick}
+            <span className="youth-brand-label">
+              COMUNIDAD JÓVENES DE FUEGO
             </span>
-          )}
-        </section>
 
-        <section className="youth-options">
-          <article>
-            <Trophy size={25} />
-            <h2>Mi ranking</h2>
-            <p>Consulta tu clasificación.</p>
-          </article>
+            <h1>
+              ¡Hola, {selectedProfile.name}!
+            </h1>
 
-          <article>
-            <BookOpen size={25} />
-            <h2>Devocionales</h2>
-            <p>Próximamente podrás consultar tus devocionales.</p>
-          </article>
+            <p>Bienvenido a Jóvenes de Fuego.</p>
 
-          <article>
-            <Gamepad2 size={25} />
-            <h2>Juegos bíblicos</h2>
-            <p>Próximamente podrás participar en retos.</p>
-          </article>
+            {selectedProfile.nick && (
+              <span className="youth-profile-nick">
+                @{selectedProfile.nick}
+              </span>
+            )}
+          </section>
 
-          <article>
-            <Activity size={25} />
-            <h2>Mi actividad</h2>
-            <p>Próximamente podrás consultar tus actividades.</p>
-          </article>
-        </section>
+          <section className="youth-options">
+            <article>
+              <Trophy size={25} />
+              <h2>Mi ranking</h2>
+              <p>Consulta tu clasificación pública.</p>
+            </article>
 
-        <p className="youth-security-note">
-          Esta selección es una vista de perfil, no una verificación
-          de identidad. No permite modificar puntos ni consultar
-          información privada.
-        </p>
+            <article>
+              <BookOpen size={25} />
+              <h2>Devocionales</h2>
+              <p>Próximamente podrás consultar tus devocionales.</p>
+            </article>
+
+            <article>
+              <Gamepad2 size={25} />
+              <h2>Juegos bíblicos</h2>
+              <p>Próximamente podrás participar en retos.</p>
+            </article>
+
+            <article>
+              <Activity size={25} />
+              <h2>Mi actividad</h2>
+              <p>Próximamente podrás consultar tus actividades.</p>
+            </article>
+          </section>
+
+          <div className="youth-security-note">
+            <ShieldCheck size={17} />
+            Esta selección es una vista pública del perfil, no una
+            verificación de identidad. No permite consultar datos privados.
+          </div>
+        </div>
       </main>
     );
   }
 
   return (
     <main className="youth-portal">
-      <header className="youth-header">
-        <div className="youth-brand-icon">
-          <Flame size={30} />
-        </div>
+      <div className="youth-container">
 
-        <p className="eyebrow">JÓVENES DE FUEGO</p>
-        <h1>¿Quién eres?</h1>
-        <p>Selecciona tu perfil para continuar.</p>
-      </header>
+        <header className="youth-header">
+          <div className="youth-brand-icon">
+            <Flame size={34} />
+          </div>
 
-      {error && (
-        <div className="notice">
-          <AlertCircle size={18} />
-          <span>{error}</span>
-        </div>
-      )}
+          <span className="youth-brand-label">
+            COMUNIDAD CRISTIANA
+          </span>
 
-      <label className="member-search youth-search">
-        <Search size={18} />
-        <input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Buscar mi nombre..."
-          aria-label="Buscar perfil"
-        />
-      </label>
+          <h1>JÓVENES DE FUEGO</h1>
 
-      {loading && (
-        <div className="members-empty">
-          <RefreshCw size={24} />
-          <strong>Cargando perfiles...</strong>
-        </div>
-      )}
+          <div className="youth-title-divider" />
 
-      {!loading && error && (
-        <div className="members-empty">
-          <AlertCircle size={26} />
-          <strong>No pudimos conectar con los perfiles.</strong>
-          <button type="button" onClick={() => void loadProfiles()}>
-            Intentar nuevamente
-          </button>
-        </div>
-      )}
+          <h2>¿Quién eres?</h2>
 
-      {!loading && !error && filteredProfiles.length === 0 && (
-        <div className="members-empty">
-          <Users size={26} />
-          <strong>
-            {profiles.length === 0
-              ? 'Todavía no hay perfiles disponibles'
-              : 'No encontramos ese nombre'}
-          </strong>
-          <span>Intenta con otra búsqueda.</span>
-          <button type="button" onClick={() => void loadProfiles()}>
-            Actualizar perfiles
-          </button>
-        </div>
-      )}
+          <p>Selecciona tu perfil para continuar.</p>
+        </header>
 
-      {!loading && !error && filteredProfiles.length > 0 && (
-        <section className="youth-profiles">
-          {filteredProfiles.map((profile) => {
-            const initials = String(profile.name || '?')
-              .trim()
-              .split(/\s+/)
-              .slice(0, 2)
-              .map((part) => part[0] || '')
-              .join('')
-              .toUpperCase();
+        <section className="youth-selector">
 
-            return (
+          <div className="youth-selector-heading">
+            <div>
+              <span>ACCESO JUVENIL</span>
+              <h3>Nuestra comunidad</h3>
+            </div>
+
+            <div className="youth-total">
+              <Users size={17} />
+              {profiles.length} perfiles
+            </div>
+          </div>
+
+          <label className="youth-search">
+            <Search size={19} />
+
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Buscar por nombre o apodo..."
+              aria-label="Buscar perfil"
+            />
+
+            {search && (
               <button
                 type="button"
-                className="youth-profile-card"
-                key={profile.id}
-                onClick={() => setSelectedProfile(profile)}
+                onClick={() => setSearch('')}
+                aria-label="Limpiar búsqueda"
               >
-                <div className="youth-avatar">
-                  {profile.pic ? (
-                    <img src={profile.pic} alt={profile.name} />
-                  ) : (
-                    initials || <UserRound />
-                  )}
-                </div>
-
-                <strong>{profile.name || 'Joven'}</strong>
-
-                {profile.nick && (
-                  <span>@{profile.nick}</span>
-                )}
+                ×
               </button>
-            );
-          })}
-        </section>
-      )}
+            )}
+          </label>
 
-      <p className="youth-security-note">
-        Seleccionar un perfil no verifica la identidad de la persona.
-        No introduzcas información privada en este acceso.
-      </p>
+          {error && (
+            <div className="youth-error">
+              <AlertCircle size={19} />
+              <span>{error}</span>
+
+              <button
+                type="button"
+                onClick={() => void loadProfiles()}
+              >
+                Reintentar
+              </button>
+            </div>
+          )}
+
+          {loading && (
+            <div className="youth-loading">
+              <RefreshCw size={27} />
+              <strong>Cargando perfiles...</strong>
+              <span>Estamos preparando la comunidad.</span>
+            </div>
+          )}
+
+          {!loading && !error && filteredProfiles.length === 0 && (
+            <div className="youth-empty">
+              <Users size={38} />
+
+              <h3>
+                {profiles.length === 0
+                  ? 'Todavía no hay perfiles públicos'
+                  : 'No encontramos ese perfil'}
+              </h3>
+
+              <p>
+                {profiles.length === 0
+                  ? 'Los perfiles deben publicarse desde el panel administrativo.'
+                  : 'Prueba con otro nombre o apodo.'}
+              </p>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch('');
+                  void loadProfiles();
+                }}
+              >
+                <RefreshCw size={16} />
+                Actualizar perfiles
+              </button>
+            </div>
+          )}
+
+          {!loading && !error && filteredProfiles.length > 0 && (
+            <>
+              <div className="youth-profiles">
+                {filteredProfiles.map((profile) => (
+                  <button
+                    type="button"
+                    className="youth-profile-card"
+                    key={profile.id}
+                    onClick={() => setSelectedProfile(profile)}
+                  >
+                    <span className="youth-card-decoration">
+                      <Flame size={15} />
+                    </span>
+
+                    <YouthAvatar profile={profile} />
+
+                    <strong>{profile.name}</strong>
+
+                    {profile.nick ? (
+                      <span className="youth-card-nick">
+                        @{profile.nick}
+                      </span>
+                    ) : (
+                      <span className="youth-card-nick">
+                        Miembro de la comunidad
+                      </span>
+                    )}
+
+                    <span className="youth-card-action">
+                      Seleccionar perfil
+                      <ChevronRight size={15} />
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="youth-results-count">
+                Mostrando {filteredProfiles.length} de {profiles.length} perfiles
+              </div>
+            </>
+          )}
+        </section>
+
+        <footer className="youth-security-note">
+          <ShieldCheck size={17} />
+          Seleccionar un perfil no verifica la identidad de la persona.
+          No introduzcas información privada en este acceso.
+        </footer>
+      </div>
     </main>
   );
 }

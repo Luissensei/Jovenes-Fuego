@@ -82,6 +82,20 @@ const questions: Question[] = [
   },
 ];
 
+
+const verseExplanations: Record<string, string> = {
+  'Salmo 23:1': 'David expresa su confianza en Dios usando la imagen de un pastor que cuida, guía y provee para sus ovejas.',
+  'Filipenses 4:13': 'Pablo enseña que Cristo le da fuerzas para enfrentar tanto la abundancia como las dificultades.',
+  'Proverbios 3:5': 'Este proverbio invita a confiar plenamente en Dios y no depender solamente de nuestro propio entendimiento.',
+  'Josué 1:9': 'Dios anima a Josué a ser valiente y recuerda que estará con él dondequiera que vaya.',
+  'Mateo 5:14': 'Jesús enseña que sus seguidores deben reflejar la luz de Dios mediante su manera de vivir.',
+  '1 Corintios 13:4': 'Pablo describe el amor verdadero: es paciente, bondadoso y no actúa con envidia ni orgullo.',
+  'Romanos 12:2': 'Pablo anima a renovar la manera de pensar para conocer y practicar la voluntad de Dios.',
+  'Efesios 6:11': 'La armadura de Dios representa los recursos espirituales para mantenerse firme ante las dificultades y tentaciones.',
+  'Génesis 1:1': 'La Biblia comienza afirmando que Dios es el creador de los cielos y de la tierra.',
+  'Juan 11:35': 'Jesús lloró ante la muerte de Lázaro. Este pasaje muestra su compasión y cercanía con quienes sufren.'
+};
+
 export default function VerseGame({
   onExit,
 }: {
@@ -229,25 +243,37 @@ export default function VerseGame({
 
             {selectedAnswer !== null && (
               <div className={`verse-feedback ${isCorrect ? 'success' : 'error'}`}>
-                {isCorrect ? (
-                  <>
+                <div className="verse-feedback-main">
+                  {isCorrect ? (
                     <CheckCircle2 size={21} />
-                    <div>
-                      <strong>¡Muy bien! Respuesta correcta.</strong>
-                      <span>Has ganado 10 puntos.</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
+                  ) : (
                     <XCircle size={21} />
-                    <div>
-                      <strong>¡Sigue intentando!</strong>
-                      <span>
-                        La respuesta correcta era: {currentQuestion.answer}.
-                      </span>
-                    </div>
-                  </>
-                )}
+                  )}
+
+                  <div>
+                    <strong>
+                      {isCorrect
+                        ? '¡Muy bien! Respuesta correcta.'
+                        : 'Respuesta incorrecta. Aprende la respuesta bíblica.'}
+                    </strong>
+
+                    <span>
+                      Respuesta correcta: {currentQuestion.answer}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="verse-bible-detail">
+                  <span className="verse-bible-reference">
+                    <BookOpen size={15} />
+                    Referencia: {currentQuestion.reference}
+                  </span>
+
+                  <p>
+                    {verseExplanations[currentQuestion.reference] ??
+                      'Consulta este pasaje en tu Biblia y reflexiona sobre su enseñanza.'}
+                  </p>
+                </div>
               </div>
             )}
 

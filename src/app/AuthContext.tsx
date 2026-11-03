@@ -73,10 +73,13 @@ export function AuthProvider({
     const authInstance = auth;
     const dbInstance = db;
     let active = true;
+    let authEvent = 0;
 
     const unsubscribe = onAuthStateChanged(
       authInstance,
       async (currentUser) => {
+        const currentEvent = ++authEvent;
+
         if (!active) return;
 
         setUser(currentUser);
@@ -95,54 +98,81 @@ export function AuthProvider({
             doc(dbInstance, 'users', currentUser.uid)
           );
 
-          if (!active) return;
+          if (!active || currentEvent !== authEvent) return;
 
           if (!profileSnap.exists()) {
-            setError(
-              'Tu cuenta inició sesión, pero no tiene un perfil autorizado en la colección users.'
+            console.error(
+              'No existe el perfil para el UID:',
+              currentUser.uid
             );
 
-            await signOut(authInstance);
+            setError(
+              'Tu sesión está activa, pero no se encontró tu perfil en la colección users. Comprueba que el ID del documento coincida con tu UID de Authentication.'
+            );
 
-            if (active) {
-              setUser(null);
-              setProfile(null);
-            }
-
+            setProfile(null);
             return;
           }
 
-          setProfile(profileSnap.data() as UserProfile);
+          const userProfile = profileSnap.data() as UserProfile;
+
+          if (
+            typeof userProfile.role !== 'string' ||
+            !userProfile.role.trim()
+          ) {
+            setError(
+              'Tu perfil existe, pero no tiene un rol válido. Contacta al administrador.'
+            );
+
+            setProfile(null);
+            return;
+          }
+
+          setProfile(userProfile);
+          setError(null);
+
         } catch (cause) {
-          if (!active) return;
+          if (!active || currentEvent !== authEvent) return;
+
+          const firebaseError = cause as {
+            code?: string;
+            message?: string;
+          };
 
           console.error(
-            'Error verificando el perfil del usuario:',
-            cause
+            'Error verificando el perfil:',
+            firebaseError.code,
+            firebaseError.message
           );
 
-          setError(
-            'No se pudo verificar tu perfil. Revisa la conexión y las reglas de Firebase de staging.'
-          );
-
-          try {
-            await signOut(authInstance);
-          } catch (signOutError) {
-            console.error(
-              'Error cerrando la sesión:',
-              signOutError
+          if (firebaseError.code === 'permission-denied') {
+            setError(
+              'Firebase rechazó la lectura de tu perfil. Revisa las reglas de Firestore Staging.'
+            );
+          } else {
+            setError(
+              'No se pudo consultar tu perfil. Comprueba la conexión con Firebase Staging.'
             );
           }
 
-          if (active) {
-            setUser(null);
-            setProfile(null);
-          }
+          setProfile(null);
+
+          // No cerrar automáticamente la sesión.
+          // El usuario podrá seguir autenticado mientras se
+          // identifica y corrige el problema del perfil.
         } finally {
-          if (active) {
+          if (active && currentEvent === authEvent) {
             setLoading(false);
           }
         }
+      },
+      (cause) => {
+        if (!active) return;
+
+        console.error('Error de autenticación:', cause);
+
+        setError('No se pudo comprobar la sesión de Firebase.');
+        setLoading(false);
       }
     );
 
@@ -163,7 +193,7 @@ export function AuthProvider({
       async login(email, password) {
         if (!firebaseConfigured || !auth) {
           throw new Error(
-            'Firebase staging no está configurado. Completa .env.local.'
+            'Firebase Staging no está configurado. Comprueba .env.local.'
           );
         }
 
@@ -176,31 +206,33 @@ export function AuthProvider({
             password
           );
         } catch (cause) {
-          const code = (cause as { code?: string })?.code;
+          const firebaseError = cause as {
+            code?: string;
+            message?: string;
+          };
+
+          console.error(
+            'Error de inicio de sesión:',
+            firebaseError.code,
+            firebaseError.message
+          );
 
           if (
-            code === 'auth/invalid-credential' ||
-            code === 'auth/wrong-password' ||
-            code === 'auth/user-not-found'
+            firebaseError.code === 'auth/invalid-credential' ||
+            firebaseError.code === 'auth/wrong-password' ||
+            firebaseError.code === 'auth/user-not-found'
           ) {
-            throw new Error(
-              'Correo o contraseña incorrectos.'
-            );
+            throw new Error('Correo o contraseña incorrectos.');
           }
 
-          if (code === 'auth/too-many-requests') {
+          if (firebaseError.code === 'auth/too-many-requests') {
             throw new Error(
               'Demasiados intentos. Espera un momento y vuelve a intentar.'
             );
           }
 
-          console.error(
-            'Error de inicio de sesión:',
-            cause
-          );
-
           throw new Error(
-            'No se pudo iniciar sesión. Verifica que Authentication esté habilitado en staging.'
+            'No se pudo iniciar sesión. Comprueba Firebase Authentication en Staging.'
           );
         }
       },
@@ -230,7 +262,7 @@ export function useAuth() {
 
   if (!value) {
     throw new Error(
-      'useAuth debe usarse dentro de AuthProvider.'
+      'useAuth debe utilizarse dentro de AuthProvider.'
     );
   }
 
