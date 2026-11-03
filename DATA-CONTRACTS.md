@@ -4,7 +4,7 @@ Este documento registra el esquema observado en el código legado. Es un contrat
 
 ## Primer módulo implementado
 
-### `members/{id}` — consulta de jóvenes
+### `members/{id}` — consulta de jóvenes y fuente histórica de perfiles públicos
 
 **Lectura:** suscripción `onSnapshot(collection(db, 'members'))` en `src/services/repositories/members.ts`.
 
@@ -67,7 +67,7 @@ Control diario de hasta 50 envíos por dirección de red anonimizada mediante SH
 ### Funciones administrativas y públicas
 
 - `getMyApplicationProfile`: valida la sesión y lee `users/{uid}` desde servidor, sin conceder al navegador lectura directa de la colección `users`.
-- `getPublicProfiles`: lee perfiles publicados, devuelve campos públicos y puntos, y excluye perfiles marcados `nopub` tanto en `publicProfiles` como en `members`.
+- `getPublicProfiles`: combina la ficha histórica `members/{id}` con el complemento opcional `publicProfiles/{id}`. Si no existe un documento complementario, el joven sigue apareciendo con los campos públicos de `members`. Excluye el perfil si `nopub === true` en cualquiera de las dos colecciones y devuelve únicamente ID, nombre, apodo, foto HTTPS y puntos.
 - `getPrivateMembers`: devuelve fichas a usuarios autenticados con rol admin, administrador, pastor o líder. Para líderes devuelve solo ID, nombre, apodo y foto; administración/pastoral reciben la ficha completa. La edición de fichas mediante `adminUpdateMember` sigue restringida a admin, administrador y pastor. La sincronización opcional de `members` y `publicProfiles` se realiza con un batch atómico.
 - `adminUpdateMember`: actualiza una lista permitida de campos de `members/{id}`; mantiene los campos históricos no enviados. Si existe `publicProfiles/{id}`, sincroniza nombre, apodo, foto y `nopub` en una operación batch.
 - `getPublicWeeklyActivities`, `adminListWeeklyActivities`, `adminSaveWeeklyActivity`.
