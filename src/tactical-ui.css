@@ -2050,3 +2050,33 @@ button:not(:disabled):active {
     transition-duration: .01ms !important;
   }
 }
+
+
+/* Live dashboard summary */
+.dashboard-live-stats {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+}
+.dashboard-summary-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 13px;
+  border: 1px solid var(--line, rgba(255,255,255,.14));
+  border-radius: 10px;
+  background: var(--surface, rgba(255,255,255,.04));
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.dashboard-summary-refresh:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+.dashboard-summary-state {
+  padding: 16px;
+  border: 1px dashed var(--line, rgba(255,255,255,.18));
+  border-radius: 12px;
+  color: var(--muted, inherit);
+}
