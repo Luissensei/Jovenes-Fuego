@@ -16,7 +16,6 @@ import {
   ShieldCheck,
   X,
   LogOut,
-  UserRound,
 } from 'lucide-react';
 import { PlayerAvatar } from '../components/gaming/GamingUI';
 
