@@ -1,6 +1,6 @@
 import {collection, doc, getDoc, getDocs, runTransaction, setDoc, updateDoc} from 'firebase/firestore';
 
-import {db} from './firebase/client';
+import {assertFirebaseWritesAllowed, db} from './firebase/client';
 
 export type WeeklyActivity = {
   id: string;
@@ -197,6 +197,7 @@ export async function getAdminWeeklyActivities(): Promise<WeeklyActivity[]> {
 export async function saveWeeklyActivity(
   activity: Omit<WeeklyActivity, 'id'> & {id?: string},
 ): Promise<void> {
+  assertFirebaseWritesAllowed();
   if (!db) throw new Error('Firebase Firestore no está configurado.');
   const payload = {
     t: activity.title.trim(),
@@ -247,6 +248,7 @@ export async function saveWeeklyActivity(
 }
 
 export async function sendPrayerRequest(input: PrayerRequestInput): Promise<void> {
+  assertFirebaseWritesAllowed();
   if (!db) throw new Error('Firebase Firestore no está configurado.');
   const memberId = input.memberId.trim();
   const requester = input.requester.trim().slice(0, 59) || 'Anónimo';
@@ -289,6 +291,7 @@ export async function updateMemberForAdministration(
   memberId: string,
   patch: AdminMemberPatch,
 ): Promise<void> {
+  assertFirebaseWritesAllowed();
   if (!db) throw new Error('Firebase Firestore no está configurado.');
   const memberRef = doc(db, 'members', memberId);
   const photoRef = doc(db, 'photos', memberId);
@@ -351,6 +354,7 @@ export async function saveYouthProfileAppearance(
   memberId: string,
   appearance: YouthProfileAppearance,
 ): Promise<void> {
+  assertFirebaseWritesAllowed();
   if (!db) throw new Error('Firebase Firestore no está configurado.');
   if (!memberId || memberId.length >= 40 || memberId.startsWith('public-profile-')) {
     throw new Error('Este perfil no está vinculado a un registro de joven válido.');
