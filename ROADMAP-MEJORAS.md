@@ -176,3 +176,12 @@ No se han desplegado Functions, reglas ni Hosting desde esta conversación. No s
 - El panel principal ahora consume getDashboardSummary y muestra indicadores reales con respuesta distinta según el rol. Las cuentas juveniles solo reciben agregados públicos; no ven métricas internas de seguimiento, visitantes o peticiones.
 - La aplicación ya cuenta con manifest, iconos instalables y service worker. El service worker está limitado a la carcasa estática y recursos del mismo origen; no almacena respuestas de Firebase ni documentos privados. Se añadió el icono de inicio de iOS.
 - El repositorio conserva una capa de compatibilidad para subscribeMembers, pero ahora obtiene los datos a través de la callable protegida en lugar de Firestore directo.
+
+
+### Validación técnica adicional — 2 de noviembre de 2026
+
+- En la revisión del commit 38d8b6de9c1d35898724d9f291e4fc086b7e0636, GitHub Actions ejecutó correctamente ESLint y TypeScript de Firebase Functions.
+- El build del frontend también se había completado correctamente en una ejecución anterior; el último commit añadió únicamente el aviso visual sobre puntuaciones de práctica, y su ejecución asociada aún debe concluir.
+- Los errores de ESLint que bloqueaban Functions se corrigieron alineando reglas heredadas de formato con TypeScript. Los errores de tipos de la configuración de Bandeja/Turnos se corrigieron con un tipo explícito.
+- La aprobación de scripts npm queda limitada a @firebase/util, esbuild y protobufjs en versiones concretas; re2 permanece bloqueado.
+- El límite de Vercel build-rate-limit sigue siendo externo a la compilación del código y ha impedido obtener una nueva previsualización en Vercel.
