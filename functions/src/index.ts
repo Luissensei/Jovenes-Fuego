@@ -67,6 +67,8 @@ export const getPublicProfiles = onCall(async () => {
           name: typeof data.name === "string" ? data.name : "",
           nick: typeof data.nick === "string" ? data.nick : "",
           pic: typeof data.pic === "string" ? data.pic : "",
+          points: typeof data.points === "number" && Number.isFinite(data.points) ?
+            data.points : 0,
         };
       }),
     };
