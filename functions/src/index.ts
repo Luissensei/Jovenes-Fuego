@@ -566,3 +566,486 @@ export const saveMeetingAttendance = onCall(async (request) => {
   });
   return {success: true};
 });
+
+
+// -----------------------------------------------------------------------------
+// Persistencia protegida para seguimiento, visitantes y devocionales.
+// Todas estas operaciones usan Admin SDK desde Functions; el navegador no
+// necesita permisos directos sobre las colecciones privadas.
+// -----------------------------------------------------------------------------
+
+function isoValue(value: unknown): string {
+  if (typeof value === "string") return value.slice(0, 40);
+  if (value instanceof Date && Number.isFinite(value.getTime())) {
+    return value.toISOString();
+  }
+  if (typeof value === "object" && value !== null && "toDate" in value) {
+    const timestamp = value as {toDate?: () => Date};
+    if (typeof timestamp.toDate === "function") {
+      const date = timestamp.toDate();
+      return date instanceof Date && Number.isFinite(date.getTime())
+        ? date.toISOString()
+        : "";
+    }
+  }
+  return "";
+}
+
+async function ensureOwnedRecord(
+  collectionName: string,
+  recordId: string,
+  uid: string,
+  role: AuthorizedRole,
+) {
+  const ref = db.collection(collectionName).doc(recordId);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) {
+    throw new HttpsError("not-found", "No se encontró el registro.");
+  }
+  const data = snapshot.data() ?? {};
+  if (role === "lider" || role === "líder") {
+    if (data.createdBy !== uid) {
+      throw new HttpsError("permission-denied", "Solo puedes modificar los registros que creaste.");
+    }
+  }
+  return {ref, data};
+}
+
+const followupStatuses = ["Pendiente", "En proceso", "Completado"];
+const visitorStatuses = ["Nuevo", "Contactado", "Integrado"];
+
+export const getFollowups = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const role = await requireAuthorizedRole(request.auth.uid);
+  const snapshot = await db.collection("followups").limit(500).get();
+  const items = snapshot.docs.flatMap((document) => {
+    const data = document.data();
+    if ((role === "lider" || role === "líder") &&
+      data.createdBy !== request.auth?.uid) return [];
+    return [{
+      id: document.id,
+      name: text(data.name, 120),
+      date: text(data.date, 10),
+      reason: text(data.reason, 120),
+      notes: text(data.notes, 2000),
+      status: followupStatuses.includes(String(data.status))
+        ? String(data.status)
+        : "Pendiente",
+      createdAt: isoValue(data.createdAt),
+    }];
+  }).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+  return {items};
+});
+
+export const createFollowup = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const data = request.data ?? {};
+  const name = text(data.name, 120);
+  const date = text(data.date, 10);
+  const reason = text(data.reason, 120);
+  const notes = text(data.notes, 2000);
+  if (name.length < 2 || !isValidDate(date) || !reason || !notes) {
+    throw new HttpsError("invalid-argument", "Completa un nombre, fecha real, motivo y observaciones válidas.");
+  }
+  const ref = db.collection("followups").doc();
+  const now = new Date().toISOString();
+  await ref.set({
+    name, date, reason, notes,
+    status: "Pendiente",
+    createdAt: now,
+    createdBy: request.auth.uid,
+    updatedAt: now,
+    updatedBy: request.auth.uid,
+  });
+  return {success: true, id: ref.id};
+});
+
+export const updateFollowupStatus = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const role = await requireAuthorizedRole(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  const status = text(request.data?.status, 30);
+  if (!id || !followupStatuses.includes(status)) {
+    throw new HttpsError("invalid-argument", "El seguimiento o su estado no son válidos.");
+  }
+  const {ref} = await ensureOwnedRecord("followups", id, request.auth.uid, role);
+  await ref.update({
+    status,
+    updatedAt: new Date().toISOString(),
+    updatedBy: request.auth.uid,
+  });
+  return {success: true};
+});
+
+export const deleteFollowup = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const role = await requireAuthorizedRole(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona un seguimiento válido.");
+  const {ref} = await ensureOwnedRecord("followups", id, request.auth.uid, role);
+  await ref.delete();
+  return {success: true};
+});
+
+export const getVisitors = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const role = await requireAuthorizedRole(request.auth.uid);
+  const snapshot = await db.collection("visitors").limit(500).get();
+  const items = snapshot.docs.flatMap((document) => {
+    const data = document.data();
+    if ((role === "lider" || role === "líder") &&
+      data.createdBy !== request.auth?.uid) return [];
+    return [{
+      id: document.id,
+      name: text(data.name, 120),
+      phone: role === "admin" || role === "administrador" || role === "pastor"
+        ? text(data.phone, 40)
+        : "",
+      email: role === "admin" || role === "administrador" || role === "pastor"
+        ? text(data.email, 160)
+        : "",
+      date: text(data.date, 10),
+      source: text(data.source, 120),
+      notes: text(data.notes, 1000),
+      status: visitorStatuses.includes(String(data.status))
+        ? String(data.status)
+        : "Nuevo",
+      createdAt: isoValue(data.createdAt),
+    }];
+  }).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+  return {items};
+});
+
+export const createVisitor = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const data = request.data ?? {};
+  const name = text(data.name, 120);
+  const phone = text(data.phone, 40);
+  const email = text(data.email, 160);
+  const date = text(data.date, 10);
+  const source = text(data.source, 120);
+  const notes = text(data.notes, 1000);
+  if (name.length < 2 || phone.length < 7 || !isValidDate(date)) {
+    throw new HttpsError("invalid-argument", "El nombre, teléfono y fecha de visita son obligatorios y deben ser válidos.");
+  }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new HttpsError("invalid-argument", "El correo electrónico no tiene un formato válido.");
+  }
+  const ref = db.collection("visitors").doc();
+  const now = new Date().toISOString();
+  await ref.set({
+    name, phone, email, date,
+    source: source || "Otro",
+    notes,
+    status: "Nuevo",
+    createdAt: now,
+    createdBy: request.auth.uid,
+    updatedAt: now,
+    updatedBy: request.auth.uid,
+  });
+  return {success: true, id: ref.id};
+});
+
+export const updateVisitorStatus = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const role = await requireAuthorizedRole(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  const status = text(request.data?.status, 30);
+  if (!id || !visitorStatuses.includes(status)) {
+    throw new HttpsError("invalid-argument", "El visitante o su estado no son válidos.");
+  }
+  const {ref} = await ensureOwnedRecord("visitors", id, request.auth.uid, role);
+  await ref.update({
+    status,
+    updatedAt: new Date().toISOString(),
+    updatedBy: request.auth.uid,
+  });
+  return {success: true};
+});
+
+export const deleteVisitor = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const role = await requireAuthorizedRole(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona un visitante válido.");
+  const {ref} = await ensureOwnedRecord("visitors", id, request.auth.uid, role);
+  await ref.delete();
+  return {success: true};
+});
+
+export const getDevotionals = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const snapshot = await db.collection("devotionals").limit(250).get();
+  const devotionals = snapshot.docs.map((document) => {
+    const data = document.data();
+    return {
+      id: document.id,
+      title: text(data.title, 120),
+      verse: text(data.verse, 2000),
+      reference: text(data.reference, 120),
+      author: text(data.author, 100),
+      category: text(data.category, 40),
+      date: text(data.date, 10),
+      content: text(data.content, 10000),
+      createdAt: isoValue(data.createdAt),
+    };
+  }).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+  return {devotionals};
+});
+
+export const createDevotional = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAdminOrPastor(request.auth.uid);
+  const data = request.data ?? {};
+  const title = text(data.title, 120);
+  const verse = text(data.verse, 2000);
+  const reference = text(data.reference, 120);
+  const author = text(data.author, 100);
+  const category = text(data.category, 40);
+  const date = text(data.date, 10);
+  const content = text(data.content, 10000);
+  const categories = ["Fe", "Oración", "Juventud", "Amor", "Servicio"];
+  if (!title || !verse || !reference || !author || !content ||
+    !categories.includes(category) || !isValidDate(date)) {
+    throw new HttpsError("invalid-argument", "Completa el devocional con una categoría y fecha válidas.");
+  }
+  const ref = db.collection("devotionals").doc();
+  await ref.set({
+    title, verse, reference, author, category, date, content,
+    createdAt: new Date().toISOString(),
+    createdBy: request.auth.uid,
+  });
+  return {success: true, id: ref.id};
+});
+
+export const deleteDevotional = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAdminOrPastor(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona un devocional válido.");
+  const ref = db.collection("devotionals").doc(id);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "No se encontró el devocional.");
+  await ref.delete();
+  return {success: true};
+});
+
+// -----------------------------------------------------------------------------
+// Registros administrados: bandeja de entrada y turnos.
+// Se limita la colección y los campos permitidos; nunca se acepta un path
+// arbitrario enviado por el navegador.
+// -----------------------------------------------------------------------------
+
+type ManagedKind = "inbox" | "turns";
+
+function managedCollectionConfig(kind: unknown) {
+  if (kind === "inbox") {
+    return {
+      collection: "inbox",
+      fields: {
+        senderName: 120,
+        subject: 160,
+        senderContact: 160,
+        message: 4000,
+      },
+      statuses: ["Nuevo", "En revisión", "Respondido", "Archivado"],
+    };
+  }
+  if (kind === "turns") {
+    return {
+      collection: "turnos",
+      fields: {
+        service: 120,
+        responsibleName: 120,
+        date: 10,
+        startTime: 5,
+        endTime: 5,
+        notes: 1000,
+      },
+      statuses: ["Pendiente", "Confirmado", "Completado"],
+    };
+  }
+  throw new HttpsError("invalid-argument", "El tipo de registro solicitado no está permitido.");
+}
+
+function cleanManagedFields(
+  raw: unknown,
+  allowed: Record<string, number>,
+): Record<string, string> {
+  if (typeof raw !== "object" || raw === null) {
+    throw new HttpsError("invalid-argument", "Los datos del registro no son válidos.");
+  }
+  const source = raw as Record<string, unknown>;
+  const result: Record<string, string> = {};
+  for (const [field, maxLength] of Object.entries(allowed)) {
+    if (source[field] !== undefined) {
+      result[field] = text(source[field], maxLength);
+    }
+  }
+  if (Object.keys(result).length === 0) {
+    throw new HttpsError("invalid-argument", "No hay campos válidos para guardar.");
+  }
+  return result;
+}
+
+function validateManagedFields(kind: ManagedKind, fields: Record<string, string>) {
+  if (kind === "inbox") {
+    if (fields.senderName !== undefined && fields.senderName.length < 2) {
+      throw new HttpsError("invalid-argument", "El nombre del remitente es demasiado corto.");
+    }
+    if (fields.subject !== undefined && fields.subject.length < 2) {
+      throw new HttpsError("invalid-argument", "El asunto es demasiado corto.");
+    }
+  }
+  if (kind === "turns") {
+    if (fields.date !== undefined && !isValidDate(fields.date)) {
+      throw new HttpsError("invalid-argument", "La fecha del turno no es válida.");
+    }
+    if (fields.startTime && !isValidTime(fields.startTime)) {
+      throw new HttpsError("invalid-argument", "La hora de inicio no es válida.");
+    }
+    if (fields.endTime && !isValidTime(fields.endTime)) {
+      throw new HttpsError("invalid-argument", "La hora de finalización no es válida.");
+    }
+    if (fields.startTime && fields.endTime && fields.endTime <= fields.startTime) {
+      throw new HttpsError("invalid-argument", "La hora final debe ser posterior a la hora de inicio.");
+    }
+  }
+}
+
+export const getManagedRecords = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const kind = request.data?.kind as ManagedKind;
+  const config = managedCollectionConfig(kind);
+  await requireAuthorizedRole(request.auth.uid);
+  const snapshot = await db.collection(config.collection).limit(500).get();
+  const items = snapshot.docs.map((document) => {
+    const data = document.data();
+    const fields: Record<string, string> = {};
+    for (const field of Object.keys(config.fields)) {
+      fields[field] = text(data[field], config.fields[field]);
+    }
+    return {
+      ...fields,
+      id: document.id,
+      status: text(data.status, 40),
+      createdAt: isoValue(data.createdAt),
+      updatedAt: isoValue(data.updatedAt),
+    };
+  }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return {items};
+});
+
+export const createManagedRecord = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const kind = request.data?.kind as ManagedKind;
+  const config = managedCollectionConfig(kind);
+  const fields = cleanManagedFields(request.data?.fields, config.fields);
+  validateManagedFields(kind, fields);
+  const status = text(request.data?.status, 40) || config.statuses[0];
+  if (!config.statuses.includes(status)) {
+    throw new HttpsError("invalid-argument", "El estado inicial no está permitido.");
+  }
+  const now = new Date().toISOString();
+  const ref = db.collection(config.collection).doc();
+  await ref.set({
+    ...fields,
+    status,
+    createdAt: now,
+    createdBy: request.auth.uid,
+    updatedAt: now,
+    updatedBy: request.auth.uid,
+  });
+  return {success: true, id: ref.id};
+});
+
+export const updateManagedRecord = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const kind = request.data?.kind as ManagedKind;
+  const config = managedCollectionConfig(kind);
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona un registro válido.");
+  const fields = cleanManagedFields(request.data?.fields, config.fields);
+  validateManagedFields(kind, fields);
+  const ref = db.collection(config.collection).doc(id);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "No se encontró el registro.");
+  await ref.update({
+    ...fields,
+    updatedAt: new Date().toISOString(),
+    updatedBy: request.auth.uid,
+  });
+  return {success: true};
+});
+
+export const updateManagedRecordStatus = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const kind = request.data?.kind as ManagedKind;
+  const config = managedCollectionConfig(kind);
+  const id = text(request.data?.id, 150);
+  const status = text(request.data?.status, 40);
+  if (!id || !config.statuses.includes(status)) {
+    throw new HttpsError("invalid-argument", "El registro o estado no son válidos.");
+  }
+  const ref = db.collection(config.collection).doc(id);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "No se encontró el registro.");
+  await ref.update({
+    status,
+    updatedAt: new Date().toISOString(),
+    updatedBy: request.auth.uid,
+  });
+  return {success: true};
+});
+
+export const deleteManagedRecord = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAuthorizedRole(request.auth.uid);
+  const kind = request.data?.kind as ManagedKind;
+  const config = managedCollectionConfig(kind);
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona un registro válido.");
+  const ref = db.collection(config.collection).doc(id);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "No se encontró el registro.");
+  await ref.delete();
+  return {success: true};
+});
