@@ -96,8 +96,13 @@ export async function sendPrayerRequest(input: PrayerRequestInput): Promise<void
 export async function getHallOfFame(): Promise<{
   topPlayers: HallOfFamePlayer[];
   faithful: FaithfulPlayer[];
+  attendanceLimited: boolean;
 }> {
-  return call<{topPlayers: HallOfFamePlayer[]; faithful: FaithfulPlayer[]}>("getPublicHallOfFame");
+  return call<{
+    topPlayers: HallOfFamePlayer[];
+    faithful: FaithfulPlayer[];
+    attendanceLimited: boolean;
+  }>("getPublicHallOfFame");
 }
 
 export async function getMembersForAdministration(): Promise<MemberAdminRecord[]> {

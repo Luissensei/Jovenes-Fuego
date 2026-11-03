@@ -1,140 +1,110 @@
-
-import { useEffect, useMemo, useState } from 'react';
+import {useEffect, useMemo, useState} from 'react';
+import type {FormEvent} from 'react';
+import {RefreshCw} from 'lucide-react';
 
 import {
   createAttendanceMeeting,
+  listAttendanceMeetings,
   saveMeetingAttendance,
-  subscribeAttendanceMeetings,
   type AttendanceMeeting,
   type AttendanceParticipant,
   type AttendanceStatus,
 } from '../services/attendance';
 
-import {
-  subscribeMembers,
-  type MemberRecord,
-} from '../services/repositories/members';
+import {getMembersForAdministration} from '../services/youthPortal';
+import type {MemberAdminRecord} from '../services/youthPortal';
+
+function localDateInput() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
 
 export default function AttendancePage() {
   const [meetings, setMeetings] = useState<AttendanceMeeting[]>([]);
-  const [members, setMembers] = useState<MemberRecord[]>([]);
+  const [members, setMembers] = useState<MemberAdminRecord[]>([]);
 
   const [meetingName, setMeetingName] = useState('');
-  const [meetingDate, setMeetingDate] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
+  const [meetingDate, setMeetingDate] = useState(localDateInput);
 
   const [selectedMeetingId, setSelectedMeetingId] = useState('');
-  const [attendance, setAttendance] = useState<
-    Record<string, AttendanceStatus>
-  >({});
+  const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>({});
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
-  // Escuchar reuniones guardadas
-  useEffect(() => {
-    const unsubscribe = subscribeAttendanceMeetings(
-      (data) => {
-        setMeetings(data);
-      },
-      (error) => {
-        setError(error.message);
-      },
-    );
-
-    return () => unsubscribe();
-  }, []);
-
-  // Escuchar jóvenes registrados
-  useEffect(() => {
-    const unsubscribe = subscribeMembers(
-      (data) => {
-        setMembers(data);
-      },
-      (error) => {
-        setError(error.message);
-      },
-    );
-
-    return () => unsubscribe?.();
-  }, []);
-
-  // Seleccionar automáticamente la primera reunión
-  useEffect(() => {
-    if (
-      meetings.length > 0 &&
-      !meetings.some((meeting) => meeting.id === selectedMeetingId)
-    ) {
-      setSelectedMeetingId(meetings[0].id);
+  async function loadData(preferredMeetingId?: string) {
+    setLoading(true);
+    setError('');
+    try {
+      const [meetingRows, memberRows] = await Promise.all([
+        listAttendanceMeetings(),
+        getMembersForAdministration(),
+      ]);
+      setMeetings(meetingRows);
+      setMembers(memberRows);
+      setSelectedMeetingId((current) => {
+        const target = preferredMeetingId || current;
+        return target && meetingRows.some((meeting) => meeting.id === target)
+          ? target
+          : meetingRows[0]?.id ?? '';
+      });
+    } catch (cause) {
+      setError(cause instanceof Error
+        ? cause.message
+        : 'No se pudo cargar la asistencia.');
+    } finally {
+      setLoading(false);
     }
-  }, [meetings, selectedMeetingId]);
+  }
+
+  useEffect(() => {
+    void loadData();
+  }, []);
 
   const selectedMeeting = useMemo(
     () => meetings.find((meeting) => meeting.id === selectedMeetingId),
     [meetings, selectedMeetingId],
   );
 
-  // Cargar asistencia guardada cuando cambia la reunión
   useEffect(() => {
     if (!selectedMeeting) {
       setAttendance({});
       return;
     }
 
-    const savedAttendance: Record<string, AttendanceStatus> = {};
-
+    const saved: Record<string, AttendanceStatus> = {};
     selectedMeeting.participants.forEach((participant) => {
-      savedAttendance[participant.memberId] = participant.status;
+      saved[participant.memberId] = participant.status;
     });
-
-    setAttendance(savedAttendance);
+    setAttendance(saved);
   }, [selectedMeeting]);
 
-  // Crear reunión
-  async function handleCreateMeeting(
-    event: React.FormEvent<HTMLFormElement>,
-  ) {
+  async function handleCreateMeeting(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     setError('');
     setMessage('');
-    setLoading(true);
-
+    setSaving(true);
     try {
       const result = await createAttendanceMeeting({
         name: meetingName,
         date: meetingDate,
       });
-
       setMeetingName('');
-      setSelectedMeetingId(result.meetingId);
+      await loadData(result.meetingId);
       setMessage('Reunión creada correctamente.');
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : 'No se pudo crear la reunión.',
-      );
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'No se pudo crear la reunión.');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   }
 
-  // Cambiar estado de asistencia
-  function handleStatusChange(
-    memberId: string,
-    status: AttendanceStatus,
-  ) {
-    setAttendance((previous) => ({
-      ...previous,
-      [memberId]: status,
-    }));
+  function handleStatusChange(memberId: string, status: AttendanceStatus) {
+    setAttendance((previous) => ({...previous, [memberId]: status}));
   }
 
-  // Guardar asistencia
   async function handleSaveAttendance() {
     if (!selectedMeeting) {
       setError('Selecciona una reunión primero.');
@@ -144,114 +114,78 @@ export default function AttendancePage() {
     setError('');
     setMessage('');
     setSaving(true);
-
     try {
-      const participants: AttendanceParticipant[] = members.map(
-        (member) => ({
-          memberId: member.id,
-          name: String(member.name ?? 'Sin nombre'),
-          status: attendance[member.id] ?? 'Ausente',
-        }),
-      );
+      const participants: AttendanceParticipant[] = members.map((member) => ({
+        memberId: member.id,
+        name: String(member.name ?? 'Sin nombre'),
+        status: attendance[member.id] ?? 'Ausente',
+      }));
 
-      await saveMeetingAttendance(
-        selectedMeeting.id,
-        participants,
-      );
-
+      await saveMeetingAttendance(selectedMeeting.id, participants);
+      await loadData(selectedMeeting.id);
       setMessage('Asistencia guardada correctamente.');
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : 'No se pudo guardar la asistencia.',
-      );
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'No se pudo guardar la asistencia.');
     } finally {
       setSaving(false);
     }
   }
 
-  const presentCount = members.filter(
-    (member) => attendance[member.id] === 'Presente',
-  ).length;
-
-  const absentCount = members.filter(
-    (member) => attendance[member.id] === 'Ausente',
-  ).length;
-
-  const justifiedCount = members.filter(
-    (member) => attendance[member.id] === 'Justificado',
-  ).length;
+  const presentCount = members.filter((member) => attendance[member.id] === 'Presente').length;
+  const absentCount = members.filter((member) => attendance[member.id] === 'Ausente').length;
+  const justifiedCount = members.filter((member) => attendance[member.id] === 'Justificado').length;
 
   return (
     <main className="attendance-page">
       <header className="attendance-header">
         <div>
           <h1>Control de asistencia</h1>
-          <p>
-            Registra y administra la asistencia de los jóvenes.
-          </p>
+          <p>Registra y administra la asistencia de los jóvenes.</p>
         </div>
+        <button type="button" className="attendance-refresh" onClick={() => void loadData(selectedMeetingId)} disabled={loading || saving}>
+          <RefreshCw size={16}/> Actualizar
+        </button>
       </header>
 
-      {/* Crear reunión */}
       <section className="attendance-card">
         <h2>Crear reunión</h2>
-
-        <form onSubmit={handleCreateMeeting}>
+        <form onSubmit={(event) => void handleCreateMeeting(event)}>
           <div>
-            <label htmlFor="meetingName">
-              Nombre de la reunión
-            </label>
-
+            <label htmlFor="meetingName">Nombre de la reunión</label>
             <input
               id="meetingName"
               type="text"
               value={meetingName}
-              onChange={(event) =>
-                setMeetingName(event.target.value)
-              }
+              onChange={(event) => setMeetingName(event.target.value)}
               placeholder="Ej. Culto de jóvenes"
               maxLength={100}
               required
             />
           </div>
-
           <div>
-            <label htmlFor="meetingDate">
-              Fecha
-            </label>
-
+            <label htmlFor="meetingDate">Fecha</label>
             <input
               id="meetingDate"
               type="date"
               value={meetingDate}
-              onChange={(event) =>
-                setMeetingDate(event.target.value)
-              }
+              onChange={(event) => setMeetingDate(event.target.value)}
               required
             />
           </div>
-
-          <button type="submit" disabled={loading}>
-            {loading ? 'Creando...' : 'Crear reunión'}
+          <button type="submit" disabled={saving || loading}>
+            {saving ? 'Guardando...' : 'Crear reunión'}
           </button>
         </form>
       </section>
 
-      {/* Seleccionar reunión */}
       <section className="attendance-card">
         <h2>Seleccionar reunión</h2>
-
-        {meetings.length === 0 ? (
-          <p>No hay reuniones registradas todavía.</p>
+        {loading ? (
+          <p>Consultando reuniones y jóvenes...</p>
+        ) : meetings.length === 0 ? (
+          <p>No hay reuniones nuevas registradas todavía.</p>
         ) : (
-          <select
-            value={selectedMeetingId}
-            onChange={(event) =>
-              setSelectedMeetingId(event.target.value)
-            }
-          >
+          <select value={selectedMeetingId} onChange={(event) => setSelectedMeetingId(event.target.value)}>
             {meetings.map((meeting) => (
               <option key={meeting.id} value={meeting.id}>
                 {meeting.name} - {meeting.date}
@@ -261,60 +195,34 @@ export default function AttendancePage() {
         )}
       </section>
 
-      {/* Resumen */}
       {selectedMeeting && (
         <section className="attendance-summary">
-          <div className="attendance-card">
-            <h3>Presentes</h3>
-            <strong>{presentCount}</strong>
-          </div>
-
-          <div className="attendance-card">
-            <h3>Ausentes</h3>
-            <strong>{absentCount}</strong>
-          </div>
-
-          <div className="attendance-card">
-            <h3>Justificados</h3>
-            <strong>{justifiedCount}</strong>
-          </div>
+          <div className="attendance-card"><h3>Presentes</h3><strong>{presentCount}</strong></div>
+          <div className="attendance-card"><h3>Ausentes</h3><strong>{absentCount}</strong></div>
+          <div className="attendance-card"><h3>Justificados</h3><strong>{justifiedCount}</strong></div>
         </section>
       )}
 
-      {/* Lista de jóvenes */}
       <section className="attendance-card">
         <h2>Jóvenes registrados</h2>
-
-        {!selectedMeeting ? (
+        {loading ? (
+          <p>Cargando datos...</p>
+        ) : !selectedMeeting ? (
           <p>Selecciona o crea una reunión.</p>
         ) : members.length === 0 ? (
-          <p>No hay jóvenes registrados en la colección members.</p>
+          <p>No hay jóvenes registrados para esta cuenta.</p>
         ) : (
           <>
-            <p>
-              Reunión: <strong>{selectedMeeting.name}</strong>
-            </p>
-
+            <p>Reunión: <strong>{selectedMeeting.name}</strong> · {selectedMeeting.date}</p>
             <div className="attendance-list">
               {members.map((member) => (
-                <div
-                  key={member.id}
-                  className="attendance-member"
-                >
-                  <div>
-                    <strong>
-                      {member.name || 'Joven sin nombre'}
-                    </strong>
-                  </div>
-
+                <div key={member.id} className="attendance-member">
+                  <div><strong>{member.name || 'Joven sin nombre'}</strong></div>
                   <select
                     value={attendance[member.id] ?? 'Ausente'}
-                    onChange={(event) =>
-                      handleStatusChange(
-                        member.id,
-                        event.target.value as AttendanceStatus,
-                      )
-                    }
+                    onChange={(event) => handleStatusChange(member.id, event.target.value as AttendanceStatus)}
+                    disabled={saving}
+                    aria-label={`Estado de asistencia de ${member.name || 'joven'}`}
                   >
                     <option value="Presente">Presente</option>
                     <option value="Ausente">Ausente</option>
@@ -323,32 +231,15 @@ export default function AttendancePage() {
                 </div>
               ))}
             </div>
-
-            <button
-              type="button"
-              onClick={handleSaveAttendance}
-              disabled={saving || members.length === 0}
-            >
-              {saving
-                ? 'Guardando asistencia...'
-                : 'Guardar asistencia'}
+            <button type="button" onClick={() => void handleSaveAttendance()} disabled={saving || loading || members.length === 0}>
+              {saving ? 'Guardando asistencia...' : 'Guardar asistencia'}
             </button>
           </>
         )}
       </section>
 
-      {/* Mensajes */}
-      {error && (
-        <div role="alert" className="attendance-error">
-          {error}
-        </div>
-      )}
-
-      {message && (
-        <div role="status" className="attendance-success">
-          {message}
-        </div>
-      )}
+      {error && <div role="alert" className="attendance-error">{error}</div>}
+      {message && <div role="status" className="attendance-success">{message}</div>}
     </main>
   );
 }

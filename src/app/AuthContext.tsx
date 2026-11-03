@@ -15,14 +15,11 @@ import {
   type User,
 } from 'firebase/auth';
 
-import {
-  doc,
-  getDoc,
-} from 'firebase/firestore';
+import {httpsCallable} from 'firebase/functions';
 
 import {
   auth,
-  db,
+  functions,
   firebaseConfigured,
 } from '../services/firebase/client';
 
@@ -65,13 +62,13 @@ export function AuthProvider({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!firebaseConfigured || !auth || !db) {
+    if (!firebaseConfigured || !auth || !functions) {
       setLoading(false);
       return;
     }
 
     const authInstance = auth;
-    const dbInstance = db;
+    const functionsInstance = functions;
     let active = true;
     let authEvent = 0;
 
@@ -94,36 +91,21 @@ export function AuthProvider({
         setLoading(true);
 
         try {
-          const profileSnap = await getDoc(
-            doc(dbInstance, 'users', currentUser.uid)
-          );
+          const getApplicationProfile = httpsCallable<
+            Record<string, never>,
+            {profile: UserProfile}
+          >(functionsInstance, 'getMyApplicationProfile');
+          const profileResponse = await getApplicationProfile({});
+          const userProfile = profileResponse.data.profile;
 
           if (!active || currentEvent !== authEvent) return;
 
-          if (!profileSnap.exists()) {
-            console.error(
-              'No existe el perfil para el UID:',
-              currentUser.uid
-            );
-
-            setError(
-              'Tu sesión está activa, pero no se encontró tu perfil en la colección users. Comprueba que el ID del documento coincida con tu UID de Authentication.'
-            );
-
-            setProfile(null);
-            return;
-          }
-
-          const userProfile = profileSnap.data() as UserProfile;
-
           if (
+            !userProfile ||
             typeof userProfile.role !== 'string' ||
             !userProfile.role.trim()
           ) {
-            setError(
-              'Tu perfil existe, pero no tiene un rol válido. Contacta al administrador.'
-            );
-
+            setError('La función no devolvió un perfil con un rol válido. Contacta al administrador.');
             setProfile(null);
             return;
           }
@@ -145,13 +127,18 @@ export function AuthProvider({
             firebaseError.message
           );
 
-          if (firebaseError.code === 'permission-denied') {
+          if (
+            firebaseError.code === 'functions/permission-denied' ||
+            firebaseError.code === 'functions/not-found'
+          ) {
             setError(
-              'Firebase rechazó la lectura de tu perfil. Revisa las reglas de Firestore Staging.'
+              'Tu cuenta no tiene un perfil autorizado en users o la función getMyApplicationProfile todavía no está desplegada en Firebase Staging.'
             );
+          } else if (firebaseError.code === 'functions/unauthenticated') {
+            setError('La sesión expiró. Inicia sesión nuevamente.');
           } else {
             setError(
-              'No se pudo consultar tu perfil. Comprueba la conexión con Firebase Staging.'
+              'No se pudo validar tu perfil mediante Firebase Functions. Comprueba que las funciones estén desplegadas en Staging.'
             );
           }
 

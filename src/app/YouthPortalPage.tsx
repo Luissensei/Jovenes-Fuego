@@ -104,9 +104,10 @@ function ActivityCard({activity}: {activity: WeeklyActivity}) {
   );
 }
 
-function HallOfFame({topPlayers, faithful}: {
+function HallOfFame({topPlayers, faithful, attendanceLimited}: {
   topPlayers: HallOfFamePlayer[];
   faithful: FaithfulPlayer[];
+  attendanceLimited: boolean;
 }) {
   return (
     <section className="youth-hall-grid">
@@ -129,7 +130,8 @@ function HallOfFame({topPlayers, faithful}: {
 
       <article className="youth-hall-card youth-hall-faithful">
         <header><Flame size={20} /><div><span>CONSTANCIA Y COMPROMISO</span><h2>Top 10 más fieles</h2></div></header>
-        <p className="youth-hall-caption">Según asistencias marcadas como presentes en los registros disponibles.</p>
+        <p className="youth-hall-caption">Según asistencias marcadas como presentes en el módulo nuevo de asistencia.</p>
+        {attendanceLimited && <p className="youth-hall-limited" role="note">El cálculo está limitado a las 1.000 reuniones más recientes. Revisa el informe completo si la comunidad supera ese volumen.</p>}
         {faithful.length ? (
           <ol className="youth-faithful-list">
             {faithful.map((player, index) => (
@@ -156,6 +158,7 @@ export default function YouthPortalPage() {
   const [activities, setActivities] = useState<WeeklyActivity[]>([]);
   const [topPlayers, setTopPlayers] = useState<HallOfFamePlayer[]>([]);
   const [faithful, setFaithful] = useState<FaithfulPlayer[]>([]);
+  const [attendanceLimited, setAttendanceLimited] = useState(false);
   const [portalDataError, setPortalDataError] = useState('');
 
   const [look, setLook] = useState<ProfileLook>(defaultLook);
@@ -167,6 +170,7 @@ export default function YouthPortalPage() {
   const [prayerMessage, setPrayerMessage] = useState('');
   const [prayerBusy, setPrayerBusy] = useState(false);
   const [prayerStatus, setPrayerStatus] = useState('');
+  const [lookNotice, setLookNotice] = useState('');
 
   const [soundOn, setSoundOn] = useState(false);
   const [soundError, setSoundError] = useState('');
@@ -199,6 +203,7 @@ export default function YouthPortalPage() {
       if (results[1].status === 'fulfilled') {
         setTopPlayers(results[1].value.topPlayers ?? []);
         setFaithful(results[1].value.faithful ?? []);
+        setAttendanceLimited(results[1].value.attendanceLimited === true);
       } else {
         setPortalDataError((previous) => previous || 'Las clasificaciones estarán disponibles cuando se conecten sus funciones de Staging.');
       }
@@ -215,10 +220,18 @@ export default function YouthPortalPage() {
   useEffect(() => {
     if (selectedProfile) {
       setLook(readLook(selectedProfile.id));
-      setPrayerName(selectedProfile.name);
+      // La selección pública no verifica identidad: no prellenar el nombre
+      // evita enviar peticiones en nombre de otra persona.
+      setPrayerName('');
+      setLookNotice('');
     } else {
       setEditingLook(false);
       setActiveGame(null);
+      if (audioRef.current) {
+        void audioRef.current.close().catch(() => undefined);
+        audioRef.current = null;
+      }
+      setSoundOn(false);
     }
   }, [selectedProfile]);
 
@@ -246,8 +259,9 @@ export default function YouthPortalPage() {
     setLook(next);
     try {
       window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
+      setLookNotice('Tu apariencia quedó guardada en este dispositivo.');
     } catch {
-      setPrayerStatus('El navegador no permitió guardar la apariencia en este dispositivo.');
+      setLookNotice('El navegador no permitió guardar la apariencia en este dispositivo.');
     }
   }
 
@@ -357,7 +371,7 @@ export default function YouthPortalPage() {
             <button type="button" className="youth-back" onClick={() => setSelectedProfile(null)}>
               <ArrowLeft size={17}/> Cambiar de perfil
             </button>
-            <button type="button" className={`youth-sound-toggle ${soundOn ? 'active' : ''}`} onClick={() => void toggleAmbientSound()}>
+            <button type="button" aria-pressed={soundOn} className={`youth-sound-toggle ${soundOn ? 'active' : ''}`} onClick={() => void toggleAmbientSound()}>
               {soundOn ? <Volume2 size={17}/> : <VolumeX size={17}/>}
               {soundOn ? 'Ambiente activado' : 'Activar ambiente'}
             </button>
@@ -374,10 +388,12 @@ export default function YouthPortalPage() {
             <p>Tu espacio para crecer, servir, aprender y compartir.</p>
             {selectedProfile.nick && <span className="youth-profile-nick">@{selectedProfile.nick}</span>}
             <div className="youth-profile-quickstats">
-              <span><Star size={15}/> {selectedProfile.points} puntos públicos</span>
+              <span><Star size={15}/> {selectedProfile.points > 0 ? `${selectedProfile.points} puntos públicos` : 'Puntos aún no publicados'}</span>
               <span><ShieldCheck size={15}/> Perfil comunitario</span>
             </div>
           </section>
+
+          {lookNotice && <p className="youth-look-notice" role="status">{lookNotice}</p>}
 
           {editingLook && (
             <section className="youth-customizer">
@@ -415,7 +431,7 @@ export default function YouthPortalPage() {
             </div>
           </section>
 
-          <HallOfFame topPlayers={topPlayers} faithful={faithful}/>
+          <HallOfFame topPlayers={topPlayers} faithful={faithful} attendanceLimited={attendanceLimited}/>
 
           <section className="youth-prayer-panel">
             <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>Tu petición será recibida por el equipo autorizado de oración.</p></div></header>

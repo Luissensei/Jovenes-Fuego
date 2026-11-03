@@ -82,6 +82,7 @@ function AdminApp() {
     profile,
     loading,
     configured,
+    error: authError,
     logout,
   } = useAuth();
 
@@ -122,8 +123,32 @@ function AdminApp() {
 
   const role = String(profile?.role ?? '').trim().toLowerCase();
 
+  if (configured && user && !profile) {
+    return (
+      <main className="loading-shell access-denied-shell">
+        <div className="access-denied-card" role="alert">
+          <ShieldCheck size={34} />
+          <h1>Perfil de acceso no disponible</h1>
+          <p>{authError || 'No se pudo validar tu perfil de aplicación. Por seguridad, no se abrirán los módulos internos.'}</p>
+          <button
+            type="button"
+            onClick={async () => {
+              await logout();
+              navigate('/');
+            }}
+          >
+            <LogOut size={17} /> Cerrar sesión
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+
   const isAdmin = ['admin', 'administrador'].includes(role);
   const isPastor = role === 'pastor';
+  const isLeader = ['lider', 'líder'].includes(role);
+  const isStaff = isAdmin || isPastor || isLeader;
 
   const visibleModules = modules.filter((item) => {
     if (item.id === 'pastoral') {
@@ -132,6 +157,20 @@ function AdminApp() {
 
     if (['leaders', 'settings', 'bonus', 'audit'].includes(item.id)) {
       return isAdmin;
+    }
+
+    // Estos módulos nuevos tienen endpoints de administración/pastoral.
+    if (item.id === 'members') {
+      return isAdmin || isPastor || isLeader;
+    }
+
+    if (['prayers', 'events'].includes(item.id)) {
+      return isAdmin || isPastor;
+    }
+
+    // Una cuenta de joven no debe entrar al panel operativo.
+    if (!isStaff) {
+      return ['dashboard', 'ranking', 'games', 'profile'].includes(item.id);
     }
 
     return true;
@@ -147,7 +186,7 @@ function AdminApp() {
         return <DashboardPage />;
 
       case 'members':
-        return <MembersPage />;
+        return <MembersPage canEdit={isAdmin || isPastor} />;
 
       case 'attendance':
         return <AttendancePage />;

@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState} from 'react';
 import type {FormEvent} from 'react';
 import {
   AlertCircle, Search, Users, RefreshCw, CalendarDays, Phone,
-  UserRound, Flame, X, Save, Edit3, ShieldCheck,
+  UserRound, Flame, X, Save, Edit3, ShieldCheck, MapPin,
 } from 'lucide-react';
 import {firebaseConfigured} from '../services/firebase/client';
 import {
@@ -12,11 +12,19 @@ import {
   type AdminMemberPatch,
 } from '../services/youthPortal';
 
-const editableFields: {key: keyof AdminMemberPatch; label: string; type?: string; multiline?: boolean}[] = [
+type EditableField = {
+  key: keyof AdminMemberPatch;
+  label: string;
+  type?: 'tel' | 'date' | 'url';
+  multiline?: boolean;
+  boolean?: boolean;
+};
+
+const editableFields: EditableField[] = [
   {key: 'name', label: 'Nombre completo'},
   {key: 'nick', label: 'Apodo'},
   {key: 'phone', label: 'Teléfono', type: 'tel'},
-  {key: 'bd', label: 'Fecha de nacimiento', type: 'date'},
+  {key: 'bd', label: 'Fecha de nacimiento'},
   {key: 'from', label: 'Lugar de procedencia'},
   {key: 'ap', label: 'Apuntes / información adicional', multiline: true},
   {key: 'br', label: 'Barrio o sector'},
@@ -25,6 +33,7 @@ const editableFields: {key: keyof AdminMemberPatch; label: string; type?: string
   {key: 'dis', label: 'Disponibilidad'},
   {key: 'nt', label: 'Notas administrativas', multiline: true},
   {key: 'pic', label: 'URL de fotografía', type: 'url'},
+  {key: 'nopub', label: 'Ocultar perfil en el portal público', boolean: true},
 ];
 
 function initials(name?: string) {
@@ -36,12 +45,28 @@ function toDraft(member: MemberAdminRecord): AdminMemberPatch {
   const draft: AdminMemberPatch = {};
   editableFields.forEach(({key}) => {
     const value = member[key];
-    if (typeof value === 'string') (draft as unknown as Record<string, string>)[key] = value;
+    if (typeof value === 'string' || typeof value === 'boolean') {
+      (draft as unknown as Record<string, unknown>)[key] = value;
+    }
   });
   return draft;
 }
 
-export function MembersPage() {
+function MemberAvatar({member}: {member: MemberAdminRecord}) {
+  const [failed, setFailed] = useState(false);
+  const image = typeof member.pic === 'string' && /^https:\/\//i.test(member.pic)
+    ? member.pic : '';
+
+  return (
+    <div className="member-avatar">
+      {image && !failed
+        ? <img src={image} alt="" loading="lazy" onError={() => setFailed(true)} />
+        : initials(member.name)}
+    </div>
+  );
+}
+
+export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
   const [members, setMembers] = useState<MemberAdminRecord[]>([]);
   const [loading, setLoading] = useState(firebaseConfigured);
   const [error, setError] = useState('');
@@ -97,9 +122,17 @@ export function MembersPage() {
     setDraft((current) => ({...current, [key]: value}));
   }
 
+  function changeBoolean(key: keyof AdminMemberPatch, value: boolean) {
+    setDraft((current) => ({...current, [key]: value}));
+  }
+
   async function saveMember(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedMember) return;
+    if (!canEdit) {
+      setError('Tu rol puede consultar la ficha, pero no editar datos personales.');
+      return;
+    }
     setSaving(true);
     setMessage('');
     setError('');
@@ -160,8 +193,8 @@ export function MembersPage() {
           {filtered.map((member) => (
             <article className="member-card" key={member.id}>
               <div className="member-card-top">
-                <div className="member-avatar">{member.pic ? <img src={String(member.pic)} alt="" onError={(event) => {event.currentTarget.style.display = 'none';}}/> : initials(member.name)}</div>
-                <span className="member-status"><span/>Registrado</span>
+                <MemberAvatar member={member} />
+                <span className={`member-status ${member.nopub === true ? 'private' : 'public'}`}><span/>{member.nopub === true ? 'No publicado' : 'Perfil público'}</span>
               </div>
               <div className="member-card-info">
                 <h2>{String(member.name ?? 'Nombre sin registrar')}</h2>
@@ -170,8 +203,10 @@ export function MembersPage() {
               <div className="member-card-details">
                 <div><Phone size={16}/><span>{String(member.phone ?? 'Sin teléfono registrado')}</span></div>
                 <div>{member.bd ? <CalendarDays size={16}/> : <UserRound size={16}/>}<span>{member.bd ? `Nacimiento: ${String(member.bd)}` : 'Perfil de joven'}</span></div>
+                {member.from && <div><MapPin size={16}/><span>{String(member.from)}</span></div>}
+                {member.mn && <div><ShieldCheck size={16}/><span>{String(member.mn)}</span></div>}
               </div>
-              <button type="button" className="member-detail-button" onClick={() => openMember(member)}><Edit3 size={16}/> Abrir ficha completa <span>Editar</span></button>
+              <button type="button" className="member-detail-button" onClick={() => openMember(member)}><Edit3 size={16}/> {canEdit ? 'Abrir ficha completa' : 'Ver ficha completa'} <span>{canEdit ? 'Editar' : 'Solo lectura'}</span></button>
             </article>
           ))}
         </div>
@@ -184,26 +219,39 @@ export function MembersPage() {
           <section className="member-detail-modal" role="dialog" aria-modal="true" aria-labelledby="member-detail-title">
             <header className="member-detail-header">
               <div className="member-detail-avatar">{initials(String(draft.name ?? selectedMember.name))}</div>
-              <div><span>FICHA DE LA COMUNIDAD</span><h2 id="member-detail-title">{String(selectedMember.name ?? 'Joven')}</h2><small>ID: {selectedMember.id}</small></div>
+              <div><span>FICHA DE LA COMUNIDAD</span><h2 id="member-detail-title">{String(selectedMember.name ?? 'Joven')}</h2><small>ID: {selectedMember.id}{typeof selectedMember.created === 'string' || typeof selectedMember.created === 'number' ? ` · Registro: ${String(selectedMember.created)}` : ''}</small></div>
               <button type="button" onClick={closeMember} aria-label="Cerrar ficha"><X size={20}/></button>
             </header>
             <form onSubmit={(event) => void saveMember(event)}>
               <div className="member-detail-fields">
-                {editableFields.map((field) => (
+                {(canEdit
+                  ? editableFields
+                  : editableFields.filter((field) => ['name', 'nick', 'pic'].includes(field.key))
+                ).map((field) => (
                   <label key={field.key} className={field.multiline ? 'wide' : ''}>
                     {field.label}
-                    {field.multiline ? (
-                      <textarea rows={3} maxLength={field.key === 'nt' ? 1000 : 120} value={String(draft[field.key] ?? '')} onChange={(event) => changeField(field.key, event.target.value)}/>
+                    {field.boolean ? (
+                      <span className="member-detail-checkbox">
+                        <input
+                          type="checkbox"
+                          disabled={!canEdit}
+                          checked={draft[field.key] === true}
+                          onChange={(event) => changeBoolean(field.key, event.target.checked)}
+                        />
+                        <span>Este perfil no aparecerá en la selección pública ni en los rankings públicos.</span>
+                      </span>
+                    ) : field.multiline ? (
+                      <textarea disabled={!canEdit} rows={3} maxLength={field.key === 'nt' ? 1000 : 120} value={String(draft[field.key] ?? '')} onChange={(event) => changeField(field.key, event.target.value)}/>
                     ) : (
-                      <input type={field.type ?? 'text'} maxLength={field.key === 'pic' ? 1500 : 120} value={String(draft[field.key] ?? '')} onChange={(event) => changeField(field.key, event.target.value)}/>
+                      <input disabled={!canEdit} type={field.type ?? 'text'} maxLength={field.key === 'pic' ? 1500 : 120} value={String(draft[field.key] ?? '')} onChange={(event) => changeField(field.key, event.target.value)}/>
                     )}
                   </label>
                 ))}
               </div>
-              <div className="member-detail-privacy"><ShieldCheck size={16}/> Solo los roles administrativos autorizados pueden guardar estos cambios. Los campos históricos no incluidos se conservan.</div>
+              <div className="member-detail-privacy"><ShieldCheck size={16}/>{canEdit ? 'Solo administración y pastoral pueden guardar cambios. Los campos históricos no enviados se conservan.' : 'Vista de solo lectura. Solicita a administración o pastoral cualquier corrección.'}</div>
               {error && <p className="member-detail-error" role="alert">{error}</p>}
               {message && <p className="member-detail-success" role="status">{message}</p>}
-              <footer><button type="button" className="member-detail-cancel" onClick={closeMember} disabled={saving}>Cerrar</button><button type="submit" className="member-detail-save" disabled={saving}><Save size={17}/>{saving ? 'Guardando...' : 'Guardar cambios'}</button></footer>
+              <footer><button type="button" className="member-detail-cancel" onClick={closeMember} disabled={saving}>Cerrar</button>{canEdit && <button type="submit" className="member-detail-save" disabled={saving}><Save size={17}/>{saving ? 'Guardando...' : 'Guardar cambios'}</button>}</footer>
             </form>
           </section>
         </div>
