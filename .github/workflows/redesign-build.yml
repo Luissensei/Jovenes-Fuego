@@ -32,6 +32,20 @@ jobs:
         run: |
           npm audit --omit=dev --json > /tmp/jf-npm-audit-production.json || true
           node -e "const r = JSON.parse(require('fs').readFileSync('/tmp/jf-npm-audit-production.json', 'utf8')); const v = r.metadata?.vulnerabilities ?? {}; console.log('Auditoría de producción:', JSON.stringify(v)); for (const [name, item] of Object.entries(r.vulnerabilities ?? {})) console.log(name + ' | ' + item.severity + ' | fixAvailable: ' + JSON.stringify(item.fixAvailable));"
+      - name: Preparar Node 22 para Cloud Functions
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - name: Instalar dependencias de Cloud Functions
+        run: npm ci --prefix functions
+      - name: Compilar Cloud Functions
+        run: npm run build --prefix functions
+      - name: Revisar ESLint de Cloud Functions
+        run: npm run lint --prefix functions
+      - name: Auditar dependencias runtime de Cloud Functions
+        run: npm audit --prefix functions --omit=dev --audit-level=high
       - name: Resumen de auditoría de dependencias
         run: |
           npm audit --json > /tmp/jf-npm-audit.json || true
