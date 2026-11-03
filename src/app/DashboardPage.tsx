@@ -260,24 +260,28 @@ export default function DashboardPage() {
                 <span>Perfiles que pueden mostrarse según privacidad</span>
               </div>
             </article>
-            <article className="dashboard-stat">
-              <span className="dashboard-stat-index">02</span>
-              <div className="dashboard-stat-icon"><CalendarDays size={19} /></div>
-              <div className="dashboard-stat-copy">
-                <small>REUNIONES DEL MES</small>
-                <strong>{summary.meetingsThisMonth}</strong>
-                <span>Reuniones nuevas registradas</span>
-              </div>
-            </article>
-            <article className="dashboard-stat">
-              <span className="dashboard-stat-index">03</span>
-              <div className="dashboard-stat-icon"><CheckCircle2 size={19} /></div>
-              <div className="dashboard-stat-copy">
-                <small>ASISTENCIAS PRESENTES</small>
-                <strong>{summary.attendancePresent}</strong>
-                <span>Registros de presencia del mes</span>
-              </div>
-            </article>
+            {summary.role !== 'user' && (
+              <>
+                <article className="dashboard-stat">
+                  <span className="dashboard-stat-index">02</span>
+                  <div className="dashboard-stat-icon"><CalendarDays size={19} /></div>
+                  <div className="dashboard-stat-copy">
+                    <small>REUNIONES DEL MES</small>
+                    <strong>{summary.meetingsThisMonth}</strong>
+                    <span>Reuniones nuevas registradas</span>
+                  </div>
+                </article>
+                <article className="dashboard-stat">
+                  <span className="dashboard-stat-index">03</span>
+                  <div className="dashboard-stat-icon"><CheckCircle2 size={19} /></div>
+                  <div className="dashboard-stat-copy">
+                    <small>ASISTENCIAS PRESENTES</small>
+                    <strong>{summary.attendancePresent}</strong>
+                    <span>Registros de presencia del mes</span>
+                  </div>
+                </article>
+              </>
+            )}
             {summary.followupsPending !== null && (
               <article className="dashboard-stat">
                 <span className="dashboard-stat-index">04</span>
