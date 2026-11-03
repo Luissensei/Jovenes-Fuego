@@ -84,6 +84,7 @@ function AdminApp() {
     configured,
     error: authError,
     logout,
+    retryProfile,
   } = useAuth();
 
   const [dark, setDark] = useState(() => {
@@ -130,6 +131,13 @@ function AdminApp() {
           <ShieldCheck size={34} />
           <h1>Perfil de acceso no disponible</h1>
           <p>{authError || 'No se pudo validar tu perfil de aplicación. Por seguridad, no se abrirán los módulos internos.'}</p>
+          <button
+            type="button"
+            onClick={() => void retryProfile()}
+            disabled={loading}
+          >
+            <ShieldCheck size={17} /> {loading ? 'Verificando…' : 'Reintentar validación'}
+          </button>
           <button
             type="button"
             onClick={async () => {
