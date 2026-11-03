@@ -29,7 +29,6 @@ import {
 } from '../services/publicProfiles';
 import {
   getHallOfFame,
-  type HallOfFamePlayer,
   type FaithfulPlayer,
 } from '../services/youthPortal';
 
@@ -128,9 +127,8 @@ export default function RankingPage({
     useState<PublicProfile | null>(null);
 
   const [activeGame, setActiveGame] = useState<string | null>(null);
-  const [topPlayers, setTopPlayers] = useState<HallOfFamePlayer[]>([]);
   const [faithfulPlayers, setFaithfulPlayers] = useState<FaithfulPlayer[]>([]);
-  const [hallLoading, setHallLoading] = useState(true);
+  const [faithfulLoading, setFaithfulLoading] = useState(true);
   const [attendanceLimited, setAttendanceLimited] = useState(false);
 
   async function loadProfiles() {
@@ -157,7 +155,6 @@ export default function RankingPage({
     getHallOfFame()
       .then((result) => {
         if (!active) return;
-        setTopPlayers(result.topPlayers ?? []);
         setFaithfulPlayers(result.faithful ?? []);
         setAttendanceLimited(result.attendanceLimited === true);
       })
@@ -165,7 +162,7 @@ export default function RankingPage({
         console.warn('No se pudo consultar el cuadro de honor:', cause);
       })
       .finally(() => {
-        if (active) setHallLoading(false);
+        if (active) setFaithfulLoading(false);
       });
     return () => {
       active = false;
@@ -185,13 +182,26 @@ export default function RankingPage({
 
   // La clasificación siempre utiliza todos los perfiles.
   // No depende del texto escrito en el buscador.
-  const ranking = useMemo(
-    () =>
-      [...profiles].sort(
-        (a, b) => (b.points ?? 0) - (a.points ?? 0),
-      ),
-    [profiles],
-  );
+  const ranking = useMemo(() => {
+    const sorted = [...profiles].sort(
+      (a, b) =>
+        (b.points ?? 0) - (a.points ?? 0) ||
+        a.name.localeCompare(b.name, 'es'),
+    );
+
+    // Los empates comparten posición: 1, 2, 2, 4.
+    let position = 0;
+    let previousPoints: number | null = null;
+
+    return sorted.map((profile, index) => {
+      const points = profile.points ?? 0;
+      if (previousPoints === null || points !== previousPoints) {
+        position = index + 1;
+      }
+      previousPoints = points;
+      return {...profile, position};
+    });
+  }, [profiles]);
 
   const totalPoints = profiles.reduce(
     (total, profile) => total + (profile.points ?? 0),
@@ -309,34 +319,70 @@ export default function RankingPage({
             </article>
           </div>
 
-          {/* CUADRO DE HONOR: datos publicados por el ranking original */}
+          {/* PODIO Y CONSTANCIA: el Top 3 sale de la misma lista que la clasificación general */}
           <section className="youth-hall-grid ranking-hall-grid" aria-label="Cuadro de honor">
             <article className="youth-hall-card youth-hall-points">
-              <header><Crown size={20} /><div><span>HALL OF FAME</span><h2>Top 3 de puntos</h2></div></header>
-              {hallLoading ? (
+              <header>
+                <Crown size={21} />
+                <div>
+                  <span>RECONOCIMIENTO</span>
+                  <h2>Podio de puntos</h2>
+                </div>
+              </header>
+              <p className="youth-hall-caption">
+                Los tres primeros puestos de la clasificación general.
+              </p>
+              {loading ? (
                 <p className="youth-data-empty">Consultando puntuaciones…</p>
-              ) : topPlayers.length ? (
-                <ol className="youth-podium-list">
-                  {topPlayers.slice(0, 3).map((player, index) => {
-                    const photo = profiles.find((profile) => profile.name === player.name || profile.nick === player.name)?.pic || player.pic;
-                    return (
-                      <li key={player.id} className={`podium-place place-${index + 1}`}>
-                        <span className="youth-podium-medal">{index === 0 ? <Crown size={17}/> : <Medal size={17}/>}</span>
-                        <span className="youth-podium-rank">0{index + 1}</span>
-                        {photo ? <img src={photo} alt="" /> : <b>{player.name.trim().split(/\s+/).slice(0, 2).map((part) => part[0] ?? '').join('').toUpperCase()}</b>}
-                        <span className="youth-podium-name">{player.name}</span>
-                        <strong>{player.points} pts</strong>
-                      </li>
-                    );
-                  })}
+              ) : ranking.length ? (
+                <ol className="ranking-podium-list">
+                  {ranking.slice(0, 3).map((player, index) => (
+                    <li
+                      key={player.id}
+                      className={`ranking-podium-player place-${index + 1}`}
+                      aria-label={`Puesto ${player.position}: ${player.name}, ${player.points} puntos`}
+                    >
+                      <span className="ranking-podium-rank">
+                        {player.position === 1 ? <Crown size={19} /> : <Medal size={18} />}
+                      </span>
+                      <span className="ranking-podium-avatar">
+                        {player.pic ? (
+                          <img src={player.pic} alt={`Foto de ${player.name}`} loading="lazy" />
+                        ) : (
+                          player.name.trim().split(/\s+/).slice(0, 2)
+                            .map((part) => part[0] ?? '').join('').toUpperCase()
+                        )}
+                      </span>
+                      <span className="ranking-podium-details">
+                        <strong>{player.name}</strong>
+                        <small>{player.points} {player.points === 1 ? 'punto' : 'puntos'}</small>
+                      </span>
+                      <span className="ranking-podium-place">Puesto {player.position}</span>
+                    </li>
+                  ))}
                 </ol>
-              ) : <p className="youth-data-empty">Aún no se han publicado puntuaciones.</p>}
+              ) : (
+                <p className="youth-data-empty">Aún no hay puntuaciones publicadas.</p>
+              )}
             </article>
+
             <article className="youth-hall-card youth-hall-faithful">
-              <header><Flame size={20}/><div><span>CONSTANCIA Y COMPROMISO</span><h2>Top 10 más fieles</h2></div></header>
-              <p className="youth-hall-caption">Según las asistencias consecutivas publicadas por el sistema original.</p>
-              {attendanceLimited && <p className="youth-hall-limited" role="note">El cálculo usa las reuniones recientes disponibles.</p>}
-              {hallLoading ? (
+              <header>
+                <Flame size={21} />
+                <div>
+                  <span>CONSTANCIA Y COMPROMISO</span>
+                  <h2>Top 10 de asistencias</h2>
+                </div>
+              </header>
+              <p className="youth-hall-caption">
+                Según las asistencias consecutivas publicadas por el sistema original.
+              </p>
+              {attendanceLimited && (
+                <p className="youth-hall-limited" role="note">
+                  El cálculo usa las reuniones recientes disponibles.
+                </p>
+              )}
+              {faithfulLoading ? (
                 <p className="youth-data-empty">Consultando asistencias…</p>
               ) : faithfulPlayers.length ? (
                 <ol className="youth-faithful-list">
@@ -344,11 +390,16 @@ export default function RankingPage({
                     <li key={player.id}>
                       <span className="youth-faithful-rank">{index + 1}</span>
                       <span className="youth-faithful-name">{player.name}</span>
-                      <strong>{player.attendances} {player.attendances === 1 ? 'servicio seguido' : 'servicios seguidos'}</strong>
+                      <strong>
+                        {player.attendances}{' '}
+                        {player.attendances === 1 ? 'servicio seguido' : 'servicios seguidos'}
+                      </strong>
                     </li>
                   ))}
                 </ol>
-              ) : <p className="youth-data-empty">Aún no hay asistencias consecutivas publicadas.</p>}
+              ) : (
+                <p className="youth-data-empty">Aún no hay asistencias consecutivas publicadas.</p>
+              )}
             </article>
           </section>
 
@@ -394,54 +445,65 @@ export default function RankingPage({
             </div>
           )}
 
-          {/* LISTA DE POSICIONES */}
+          {/* CLASIFICACIÓN GENERAL */}
           {!loading && !error && ranking.length > 0 && (
-            <div className="ranking-list">
-              {ranking.map((profile, index) => (
-                <article
-                  className={`ranking-player ${
-                    index === 0 ? 'ranking-first' : ''
-                  }`}
-                  key={profile.id}
-                >
-                  <span className="ranking-position">
-                    {index === 0 ? (
-                      <Crown size={23} />
-                    ) : index === 1 ? (
-                      <Medal size={22} />
-                    ) : index === 2 ? (
-                      <Medal size={20} />
-                    ) : (
-                      index + 1
-                    )}
-                  </span>
+            <>
+              <div className="ranking-list-heading">
+                <div>
+                  <span className="ranking-kicker">CLASIFICACIÓN GENERAL</span>
+                  <h3>Todos los participantes</h3>
+                  <p>Ordenados de mayor a menor puntuación. Los empates comparten puesto.</p>
+                </div>
+                <span className="ranking-list-count">
+                  {ranking.length} {ranking.length === 1 ? 'joven' : 'jóvenes'}
+                </span>
+              </div>
 
-                  <span className="profile-avatar">
-                    {profile.pic ? (
-                      <img src={profile.pic} alt="" />
-                    ) : (
-                      <UserRound size={27} />
-                    )}
-                  </span>
+              <div className="ranking-list" role="list" aria-label="Clasificación general">
+                {ranking.map((profile) => (
+                  <article
+                    className={`ranking-player ${
+                      profile.position === 1 ? 'ranking-first' :
+                      profile.position === 2 ? 'ranking-second' :
+                      profile.position === 3 ? 'ranking-third' : ''
+                    }`}
+                    key={profile.id}
+                    role="listitem"
+                    aria-label={`Puesto ${profile.position}: ${profile.name}, ${profile.points} puntos`}
+                  >
+                    <span className="ranking-position" aria-label={`Puesto ${profile.position}`}>
+                      {profile.position === 1 ? (
+                        <Crown size={21} />
+                      ) : profile.position <= 3 ? (
+                        <Medal size={20} />
+                      ) : (
+                        profile.position
+                      )}
+                    </span>
 
-                  <div className="ranking-player-info">
-                    <strong>{profile.name || 'Joven'}</strong>
+                    <span className="profile-avatar">
+                      {profile.pic ? (
+                        <img src={profile.pic} alt={`Foto de ${profile.name}`} loading="lazy" />
+                      ) : (
+                        profile.name.trim().split(/\s+/).slice(0, 2)
+                          .map((part) => part[0] ?? '').join('').toUpperCase()
+                      )}
+                    </span>
 
-                    <small>
-                      @{profile.nick || 'sin-apodo'}
-                    </small>
-                  </div>
+                    <div className="ranking-player-info">
+                      <strong>{profile.name || 'Joven'}</strong>
+                      {profile.nick && <small>@{profile.nick}</small>}
+                    </div>
 
-                  <div className="ranking-player-points">
-                    <Star size={17} />
-
-                    <strong>{profile.points ?? 0}</strong>
-
-                    <span>puntos</span>
-                  </div>
-                </article>
-              ))}
-            </div>
+                    <div className="ranking-player-points">
+                      <Star size={17} />
+                      <strong>{profile.points ?? 0}</strong>
+                      <span>{profile.points === 1 ? 'punto' : 'puntos'}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </>
           )}
         </div>
       )}
@@ -726,7 +788,7 @@ export default function RankingPage({
       <footer className="ranking-footer-note">
         <LockKeyhole size={15} />
 
-        Entorno de pruebas · Perfiles públicos de Staging.
+        Datos de los perfiles públicos · Puntuaciones publicadas por administración.
       </footer>
     </section>
   );
