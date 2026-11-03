@@ -43,13 +43,13 @@ export default function CheckinPage() {
     (member) => member.id === selectedMemberId,
   );
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
       const [memberRows, checkinRows] = await Promise.all([
         getMembersForAdministration(),
-        getCheckins(),
+        getCheckins(date, meetingName),
       ]);
       setMembers(memberRows);
       setCheckins(checkinRows);
@@ -58,11 +58,11 @@ export default function CheckinPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [date, meetingName]);
 
   useEffect(() => {
     void loadData();
-  }, []);
+  }, [loadData]);
 
   const processQr = useCallback(async (value: string) => {
     if (saving) return;
@@ -124,7 +124,7 @@ export default function CheckinPage() {
       setSaving(false);
       setScanning(false);
     }
-  }, [saving, members, checkins, date, meetingName]);
+  }, [saving, members, checkins, date, meetingName, loadData]);
 
   useEffect(() => {
     scannerCallback.current = (value) => {
