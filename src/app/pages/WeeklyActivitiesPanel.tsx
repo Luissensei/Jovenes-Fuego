@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import type {FormEvent} from 'react';
 import {CalendarDays, Plus, RefreshCw, Save, Eye, EyeOff, Pencil, X} from 'lucide-react';
+import {firebaseReadOnlyMode} from '../../services/firebase/client';
 import {
   getAdminWeeklyActivities,
   saveWeeklyActivity,
@@ -68,6 +69,10 @@ export default function WeeklyActivitiesPanel() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (firebaseReadOnlyMode) {
+      setError('La base original está protegida. Conecta Staging para publicar actividades sin modificar producción.');
+      return;
+    }
     setSaving(true);
     setError('');
     setMessage('');
@@ -109,6 +114,8 @@ export default function WeeklyActivitiesPanel() {
           ))}
         </div>
       )}
+
+      {firebaseReadOnlyMode && <p className="weekly-admin-alert" role="note">La agenda original se consulta en modo de solo lectura. La creación y publicación se habilitan al conectar Staging.</p>}
 
       {showForm && (
         <div className="weekly-form-backdrop" role="presentation" onMouseDown={(event) => {if (event.target === event.currentTarget && !saving) setShowForm(false);}}>
