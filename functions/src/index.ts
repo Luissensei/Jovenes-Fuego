@@ -65,29 +65,48 @@ function isValidTime(value: string): boolean {
 }
 
 async function loadVisiblePublicProfiles() {
-  const snapshot = await db.collection("publicProfiles").limit(200).get();
-  const memberSnapshots = snapshot.docs.length > 0
-    ? await db.getAll(...snapshot.docs.map((document) =>
-      db.collection("members").doc(document.id),
-    ))
-    : [];
+  // El esquema histórico guarda las fichas principales en "members".
+  // "publicProfiles" es una colección complementaria y no todos los
+  // jóvenes antiguos tienen necesariamente un documento duplicado allí.
+  const [membersSnapshot, publicSnapshot] = await Promise.all([
+    db.collection("members").limit(500).get(),
+    db.collection("publicProfiles").limit(500).get(),
+  ]);
 
-  return snapshot.docs.flatMap((document, index) => {
-    const data = document.data();
-    const memberData = memberSnapshots[index]?.data();
+  const membersById = new Map(
+    membersSnapshot.docs.map((document) => [document.id, document.data()]),
+  );
+  const publicById = new Map(
+    publicSnapshot.docs.map((document) => [document.id, document.data()]),
+  );
+  const ids = new Set([...membersById.keys(), ...publicById.keys()]);
 
-    // La marca de no publicación se respeta tanto en el perfil público
-    // como en la ficha privada del miembro.
-    if (data.nopub === true || memberData?.nopub === true) return [];
+  return Array.from(ids).flatMap((id) => {
+    const memberData = membersById.get(id);
+    const publicData = publicById.get(id);
 
-    const points = Number(data.points ?? data.puntos ?? 0);
-    const image = text(data.pic, 1500);
+    // Una marca de privacidad en cualquiera de las dos fichas tiene prioridad.
+    if (memberData?.nopub === true || publicData?.nopub === true) return [];
+
+    const name = text(publicData?.name ?? memberData?.name, 120);
+    const nick = text(publicData?.nick ?? memberData?.nick, 60);
+    if (!name && !nick) return [];
+
+    const pointsValue = Number(
+      publicData?.points ?? publicData?.puntos ??
+      memberData?.points ?? memberData?.puntos ?? 0,
+    );
+    const image = text(publicData?.pic ?? memberData?.pic, 1500);
+
+    // Nunca se devuelven teléfonos, fechas, notas ni campos privados.
     return [{
-      id: document.id,
-      name: typeof data.name === "string" ? data.name : "",
-      nick: typeof data.nick === "string" ? data.nick : "",
+      id,
+      name,
+      nick,
       pic: image.startsWith("https://") ? image : "",
-      points: Number.isFinite(points) && points >= 0 ? points : 0,
+      points: Number.isFinite(pointsValue) && pointsValue >= 0
+        ? pointsValue
+        : 0,
     }];
   });
 }
