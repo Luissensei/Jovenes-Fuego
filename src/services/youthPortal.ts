@@ -172,7 +172,7 @@ export async function getHallOfFame(): Promise<{
 export async function getAdminWeeklyActivities(): Promise<WeeklyActivity[]> {
   if (!db) throw new Error('Firebase Firestore no está configurado.');
   const snapshot = await getDocs(collection(db, 'events'));
-  const items = snapshot.docs.flatMap((item) => {
+  const storedItems = snapshot.docs.flatMap((item) => {
     const data = item.data();
     const title = typeof data.t === 'string' ? data.t.trim() : '';
     const date = typeof data.d === 'string' ? data.d : '';
@@ -187,8 +187,11 @@ export async function getAdminWeeklyActivities(): Promise<WeeklyActivity[]> {
       published: data.published !== false,
     }];
   });
-  if (items.length) return items.sort((a, b) => a.date.localeCompare(b.date));
-  return getWeeklyActivities();
+  const publicItems = await getWeeklyActivities();
+  const merged = new Map<string, WeeklyActivity>();
+  publicItems.forEach((item) => merged.set(`${item.title}| ${item.date}`, item));
+  storedItems.forEach((item) => merged.set(`${item.title}| ${item.date}`, item));
+  return Array.from(merged.values()).sort((a, b) => a.date.localeCompare(b.date));
 }
 
 export async function saveWeeklyActivity(
