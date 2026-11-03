@@ -206,6 +206,78 @@ export function LoadingScreen({ label = 'Preparando la experiencia…' }: { labe
   return <div className="jf-loading-screen" role="status"><span className="jf-loading-mark"><Sparkles size={27} /></span><span className="jf-loading-orbit" /><strong>{label}</strong></div>;
 }
 
+export function AnimatedCard({
+  children,
+  className = '',
+  ...props
+}: HTMLAttributes<HTMLDivElement>) {
+  return <GlassCard {...props} className={['jf-animated-card', className].filter(Boolean).join(' ')}>{children}</GlassCard>;
+}
+
+export function PlayerProfileCard({
+  name,
+  playerId,
+  avatarUrl,
+  level = 1,
+  xp = 0,
+  xpToNext = 100,
+  rank = 'Inicio',
+  badges,
+}: {
+  name: string;
+  playerId?: string;
+  avatarUrl?: string | null;
+  level?: number;
+  xp?: number;
+  xpToNext?: number;
+  rank?: string;
+  badges?: ReactNode;
+}) {
+  return (
+    <GlassCard className="jf-player-profile-card">
+      <div className="jf-player-profile-card__top">
+        <PlayerAvatar name={name} src={avatarUrl} size="xl" />
+        <div className="jf-player-profile-card__identity">
+          <span className="jf-eyebrow">PERFIL DE JUGADOR</span>
+          <h3>{name}</h3>
+          {playerId && <small>ID · {playerId}</small>}
+          <RankBadge rank={rank} />
+        </div>
+        <span className="jf-player-profile-card__level">NVL. {Math.max(1, level)}</span>
+      </div>
+      <ExperienceBar value={xp} max={xpToNext} />
+      {badges && <div className="jf-player-profile-card__badges">{badges}</div>}
+    </GlassCard>
+  );
+}
+
+export function BackgroundEffects() {
+  return (
+    <div className="jf-background-effects" aria-hidden="true">
+      <span className="jf-background-effects__orb jf-background-effects__orb--violet" />
+      <span className="jf-background-effects__orb jf-background-effects__orb--fire" />
+      <span className="jf-background-effects__orb jf-background-effects__orb--cyan" />
+      <span className="jf-background-effects__grid" />
+    </div>
+  );
+}
+
+export function GamingNavbar({
+  children,
+  className = '',
+  ...props
+}: HTMLAttributes<HTMLElement>) {
+  return <header {...props} className={['jf-navbar', className].filter(Boolean).join(' ')}>{children}</header>;
+}
+
+export function GamingSidebar({
+  children,
+  className = '',
+  ...props
+}: HTMLAttributes<HTMLElement>) {
+  return <aside {...props} className={['jf-sidebar', className].filter(Boolean).join(' ')}>{children}</aside>;
+}
+
 type ToastTone = 'success' | 'error' | 'info';
 type ToastInput = { title: string; message?: string; tone?: ToastTone };
 type ToastItem = ToastInput & { id: number };
