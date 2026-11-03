@@ -115,6 +115,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
   const [search, setSearch] = useState('');
   const [selectedMember, setSelectedMember] = useState<MemberAdminRecord | null>(null);
   const [detailMinimized, setDetailMinimized] = useState(false);
+  const [detailClosing, setDetailClosing] = useState(false);
   const [draft, setDraft] = useState<AdminMemberPatch>({});
   const [saving, setSaving] = useState(false);
   const [photoBusy, setPhotoBusy] = useState(false);
@@ -152,16 +153,21 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
   function openMember(member: MemberAdminRecord) {
     setSelectedMember(member);
     setDetailMinimized(false);
+    setDetailClosing(false);
     setDraft(toDraft(member));
     setMessage('');
     setError('');
   }
 
   function closeMember() {
-    if (saving) return;
-    setSelectedMember(null);
-    setDetailMinimized(false);
-    setDraft({});
+    if (saving || detailClosing) return;
+    setDetailClosing(true);
+    window.setTimeout(() => {
+      setSelectedMember(null);
+      setDetailMinimized(false);
+      setDetailClosing(false);
+      setDraft({});
+    }, 220);
   }
 
   function changeField(key: keyof AdminMemberPatch, value: string) {
@@ -291,8 +297,8 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
       )}
 
       {selectedMember && !detailMinimized && (
-        <div className="member-detail-backdrop" role="presentation" onMouseDown={(event) => {if (event.target === event.currentTarget) closeMember();}}>
-          <section className="member-detail-modal" role="dialog" aria-modal="true" aria-labelledby="member-detail-title">
+        <div className={`member-detail-backdrop ${detailClosing ? 'closing' : ''}`} role="presentation" onMouseDown={(event) => {if (event.target === event.currentTarget) closeMember();}}>
+          <section className={`member-detail-modal ${detailClosing ? 'closing' : ''}`} role="dialog" aria-modal="true" aria-labelledby="member-detail-title">
             <header className="member-detail-header">
               <div className="member-detail-avatar">{memberImage(draft.pic) ? <img src={memberImage(draft.pic)} alt={String(draft.name ?? selectedMember.name)}/> : initials(String(draft.name ?? selectedMember.name))}</div>
               <div><span>FICHA DE LA COMUNIDAD</span><h2 id="member-detail-title">{String(selectedMember.name ?? 'Joven')}</h2><small>ID: {selectedMember.id}{typeof selectedMember.created === 'string' || typeof selectedMember.created === 'number' ? ` · Registro: ${String(selectedMember.created)}` : ''}</small></div>
