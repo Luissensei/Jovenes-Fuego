@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState} from 'react';
 import type {FormEvent} from 'react';
 import {
   AlertCircle, Search, Users, RefreshCw, CalendarDays, Phone,
-  UserRound, Flame, X, Save, Edit3, ShieldCheck, MapPin,
+  UserRound, Flame, X, Save, Edit3, ShieldCheck, MapPin, Minimize2, Maximize2,
 } from 'lucide-react';
 import {firebaseConfigured} from '../services/firebase/client';
 import {
@@ -72,6 +72,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [selectedMember, setSelectedMember] = useState<MemberAdminRecord | null>(null);
+  const [detailMinimized, setDetailMinimized] = useState(false);
   const [draft, setDraft] = useState<AdminMemberPatch>({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -107,6 +108,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
 
   function openMember(member: MemberAdminRecord) {
     setSelectedMember(member);
+    setDetailMinimized(false);
     setDraft(toDraft(member));
     setMessage('');
     setError('');
@@ -115,6 +117,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
   function closeMember() {
     if (saving) return;
     setSelectedMember(null);
+    setDetailMinimized(false);
     setDraft({});
   }
 
@@ -214,13 +217,22 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
 
       <footer className="members-footer"><span/>Datos consultados mediante una función protegida · Acceso administrativo</footer>
 
-      {selectedMember && (
+      {selectedMember && detailMinimized && (
+        <button type="button" className="member-detail-minimized" onClick={() => setDetailMinimized(false)}>
+          <Maximize2 size={16}/><span>{String(selectedMember.name ?? 'Ficha del joven')}</span><small>Restaurar ficha</small>
+        </button>
+      )}
+
+      {selectedMember && !detailMinimized && (
         <div className="member-detail-backdrop" role="presentation" onMouseDown={(event) => {if (event.target === event.currentTarget) closeMember();}}>
           <section className="member-detail-modal" role="dialog" aria-modal="true" aria-labelledby="member-detail-title">
             <header className="member-detail-header">
               <div className="member-detail-avatar">{initials(String(draft.name ?? selectedMember.name))}</div>
               <div><span>FICHA DE LA COMUNIDAD</span><h2 id="member-detail-title">{String(selectedMember.name ?? 'Joven')}</h2><small>ID: {selectedMember.id}{typeof selectedMember.created === 'string' || typeof selectedMember.created === 'number' ? ` · Registro: ${String(selectedMember.created)}` : ''}</small></div>
-              <button type="button" onClick={closeMember} aria-label="Cerrar ficha"><X size={20}/></button>
+              <div className="member-detail-window-actions">
+                <button type="button" onClick={() => setDetailMinimized(true)} aria-label="Minimizar ficha"><Minimize2 size={18}/></button>
+                <button type="button" onClick={closeMember} aria-label="Cerrar ficha"><X size={20}/></button>
+              </div>
             </header>
             <form onSubmit={(event) => void saveMember(event)}>
               <div className="member-detail-fields">
