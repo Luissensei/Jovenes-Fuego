@@ -1058,12 +1058,20 @@ export const getCheckins = onCall(async (request) => {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
   await requireAuthorizedRole(request.auth.uid);
+  const date = text(request.data?.date, 10);
+  const meetingName = text(request.data?.meetingName, 100);
+  if (!isValidDate(date) || !meetingName) {
+    throw new HttpsError("invalid-argument", "Indica una fecha y servicio válidos.");
+  }
   const snapshot = await db.collection("attendanceMeetings")
-    .orderBy("date", "desc")
+    .where("date", "==", date)
     .limit(300)
     .get();
 
-  const items = snapshot.docs.flatMap((meeting) => {
+  const matchingMeetings = snapshot.docs.filter((meeting) =>
+    text(meeting.data().name, 100).toLowerCase() === meetingName.toLowerCase(),
+  );
+  const items = matchingMeetings.flatMap((meeting) => {
     const data = meeting.data();
     const participants = Array.isArray(data.participants) ? data.participants : [];
     return participants.flatMap((item) => {
