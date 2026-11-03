@@ -95,7 +95,10 @@ export function AuthProvider({
           const getApplicationProfile = httpsCallable<
             Record<string, never>,
             {profile: UserProfile}
-          >(functionsInstance, 'getMyApplicationProfile');
+          >(
+            functionsInstance,
+            firebaseReadOnly ? 'readonlyGetMyApplicationProfile' : 'getMyApplicationProfile',
+          );
           const profileResponse = await getApplicationProfile({});
           const userProfile = profileResponse.data.profile;
 
@@ -133,13 +136,13 @@ export function AuthProvider({
             firebaseError.code === 'functions/not-found'
           ) {
             setError(
-              'Tu cuenta no tiene un perfil autorizado en users o la función getMyApplicationProfile todavía no está desplegada en Firebase Staging.'
+              'Tu cuenta no tiene un perfil autorizado en users o la función de consulta del perfil todavía no está desplegada en Firebase.'
             );
           } else if (firebaseError.code === 'functions/unauthenticated') {
             setError('La sesión expiró. Inicia sesión nuevamente.');
           } else {
             setError(
-              'No se pudo validar tu perfil mediante Firebase Functions. Comprueba que las funciones estén desplegadas en Staging.'
+              'No se pudo validar tu perfil mediante Firebase Functions. Comprueba que la función de consulta del perfil esté desplegada en el proyecto configurado.'
             );
           }
 
