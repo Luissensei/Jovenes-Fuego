@@ -71,21 +71,25 @@ function compressMemberPhoto(file: File): Promise<string> {
         reject(new Error('Este navegador no pudo procesar la fotografía.'));
         return;
       }
-      for (const size of [220, 180, 144, 120]) {
-        const scale = Math.min(1, size / Math.max(image.width, image.height));
-        canvas.width = Math.max(1, Math.round(image.width * scale));
-        canvas.height = Math.max(1, Math.round(image.height * scale));
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-        for (const quality of [0.66, 0.56, 0.46, 0.36]) {
-          const encoded = canvas.toDataURL('image/jpeg', quality);
-          if (encoded.length < 58000) {
-            resolve(encoded);
-            return;
+      try {
+        for (const size of [220, 180, 144, 120]) {
+          const scale = Math.min(1, size / Math.max(image.width, image.height));
+          canvas.width = Math.max(1, Math.round(image.width * scale));
+          canvas.height = Math.max(1, Math.round(image.height * scale));
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          for (const quality of [0.66, 0.56, 0.46, 0.36]) {
+            const encoded = canvas.toDataURL('image/jpeg', quality);
+            if (encoded.length < 58000) {
+              resolve(encoded);
+              return;
+            }
           }
         }
+        reject(new Error('La imagen es demasiado pesada incluso después de comprimirla.'));
+      } catch {
+        reject(new Error('No se pudo comprimir la fotografía. Usa una imagen JPG, PNG o WebP.'));
       }
-      reject(new Error('La imagen es demasiado pesada incluso después de comprimirla.'));
     };
     image.onerror = () => {
       URL.revokeObjectURL(objectUrl);
@@ -180,8 +184,12 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
 
   async function choosePhoto(file?: File) {
     if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      setError('Selecciona un archivo de imagen válido.');
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setError('Selecciona una fotografía JPG, PNG o WebP.');
+      return;
+    }
+    if (file.size > 12 * 1024 * 1024) {
+      setError('La fotografía original debe pesar menos de 12 MB.');
       return;
     }
     setPhotoBusy(true);
