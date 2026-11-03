@@ -2,7 +2,6 @@ import {playGameTone} from './gameAudio';
 import { useState } from 'react';
 import { shuffleBibleQuestions, type VerseChallenge } from './bibleQuestionBank';
 import { expandedBibleVerseChallenges } from './extendedBibleQuestionBank';
-import { expandedBibleVerseChallenges } from './extendedBibleQuestionBank';
 import {
   BookOpen,
   CheckCircle2,
