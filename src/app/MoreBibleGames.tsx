@@ -211,6 +211,7 @@ export function ChallengeGame({ onExit }: { onExit: () => void }) {
   function answer(option: string) {
     if (answered !== null || finished) return;
     setAnswered(option);
+    playGameTone(option === question.answer ? 'success' : 'incorrect');
     if (option === question.answer) setScore((value) => value + 10);
   }
 
