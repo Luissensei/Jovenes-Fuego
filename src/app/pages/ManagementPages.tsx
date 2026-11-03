@@ -1,14 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import {
-  addDoc,
-  collection,
-  doc,
-  onSnapshot,
-  serverTimestamp,
-  setDoc,
-} from 'firebase/firestore';
-
 import { auth, db } from '../../services/firebase/client';
 
 import {
