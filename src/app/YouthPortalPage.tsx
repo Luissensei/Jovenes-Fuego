@@ -612,8 +612,8 @@ export default function YouthPortalPage() {
 
           {(
             <section className="youth-prayer-panel">
-              <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>Tu petición llegará a la bandeja de la comunidad cuando las escrituras estén habilitadas en Staging.</p></div></header>
-              <p className="youth-prayer-privacy"><ShieldCheck size={15}/> La petición se envía a la bandeja interna de la aplicación. El selector de perfiles es público y no verifica quién está usando la cuenta.</p>
+              <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>El envío se habilitará cuando conectemos Staging y podamos probarlo de forma segura.</p></div></header>
+              <p className="youth-prayer-privacy"><ShieldCheck size={15}/> El formulario está preparado para la bandeja interna. El selector de perfiles es público y no verifica quién está usando la cuenta; evita compartir datos sensibles.</p>
               <form onSubmit={(event) => void handlePrayerSubmit(event)}>
                 <label>Nombre (opcional)<input value={prayerName} onChange={(event) => setPrayerName(event.target.value)} maxLength={80} placeholder="Puedes enviarla como anónimo"/></label>
                 <label>Tipo de petición<select value={prayerCategory} onChange={(event) => setPrayerCategory(event.target.value)}><option>General</option><option>Familia</option><option>Estudios</option><option>Fortaleza espiritual</option><option>Agradecimiento</option><option>Otra</option></select></label>
