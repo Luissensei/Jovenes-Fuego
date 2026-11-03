@@ -2,6 +2,9 @@ name: Deploy Firebase Staging Functions
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - fix/quality-final
 
 permissions:
   contents: read
