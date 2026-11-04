@@ -1161,3 +1161,76 @@ body{font-family:"DM Sans",system-ui,sans-serif}
  .main :is(.shared-page-header,.page-card){border-radius:15px!important}
 }
 @media(prefers-reduced-motion:reduce){.main *,.sidebar *{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+
+/* Shell refinement · navegación y continuidad entre módulos */
+.layout{background:var(--jf-bg)!important}
+.sidebar{
+ background:
+  radial-gradient(ellipse at 12% 0%,rgba(255,126,65,.13),transparent 34%),
+  radial-gradient(ellipse at 100% 80%,rgba(139,91,190,.12),transparent 36%),
+  var(--jf-sidebar)!important;
+ border-right:1px solid rgba(222,174,111,.16)!important;
+ box-shadow:12px 0 42px rgba(4,3,9,.13)!important;
+}
+.sidebar .brand{padding-bottom:19px}
+.sidebar .brand-mark{
+ border:1px solid rgba(255,218,164,.28);
+ box-shadow:0 8px 22px rgba(221,91,42,.2),inset 0 1px rgba(255,255,255,.24);
+}
+.sidebar .env-chip{border-radius:999px!important}
+.sidebar .module-search{
+ border-radius:12px!important;
+ background:rgba(255,255,255,.065)!important;
+ border:1px solid rgba(255,255,255,.11)!important;
+}
+.sidebar .jf-nav-group{border-radius:13px}
+.sidebar .jf-nav-group>summary{border-radius:11px}
+.sidebar .jf-nav-group-items{gap:5px}
+.sidebar .nav-item{
+ min-height:43px;border-radius:12px!important;
+ transition:background .18s ease,border-color .18s ease,color .18s ease!important;
+}
+.sidebar .nav-item .nav-item-icon{
+ border-radius:10px!important;
+ background:rgba(255,255,255,.055)!important;
+ border:1px solid rgba(255,255,255,.055);
+}
+.sidebar .nav-item:hover{
+ background:rgba(255,255,255,.075)!important;
+ border-color:rgba(255,255,255,.09)!important;
+}
+.sidebar .nav-item.active{
+ background:linear-gradient(105deg,rgba(236,119,65,.2),rgba(145,91,184,.13))!important;
+ border:1px solid rgba(237,163,104,.25)!important;
+ box-shadow:inset 3px 0 #ef985c,0 7px 18px rgba(0,0,0,.1)!important;
+}
+.sidebar .nav-item.active .nav-item-icon{
+ background:rgba(237,145,84,.16)!important;
+ border-color:rgba(237,163,104,.24)!important;
+}
+.sidebar .sidebar-bottom{border-top:1px solid rgba(255,255,255,.09)}
+.sidebar .theme-toggle{border-radius:12px!important}
+.main>.topline{
+ min-height:64px;border-radius:0 0 18px 18px;
+ background:color-mix(in srgb,var(--jf-surface) 88%,transparent)!important;
+ border:1px solid var(--jf-border)!important;
+ border-top:0!important;
+ box-shadow:0 10px 30px rgba(5,4,12,.08)!important;
+}
+.main .jf-route-stage{min-width:0;animation:jf-route-enter .24s ease both}
+@keyframes jf-route-enter{from{opacity:.0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.main .preview-warning{border-radius:13px}
+.main :is(.page-card,.shared-page-header){border-radius:20px}
+:root[data-theme="light"] .sidebar{
+ background:linear-gradient(160deg,#211a2d,#30233a 70%,#38272e)!important;
+}
+:root[data-theme="light"] .sidebar .nav-item.active{
+ background:linear-gradient(105deg,rgba(236,119,65,.24),rgba(145,91,184,.19))!important;
+}
+:root[data-theme="light"] .main>.topline{background:rgba(255,255,255,.9)!important}
+@media(max-width:900px){
+ .sidebar{box-shadow:18px 0 55px rgba(0,0,0,.28)!important}
+ .main>.topline{min-height:56px;border-radius:0 0 15px 15px}
+}
+@media(prefers-reduced-motion:reduce){.main .jf-route-stage{animation:none}}
