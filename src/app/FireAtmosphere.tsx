@@ -1,5 +1,3 @@
-import React from 'react';
-
 type FireAtmosphereProps = {
   density?: 'subtle' | 'cinematic';
 };
