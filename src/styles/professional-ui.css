@@ -22,8 +22,8 @@
   --jf-sidebar-muted: #c2b9ad;
   --jf-input: #191714;
   --jf-icon: #df9869;
-  --jf-accent: #d58a5c;
-  --jf-accent-strong: #e4a071;
+  --jf-accent: #a65b35;
+  --jf-accent-strong: #8f482c;
   --jf-accent-2: #df9869;
   --jf-purple: #a99aaf;
   --jf-blue: #8ca7bd;
@@ -54,8 +54,8 @@
   --jf-sidebar-muted: #c2b9ad;
   --jf-input: #191714;
   --jf-icon: #df9869;
-  --jf-accent: #d58a5c;
-  --jf-accent-strong: #e4a071;
+  --jf-accent: #a65b35;
+  --jf-accent-strong: #8f482c;
   --jf-accent-2: #df9869;
   --jf-purple: #a99aaf;
   --jf-blue: #8ca7bd;
@@ -657,4 +657,149 @@ body {
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+
+/* Selectores finales con la misma especificidad que las antiguas capas de tema. */
+:root[data-theme] .layout {
+  background: var(--jf-bg) !important;
+  color: var(--jf-text) !important;
+}
+
+:root[data-theme] .sidebar,
+:root[data-theme] .mobile-header {
+  background: var(--jf-sidebar) !important;
+  color: var(--jf-sidebar-text) !important;
+  border-color: rgba(255,255,255,.10) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:root[data-theme] .sidebar .nav-item {
+  color: var(--jf-sidebar-muted) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme] .sidebar .nav-item:hover {
+  color: var(--jf-sidebar-text) !important;
+  background: rgba(255,255,255,.07) !important;
+}
+
+:root[data-theme] .sidebar .nav-item.active {
+  color: #ffffff !important;
+  background: rgba(213,138,92,.18) !important;
+  border-color: rgba(213,138,92,.28) !important;
+  box-shadow: inset 3px 0 0 var(--jf-accent) !important;
+}
+
+:root[data-theme] .sidebar .nav-item-icon,
+:root[data-theme] .sidebar .nav-item.active .nav-item-icon {
+  color: var(--jf-accent) !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme] .sidebar .env-chip,
+:root[data-theme] .sidebar .safe-note {
+  color: var(--jf-sidebar-text) !important;
+  background: rgba(255,255,255,.055) !important;
+  border-color: rgba(255,255,255,.10) !important;
+}
+
+:root[data-theme] .sidebar .module-search,
+:root[data-theme] .sidebar .theme-toggle {
+  background: rgba(255,255,255,.055) !important;
+  border-color: rgba(255,255,255,.12) !important;
+  color: var(--jf-sidebar-text) !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme] .sidebar .module-search input {
+  color: var(--jf-sidebar-text) !important;
+}
+
+/* Mantener superficies planas también frente a reglas antiguas de glassmorphism. */
+:root[data-theme="light"] .main :is(
+  .page-card, .shared-page-header, .shared-stat-card, .shared-empty-state,
+  .dashboard-stat, .dashboard-shortcut, .dashboard-community-stat,
+  .dashboard-chart-card, .dashboard-bottom-note, .ranking-content,
+  .ranking-progress-panel, .ranking-visual-toolbar, .ranking-info-grid article,
+  .ranking-player, .game-card, .profile-card, .selected-profile-panel,
+  .members-total-card, .members-controls, .members-state, .member-card,
+  .member-row, .attendance-card, .attendance-member, .followup-stat,
+  .followup-content, .followup-card, .visitors-stat, .visitors-content,
+  .visitor-card, .devotionals-controls, .devotional-card, .photos-stats article,
+  .photo-card, .reports-card, .reports-stats article, .checkin-config,
+  .checkin-panel, .checkin-summary article, .management-summary,
+  .management-form, .management-records, .management-record,
+  .managed-record, .managed-stat, .managed-empty, .settings-card,
+  .leaders-card, .weekly-admin-panel, .weekly-admin-item, .prayer-admin-card,
+  .shared-modal, .managed-modal, .followup-modal, .visitors-modal,
+  .devotionals-modal, .photos-modal
+) {
+  background: #ffffff !important;
+  color: #2b2926 !important;
+  border-color: #e6e0d8 !important;
+  box-shadow: var(--jf-shadow) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:root[data-theme="light"] .main :is(
+  .page-card, .shared-page-header, .shared-stat-card, .shared-empty-state,
+  .dashboard-stat, .dashboard-shortcut, .dashboard-community-stat,
+  .dashboard-chart-card, .dashboard-bottom-note, .ranking-content,
+  .ranking-progress-panel, .ranking-visual-toolbar, .ranking-info-grid article,
+  .ranking-player, .game-card, .profile-card, .selected-profile-panel,
+  .members-total-card, .members-controls, .members-state, .member-card,
+  .member-row, .attendance-card, .attendance-member, .followup-stat,
+  .followup-content, .followup-card, .visitors-stat, .visitors-content,
+  .visitor-card, .devotionals-controls, .devotional-card, .photos-stats article,
+  .photo-card, .reports-card, .reports-stats article, .checkin-config,
+  .checkin-panel, .checkin-summary article, .management-summary,
+  .management-form, .management-records, .management-record,
+  .managed-record, .managed-stat, .managed-empty, .settings-card,
+  .leaders-card, .weekly-admin-panel, .weekly-admin-item, .prayer-admin-card,
+  .shared-modal, .managed-modal, .followup-modal, .visitors-modal,
+  .devotionals-modal, .photos-modal
+) :is(h1,h2,h3,h4,h5,strong,label,legend,th,td) {
+  color: #2b2926 !important;
+}
+
+:root[data-theme="light"] .main :is(
+  .page-card, .shared-page-header, .shared-stat-card, .shared-empty-state,
+  .dashboard-stat, .dashboard-shortcut, .dashboard-community-stat,
+  .dashboard-chart-card, .dashboard-bottom-note, .ranking-content,
+  .ranking-progress-panel, .ranking-visual-toolbar, .ranking-info-grid article,
+  .ranking-player, .game-card, .profile-card, .selected-profile-panel,
+  .members-total-card, .members-controls, .members-state, .member-card,
+  .member-row, .attendance-card, .attendance-member, .followup-stat,
+  .followup-content, .followup-card, .visitors-stat, .visitors-content,
+  .visitor-card, .devotionals-controls, .devotional-card, .photos-stats article,
+  .photo-card, .reports-card, .reports-stats article, .checkin-config,
+  .checkin-panel, .checkin-summary article, .management-summary,
+  .management-form, .management-records, .management-record,
+  .managed-record, .managed-stat, .managed-empty, .settings-card,
+  .leaders-card, .weekly-admin-panel, .weekly-admin-item, .prayer-admin-card,
+  .shared-modal, .managed-modal, .followup-modal, .visitors-modal,
+  .devotionals-modal, .photos-modal
+) :is(p,small,li,dt,dd,figcaption) {
+  color: #625d56 !important;
+}
+
+:root[data-theme] .main :is(.btn-primary,.primary-button,.login-submit,.submit-button,.member-detail-save,.attendance-card>button,.ranking-hero-button,.shared-button.primary,.management-submit,.weekly-add-button,.youth-prayer-submit-row button,.topline-ai-trigger) {
+  background: var(--jf-accent) !important;
+  border-color: var(--jf-accent-strong) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme] .main :is(.btn-primary,.primary-button,.login-submit,.submit-button,.member-detail-save,.attendance-card>button,.ranking-hero-button,.shared-button.primary,.management-submit,.weekly-add-button,.youth-prayer-submit-row button,.topline-ai-trigger):hover:not(:disabled) {
+  background: var(--jf-accent-strong) !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
