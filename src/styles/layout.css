@@ -407,3 +407,12 @@ html, body, #root {
   .sidebar>.sidebar-bottom{margin-top:6px!important;padding-top:8px!important;}
   .sidebar>.sidebar-bottom .safe-note{padding:7px 9px!important;}
 }
+
+
+/* Ancho de lectura para el menú lateral en pantallas grandes. */
+@media(min-width:901px){
+  .sidebar{
+    width:min(318px,calc(100vw - 48px))!important;
+    max-width:318px!important;
+  }
+}
