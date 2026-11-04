@@ -7,7 +7,7 @@ import {
   Gamepad2, RefreshCw, ChevronRight, ShieldCheck, Sparkles,
   CalendarDays, Clock3, MapPin, HeartHandshake, Send, Medal, Crown,
   Palette, Volume2, VolumeX, Star, X, WandSparkles,
-  BookMarked, Timer, Swords, Brain, Layers, Moon, Sun, BadgeCheck, UserSearch,
+  BookMarked, Timer, Swords, Brain, Layers, Moon, Sun, BadgeCheck, UserSearch, Circle, Check, CheckCircle2, Save, Trash2,
 } from 'lucide-react';
 
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
@@ -67,6 +67,10 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'oro',label:'Oro',emoji:'👑',cost:120},
     {key:'galaxia',label:'Galaxia',emoji:'🌌',cost:150},
     {key:'corona',label:'Campeón',emoji:'🏆',cost:200},
+    {key:'prisma',label:'Prisma',emoji:'🔮',cost:110},
+    {key:'obsidiana',label:'Obsidiana',emoji:'🖤',cost:125},
+    {key:'solar',label:'Solar',emoji:'☀️',cost:95},
+    {key:'cristal',label:'Cristal',emoji:'💎',cost:145},
   ],
   avatars: [
     {key:'',label:'Iniciales',emoji:'🔤',cost:0},
@@ -82,6 +86,9 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'cohete',label:'Cohete',emoji:'🚀',cost:70},
     {key:'rey',label:'Rey',emoji:'👑',cost:80},
     {key:'volcan',label:'Volcán',emoji:'🌋',cost:90},
+    {key:'fenix',label:'Fénix',emoji:'🪽',cost:95},
+    {key:'delfin',label:'Delfín',emoji:'🐬',cost:45},
+    {key:'zorro',label:'Zorro',emoji:'🦊',cost:55},
   ],
   titles: [
     {key:'chispa',label:'Chispa Encendida',emoji:'✨',cost:0},
@@ -99,6 +106,11 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'noche',label:'Noche',emoji:'🌙',cost:50},
     {key:'volcan',label:'Volcán',emoji:'🌋',cost:80},
     {key:'galaxia',label:'Galaxia',emoji:'✨',cost:100},
+    {key:'oceano',label:'Océano',emoji:'🌊',cost:65},
+    {key:'bosque',label:'Bosque',emoji:'🌳',cost:70},
+    {key:'aurora-boreal',label:'Aurora boreal',emoji:'🌠',cost:115},
+    {key:'atardecer',label:'Atardecer',emoji:'🌇',cost:55},
+    {key:'cosmos',label:'Cosmos',emoji:'🪐',cost:125},
   ],
   effects: [
     {key:'ember',label:'Brasa suave',emoji:'🔥',cost:0},
@@ -107,6 +119,9 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'ice',label:'Escarcha',emoji:'❄️',cost:85},
     {key:'halo',label:'Resplandor',emoji:'💫',cost:110},
     {key:'galaxy',label:'Galaxia',emoji:'🌌',cost:140},
+    {key:'sun',label:'Destello solar',emoji:'☀️',cost:90},
+    {key:'lightning',label:'Relámpagos',emoji:'⚡',cost:105},
+    {key:'bloom',label:'Luz floreciente',emoji:'🌸',cost:95},
   ],
   badges: [
     {key:'flame',label:'Llama viva',emoji:'🔥',cost:0},
@@ -115,6 +130,10 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'shield',label:'Fe firme',emoji:'🛡️',cost:65},
     {key:'star',label:'Luz del mundo',emoji:'⭐',cost:80},
     {key:'crown',label:'Corona de vida',emoji:'👑',cost:120},
+    {key:'hope',label:'Esperanza',emoji:'🕊️',cost:70},
+    {key:'mission',label:'En misión',emoji:'🌍',cost:85},
+    {key:'brave',label:'Valentía',emoji:'🦁',cost:90},
+    {key:'joy',label:'Gozo',emoji:'😊',cost:55},
   ],
   hair: [
     {key:'natural',label:'Natural',emoji:'🌿',cost:0},
@@ -190,8 +209,27 @@ const lookTemplates: {key:string;label:string;description:string;emoji:string;pr
   {key:'guerrero',label:'Guerrero de fe',description:'Un look de fuerza, valor y propósito.',emoji:'🛡️',preset:{frame:'corona',background:'volcan',avatar:'guerrero',title:'valiente',effects:'spark',badge:'shield',hair:'fade',outfit:'warrior',accessory:'wristband'}},
   {key:'urbano',label:'Luz urbana',description:'Estilo moderno con personalidad propia.',emoji:'🎧',preset:{frame:'neon',background:'noche',avatar:'estrella',title:'chispa',effects:'galaxy',badge:'heart',hair:'curly',outfit:'street',accessory:'headphones'}},
   {key:'sabiduria',label:'Amante de la Palabra',description:'Una identidad centrada en aprender y crecer.',emoji:'📖',preset:{frame:'oro',background:'ocaso',avatar:'cordero',title:'sabio',effects:'halo',badge:'book',hair:'classic',outfit:'formal',accessory:'book'}},
+  {key:'misionero',label:'Luz en el mundo',description:'Una imagen alegre, cercana y lista para servir.',emoji:'🌍',preset:{frame:'esmeralda',background:'bosque',avatar:'aguila',title:'intercesor',effects:'sun',badge:'mission',hair:'braids',outfit:'sport',accessory:'book'}},
+  {key:'cosmico',label:'Fuego galáctico',description:'Colores intensos, brillo y una vibra futurista.',emoji:'🌌',preset:{frame:'prisma',background:'cosmos',avatar:'fenix',title:'leyenda',effects:'galaxy',badge:'hope',hair:'afro',outfit:'street',accessory:'glasses'}},
 ];
 
+
+type SavedLookTemplate = {key:string;label:string;description:string;emoji:string;preset:LookPreset};
+function isSavedLookTemplate(value: unknown): value is SavedLookTemplate {
+  if (!value || typeof value !== 'object') return false;
+  const item = value as Partial<SavedLookTemplate>;
+  const preset = item.preset as LookPreset | undefined;
+  if (typeof item.key !== 'string' || typeof item.label !== 'string' || typeof item.description !== 'string' || typeof item.emoji !== 'string' || !preset) return false;
+  return lookShop.frames.some((entry) => entry.key === preset.frame)
+    && lookShop.backgrounds.some((entry) => entry.key === preset.background)
+    && lookShop.avatars.some((entry) => entry.key === preset.avatar)
+    && lookShop.titles.some((entry) => entry.key === preset.title)
+    && lookShop.effects.some((entry) => entry.key === preset.effects)
+    && lookShop.badges.some((entry) => entry.key === preset.badge)
+    && lookShop.hair.some((entry) => entry.key === preset.hair)
+    && lookShop.outfits.some((entry) => entry.key === preset.outfit)
+    && lookShop.accessories.some((entry) => entry.key === preset.accessory);
+}
 const weeklyGrowthPlan = [
   {id:'day-1',day:'Día 1',title:'Una fe firme',reference:'Hebreos 11:1',challenge:'Escribe una situación en la que quieras confiar más en Dios.'},
   {id:'day-2',day:'Día 2',title:'Valor para avanzar',reference:'Josué 1:9',challenge:'Da hoy un paso que has estado posponiendo por temor.'},
@@ -381,6 +419,8 @@ export default function YouthPortalPage() {
   const [growthDone, setGrowthDone] = useState<string[]>([]);
   const [journalEntry, setJournalEntry] = useState('');
   const [journalStatus, setJournalStatus] = useState('');
+  const [savedLookTemplates, setSavedLookTemplates] = useState<SavedLookTemplate[]>([]);
+  const [templateName, setTemplateName] = useState('');
 
   const [prayerName, setPrayerName] = useState('');
   const [prayerCategory, setPrayerCategory] = useState('General');
@@ -440,14 +480,19 @@ export default function YouthPortalPage() {
     if (selectedProfile) {
       setLook(readLook(selectedProfile));
       setProfileExtras(readProfileExtras(selectedProfile.id));
+      setTemplateName('');
       setExpandedRankId(null);
       try {
         const savedPlan = JSON.parse(window.localStorage.getItem(`jf-youth-growth-${selectedProfile.id}`) || '[]') as unknown;
         setGrowthDone(Array.isArray(savedPlan) ? savedPlan.filter((item): item is string => typeof item === 'string' && weeklyGrowthPlan.some((day) => day.id === item)) : []);
         setJournalEntry(window.localStorage.getItem(`jf-youth-journal-${selectedProfile.id}`) || '');
         setJournalStatus('');
+        const templateData = JSON.parse(window.localStorage.getItem(`jf-youth-templates-${selectedProfile.id}`) || '[]') as unknown;
+        setSavedLookTemplates(Array.isArray(templateData) ? templateData.filter(isSavedLookTemplate).slice(0,12) : []);
       } catch {
         setGrowthDone([]);
+        setJournalEntry('');
+        setSavedLookTemplates([]);
       }
       // La selección pública no verifica identidad: no prellenar el nombre
       // evita enviar peticiones en nombre de otra persona.
@@ -456,6 +501,8 @@ export default function YouthPortalPage() {
     } else {
       setEditingLook(false);
       setActiveGame(null);
+      setSavedLookTemplates([]);
+      setTemplateName('');
       setJournalEntry('');
       setJournalStatus('');
       if (audioRef.current) {
@@ -553,10 +600,10 @@ export default function YouthPortalPage() {
 
   async function equipLookItem(category: LookShopCategory, item: (typeof lookShop)[LookShopCategory][number]) {
     if (!selectedProfile) return;
-    const ownedKey = \`\${lookCategoryStorage[category]}:\${item.key}\`;
+    const ownedKey = `${lookCategoryStorage[category]}:${item.key}`;
     const alreadyOwned = item.cost === 0 || look.ownedItems.includes(ownedKey);
     if (!alreadyOwned && look.flames < item.cost) {
-      setLookNotice(\`Te faltan \${item.cost - look.flames} Llamas para desbloquear \${item.label}.\`);
+      setLookNotice(`Te faltan ${item.cost - look.flames} Llamas para desbloquear ${item.label}.`);
       return;
     }
     const equippedPrefixes: Partial<Record<LookShopCategory, string>> = {
@@ -571,7 +618,7 @@ export default function YouthPortalPage() {
     const nextOwnedItems = Array.from(new Set([
       ...retainedItems,
       ...(!alreadyOwned && item.cost > 0 ? [ownedKey] : []),
-      ...(prefix ? [\`\${prefix}\${item.key}\`] : []),
+      ...(prefix ? [`${prefix}${item.key}`] : []),
     ]));
     const next: ProfileLook = {
       ...look,
@@ -592,7 +639,7 @@ export default function YouthPortalPage() {
 
   async function applyLookTemplate(templateKey: string) {
     if (!selectedProfile) return;
-    const template = lookTemplates.find((item) => item.key === templateKey);
+    const template = [...lookTemplates, ...savedLookTemplates].find((item) => item.key === templateKey);
     if (!template) return;
     const mappings: [LookShopCategory, string][] = [
       ['frames',template.preset.frame],['avatars',template.preset.avatar],['titles',template.preset.title],
@@ -608,7 +655,7 @@ export default function YouthPortalPage() {
     for (const [category,key] of mappings) {
       const item = lookShop[category].find((entry) => entry.key === key);
       if (!item) continue;
-      const ownedKey = \`\${lookCategoryStorage[category]}:\${item.key}\`;
+      const ownedKey = `${lookCategoryStorage[category]}:${item.key}`;
       const alreadyOwned = item.cost === 0 || owned.includes(ownedKey);
       if (!alreadyOwned) {
         cost += item.cost;
@@ -619,17 +666,49 @@ export default function YouthPortalPage() {
         for (let index = owned.length - 1; index >= 0; index -= 1) {
           if (owned[index].startsWith(prefix)) owned.splice(index, 1);
         }
-        owned.push(\`\${prefix}\${key}\`);
+        owned.push(`${prefix}${key}`);
       }
     }
     if (look.flames < cost) {
-      setLookNotice(\`Esta plantilla requiere \${cost} Llamas y tienes \${look.flames}.\`);
+      setLookNotice(`Esta plantilla requiere ${cost} Llamas y tienes ${look.flames}.`);
       return;
     }
     const next: ProfileLook = {...look,...template.preset,ownedItems:Array.from(new Set(owned)),flames:look.flames-cost};
-    await persistLook(next,\`Plantilla \${template.label} aplicada.\`);
+    await persistLook(next,`Plantilla ${template.label} aplicada.`);
   }
 
+
+  function saveCurrentLookTemplate() {
+    if (!selectedProfile) return;
+    const label = templateName.trim().slice(0,32);
+    if (!label) { setLookNotice('Escribe un nombre para guardar tu plantilla.'); return; }
+    if (savedLookTemplates.length >= 12) { setLookNotice('Puedes guardar hasta 12 plantillas propias por perfil.'); return; }
+    const nextTemplate: SavedLookTemplate = {
+      key: `custom-${Date.now()}`, label, description: 'Tu combinación personal', emoji: '🎨',
+      preset: {frame:look.frame,background:look.background,avatar:look.avatar,title:look.title,effects:look.effects,badge:look.badge,hair:look.hair,outfit:look.outfit,accessory:look.accessory},
+    };
+    const next = [...savedLookTemplates,nextTemplate];
+    try {
+      window.localStorage.setItem(`jf-youth-templates-${selectedProfile.id}`, JSON.stringify(next));
+      setSavedLookTemplates(next);
+      setTemplateName('');
+      setLookNotice(`Plantilla «${label}» guardada en este dispositivo.`);
+    } catch {
+      setLookNotice('No se pudo guardar la plantilla en este navegador.');
+    }
+  }
+
+  function deleteSavedLookTemplate(templateKey: string) {
+    if (!selectedProfile) return;
+    const next = savedLookTemplates.filter((template) => template.key !== templateKey);
+    try {
+      window.localStorage.setItem(`jf-youth-templates-${selectedProfile.id}`, JSON.stringify(next));
+      setSavedLookTemplates(next);
+      setLookNotice('Plantilla eliminada.');
+    } catch {
+      setLookNotice('No se pudo eliminar la plantilla.');
+    }
+  }
   function toggleGrowthDay(dayId: string) {
     if (!selectedProfile) return;
     setGrowthDone((previous) => {
@@ -637,7 +716,7 @@ export default function YouthPortalPage() {
         ? previous.filter((item) => item !== dayId)
         : [...previous, dayId];
       try {
-        window.localStorage.setItem(\`jf-youth-growth-\${selectedProfile.id}\`, JSON.stringify(next));
+        window.localStorage.setItem(`jf-youth-growth-${selectedProfile.id}`, JSON.stringify(next));
       } catch {
         setLookNotice('El navegador no permitió guardar el progreso de este plan.');
       }
@@ -905,6 +984,28 @@ export default function YouthPortalPage() {
                   ))}
                 </div>
               </section>
+              <div className="youth-custom-template-create">
+                <label htmlFor="youth-template-name">Guarda tu propio diseño</label>
+                <div>
+                  <input id="youth-template-name" value={templateName} onChange={(event) => setTemplateName(event.target.value)} maxLength={32} placeholder="Ej. Mi estilo de fuego" />
+                  <button type="button" onClick={saveCurrentLookTemplate} disabled={lookSaving || !templateName.trim()}><Save size={15}/> Guardar plantilla</button>
+                </div>
+                <small>Guarda la combinación de marco, fondo, avatar, título y accesorios cosméticos. El modelo 3D se administra por separado.</small>
+              </div>
+              {savedLookTemplates.length > 0 && (
+                <div className="youth-saved-templates">
+                  <div className="youth-look-templates-heading"><b>Mis plantillas</b><span>{savedLookTemplates.length} de 12 diseños guardados en este dispositivo.</span></div>
+                  <div className="youth-saved-templates-grid">
+                    {savedLookTemplates.map((template) => (
+                      <article key={template.key}>
+                        <div><span>{template.emoji}</span><b>{template.label}</b><small>Plantilla personal</small></div>
+                        <button type="button" onClick={() => void applyLookTemplate(template.key)} disabled={lookSaving}>Aplicar</button>
+                        <button type="button" className="youth-delete-template" onClick={() => deleteSavedLookTemplate(template.key)} aria-label={`Eliminar plantilla ${template.label}`}><Trash2 size={14}/></button>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              )}
               <nav className="youth-store-tabs" aria-label="Personalización">
                 {([
                   ['frames','Marcos'],['avatars','Avatares'],['titles','Títulos'],['backgrounds','Fondos'],

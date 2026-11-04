@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { CheckCircle2, Download, LoaderCircle, RotateCw, Sparkles, Trash2, UserRound } from 'lucide-react';
+import { CheckCircle2, Download, LoaderCircle, RotateCw, Sparkles, Trash2, UserRound, Upload } from 'lucide-react';
 
 const CREATOR_SDK_URL = 'https://esm.sh/@three-ws/avatar@0.2.3/creator?bundle';
 const VIEWER_SDK_URL = 'https://esm.sh/@three-ws/avatar@0.2.3/viewer?bundle';
@@ -101,6 +101,7 @@ export default function ThreeDAvatarStudio({
   const mountRef = useRef<HTMLDivElement | null>(null);
   const objectUrlRef = useRef('');
   const exportedRef = useRef(false);
+  const uploadInputRef = useRef<HTMLInputElement | null>(null);
 
   function replacePreview(blob: Blob) {
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
@@ -149,8 +150,12 @@ export default function ThreeDAvatarStudio({
 
   async function saveExport(blob: Blob) {
     try {
-      if (blob.size < 4 || blob.size > MAX_AVATAR_BYTES) {
-        throw new Error('El modelo debe pesar menos de 12 MB. Optimízalo e inténtalo de nuevo.');
+      if (blob.size < 12 || blob.size > MAX_AVATAR_BYTES) {
+        throw new Error('El modelo debe pesar entre unos bytes y 12 MB.');
+      }
+      const magic = new Uint8Array(await blob.slice(0,4).arrayBuffer());
+      if (magic[0] !== 0x67 || magic[1] !== 0x6c || magic[2] !== 0x54 || magic[3] !== 0x46) {
+        throw new Error('El archivo no parece ser un modelo GLB válido.');
       }
       await storeAvatar(profileId, blob);
       await registerViewer();
@@ -192,6 +197,33 @@ export default function ThreeDAvatarStudio({
     }
   }
 
+
+  async function importGlb(file: File) {
+    if (!file.name.toLowerCase().endsWith('.glb')) {
+      setNotice('Selecciona un archivo .glb para importar tu personaje 3D.');
+      return;
+    }
+    setBusy(true);
+    setNotice('Validando y guardando tu modelo 3D…');
+    await saveExport(file);
+  }
+
+  async function downloadGlb() {
+    try {
+      const blob = await readStoredAvatar(profileId);
+      if (!blob) throw new Error('No se encontró un modelo guardado.');
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `avatar-jovenes-de-fuego-${profileId.replace(/[^a-z0-9_-]/gi, '').slice(0,36)}.glb`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+    } catch (cause) {
+      setNotice(cause instanceof Error ? cause.message : 'No se pudo descargar el avatar.');
+    }
+  }
   async function deleteAvatar() {
     try {
       await removeStoredAvatar(profileId);
@@ -225,6 +257,11 @@ export default function ThreeDAvatarStudio({
           {busy ? <LoaderCircle size={16} className="is-loading"/> : hasAvatar ? <RotateCw size={16}/> : <UserRound size={16}/>}
           {busy ? 'Abriendo estudio…' : hasAvatar ? 'Editar avatar' : 'Crear avatar 3D'}
         </button>
+        <button type="button" className="youth-3d-avatar-secondary" onClick={() => uploadInputRef.current?.click()} disabled={busy}>
+          <Upload size={15}/> Importar GLB
+        </button>
+        <input ref={uploadInputRef} className="youth-3d-avatar-file" type="file" accept=".glb,model/gltf-binary" onChange={(event) => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ''; if (file) void importGlb(file); }} />
+        {hasAvatar && <button type="button" className="youth-3d-avatar-secondary" onClick={() => void downloadGlb()} disabled={busy}><Download size={15}/> Descargar GLB</button>}
         {hasAvatar && (
           <button type="button" className="youth-3d-avatar-remove" onClick={() => void deleteAvatar()} disabled={busy} aria-label="Eliminar avatar 3D">
             <Trash2 size={16}/>
@@ -233,9 +270,7 @@ export default function ThreeDAvatarStudio({
       </div>
       {notice && <p className="youth-3d-avatar-notice" role="status">{notice}</p>}
       <small className="youth-3d-avatar-privacy"><CheckCircle2 size={13}/> Tu modelo se guarda en este navegador. No se envía a Firebase ni se publica automáticamente.</small>
-      <a className="youth-3d-avatar-help" href="https://three.ws/avatar-studio/" target="_blank" rel="noreferrer">
-        Ver el estudio 3D <Download size={13}/>
-      </a>
+      <a className="youth-3d-avatar-help" href="https://three.ws/avatar-studio/" target="_blank" rel="noreferrer">Abrir el estudio 3D en otra pestaña</a>
     </section>
   );
 }

@@ -1743,3 +1743,28 @@
 .scope :global(.youth-journal-status){margin:0;color:#8fe7c2;font-size:10px}
 .scope :global(.youth-journal-privacy){display:flex;align-items:center;gap:6px;margin:0}
 @media(max-width:540px){.scope :global(.youth-journal-actions){align-items:stretch;flex-direction:column}.scope :global(.youth-journal-actions)>button{width:100%}}
+
+/* Plantillas que cada joven puede crear, aplicar y borrar desde su propio perfil. */
+.scope :global(.youth-custom-template-create),.scope :global(.youth-saved-templates){display:grid;gap:8px;margin-top:12px;padding:12px;border:1px solid var(--jf-border);border-radius:13px;background:var(--jf-surface-raised)}
+.scope :global(.youth-custom-template-create)>label{color:var(--jf-text);font-size:10px;font-weight:900}
+.scope :global(.youth-custom-template-create)>div{display:flex;gap:8px}
+.scope :global(.youth-custom-template-create) input{flex:1;min-width:0;min-height:39px;padding:8px 10px;border:1px solid var(--jf-border);border-radius:9px;background:var(--jf-input);color:var(--jf-text);font:inherit;font-size:11px}
+.scope :global(.youth-custom-template-create) button,.scope :global(.youth-saved-templates-grid) article>button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:0 10px;border:1px solid var(--jf-border);border-radius:9px;background:linear-gradient(110deg,#ed7648,#9864dc);color:#fff;font-size:9px;font-weight:900;cursor:pointer}
+.scope :global(.youth-custom-template-create) button:disabled{opacity:.45;cursor:not-allowed}
+.scope :global(.youth-custom-template-create)>small{color:var(--jf-muted);font-size:8px;line-height:1.5}
+.scope :global(.youth-saved-templates-grid){display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:8px}
+.scope :global(.youth-saved-templates-grid) article{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:6px;padding:9px;border:1px solid var(--jf-border);border-radius:11px;background:var(--jf-surface)}
+.scope :global(.youth-saved-templates-grid) article>div{display:grid;grid-template-columns:24px minmax(0,1fr);gap:2px 6px;min-width:0;align-items:center}
+.scope :global(.youth-saved-templates-grid) article>div>span{grid-row:span 2;font-size:18px}
+.scope :global(.youth-saved-templates-grid) article>div>b{overflow:hidden;color:var(--jf-text);font-size:9px;text-overflow:ellipsis;white-space:nowrap}
+.scope :global(.youth-saved-templates-grid) article>div>small{color:var(--jf-muted);font-size:7px}
+.scope :global(.youth-saved-templates-grid) article>button{min-height:31px;padding:0 8px}
+.scope :global(.youth-saved-templates-grid) article>button.youth-delete-template{width:31px;padding:0;background:transparent;color:var(--jf-muted)}
+:global(:root[data-theme="light"]) .scope :global(.youth-custom-template-create),:global(:root[data-theme="light"]) .scope :global(.youth-saved-templates){background:#f7f9fd;border-color:#e0e6ef}
+:global(:root[data-theme="light"]) .scope :global(.youth-custom-template-create)>label,:global(:root[data-theme="light"]) .scope :global(.youth-saved-templates-grid) article>div>b{color:#29364d}
+:global(:root[data-theme="light"]) .scope :global(.youth-custom-template-create) input{background:#fff;color:#29364d;border-color:#dfe6f0}
+@media(max-width:560px){.scope :global(.youth-custom-template-create)>div{flex-direction:column}.scope :global(.youth-custom-template-create) button{width:100%}.scope :global(.youth-saved-templates-grid){grid-template-columns:1fr}}
+
+.scope :global(.youth-3d-avatar-file){display:none}
+.scope :global(.youth-3d-avatar-actions)>button.youth-3d-avatar-secondary{min-height:35px;padding:0 9px;border-color:rgba(220,235,255,.17);background:rgba(255,255,255,.065);color:#e3edff;font-size:9px}
+:global(:root[data-theme="light"]) .scope :global(.youth-3d-avatar-actions)>button.youth-3d-avatar-secondary{border-color:#dfe5ef;background:#f4f6fa;color:#475671}
