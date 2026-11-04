@@ -195,6 +195,7 @@
 
 .scope .sealInner svg {
   filter: drop-shadow(0 3px 8px rgba(119,34,20,.38));
+  animation: jfDashboardFlameGlyph 1.8s ease-in-out infinite;
 }
 
 .scope .sealTop,
@@ -252,15 +253,15 @@
 }
 
 .scope .metrics article:nth-child(1) {
-  background: linear-gradient(125deg,#267be9,#3358cc);
+  background: linear-gradient(125deg,#1f5cc5,#274bb0);
 }
 
 .scope .metrics article:nth-child(2) {
-  background: linear-gradient(125deg,#ff8734,#ed452c);
+  background: linear-gradient(125deg,#bb421d,#a83225);
 }
 
 .scope .metrics article:nth-child(3) {
-  background: linear-gradient(125deg,#9b5cf1,#6537c8);
+  background: linear-gradient(125deg,#6838bd,#4b289b);
 }
 
 .scope .metrics article:hover {
@@ -614,4 +615,11 @@
   .scope .metrics article:hover {
     transform: none !important;
   }
+}
+
+
+@keyframes jfDashboardFlameGlyph {
+  0%,100% { transform: rotate(-45deg) scale(1); filter: drop-shadow(0 3px 8px rgba(119,34,20,.34)); }
+  45% { transform: rotate(-45deg) scale(1.08,.96); filter: drop-shadow(0 4px 14px rgba(255,228,102,.62)); }
+  72% { transform: rotate(-45deg) scale(.98,1.07); filter: drop-shadow(0 2px 12px rgba(255,118,45,.55)); }
 }
