@@ -1234,3 +1234,32 @@ body{font-family:"DM Sans",system-ui,sans-serif}
  .main>.topline{min-height:56px;border-radius:0 0 15px 15px}
 }
 @media(prefers-reduced-motion:reduce){.main .jf-route-stage{animation:none}}
+
+
+/* Pantallas administrativas sin hoja modular propia + componentes compartidos */
+.main :is(.events-page,.prayers-admin-page){display:flex;flex-direction:column;gap:20px;min-width:0}
+.main :is(.events-page,.prayers-admin-page)>.management-header{
+ position:relative;isolation:isolate;overflow:hidden;
+ border:1px solid rgba(222,174,111,.23)!important;border-radius:22px!important;
+ background:radial-gradient(ellipse at 92% 0%,rgba(255,129,67,.18),transparent 36%),linear-gradient(115deg,#1b1726,#30223a 65%,#432c30)!important;
+ box-shadow:0 18px 45px rgba(5,4,10,.17)!important;
+}
+.main .prayers-admin-summary,.main .prayers-admin-list,.main .prayer-admin-card{
+ background:var(--jf-surface)!important;color:var(--jf-text)!important;
+ border:1px solid var(--jf-border)!important;border-radius:17px!important;
+ box-shadow:var(--jf-shadow)!important;
+}
+.main .prayers-admin-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 18px}
+.main .prayers-admin-card{padding:18px;transition:border-color .18s ease,transform .18s ease}
+.main .prayers-admin-card:hover{border-color:rgba(222,174,111,.4)!important;transform:translateY(-2px)}
+.main .prayers-admin-alert{padding:13px 15px;border:1px solid var(--jf-border);border-radius:13px;background:var(--jf-surface-2);color:var(--jf-text)}
+.main .prayers-admin-empty{display:grid;place-items:center;gap:10px;min-height:160px;padding:25px;border:1px dashed var(--jf-border);border-radius:17px;color:var(--jf-muted);text-align:center}
+.main .shared-stat-card{border:1px solid var(--jf-border)!important;border-radius:17px!important;background:var(--jf-surface)!important;box-shadow:var(--jf-shadow)!important}
+.main .shared-stat-icon{border-radius:12px!important}
+.main .shared-table-wrapper{max-width:100%;overflow:auto;border:1px solid var(--jf-border);border-radius:16px;background:var(--jf-surface)}
+.main .shared-table{min-width:580px}
+.main .shared-page-header{border:1px solid var(--jf-border);border-radius:20px;background:var(--jf-surface);box-shadow:var(--jf-shadow)}
+:root[data-theme="light"] .main :is(.prayers-admin-summary,.prayers-admin-list,.prayer-admin-card,.shared-stat-card,.shared-table-wrapper,.shared-page-header){background:#fff!important;color:#382d40!important;border-color:#e9e0eb!important}
+:root[data-theme="light"] .main .prayers-admin-alert{background:#f8f5fa;color:#44364c;border-color:#e9e0eb}
+@media(max-width:600px){.main :is(.events-page,.prayers-admin-page){gap:15px}.main :is(.events-page,.prayers-admin-page)>.management-header{padding:19px!important;border-radius:18px!important}.main .prayers-admin-card{padding:14px}}
+@media(prefers-reduced-motion:reduce){.main .prayers-admin-card{transition:none}.main .prayers-admin-card:hover{transform:none}}
