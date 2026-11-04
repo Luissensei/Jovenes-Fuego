@@ -1,0 +1,140 @@
+/* Layout stability layer.
+   Keeps the application shell square and prevents global 3D hover effects
+   from tilting cards, lists, or the fixed navigation. */
+html, body, #root {
+  width: 100%;
+  max-width: 100%;
+  min-width: 320px;
+  overflow-x: clip;
+}
+
+.layout {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 40;
+  width: 270px;
+  min-width: 270px;
+  max-width: 270px;
+  flex: 0 0 270px;
+  box-sizing: border-box;
+  transform: none;
+}
+
+.main {
+  width: calc(100% - 270px) !important;
+  min-width: 0;
+  max-width: none !important;
+  margin-left: 270px !important;
+  box-sizing: border-box;
+  overflow-x: clip !important;
+}
+
+.main > *,
+.main section,
+.main article {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.nav-item,
+.nav-item:hover,
+.nav-item:focus-visible {
+  transform: none !important;
+}
+
+.main :is(
+  .dashboard-stat, .dashboard-shortcut, .dashboard-community-stat,
+  .dashboard-chart-card, .dashboard-bottom-note,
+  .ranking-info-grid article, .ranking-player, .game-card, .profile-card,
+  .selected-profile-panel, .members-total-card, .members-controls,
+  .member-card, .member-row, .attendance-card, .attendance-member,
+  .followup-stat, .followup-content, .followup-card,
+  .visitors-stat, .visitors-content, .visitor-card,
+  .devotionals-feature, .devotionals-controls, .devotional-card,
+  .photos-stats article, .photo-card, .reports-card, .reports-stats article,
+  .checkin-config, .checkin-panel, .checkin-summary article,
+  .management-summary, .management-form, .management-records,
+  .management-record, .managed-stat, .managed-record,
+  .weekly-admin-item, .youth-hall-card, .youth-activity-card,
+  .youth-store-item, .youth-game-tile, .youth-profile-card,
+  .youth-options article, .mbg-game, .mbg-result, .mbg-question,
+  .mbg-memory-card, .mbg-duel-setup, .mbg-word-board,
+  .verse-game, .verse-question-card, .verse-results
+) {
+  perspective: none !important;
+  transform-style: flat !important;
+  backface-visibility: visible !important;
+}
+
+.main :is(
+  .dashboard-stat, .dashboard-shortcut, .dashboard-community-stat,
+  .dashboard-chart-card, .dashboard-bottom-note,
+  .ranking-info-grid article, .ranking-player, .game-card, .profile-card,
+  .selected-profile-panel, .members-total-card, .members-controls,
+  .member-card, .member-row, .attendance-card, .attendance-member,
+  .followup-stat, .followup-content, .followup-card,
+  .visitors-stat, .visitors-content, .visitor-card,
+  .devotionals-feature, .devotionals-controls, .devotional-card,
+  .photos-stats article, .photo-card, .reports-card, .reports-stats article,
+  .checkin-config, .checkin-panel, .checkin-summary article,
+  .management-summary, .management-form, .management-records,
+  .management-record, .managed-stat, .managed-record,
+  .weekly-admin-item, .youth-hall-card, .youth-activity-card,
+  .youth-store-item, .youth-game-tile, .youth-profile-card,
+  .youth-options article, .mbg-game, .mbg-result, .mbg-question,
+  .mbg-memory-card, .mbg-duel-setup, .mbg-word-board,
+  .verse-game, .verse-question-card, .verse-results
+) > * {
+  transform: none !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .main :is(
+    .dashboard-stat, .dashboard-shortcut, .dashboard-community-stat,
+    .dashboard-chart-card, .dashboard-bottom-note,
+    .ranking-info-grid article, .ranking-player, .game-card, .profile-card,
+    .selected-profile-panel, .members-total-card, .members-controls,
+    .member-card, .member-row, .attendance-card, .attendance-member,
+    .followup-stat, .followup-content, .followup-card,
+    .visitors-stat, .visitors-content, .visitor-card,
+    .devotionals-feature, .devotionals-controls, .devotional-card,
+    .photos-stats article, .photo-card, .reports-card, .reports-stats article,
+    .checkin-config, .checkin-panel, .checkin-summary article,
+    .management-summary, .management-form, .management-records,
+    .management-record, .managed-stat, .managed-record,
+    .weekly-admin-item, .youth-hall-card, .youth-activity-card,
+    .youth-store-item, .youth-game-tile, .youth-profile-card,
+    .youth-options article, .mbg-game, .mbg-result, .mbg-question,
+    .mbg-memory-card, .mbg-duel-setup, .mbg-word-board,
+    .verse-game, .verse-question-card, .verse-results
+  ):hover {
+    transform: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: min(270px, 86vw);
+    min-width: 0;
+    max-width: 270px;
+    transform: translateX(-102%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0) !important;
+  }
+
+  .main {
+    width: 100% !important;
+    margin-left: 0 !important;
+    max-width: 100% !important;
+  }
+}
