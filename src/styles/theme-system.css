@@ -862,3 +862,162 @@ body {
 :root[data-theme="light"] .main :is(p,small,li,dt,dd,figcaption,.muted,.lead){
   color:#58666b;
 }
+
+
+/* Color system refresh — bright translucent light mode and vivid deep dark mode. */
+:root[data-theme="light"]{
+ --jf-bg:#f4f7ff;
+ --jf-surface:rgba(255,255,255,.88);
+ --jf-surface-2:rgba(235,241,255,.9);
+ --jf-surface-raised:#fff;
+ --jf-glass:rgba(255,255,255,.76);
+ --jf-glass-strong:rgba(255,255,255,.94);
+ --jf-glass-soft:rgba(91,140,255,.09);
+ --jf-glass-border:rgba(91,112,205,.2);
+ --jf-glass-edge:rgba(255,255,255,.84);
+ --jf-text:#17213b;
+ --jf-muted:#64708c;
+ --jf-border:rgba(82,105,190,.18);
+ --jf-sidebar:rgba(255,255,255,.88);
+ --jf-sidebar-text:#18213a;
+ --jf-sidebar-muted:#596681;
+ --jf-input:rgba(255,255,255,.96);
+ --jf-icon:#5b7cf0;
+ --jf-accent:#5b75ee;
+ --jf-accent-strong:#4a5ed0;
+ --jf-accent-2:#18ad91;
+ --jf-purple:#8656e8;
+ --jf-cyan:#18a9c7;
+ --jf-blue:#397ce8;
+ --jf-green:#159b70;
+ --jf-coral:#e16d9b;
+ --jf-gradient-brand:linear-gradient(118deg,#397ce8 0%,#7659e9 52%,#18ad91 100%);
+ --jf-gradient-action:linear-gradient(112deg,#397ce8 0%,#7659e9 58%,#18ad91 100%);
+ --jf-shadow:0 16px 42px rgba(47,68,135,.09);
+ color-scheme:light;
+}
+:root[data-theme="dark"],:root:not([data-theme]){
+ --jf-bg:#101629;
+ --jf-surface:rgba(25,34,59,.92);
+ --jf-surface-2:rgba(35,43,75,.94);
+ --jf-surface-raised:#29365b;
+ --jf-glass:rgba(21,29,52,.78);
+ --jf-glass-strong:rgba(16,22,41,.94);
+ --jf-glass-soft:rgba(117,92,232,.14);
+ --jf-glass-border:rgba(139,125,255,.25);
+ --jf-glass-edge:rgba(173,190,255,.13);
+ --jf-text:#f4f6ff;
+ --jf-muted:#aab5d4;
+ --jf-border:rgba(152,160,255,.19);
+ --jf-sidebar:rgba(17,24,46,.96);
+ --jf-sidebar-text:#f5f6ff;
+ --jf-sidebar-muted:#b8c2df;
+ --jf-input:#17213d;
+ --jf-icon:#a99aff;
+ --jf-accent:#a58cff;
+ --jf-accent-strong:#8c72ef;
+ --jf-accent-2:#42d5b0;
+ --jf-purple:#b18bff;
+ --jf-cyan:#5bd5e8;
+ --jf-blue:#75aaff;
+ --jf-green:#53d7a3;
+ --jf-coral:#ff83ae;
+ --jf-gradient-brand:linear-gradient(118deg,#263d78 0%,#6543b9 52%,#087e80 100%);
+ --jf-gradient-action:linear-gradient(112deg,#6556e8 0%,#9a62e9 54%,#13a98c 100%);
+ --jf-shadow:0 18px 48px rgba(0,0,0,.28);
+ color-scheme:dark;
+}
+:root[data-theme="royal"]{
+ --jf-bg:#12172c;
+ --jf-surface:rgba(29,35,63,.94);
+ --jf-surface-2:rgba(43,42,83,.94);
+ --jf-surface-raised:#353b70;
+ --jf-glass:rgba(24,27,53,.82);
+ --jf-glass-strong:rgba(17,21,42,.96);
+ --jf-glass-soft:rgba(157,119,255,.15);
+ --jf-glass-border:rgba(183,155,255,.3);
+ --jf-glass-edge:rgba(255,255,255,.13);
+ --jf-text:#fff8ff;
+ --jf-muted:#c4b9df;
+ --jf-border:rgba(183,155,255,.22);
+ --jf-sidebar:rgba(25,21,50,.97);
+ --jf-sidebar-text:#fff8ff;
+ --jf-sidebar-muted:#d1c4ed;
+ --jf-input:#201d42;
+ --jf-icon:#d2a6ff;
+ --jf-accent:#d2a6ff;
+ --jf-accent-strong:#ad7cf0;
+ --jf-accent-2:#58e0c1;
+ --jf-purple:#d0a2ff;
+ --jf-cyan:#72dff0;
+ --jf-blue:#8bb7ff;
+ --jf-green:#74e2b4;
+ --jf-coral:#ff9fc3;
+ --jf-gradient-brand:linear-gradient(118deg,#45317e 0%,#8a4eb6 54%,#087f85 100%);
+ --jf-gradient-action:linear-gradient(112deg,#885eea 0%,#ba66cf 54%,#0ba98c 100%);
+ --jf-shadow:0 20px 52px rgba(0,0,0,.32);
+ color-scheme:dark;
+}
+:root[data-theme] .layout{
+ background:
+  radial-gradient(ellipse at 8% 0%,color-mix(in srgb,var(--jf-blue) 13%,transparent),transparent 38%),
+  radial-gradient(ellipse at 92% 92%,color-mix(in srgb,var(--jf-green) 11%,transparent),transparent 34%),
+  var(--jf-bg)!important;
+}
+:root[data-theme] .sidebar,:root[data-theme] .mobile-header{
+ background:linear-gradient(155deg,color-mix(in srgb,var(--jf-sidebar) 94%,var(--jf-purple) 6%),var(--jf-sidebar))!important;
+ color:var(--jf-sidebar-text)!important;
+ border-color:var(--jf-border)!important;
+}
+:root[data-theme] .sidebar .nav-item{color:var(--jf-sidebar-muted)!important;}
+:root[data-theme] .sidebar .nav-item-icon{
+ color:var(--jf-purple)!important;
+ background:linear-gradient(145deg,color-mix(in srgb,var(--jf-purple) 17%,transparent),color-mix(in srgb,var(--jf-blue) 12%,transparent))!important;
+ border:1px solid color-mix(in srgb,var(--jf-purple) 21%,transparent)!important;
+}
+:root[data-theme] .sidebar .nav-item.active{
+ color:var(--jf-sidebar-text)!important;
+ background:linear-gradient(105deg,color-mix(in srgb,var(--jf-blue) 18%,transparent),color-mix(in srgb,var(--jf-purple) 18%,transparent),color-mix(in srgb,var(--jf-green) 12%,transparent))!important;
+ border-color:color-mix(in srgb,var(--jf-accent) 40%,transparent)!important;
+}
+:root[data-theme] .sidebar .nav-item.active .nav-item-icon{
+ color:var(--jf-green)!important;
+ background:linear-gradient(145deg,color-mix(in srgb,var(--jf-purple) 25%,transparent),color-mix(in srgb,var(--jf-green) 19%,transparent))!important;
+}
+:root[data-theme] .jf-nav-group[open]{background:color-mix(in srgb,var(--jf-purple) 8%,transparent)!important;}
+:root[data-theme="light"] .main :is(.page-card,.shared-stat-card,.dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,.ranking-content,.ranking-progress-panel,.ranking-visual-toolbar,.attendance-card,.attendance-member,.members-controls,.members-state,.management-summary,.management-form,.management-records,.reports-card,.checkin-panel,.checkin-config,.visitors-content,.devotionals-controls,.photos-stats article,.settings-card,.leaders-card,.followup-stat,.followup-content,.visitors-stat){
+ background:rgba(255,255,255,.88)!important;
+ backdrop-filter:blur(18px) saturate(1.25);
+ border-color:var(--jf-border)!important;
+ color:var(--jf-text)!important;
+}
+:root[data-theme="light"] .main :is(.page-card,.dashboard-stat,.dashboard-shortcut,.dashboard-chart-card,.ranking-content,.attendance-card,.members-controls,.management-form,.reports-card,.settings-card){
+ box-shadow:var(--jf-shadow)!important;
+}
+:root[data-theme] .main :is(.members-hero,.attendance-header,.ranking-hero,.dashboard-hero,.reports-hero,.checkin-hero,.visitors-header,.devotionals-hero,.management-header,.photos-hero){
+ background:var(--jf-gradient-brand)!important;
+ border:1px solid color-mix(in srgb,var(--jf-accent) 30%,transparent)!important;
+ box-shadow:0 18px 44px color-mix(in srgb,var(--jf-purple) 13%,transparent)!important;
+}
+:root[data-theme] .main :is(.btn-primary,.primary-button,.login-submit,.submit-button,.member-detail-save,.attendance-card>button,.ranking-hero-button,.shared-button.primary,.management-submit,.weekly-add-button,.youth-prayer-submit-row button,.topline-ai-trigger){
+ background:var(--jf-gradient-action)!important;color:#fff!important;border:1px solid rgba(255,255,255,.25)!important;
+ box-shadow:0 9px 24px color-mix(in srgb,var(--jf-purple) 18%,transparent);
+}
+:root[data-theme] .main :is(input,textarea,select){
+ border-color:var(--jf-border)!important;
+}
+:root[data-theme] .main :is(button,a,input,select,textarea):focus-visible,
+:root[data-theme] .sidebar :is(button,a,input,select,textarea):focus-visible{
+ outline:2px solid var(--jf-accent-2)!important;outline-offset:3px;
+}
+:root[data-theme] .youth-portal :is(.youth-selector,.youth-welcome,.youth-activities,.youth-growth-plan,.youth-game-hub,.youth-prayer-panel,.youth-journal-panel,.youth-hall-card,.youth-customizer,.youth-profile-editor,.youth-look-templates,.youth-saved-templates){
+ border-color:var(--jf-border)!important;
+}
+:root[data-theme="light"] .youth-portal :is(.youth-selector,.youth-welcome,.youth-activities,.youth-growth-plan,.youth-game-hub,.youth-prayer-panel,.youth-journal-panel,.youth-hall-card,.youth-customizer,.youth-profile-editor,.youth-look-templates,.youth-saved-templates){
+ background:rgba(255,255,255,.9)!important;color:var(--jf-text)!important;backdrop-filter:blur(16px);
+}
+:root[data-theme="dark"] .youth-portal :is(.youth-selector,.youth-welcome,.youth-activities,.youth-growth-plan,.youth-game-hub,.youth-prayer-panel,.youth-journal-panel,.youth-hall-card,.youth-customizer,.youth-profile-editor,.youth-look-templates,.youth-saved-templates){
+ background:linear-gradient(145deg,var(--jf-surface-2),var(--jf-surface))!important;color:var(--jf-text)!important;
+}
+:root[data-theme] .main :is(button,a,.page-card,.dashboard-stat,.ranking-player,.game-card,.profile-card){transition:background .28s ease,border-color .28s ease,box-shadow .28s ease,transform .28s cubic-bezier(.2,.8,.2,1);}
+@media(prefers-reduced-motion:reduce){:root[data-theme] .main :is(button,a,.page-card,.dashboard-stat,.ranking-player,.game-card,.profile-card){transition:none!important}}
