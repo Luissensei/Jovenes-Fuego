@@ -70,3 +70,548 @@
 @media(max-width:920px){.contentGrid,.bottomGrid{grid-template-columns:1fr}.heroSeal{width:185px;height:185px;flex-basis:185px}.sealInner{width:110px;height:110px}}
 @media(max-width:650px){.hero{min-height:0;padding:22px 20px 60px;align-items:flex-start}.heroSeal{position:absolute;right:-36px;top:28px;width:140px;height:140px;opacity:.27;margin:0}.sealInner{width:90px;height:90px}.sealInner svg{width:52px;height:52px}.heroCopy{max-width:100%}.overline{margin-top:15px!important}.hero h1{font-size:clamp(29px,8vw,42px);max-width:360px}.intro{max-width:340px;padding-right:12px}.heroFoot{left:20px;right:20px;font-size:7px}.metrics{grid-template-columns:1fr}.metrics article{padding:14px}.sectionHeading{align-items:flex-start}.sectionHeading button{white-space:nowrap}.panel{padding:16px}.aiCard{align-items:flex-start;flex-wrap:wrap}.aiCard>a,.restricted{margin-left:63px}}
 @media(prefers-reduced-motion:reduce){.spinning{animation:none}}
+
+
+/* Dashboard Jóvenes de Fuego — panel de control joven, vivo y legible. */
+.scope .hero {
+  min-height: 322px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 24px;
+  background:
+    radial-gradient(ellipse at 78% 18%, rgba(255,194,61,.24), transparent 28%),
+    radial-gradient(ellipse at 94% 82%, rgba(255,81,38,.30), transparent 35%),
+    linear-gradient(112deg, #26105a 0%, #5520a1 33%, #a52d83 61%, #e94b24 100%);
+  box-shadow: 0 20px 48px rgba(76,25,137,.22);
+}
+
+.scope .hero::before {
+  background-image:
+    linear-gradient(rgba(255,255,255,.055) 1px, transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px);
+  background-size: 32px 32px;
+  opacity: .42;
+}
+
+.scope .hero::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: -50%;
+  right: -8%;
+  width: min(620px, 58%);
+  aspect-ratio: 1;
+  pointer-events: none;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 52% 58%, rgba(255,220,88,.46), transparent 17%),
+    radial-gradient(ellipse at 57% 66%, rgba(255,105,38,.52), transparent 38%),
+    radial-gradient(ellipse at 50% 50%, rgba(243,74,81,.30), transparent 62%);
+  filter: blur(5px);
+  opacity: .85;
+  animation: jfDashboardHeat 5.2s ease-in-out infinite alternate;
+}
+
+.scope .heroCopy,
+.scope .heroSeal,
+.scope .heroFoot {
+  z-index: 1;
+}
+
+.scope .eyebrow,
+.scope .kicker {
+  color: #ff9b61;
+  letter-spacing: .12em;
+}
+
+.scope .liveDot {
+  background: #ffe06a;
+  box-shadow: 0 0 0 4px rgba(255,224,106,.2), 0 0 16px rgba(255,224,106,.72);
+  animation: jfDashboardPulse 1.9s ease-in-out infinite;
+}
+
+.scope .overline {
+  color: #ffd36c !important;
+}
+
+.scope .hero h1 {
+  color: #fffaf4;
+  letter-spacing: -.045em;
+  font-weight: 800;
+}
+
+.scope .hero h1 em {
+  color: #ffe06a;
+  text-shadow: 0 2px 20px rgba(255,192,61,.2);
+}
+
+.scope .intro {
+  color: rgba(255,248,241,.88);
+  font-size: 14px;
+}
+
+.scope .goldButton {
+  border: 1px solid rgba(255,255,255,.34);
+  border-radius: 11px;
+  background: linear-gradient(105deg,#ffe36d,#ffb52d);
+  color: #38204f;
+  box-shadow: 0 8px 22px rgba(24,10,50,.2);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.scope .goldButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 27px rgba(24,10,50,.27);
+}
+
+.scope .quietButton {
+  border: 1px solid rgba(255,255,255,.34);
+  background: rgba(34,17,78,.22);
+  color: #fff9f1;
+}
+
+.scope .heroSeal {
+  opacity: 1;
+  filter: drop-shadow(0 16px 30px rgba(36,10,65,.28));
+}
+
+.scope .sealOrbit {
+  border-color: rgba(255,221,111,.46);
+  box-shadow: 0 0 0 17px rgba(255,201,75,.075), 0 0 0 38px rgba(255,115,46,.055);
+}
+
+.scope .sealOrbit::before,
+.scope .sealOrbit::after {
+  border-color: rgba(255,230,161,.44);
+}
+
+.scope .sealInner {
+  border: 2px solid rgba(255,239,188,.82);
+  border-radius: 38px;
+  background: linear-gradient(145deg,#ffe66f 0%,#ff9b30 42%,#f04430 100%);
+  color: #fffdf5;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.48), 0 12px 42px rgba(255,93,35,.42);
+  animation: jfDashboardFlame 3.2s ease-in-out infinite;
+}
+
+.scope .sealInner svg {
+  filter: drop-shadow(0 3px 8px rgba(119,34,20,.38));
+}
+
+.scope .sealTop,
+.scope .sealBottom {
+  color: #ffe8ae;
+}
+
+.scope .heroFoot {
+  border-color: rgba(255,255,255,.22);
+  color: rgba(255,247,234,.78);
+}
+
+.scope .heroFoot span:first-child {
+  color: #ffe28b;
+}
+
+.scope .sectionHeading h2,
+.scope .panelHeading h2 {
+  font-weight: 800;
+  letter-spacing: -.035em;
+}
+
+.scope .sectionHeading .kicker,
+.scope .panelHeading .kicker {
+  color: var(--jf-accent);
+}
+
+.scope .metrics {
+  gap: 14px;
+}
+
+.scope .metrics article {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 112px;
+  border: 0;
+  border-radius: 16px;
+  color: #fff;
+  box-shadow: 0 12px 25px rgba(28,33,69,.12);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.scope .metrics article::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 130px;
+  height: 130px;
+  right: -34px;
+  top: -56px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.17);
+  box-shadow: 0 0 0 13px rgba(255,255,255,.055), 0 0 0 27px rgba(255,255,255,.035);
+}
+
+.scope .metrics article:nth-child(1) {
+  background: linear-gradient(125deg,#267be9,#3358cc);
+}
+
+.scope .metrics article:nth-child(2) {
+  background: linear-gradient(125deg,#ff8734,#ed452c);
+}
+
+.scope .metrics article:nth-child(3) {
+  background: linear-gradient(125deg,#9b5cf1,#6537c8);
+}
+
+.scope .metrics article:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 29px rgba(28,33,69,.19);
+}
+
+.scope .metricIcon {
+  width: 46px;
+  height: 46px;
+  flex-basis: 46px;
+  border: 1px solid rgba(255,255,255,.38);
+  border-radius: 14px;
+  background: rgba(255,255,255,.16);
+  color: #fff;
+}
+
+.scope .metrics small,
+.scope .metrics strong,
+.scope .metrics span:last-child {
+  color: #fff !important;
+}
+
+.scope .metrics small {
+  font-size: 9px;
+  letter-spacing: .1em;
+  opacity: .86;
+}
+
+.scope .metrics strong {
+  font-size: clamp(24px,2.5vw,31px);
+}
+
+.scope .metrics span:last-child {
+  font-size: 10px;
+  opacity: .88;
+}
+
+.scope .contentGrid {
+  grid-template-columns: minmax(270px,1.12fr) minmax(250px,.95fr) minmax(225px,.84fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.scope .panel,
+.scope .aiCard,
+.scope .environmentCard {
+  border: 1px solid var(--jf-border);
+  border-radius: 15px;
+  background: var(--jf-surface);
+  box-shadow: var(--jf-shadow);
+}
+
+.scope .panel {
+  padding: 19px;
+}
+
+.scope .panelHeading > svg {
+  color: #ff7135;
+}
+
+.scope .panelHeading > div > p {
+  margin: 5px 0 0;
+  color: var(--jf-muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.scope .panelHeading > a,
+.scope .rankingLink {
+  color: var(--jf-accent);
+  font-weight: 750;
+}
+
+.scope .dateTile {
+  border: 1px solid rgba(242,101,47,.24);
+  background: rgba(255,116,45,.10);
+}
+
+.scope .dateTile span {
+  color: #e75c2a;
+}
+
+.scope .empty svg {
+  color: #f36c36;
+}
+
+.scope .shortcuts > a > span {
+  background: rgba(255,111,48,.13);
+  color: #f26932;
+}
+
+.scope .shortcuts > a {
+  border-color: var(--jf-border);
+  border-radius: 9px;
+  transition: background .16s ease;
+}
+
+.scope .shortcuts > a:hover {
+  background: rgba(255,111,48,.07);
+}
+
+.scope .aiCard {
+  border-color: rgba(153,91,239,.25);
+  background: linear-gradient(115deg,rgba(121,72,210,.12),rgba(255,111,48,.10));
+}
+
+.scope .aiOrb {
+  border: 1px solid rgba(255,255,255,.3);
+  background: linear-gradient(145deg,#a15af0,#6334b8 56%,#f05a39);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(111,57,190,.22);
+}
+
+.scope .aiCard > a {
+  color: var(--jf-accent);
+}
+
+.scope .environmentCard > div svg {
+  color: #19a879;
+}
+
+.scope .rankingBars {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 7px;
+}
+
+.scope .rankingBarRow {
+  display: grid;
+  gap: 7px;
+}
+
+.scope .rankingBarMeta {
+  display: grid;
+  grid-template-columns: 25px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.scope .rankingPosition {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: #fff0e7;
+  color: #a94321;
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.scope .rankingBarRow:nth-child(1) .rankingPosition {
+  background: #fff0c6;
+  color: #8a5a00;
+}
+
+.scope .rankingBarRow:nth-child(2) .rankingPosition {
+  background: #e8efff;
+  color: #315ab8;
+}
+
+.scope .rankingBarRow:nth-child(3) .rankingPosition {
+  background: #f0e7ff;
+  color: #7041be;
+}
+
+.scope .rankingBarMeta b {
+  overflow: hidden;
+  color: var(--jf-text);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scope .rankingBarMeta strong {
+  color: var(--jf-muted);
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.scope .rankingBarTrack {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--jf-surface-raised);
+}
+
+.scope .rankingBarTrack span {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg,#ffb52e,#ff652e 58%,#ed3e43);
+  box-shadow: 0 2px 8px rgba(245,93,43,.22);
+  transition: width .45s cubic-bezier(.2,.7,.2,1);
+}
+
+.scope .rankingBarRow:nth-child(2) .rankingBarTrack span {
+  background: linear-gradient(90deg,#4da7ff,#4b68ed);
+}
+
+.scope .rankingBarRow:nth-child(3) .rankingBarTrack span {
+  background: linear-gradient(90deg,#b27cff,#8247e8);
+}
+
+.scope .rankingBarRow:nth-child(4) .rankingBarTrack span {
+  background: linear-gradient(90deg,#3ed7b0,#159e83);
+}
+
+.scope .rankingBarRow:nth-child(5) .rankingBarTrack span {
+  background: linear-gradient(90deg,#ff8d52,#ed4d79);
+}
+
+.scope .rankingLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--jf-border);
+  font-size: 10px;
+  text-decoration: none;
+}
+
+.scope .rankingLink:hover {
+  text-decoration: underline;
+}
+
+.scope .bottomGrid {
+  grid-template-columns: minmax(0,1.2fr) minmax(250px,.8fr);
+}
+
+:global(:root[data-theme="light"]) .scope .panel,
+:global(:root[data-theme="light"]) .scope .environmentCard {
+  background: #fff;
+  border-color: #e6e0d8;
+  color: #2b2926;
+}
+
+:global(:root[data-theme="light"]) .scope .sectionHeading h2,
+:global(:root[data-theme="light"]) .scope .panelHeading h2,
+:global(:root[data-theme="light"]) .scope .eventInfo > b,
+:global(:root[data-theme="light"]) .scope .shortcuts > a,
+:global(:root[data-theme="light"]) .scope .aiCard h2,
+:global(:root[data-theme="light"]) .scope .environmentCard > div {
+  color: #29243b;
+}
+
+:global(:root[data-theme="light"]) .scope .sectionHeading p,
+:global(:root[data-theme="light"]) .scope .eventInfo > p,
+:global(:root[data-theme="light"]) .scope .eventInfo > span,
+:global(:root[data-theme="light"]) .scope .shortcuts small,
+:global(:root[data-theme="light"]) .scope .aiCard p,
+:global(:root[data-theme="light"]) .scope .environmentCard p,
+:global(:root[data-theme="light"]) .scope .environmentCard small,
+:global(:root[data-theme="light"]) .scope .panelHeading > div > p {
+  color: #625d72;
+}
+
+:global(:root[data-theme="light"]) .scope .rankingBarMeta b {
+  color: #29243b;
+}
+
+:global(:root[data-theme="light"]) .scope .rankingBarMeta strong {
+  color: #625d72;
+}
+
+:global(:root[data-theme="light"]) .scope .rankingBarTrack {
+  background: #ece9f2;
+}
+
+:global(:root[data-theme="dark"]) .scope .panel,
+:global(:root[data-theme="dark"]) .scope .environmentCard {
+  background: #201b2d;
+  border-color: rgba(255,255,255,.10);
+}
+
+:global(:root[data-theme="dark"]) .scope .rankingBarMeta b {
+  color: #f5f0ff;
+}
+
+:global(:root[data-theme="dark"]) .scope .rankingBarMeta strong {
+  color: #beb3d1;
+}
+
+@keyframes jfDashboardHeat {
+  0% { transform: translate3d(0,0,0) scale(.92) rotate(-3deg); opacity: .58; }
+  50% { transform: translate3d(-2%,2%,0) scale(1.04) rotate(2deg); opacity: .94; }
+  100% { transform: translate3d(1%,-1%,0) scale(.96) rotate(-2deg); opacity: .7; }
+}
+
+@keyframes jfDashboardFlame {
+  0%,100% { transform: rotate(45deg) scale(1); }
+  35% { transform: rotate(43deg) scale(1.035,.97); }
+  70% { transform: rotate(47deg) scale(.98,1.04); }
+}
+
+@keyframes jfDashboardPulse {
+  0%,100% { opacity: 1; box-shadow: 0 0 0 4px rgba(255,224,106,.2),0 0 16px rgba(255,224,106,.72); }
+  50% { opacity: .72; box-shadow: 0 0 0 8px rgba(255,224,106,.08),0 0 22px rgba(255,224,106,.38); }
+}
+
+@media (max-width: 1120px) {
+  .scope .contentGrid {
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+  }
+  .scope .contentGrid > :nth-child(3) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media(max-width:920px) {
+  .scope .contentGrid,
+  .scope .bottomGrid {
+    grid-template-columns: 1fr;
+  }
+  .scope .contentGrid > :nth-child(3) {
+    grid-column: auto;
+  }
+}
+
+@media(max-width:650px) {
+  .scope .hero {
+    min-height: 0;
+    padding: 23px 20px 65px;
+  }
+  .scope .heroSeal {
+    opacity: .42;
+    right: -25px;
+    top: 10px;
+  }
+  .scope .heroFoot {
+    font-size: 7px;
+    letter-spacing: .04em;
+  }
+  .scope .metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media(prefers-reduced-motion: reduce) {
+  .scope .hero::after,
+  .scope .liveDot,
+  .scope .sealInner {
+    animation: none !important;
+  }
+  .scope .goldButton:hover,
+  .scope .metrics article:hover {
+    transform: none !important;
+  }
+}
