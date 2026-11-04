@@ -53,8 +53,6 @@ let functionsInstance: Functions | null = null;
 let appCheckReady = false;
 
 app = getApps()[0] ?? initializeApp(config);
-authInstance = getAuth(app);
-dbInstance = getFirestore(app);
 
 const appCheckSiteKey = typeof env.VITE_FIREBASE_APP_CHECK_SITE_KEY === 'string'
   ? env.VITE_FIREBASE_APP_CHECK_SITE_KEY.trim()
@@ -62,6 +60,7 @@ const appCheckSiteKey = typeof env.VITE_FIREBASE_APP_CHECK_SITE_KEY === 'string'
 
 if (useStagingEnvironment && appCheckSiteKey) {
   try {
+    // Initialize App Check before Auth, Firestore, Functions or AI Logic.
     initializeAppCheck(app, {
       provider: new ReCaptchaV3Provider(appCheckSiteKey),
       isTokenAutoRefreshEnabled: true,
@@ -72,6 +71,9 @@ if (useStagingEnvironment && appCheckSiteKey) {
     console.warn('Firebase App Check no se pudo inicializar:', cause);
   }
 }
+
+authInstance = getAuth(app);
+dbInstance = getFirestore(app);
 
 // Las funciones administrativas solo se conectan al proyecto aislado de Staging.
 functionsInstance = useStagingEnvironment

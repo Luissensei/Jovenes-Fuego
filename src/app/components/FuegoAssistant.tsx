@@ -37,7 +37,6 @@ export default function FuegoAssistant({
     setSending(true);
     const fullContext = [
       context,
-      youth ? `Nombre visible del perfil seleccionado: ${displayName || 'no indicado'}. La selección pública no valida identidad.` : '',
       youth ? `Devocionales del plan local pendientes: ${pendingItems.length}. ${pendingItems.map((item) => item.title + (item.reference ? ' (' + item.reference + ')' : '')).join('; ')}. Este progreso se guarda solo en el dispositivo y no es un registro oficial.` : '',
     ].filter(Boolean).join('\n');
     try {

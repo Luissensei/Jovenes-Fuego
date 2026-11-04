@@ -117,6 +117,12 @@ export function AuthProvider({
           }
 
           const data = profileSnapshot.data();
+          if (data.status === 'inactive') {
+            setError('El acceso de esta cuenta fue suspendido. Contacta al administrador de la comunidad.');
+            setProfile(null);
+            await signOut(authInstance);
+            return;
+          }
           const role = String(data.role ?? '').trim().toLowerCase();
 
           if (!allowedRoles.has(role)) {

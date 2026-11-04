@@ -25,7 +25,11 @@ async function requireAuthorizedRole(uid: string): Promise<AuthorizedRole> {
     throw new HttpsError("permission-denied", "No tienes un perfil autorizado.");
   }
 
-  const role = String(userSnapshot.data()?.role ?? "").trim().toLowerCase();
+  const userData = userSnapshot.data() ?? {};
+  if (userData.status === "inactive") {
+    throw new HttpsError("permission-denied", "Esta cuenta está suspendida.");
+  }
+  const role = String(userData.role ?? "").trim().toLowerCase();
   const allowed: AuthorizedRole[] = ["admin", "administrador", "pastor", "lider", "líder"];
   if (!allowed.includes(role as AuthorizedRole)) {
     throw new HttpsError("permission-denied", "Tu rol no tiene permiso para esta operación.");
@@ -138,6 +142,26 @@ export const getMyApplicationProfile = onCall(async (request) => {
 
 
 
+const defaultLeaderPermissions = [
+  "members", "attendance", "followups", "devotionals", "visitors",
+  "events", "ranking", "games", "profile",
+];
+
+async function requireModulePermission(uid: string, moduleId: string): Promise<AuthorizedRole> {
+  const role = await requireAuthorizedRole(uid);
+  if (role === "admin" || role === "administrador" || role === "pastor") return role;
+
+  const snapshot = await db.collection("users").doc(uid).get();
+  const stored = snapshot.data()?.permissions;
+  const permissions = Array.isArray(stored)
+    ? cleanStringArray(stored, manageablePermissions)
+    : defaultLeaderPermissions;
+  if (!permissions.includes(moduleId)) {
+    throw new HttpsError("permission-denied", "Tu cuenta no tiene permiso para consultar este módulo.");
+  }
+  return role;
+}
+
 async function requireAdmin(uid: string): Promise<AuthorizedRole> {
   const role = await requireAuthorizedRole(uid);
   if (role !== "admin" && role !== "administrador") {
@@ -160,7 +184,7 @@ function cleanStringArray(value: unknown, allowed?: string[]): string[] {
     .filter((item) => item && (!allowed || allowed.includes(item))))].slice(0, 30);
 }
 
-export const adminListLeaders = onCall(async (request) => {
+export const adminListLeaders = onCall({enforceAppCheck: true}, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireAdmin(request.auth.uid);
 
@@ -193,7 +217,7 @@ export const adminListLeaders = onCall(async (request) => {
   return {leaders};
 });
 
-export const adminCreateLeader = onCall(async (request) => {
+export const adminCreateLeader = onCall({enforceAppCheck: true}, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireAdmin(request.auth.uid);
 
@@ -262,7 +286,7 @@ export const adminCreateLeader = onCall(async (request) => {
   return {uid: userRecord.uid, setupLink};
 });
 
-export const adminUpdateLeader = onCall(async (request) => {
+export const adminUpdateLeader = onCall({enforceAppCheck: true}, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireAdmin(request.auth.uid);
 
@@ -299,6 +323,7 @@ export const adminUpdateLeader = onCall(async (request) => {
 
   try {
     await adminAuth.updateUser(uid, {disabled: !active, displayName: text(existing.data()?.name, 100)});
+    if (!active) await adminAuth.revokeRefreshTokens(uid);
   } catch {
     throw new HttpsError("not-found", "No se encontró la cuenta de autenticación asociada.");
   }
@@ -336,7 +361,7 @@ export const getPrivateMembers = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  const role = await requireAuthorizedRole(request.auth.uid);
+  const role = await requireModulePermission(request.auth.uid, "members");
 
   try {
     const snapshot = await db.collection("members").limit(500).get();
@@ -641,7 +666,7 @@ export const getAttendanceMeetings = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  await requireAuthorizedRole(request.auth.uid);
+  await requireModulePermission(request.auth.uid, "attendance");
 
   const snapshot = await db.collection("attendanceMeetings")
     .orderBy("date", "desc")
@@ -683,7 +708,7 @@ export const createAttendanceMeeting = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  await requireAuthorizedRole(request.auth.uid);
+  await requireModulePermission(request.auth.uid, "attendance");
 
   const meetingName = text(request.data?.name, 100);
   const meetingDate = text(request.data?.date, 20);
@@ -705,7 +730,7 @@ export const saveMeetingAttendance = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  await requireAuthorizedRole(request.auth.uid);
+  await requireModulePermission(request.auth.uid, "attendance");
 
   const meetingId = text(request.data?.meetingId, 150);
   const rawParticipants = request.data?.participants;
