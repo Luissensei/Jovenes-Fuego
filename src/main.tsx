@@ -2,10 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './app/App';
-import './styles.css';
-import './modern-design.css';
-import './tactical-ui.css';
-import './visual-overhaul.css';
+import './styles/app.css';
+
+
+
+
 import './ui-fixes.css';
 
 try {
