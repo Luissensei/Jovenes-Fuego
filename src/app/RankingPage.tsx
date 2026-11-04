@@ -411,7 +411,7 @@ export default function RankingPage({
                         <strong>{player.name}</strong>
                         <small>{(player.points ?? 0).toLocaleString('es-CO')} {player.points === 1 ? 'punto' : 'puntos'}</small>
                       </span>
-                      <span className="ranking-podium-place">{slot === 'first' ? 'CAMPEÓN' : slot === 'second' ? 'SEGUNDO' : 'TERCERO'}</span>
+                      <span className="ranking-podium-place">PUESTO {player.position}</span>
                       <span className="ranking-podium-base" aria-hidden="true">
                         <b>{slot === 'first' ? '1' : slot === 'second' ? '2' : '3'}</b>
                       </span>
