@@ -4,11 +4,12 @@ Este documento es el contrato visual del producto. Se aplica a pantallas adminis
 
 ## Dirección visual
 
-La aplicación debe sentirse como una herramienta real de gestión comunitaria: clara, cálida, estable y fácil de usar. La identidad de la iglesia aparece en el logotipo, el vocabulario, la fotografía y un acento cálido; no se construye con efectos visuales en cada componente.
+La aplicación debe sentirse como una comunidad juvenil activa: alegre, vibrante, deportiva y fácil de usar. La identidad visual combina violeta, azul eléctrico, turquesa, coral, naranja fuego y amarillo cálido. El dashboard y el ranking deben tener energía visual y color; los módulos administrativos mantienen superficies legibles y una jerarquía ordenada.
 
 ### Lo que sí usamos
-- Fondos neutros y superficies sólidas.
-- Un color de acción principal: terracota / brasa.
+- Fondos claros o nocturnos limpios con superficies sólidas.
+- Paleta juvenil por función: violeta/azul para navegación y comunidad; naranja/coral para fuego y actividad; turquesa/verde para progreso; amarillo/oro para logros.
+- Indicadores destacados con fondos saturados y texto contrastado; no hacer que todas las tarjetas tengan el mismo color.
 - Una jerarquía clara: título de pantalla, contexto breve, contenido principal y acciones.
 - Tablas y listas para información repetida; tarjetas solo para agrupar información que realmente pertenece junta.
 - Bordes finos, radios moderados y sombras muy discretas.
@@ -17,9 +18,9 @@ La aplicación debe sentirse como una herramienta real de gestión comunitaria: 
 - Avatares y recursos del juego pueden conservar personalidad y color porque cumplen una función de identidad.
 
 ### Lo que evitamos
-- Gradientes multicolor en botones, paneles o cabeceras de cada módulo.
-- Glassmorphism, blur de fondo, transparencias apiladas y reflejos.
-- Brillos, neones, partículas, meteoros, sombras luminosas y halos permanentes.
+- Gradientes por todas partes o combinaciones que dificulten la lectura. Sí se permiten en el hero y el arte de marca cuando aportan identidad.
+- Glassmorphism, blur de fondo, transparencias apiladas y reflejos como estilo base.
+- Neón, partículas o halos permanentes. Sí se permiten llamas y chispas animadas en zonas decorativas puntuales del dashboard, siempre ligeras y con `prefers-reduced-motion`.
 - Tarjetas dentro de tarjetas sin una razón de información.
 - Esquinas excesivamente redondeadas en todos los elementos.
 - Animaciones continuas, rebotes, inclinación 3D o desplazamiento de tarjetas al pasar el cursor.
@@ -31,21 +32,23 @@ La aplicación debe sentirse como una herramienta real de gestión comunitaria: 
 La implementación vive en `src/styles/professional-ui.css`. Es la última hoja importada desde `src/main.tsx`, así que prevalece sobre estilos históricos que deben migrarse gradualmente.
 
 ### Modo claro
-- Lienzo: `#F5F3EF`
+- Lienzo: `#F4F3FF`
 - Superficie: `#FFFFFF`
-- Texto principal: `#2B2926`
-- Texto secundario: `#625D56`
-- Borde: `#E6E0D8`
-- Acción/acento: `#8F3E22`
-- Navegación: carbón cálido `#24211E`
+- Texto principal: `#28203D`
+- Texto secundario: `#625A78`
+- Borde: `#E2DAF2`
+- Acción/acento: violeta `#8B43D2`
+- Acentos de datos: azul `#2368B7`, verde `#147653`, naranja `#A63D1F`
+- Navegación: violeta profundo `#25164C`
 
 ### Modo oscuro
-- Lienzo: `#151412`
-- Superficie: `#201E1A`
-- Texto principal: `#F2EEE8`
-- Texto secundario: `#B9B1A6`
-- Borde: `#39352E`
-- Acción/acento: `#A65B35`
+- Lienzo: `#111126`
+- Superficie: `#1D1A3A`
+- Texto principal: `#F7F4FF`
+- Texto secundario: `#C7BFDF`
+- Borde: `#403765`
+- Acción/acento: naranja fuego `#FF713B`
+- Acentos de datos: violeta `#A36BFF`, azul `#43B0FF`, turquesa `#39D4A5`, amarillo `#FFD45E`
 
 ## Escala de interfaz
 
