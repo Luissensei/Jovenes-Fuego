@@ -1039,3 +1039,125 @@ body {
 @media (max-width: 900px) {
   .sidebar-collapse-toggle { display: none !important; }
 }
+
+
+/* =========================================================
+   JÓVENES DE FUEGO · GLOBAL GLASS DESIGN SYSTEM
+   Basado en las referencias visuales del repositorio.
+   Una capa compartida para módulos administrativos y juveniles.
+   ========================================================= */
+:root{
+  --jf-bg:#0b0d17;
+  --jf-surface:rgba(20,23,36,.88);
+  --jf-surface-2:rgba(26,30,46,.9);
+  --jf-surface-raised:#22283a;
+  --jf-border:rgba(187,199,226,.13);
+  --jf-text:#f5f6fc;
+  --jf-muted:#a5aec3;
+  --jf-accent:#ff754d;
+  --jf-accent-strong:#e65337;
+  --jf-accent-2:#ffd166;
+  --jf-purple:#9b83ff;
+  --jf-blue:#61c8ff;
+  --jf-green:#4dd7a4;
+  --jf-shadow:0 18px 48px rgba(0,0,0,.22);
+  --jf-focus:#ffd166;
+}
+:root[data-theme="dark"]{
+  --jf-bg:#0b0d17;--jf-surface:rgba(20,23,36,.88);--jf-surface-2:rgba(26,30,46,.9);
+  --jf-surface-raised:#22283a;--jf-border:rgba(187,199,226,.13);--jf-text:#f5f6fc;
+  --jf-muted:#a5aec3;--jf-accent:#ff754d;--jf-accent-strong:#e65337;--jf-accent-2:#ffd166;
+  --jf-purple:#9b83ff;--jf-blue:#61c8ff;--jf-green:#4dd7a4;--jf-shadow:0 18px 48px rgba(0,0,0,.22);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --jf-bg:#f2f4fa;--jf-surface:rgba(255,255,255,.92);--jf-surface-2:#fff;--jf-surface-raised:#e9edf5;
+  --jf-border:rgba(56,67,94,.13);--jf-text:#20283a;--jf-muted:#68748b;--jf-accent:#e85c38;
+  --jf-accent-strong:#c9472b;--jf-accent-2:#b77a12;--jf-purple:#7255d8;--jf-blue:#167cb5;
+  --jf-green:#12845e;--jf-shadow:0 14px 38px rgba(38,49,75,.075);--jf-focus:#7255d8;color-scheme:light;
+}
+html,body,#root,.layout{background:var(--jf-bg)!important;color:var(--jf-text)!important}
+body{font-family:"DM Sans",system-ui,sans-serif}
+.layout{position:relative;isolation:isolate}
+.layout::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:
+ radial-gradient(ellipse at 8% 4%,rgba(255,91,56,.12),transparent 28%),
+ radial-gradient(ellipse at 88% 12%,rgba(119,98,255,.14),transparent 32%),
+ radial-gradient(ellipse at 56% 100%,rgba(255,185,70,.07),transparent 35%)}
+:root[data-theme="light"] .layout::before{background:
+ radial-gradient(ellipse at 8% 4%,rgba(255,124,75,.07),transparent 28%),
+ radial-gradient(ellipse at 88% 12%,rgba(119,98,255,.07),transparent 32%)}
+.sidebar,.mobile-header{background:rgba(13,16,27,.96)!important;color:#f5f6fc!important;border-color:var(--jf-border)!important}
+:root[data-theme="light"] .sidebar,:root[data-theme="light"] .mobile-header{background:#20213a!important;color:#fff!important}
+.sidebar{border-right:1px solid rgba(255,255,255,.08)!important;box-shadow:12px 0 45px rgba(0,0,0,.12)!important}
+.brand-mark:not(.church-brand-mark){background:linear-gradient(140deg,#ff9b4d,#ed4e36)!important;box-shadow:0 7px 22px rgba(255,103,58,.2)}
+.sidebar .nav-item{border-radius:11px!important;min-height:43px;transition:background .18s ease,color .18s ease,border-color .18s ease!important}
+.sidebar .nav-item.active{background:linear-gradient(100deg,rgba(255,111,73,.18),rgba(148,111,255,.11))!important;border:1px solid rgba(255,135,91,.2)!important;box-shadow:inset 3px 0 #ff7952!important;color:#fff!important}
+.sidebar .nav-item.active .nav-item-icon,.sidebar .nav-item-icon{color:#ff956e!important}
+.module-search,.sidebar .env-chip,.safe-note{border-radius:12px!important}
+.main{position:relative;z-index:1;color:var(--jf-text)!important}
+.main>.topline{border-color:var(--jf-border)!important;color:var(--jf-muted)!important}
+.main .project-label{background:var(--jf-surface-2)!important;color:var(--jf-muted)!important;border:1px solid var(--jf-border)!important}
+.main footer{border-color:var(--jf-border)!important;color:var(--jf-muted)!important}
+.main :is(.shared-page-header,.shared-stat-card,.shared-empty-state,.page-card,
+.dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
+.dashboard-bottom-note,.ranking-content,.ranking-progress-panel,.ranking-player,
+.ranking-podium-player,.game-card,.profile-card,.selected-profile-panel,
+.members-total-card,.members-controls,.members-state,.member-card,.member-row,
+.attendance-card,.attendance-member,.followup-stat,.followup-content,.followup-card,
+.visitors-stat,.visitors-content,.visitor-card,.devotionals-feature,.devotionals-controls,
+.devotional-card,.photos-stats article,.photo-card,.reports-card,.reports-stats article,
+.checkin-config,.checkin-panel,.checkin-summary article,.management-summary,.management-form,
+.management-records,.management-record,.managed-stat,.managed-record,.weekly-admin-item,
+.youth-hall-card,.youth-activity-card,.youth-store-item,.youth-game-tile,.youth-profile-card,
+.youth-options article,.settings-card,.leaders-card,.prayer-admin-card,.youth-selector,
+.youth-activities,.youth-growth-plan,.youth-game-hub,.youth-prayer-panel,.youth-journal-panel,
+.youth-customizer,.youth-profile-editor,.youth-look-templates,.youth-saved-templates){
+  border-color:var(--jf-border)!important;
+  border-radius:17px!important;
+  box-shadow:var(--jf-shadow)!important;
+}
+:root[data-theme="dark"] .main :is(.shared-page-header,.shared-stat-card,.shared-empty-state,.page-card,
+.dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
+.dashboard-bottom-note,.ranking-content,.ranking-progress-panel,.ranking-player,.ranking-podium-player,
+.game-card,.profile-card,.selected-profile-panel,.members-total-card,.members-controls,.members-state,
+.member-card,.member-row,.attendance-card,.attendance-member,.followup-stat,.followup-content,.followup-card,
+.visitors-stat,.visitors-content,.visitor-card,.devotionals-feature,.devotionals-controls,.devotional-card,
+.photos-stats article,.photo-card,.reports-card,.reports-stats article,.checkin-config,.checkin-panel,
+.checkin-summary article,.management-summary,.management-form,.management-records,.management-record,
+.managed-stat,.managed-record,.weekly-admin-item,.youth-hall-card,.youth-activity-card,.youth-store-item,
+.youth-game-tile,.youth-profile-card,.youth-options article,.settings-card,.leaders-card,.prayer-admin-card,
+.youth-selector,.youth-activities,.youth-growth-plan,.youth-game-hub,.youth-prayer-panel,.youth-journal-panel,
+.youth-customizer,.youth-profile-editor,.youth-look-templates,.youth-saved-templates){
+ background:linear-gradient(145deg,rgba(24,28,43,.94),rgba(16,19,31,.94))!important;color:var(--jf-text)!important}
+:root[data-theme="light"] .main :is(.shared-page-header,.shared-stat-card,.shared-empty-state,.page-card,
+.dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,.dashboard-bottom-note,
+.ranking-content,.ranking-progress-panel,.ranking-player,.ranking-podium-player,.game-card,.profile-card,
+.selected-profile-panel,.members-total-card,.members-controls,.members-state,.member-card,.member-row,
+.attendance-card,.attendance-member,.followup-stat,.followup-content,.followup-card,.visitors-stat,
+.visitors-content,.visitor-card,.devotionals-feature,.devotionals-controls,.devotional-card,.photos-stats article,
+.photo-card,.reports-card,.reports-stats article,.checkin-config,.checkin-panel,.checkin-summary article,
+.management-summary,.management-form,.management-records,.management-record,.managed-stat,.managed-record,
+.weekly-admin-item,.youth-hall-card,.youth-activity-card,.youth-store-item,.youth-game-tile,.youth-profile-card,
+.youth-options article,.settings-card,.leaders-card,.prayer-admin-card,.youth-selector,.youth-activities,
+.youth-growth-plan,.youth-game-hub,.youth-prayer-panel,.youth-journal-panel,.youth-customizer,
+.youth-profile-editor,.youth-look-templates,.youth-saved-templates){
+ background:linear-gradient(145deg,#fff,#f9faff)!important;color:var(--jf-text)!important;box-shadow:var(--jf-shadow)!important}
+.main :is(input,textarea,select){border:1px solid var(--jf-border)!important;border-radius:11px!important;background:var(--jf-surface-2)!important;color:var(--jf-text)!important;outline:none}
+.main :is(input,textarea,select):focus{border-color:color-mix(in srgb,var(--jf-accent) 62%,transparent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--jf-accent) 13%,transparent)!important}
+.main :is(input,textarea,select)::placeholder{color:var(--jf-muted)!important;opacity:.78}
+.main :is(button,.btn-primary,.primary-button,.login-submit){border-radius:11px;transition:transform .18s ease,filter .18s ease,box-shadow .18s ease}
+.main button:active{transform:scale(.98)}
+.main :is(table,thead,tbody){border-color:var(--jf-border)}
+.main th{background:color-mix(in srgb,var(--jf-surface-raised) 70%,transparent);color:var(--jf-muted)}
+.main td{border-color:var(--jf-border)}
+.main :is(.notice,.preview-warning,.setup-warning){border-radius:13px}
+.main :is(.shared-page-header,.page-card){backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+:root[data-theme="light"] .main :is(h1,h2,h3,h4,strong,label,legend){color:var(--jf-text)}
+:root[data-theme="light"] .main :is(p,small,li,dt,dd,figcaption){color:var(--jf-muted)}
+:root[data-theme="light"] .main :is(.eyebrow,.kicker,.shared-eyebrow){color:var(--jf-accent)!important}
+@media(max-width:900px){
+ .main{padding-left:clamp(12px,3vw,20px)!important;padding-right:clamp(12px,3vw,20px)!important}
+ .main>.topline{border-radius:0 0 16px 16px}
+ .main :is(.shared-page-header,.page-card){border-radius:15px!important}
+}
+@media(prefers-reduced-motion:reduce){.main *,.sidebar *{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
