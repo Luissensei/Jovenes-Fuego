@@ -26,8 +26,6 @@
   --jf-accent-strong: #bf4723;
   --jf-action: #bf4723;
   --jf-action-strong: #a83225;
-  --jf-action: #bf4723;
-  --jf-action-strong: #a83225;
   --jf-accent-2: #ffd45e;
   --jf-purple: #a36bff;
   --jf-blue: #43b0ff;
@@ -60,6 +58,8 @@
   --jf-icon: #ff9a54;
   --jf-accent: #ff8249;
   --jf-accent-strong: #bf4723;
+  --jf-action: #bf4723;
+  --jf-action-strong: #a83225;
   --jf-accent-2: #ffd45e;
   --jf-purple: #a36bff;
   --jf-blue: #43b0ff;
@@ -760,14 +760,14 @@ body {
 }
 
 :root[data-theme] .main :is(.btn-primary,.primary-button,.login-submit,.submit-button,.member-detail-save,.attendance-card>button,.ranking-hero-button,.shared-button.primary,.management-submit,.weekly-add-button,.youth-prayer-submit-row button,.topline-ai-trigger) {
-  background: var(--jf-accent) !important;
+  background: var(--jf-action) !important;
   border-color: var(--jf-action-strong) !important;
   color: #ffffff !important;
   box-shadow: none !important;
 }
 
 :root[data-theme] .main :is(.btn-primary,.primary-button,.login-submit,.submit-button,.member-detail-save,.attendance-card>button,.ranking-hero-button,.shared-button.primary,.management-submit,.weekly-add-button,.youth-prayer-submit-row button,.topline-ai-trigger):hover:not(:disabled) {
-  background: var(--jf-accent-strong) !important;
+  background: var(--jf-action-strong) !important;
   transform: none !important;
   box-shadow: none !important;
 }
