@@ -24,7 +24,7 @@ const appCheckSiteKey = (
   typeof env.VITE_FIREBASE_APP_CHECK_SITE_KEY === 'string'
     ? env.VITE_FIREBASE_APP_CHECK_SITE_KEY.trim()
     : ''
-) || '6LeB0Q8uAAAAAN-rwuAIeKHEkDM5SKKgpueRl8GJ';
+) || '6LeB0Q8uAAAAAEpam8URtnsLNVewLDlxYK5AYJqU';
 
 const firebaseApp: FirebaseApp = getApps()[0] ?? initializeApp(firebaseConfig);
 
