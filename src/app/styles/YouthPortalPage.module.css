@@ -1500,3 +1500,31 @@
     transition: none !important;
   }
 }
+
+
+.scope :global(.youth-profile-badge){display:inline-flex;align-items:center;gap:6px;margin:7px 0;padding:6px 11px;border:1px solid var(--jf-border);border-radius:999px;background:var(--jf-glass-strong);color:var(--jf-text);font-size:10px;font-weight:800}
+.scope :global(.youth-profile-motto){max-width:600px;margin:10px auto 4px;color:var(--jf-muted);font-size:13px;font-style:italic;line-height:1.55}
+.scope :global(.youth-personal-goal){margin-top:14px;padding:15px 18px;border:1px solid var(--jf-border);border-radius:15px;background:var(--jf-surface)}
+.scope :global(.youth-personal-goal)>span{color:var(--jf-accent);font-size:9px;font-weight:900;letter-spacing:.13em}
+.scope :global(.youth-personal-goal)>p{margin:6px 0 0;color:var(--jf-text);font-size:13px;line-height:1.5}
+.scope :global(.youth-profile-editor){display:grid;gap:14px;margin-top:22px;padding:18px;border:1px solid var(--jf-border);border-radius:16px;background:var(--jf-surface-raised)}
+.scope :global(.youth-profile-editor-heading){display:flex;align-items:center;justify-content:space-between;gap:10px}
+.scope :global(.youth-profile-editor-heading)>div{display:grid;gap:4px}
+.scope :global(.youth-profile-editor-heading) b{color:var(--jf-text);font-size:14px}
+.scope :global(.youth-profile-editor-heading) span,.scope :global(.youth-profile-editor)>small{color:var(--jf-muted);font-size:10px;line-height:1.5}
+.scope :global(.youth-profile-editor-heading)>svg{color:var(--jf-accent);flex:none}
+.scope :global(.youth-profile-editor-grid){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.scope :global(.youth-profile-editor-grid) label{display:grid;gap:6px;color:var(--jf-muted);font-size:10px;font-weight:800}
+.scope :global(.youth-profile-editor-grid) input,.scope :global(.youth-profile-editor-grid) textarea{width:100%;min-width:0;max-width:100%;padding:11px;border:1px solid var(--jf-border);border-radius:9px;background:var(--jf-input);color:var(--jf-text);font:inherit;font-size:12px}
+.scope :global(.youth-profile-editor)>button{justify-self:start;min-height:40px;padding:9px 14px;border:0;border-radius:10px;background:var(--jf-accent);color:white;font-size:11px;font-weight:850;cursor:pointer}
+.scope :global(.youth-profile-editor)>small{display:block}
+.scope :global(.youth-effect-aurora) .youth-avatar{box-shadow:0 0 0 7px rgba(121,195,255,.12),0 0 28px rgba(111,193,255,.23)}
+.scope :global(.youth-effect-spark) .youth-avatar{box-shadow:0 0 0 7px rgba(255,204,112,.13),0 0 28px rgba(255,186,85,.24)}
+.scope :global(.youth-effect-ice) .youth-avatar{box-shadow:0 0 0 7px rgba(123,226,255,.14),0 0 28px rgba(123,226,255,.24)}
+.scope :global(.youth-effect-halo) .youth-avatar{box-shadow:0 0 0 8px rgba(212,184,255,.15),0 0 34px rgba(180,142,255,.3)}
+.scope :global(.youth-effect-galaxy) .youth-avatar{box-shadow:0 0 0 8px rgba(193,130,255,.18),0 0 40px rgba(127,130,255,.34)}
+:global(:root[data-theme="light"]) .scope :global(.youth-profile-editor){background:#fff;border-color:#e0e6f0}
+:global(:root[data-theme="light"]) .scope :global(.youth-profile-editor-grid) input,
+:global(:root[data-theme="light"]) .scope :global(.youth-profile-editor-grid) textarea{background:#f8faff;color:#253047;border-color:#dfe6f0}
+:global(:root[data-theme="light"]) .scope :global(.youth-personal-goal){background:#fff}
+@media(max-width:560px){.scope :global(.youth-profile-editor-grid){grid-template-columns:1fr}}

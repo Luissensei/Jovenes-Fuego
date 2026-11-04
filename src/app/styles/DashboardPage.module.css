@@ -1086,3 +1086,24 @@
 .scope :global(.dashboard-distribution-chart) :global(.dashboard-chart-header-icon){color:#8bcfff;}
 @media(max-width:380px){.scope :global(.dashboard-bar-label){gap:6px;}
 .scope :global(.dashboard-bar-label) strong{font-size:10px;}}
+
+
+.scope :global(.dashboard-analytics-actions){display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.scope :global(.dashboard-analytics-actions) button{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:7px 10px;border:1px solid var(--jf-border);border-radius:9px;background:var(--jf-surface);color:var(--jf-text);font-size:10px;font-weight:750;cursor:pointer}
+.scope :global(.dashboard-analytics-actions) button:disabled{opacity:.45;cursor:not-allowed}
+.scope :global(.dashboard-analytics-actions) button:hover:not(:disabled){border-color:var(--jf-accent);color:var(--jf-accent)}
+.scope :global(.dashboard-analytics-actions) .is-refreshing{animation:jfRefreshSpin .8s linear infinite}
+.scope :global(.dashboard-donut-layout){display:grid;grid-template-columns:minmax(120px,.8fr) minmax(0,1.2fr);align-items:center;gap:18px;min-height:170px}
+.scope :global(.dashboard-donut){display:grid;place-items:center;width:min(100%,168px);aspect-ratio:1;margin:auto;border-radius:50%;position:relative}
+.scope :global(.dashboard-donut)::before{content:"";position:absolute;inset:17%;border-radius:50%;background:var(--jf-surface);box-shadow:inset 0 0 0 1px var(--jf-border)}
+.scope :global(.dashboard-donut)>div{position:relative;z-index:1;display:grid;justify-items:center;gap:2px}
+.scope :global(.dashboard-donut)>div strong{font-family:var(--jf-display);font-size:31px;line-height:1;color:var(--jf-text)}
+.scope :global(.dashboard-donut)>div span{font-size:9px;color:var(--jf-muted);text-transform:uppercase;letter-spacing:.1em}
+.scope :global(.dashboard-donut-legend){display:grid;gap:13px}
+.scope :global(.dashboard-donut-legend-row){display:grid;grid-template-columns:9px minmax(0,1fr) auto;align-items:center;gap:8px}
+.scope :global(.dashboard-donut-legend-row) i{width:9px;height:9px;border-radius:50%}
+.scope :global(.dashboard-donut-legend-row) span{color:var(--jf-muted);font-size:10px}
+.scope :global(.dashboard-donut-legend-row) strong{color:var(--jf-text);font-size:11px;font-variant-numeric:tabular-nums}
+@keyframes jfRefreshSpin{to{transform:rotate(360deg)}}
+@media(max-width:680px){.scope :global(.dashboard-section-title){align-items:flex-start;flex-direction:column}.scope :global(.dashboard-analytics-actions){justify-content:flex-start}}
+@media(max-width:430px){.scope :global(.dashboard-donut-layout){grid-template-columns:1fr}.scope :global(.dashboard-donut){width:138px}}

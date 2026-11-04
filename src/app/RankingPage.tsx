@@ -22,6 +22,8 @@ import {
   ShieldCheck,
   Search,
   CheckCircle2,
+  BadgeCheck,
+  UserSearch,
 } from 'lucide-react';
 
 import {
@@ -35,6 +37,7 @@ import {
 
 import TriviaGame from './TriviaGame';
 import VerseGame from './VerseGame';
+import { TrueFalseGame, WhoAmIGame } from './QuickBibleGames';
 import {
   MemoryGame,
   ChallengeGame,
@@ -109,6 +112,8 @@ const games = [
     color: 'blue',
     available: true,
   },
+  {id:'truefalse',title:'Verdadero o falso',description:'Identifica afirmaciones correctas e incorrectas.',detail:'20 afirmaciones para entrenar tu conocimiento.',icon:BadgeCheck,color:'green',available:true},
+  {id:'whoami',title:'¿Quién soy?',description:'Adivina el personaje con pistas progresivas.',detail:'Gana más puntos si necesitas menos pistas.',icon:UserSearch,color:'purple',available:true},
 ];
 
 export default function RankingPage({
@@ -534,6 +539,10 @@ export default function RankingPage({
             <DuelGame onExit={() => setActiveGame(null)} />
           ) : activeGame === 'order' ? (
             <OrderVerseGame onExit={() => setActiveGame(null)} />
+          ) : activeGame === 'truefalse' ? (
+            <TrueFalseGame onExit={() => setActiveGame(null)} />
+          ) : activeGame === 'whoami' ? (
+            <WhoAmIGame onExit={() => setActiveGame(null)} />
           ) : (
             <>
               <div className="ranking-section-heading">

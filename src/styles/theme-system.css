@@ -384,3 +384,7 @@ body {
     border-radius: 20px;
   }
 }
+
+.module-search{display:flex;align-items:center;gap:8px;min-height:40px;margin:0 1px 13px;padding:0 10px;border:1px solid var(--jf-border);border-radius:11px;background:var(--jf-surface-raised);color:var(--jf-sidebar-muted)}
+.module-search svg{flex:none}.module-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--jf-sidebar-text);font:inherit;font-size:11px}.module-search input::placeholder{color:var(--jf-sidebar-muted);opacity:.8}.module-search button{border:0;background:transparent;color:var(--jf-sidebar-muted);font-size:18px;cursor:pointer}.module-search-empty{padding:12px;color:var(--jf-sidebar-muted);font-size:11px;line-height:1.5}
+@media(max-width:900px){.module-search{min-height:42px}}

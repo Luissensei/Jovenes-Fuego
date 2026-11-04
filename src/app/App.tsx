@@ -21,6 +21,7 @@ import {
   FlaskConical,
   LockKeyhole,
   ShieldAlert,
+  Search,
 } from 'lucide-react';
 
 import { modules } from './modules';
@@ -97,6 +98,7 @@ function AdminApp() {
 
   const { isDark, toggleTheme } = useThemePreference();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moduleSearch, setModuleSearch] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -177,6 +179,12 @@ function AdminApp() {
     }
 
     return true;
+  });
+
+  const filteredModules = visibleModules.filter((item) => {
+    const query = moduleSearch.trim().toLocaleLowerCase('es');
+    if (!query) return true;
+    return `${item.label} ${item.description}`.toLocaleLowerCase('es').includes(query);
   });
 
   const currentModule = [...visibleModules]
@@ -329,8 +337,13 @@ function AdminApp() {
             : 'VISTA PREVIA · SIN FIREBASE'}
         </div>
 
+        <label className="module-search">
+          <Search size={16} aria-hidden="true" />
+          <input type="search" value={moduleSearch} onChange={(event) => setModuleSearch(event.target.value)} placeholder="Buscar módulo..." aria-label="Buscar un módulo" />
+          {moduleSearch && <button type="button" onClick={() => setModuleSearch('')} aria-label="Limpiar búsqueda">×</button>}
+        </label>
         <nav aria-label="Módulos">
-          {visibleModules.map((item) => (
+          {filteredModules.length === 0 ? <p className="module-search-empty">No se encontraron módulos.</p> : filteredModules.map((item) => (
             <NavLink
               key={item.id}
               to={item.path}

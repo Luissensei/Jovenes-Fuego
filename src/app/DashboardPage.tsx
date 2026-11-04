@@ -17,6 +17,8 @@ import {
   Sparkles,
   ChartNoAxesColumnIncreasing,
   Medal,
+  RefreshCw,
+  Download,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
@@ -38,7 +40,7 @@ const quickActions = [
   {
     title: 'Zona de juegos',
     eyebrow: 'DESAFÍOS',
-    description: 'Siete experiencias para aprender jugando.',
+    description: 'Nueve experiencias para aprender jugando.',
     icon: Gamepad2,
     path: '/juegos',
     code: '02',
@@ -91,6 +93,7 @@ export default function DashboardPage() {
   const [publicProfiles, setPublicProfiles] = useState<PublicRankingMetric[]>([]);
   const [profilesLoading, setProfilesLoading] = useState(configured);
   const [profilesError, setProfilesError] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -126,7 +129,7 @@ export default function DashboardPage() {
     return () => {
       active = false;
     };
-  }, [configured]);
+  }, [configured, refreshKey]);
 
   const rankedProfiles = useMemo(
     () => [...publicProfiles].sort(
@@ -159,6 +162,42 @@ export default function DashboardPage() {
       ).length,
     }));
   }, [publicProfiles]);
+
+  const scoreBandColors = ['#6fc5eb', '#63cbb4', '#a58ce8', '#f19a68'];
+  const scoreBandGradient = useMemo(() => {
+    let position = 0;
+    const segments = scoreBands.map((band, index) => {
+      const start = position;
+      position += publicProfiles.length ? (band.count / publicProfiles.length) * 100 : 0;
+      return `${scoreBandColors[index]} ${start}% ${position}%`;
+    });
+    return `conic-gradient(${segments.join(', ')})`;
+  }, [scoreBands, publicProfiles.length]);
+
+  const leadingScoreBand = scoreBands.reduce(
+    (leading, band) => band.count > leading.count ? band : leading,
+    scoreBands[0],
+  );
+
+  function downloadRankingCsv() {
+    if (!rankedProfiles.length) return;
+    const rows = [
+      ['Puesto', 'Nombre', 'Puntos'],
+      ...rankedProfiles.map((item, index) => [String(index + 1), item.name, String(item.points ?? 0)]),
+    ];
+    const csv = rows.map((row) => row.map((value) =>
+      `"${String(value).replace(/"/g, '""')}"`,
+    ).join(';')).join('\r\n');
+    const file = new Blob([String.fromCharCode(0xfeff), csv], {type: 'text/csv;charset=utf-8'});
+    const url = URL.createObjectURL(file);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `ranking-jovenes-fuego-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
 
   return (
     <div className={`${styles.scope} dashboard-page tactical-dashboard`}>
@@ -261,8 +300,8 @@ export default function DashboardPage() {
             <div className="dashboard-stat-icon"><Swords size={19} /></div>
             <div className="dashboard-stat-copy">
               <small>JUEGOS BÍBLICOS</small>
-              <strong>07</strong>
-              <span>Experiencias en la zona de retos</span>
+              <strong>09</strong>
+              <span>Experiencias disponibles en la zona de retos</span>
             </div>
           </article>
 
@@ -295,7 +334,15 @@ export default function DashboardPage() {
               Resumen construido con los perfiles y puntos que el ranking tiene publicados.
             </p>
           </div>
-          <span className="dashboard-section-note">FUENTE: RANKING PÚBLICO</span>
+          <div className="dashboard-analytics-actions">
+            <button type="button" onClick={() => setRefreshKey((value) => value + 1)} disabled={!configured || profilesLoading}>
+              <RefreshCw size={14} className={profilesLoading ? 'is-refreshing' : ''}/> Actualizar
+            </button>
+            <button type="button" onClick={downloadRankingCsv} disabled={!rankedProfiles.length || profilesLoading}>
+              <Download size={14}/> Exportar CSV
+            </button>
+            <span className="dashboard-section-note">FUENTE: RANKING PÚBLICO</span>
+          </div>
         </div>
 
         <div className="dashboard-community-stats">
@@ -439,6 +486,32 @@ export default function DashboardPage() {
                 <span>Perfiles incluidos</span>
                 <strong>{publicProfiles.length}</strong>
               </footer>
+            </article>
+
+            <article className="dashboard-chart-card dashboard-tier-chart">
+              <header className="dashboard-chart-header">
+                <div>
+                  <span>03 / VISTA GENERAL</span>
+                  <h3>Mapa de progreso</h3>
+                  <p>Proporción de perfiles en cada rango de puntos.</p>
+                </div>
+                <span className="dashboard-chart-header-icon distribution"><Users size={20}/></span>
+              </header>
+              <div className="dashboard-donut-layout">
+                <div className="dashboard-donut" style={{background: scoreBandGradient}} role="img" aria-label="Distribución de participantes por rango de puntos">
+                  <div><strong>{publicProfiles.length}</strong><span>perfiles</span></div>
+                </div>
+                <div className="dashboard-donut-legend">
+                  {scoreBands.map((band, index) => (
+                    <div className="dashboard-donut-legend-row" key={band.label}>
+                      <i style={{background: scoreBandColors[index]}} />
+                      <span>{band.label}</span>
+                      <strong>{Math.round((band.count / publicProfiles.length) * 100)}%</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <footer className="dashboard-chart-foot"><span>Rango más frecuente</span><strong>{leadingScoreBand.label}</strong></footer>
             </article>
           </div>
         )}

@@ -7,7 +7,7 @@ import {
   Gamepad2, RefreshCw, ChevronRight, ShieldCheck, Sparkles,
   CalendarDays, Clock3, MapPin, HeartHandshake, Send, Medal, Crown,
   Palette, Volume2, VolumeX, Star, X, WandSparkles,
-  BookMarked, Timer, Swords, Brain, Layers, Moon, Sun,
+  BookMarked, Timer, Swords, Brain, Layers, Moon, Sun, BadgeCheck, UserSearch,
 } from 'lucide-react';
 
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
@@ -24,6 +24,7 @@ import {
 
 import TriviaGame from './TriviaGame';
 import VerseGame from './VerseGame';
+import { TrueFalseGame, WhoAmIGame } from './QuickBibleGames';
 import {
   MemoryGame,
   ChallengeGame,
@@ -42,9 +43,13 @@ type ProfileLook = {
   title: string;
   ownedItems: string[];
   flames: number;
+  effects: string;
+  badge: string;
 };
 
-type LookShopCategory = 'frames' | 'avatars' | 'titles' | 'backgrounds';
+type ProfileExtras = {displayName: string; nickname: string; motto: string; weeklyGoal: string};
+const defaultProfileExtras: ProfileExtras = {displayName: '', nickname: '', motto: '', weeklyGoal: ''};
+type LookShopCategory = 'frames' | 'avatars' | 'titles' | 'backgrounds' | 'effects' | 'badges';
 
 const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: string; cost: number}[]> = {
   frames: [
@@ -91,6 +96,22 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'volcan',label:'Volcán',emoji:'🌋',cost:80},
     {key:'galaxia',label:'Galaxia',emoji:'✨',cost:100},
   ],
+  effects: [
+    {key:'ember',label:'Brasa suave',emoji:'🔥',cost:0},
+    {key:'aurora',label:'Aura aurora',emoji:'🌈',cost:65},
+    {key:'spark',label:'Chispas',emoji:'✨',cost:75},
+    {key:'ice',label:'Escarcha',emoji:'❄️',cost:85},
+    {key:'halo',label:'Resplandor',emoji:'💫',cost:110},
+    {key:'galaxy',label:'Galaxia',emoji:'🌌',cost:140},
+  ],
+  badges: [
+    {key:'flame',label:'Llama viva',emoji:'🔥',cost:0},
+    {key:'book',label:'Amante de la Palabra',emoji:'📖',cost:45},
+    {key:'heart',label:'Corazón de servicio',emoji:'💛',cost:55},
+    {key:'shield',label:'Fe firme',emoji:'🛡️',cost:65},
+    {key:'star',label:'Luz del mundo',emoji:'⭐',cost:80},
+    {key:'crown',label:'Corona de vida',emoji:'👑',cost:120},
+  ],
 };
 
 const lookCategoryField: Record<LookShopCategory, keyof ProfileLook> = {
@@ -98,6 +119,8 @@ const lookCategoryField: Record<LookShopCategory, keyof ProfileLook> = {
   avatars: 'avatar',
   titles: 'title',
   backgrounds: 'background',
+  effects: 'effects',
+  badges: 'badge',
 };
 
 const lookCategoryStorage: Record<LookShopCategory, string> = {
@@ -105,11 +128,13 @@ const lookCategoryStorage: Record<LookShopCategory, string> = {
   avatars: 'avs',
   titles: 'tits',
   backgrounds: 'bans',
+  effects: 'fx',
+  badges: 'bdg',
 };
 
-type MiniGame = 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order';
+type MiniGame = 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami';
 
-const defaultLook: ProfileLook = {frame: 'fuego', background: 'brasa', avatar: '', title: 'chispa', ownedItems: [], flames: 0};
+const defaultLook: ProfileLook = {frame: 'fuego', background: 'brasa', avatar: '', title: 'chispa', ownedItems: [], flames: 0, effects: 'ember', badge: 'flame'};
 
 const games: {id: MiniGame; title: string; subtitle: string; icon: typeof Trophy; color: string}[] = [
   {id: 'trivia', title: 'Trivia bíblica', subtitle: 'Preguntas y conocimiento', icon: BookOpen, color: 'orange'},
@@ -119,6 +144,8 @@ const games: {id: MiniGame; title: string; subtitle: string; icon: typeof Trophy
   {id: 'survival', title: 'Supervivencia', subtitle: 'No pierdas tus tres vidas', icon: Flame, color: 'rose'},
   {id: 'duel', title: 'Duelo 1 contra 1', subtitle: 'Juega por turnos en el mismo móvil', icon: Swords, color: 'gold'},
   {id: 'order', title: 'Ordena el versículo', subtitle: 'Reconstruye las palabras', icon: Layers, color: 'blue'},
+  {id: 'truefalse', title: 'Verdadero o falso', subtitle: 'Detecta afirmaciones bíblicas', icon: BadgeCheck, color: 'green'},
+  {id: 'whoami', title: '¿Quién soy?', subtitle: 'Descubre el personaje con pistas', icon: UserSearch, color: 'violet'},
 ];
 
 function getInitials(name: string): string {
@@ -146,6 +173,8 @@ function readLook(profile: PublicProfile): ProfileLook {
     title: profile.title || defaultLook.title,
     ownedItems: profile.ownedItems ?? [],
     flames: profile.flames ?? 0,
+    effects: profile.ownedItems?.find((item) => item.startsWith('equipped:fx:'))?.slice('equipped:fx:'.length) || 'ember',
+    badge: profile.ownedItems?.find((item) => item.startsWith('equipped:bdg:'))?.slice('equipped:bdg:'.length) || 'flame',
   };
   try {
     const raw = window.localStorage.getItem(`jf-youth-look-${profile.id}`);
@@ -162,9 +191,27 @@ function readLook(profile: PublicProfile): ProfileLook {
       title: local.title || remote.title,
       ownedItems: local.ownedItems ?? remote.ownedItems,
       flames: local.flames ?? remote.flames,
+      effects: local.effects || remote.effects,
+      badge: local.badge || remote.badge,
     };
   } catch {
     return remote;
+  }
+}
+
+function readProfileExtras(profileId: string): ProfileExtras {
+  try {
+    const raw = window.localStorage.getItem(`jf-youth-profile-extra-${profileId}`);
+    if (!raw) return defaultProfileExtras;
+    const parsed = JSON.parse(raw) as Partial<ProfileExtras>;
+    return {
+      displayName: typeof parsed.displayName === 'string' ? parsed.displayName.slice(0,60) : '',
+      nickname: typeof parsed.nickname === 'string' ? parsed.nickname.slice(0,30) : '',
+      motto: typeof parsed.motto === 'string' ? parsed.motto.slice(0,100) : '',
+      weeklyGoal: typeof parsed.weeklyGoal === 'string' ? parsed.weeklyGoal.slice(0,160) : '',
+    };
+  } catch {
+    return defaultProfileExtras;
   }
 }
 
@@ -250,6 +297,7 @@ export default function YouthPortalPage() {
   const [portalDataError, setPortalDataError] = useState('');
 
   const [look, setLook] = useState<ProfileLook>(defaultLook);
+  const [profileExtras, setProfileExtras] = useState<ProfileExtras>(defaultProfileExtras);
   const [editingLook, setEditingLook] = useState(false);
   const [lookCategory, setLookCategory] = useState<LookShopCategory>('frames');
   const [lookSaving, setLookSaving] = useState(false);
@@ -314,6 +362,7 @@ export default function YouthPortalPage() {
   useEffect(() => {
     if (selectedProfile) {
       setLook(readLook(selectedProfile));
+      setProfileExtras(readProfileExtras(selectedProfile.id));
       // La selección pública no verifica identidad: no prellenar el nombre
       // evita enviar peticiones en nombre de otra persona.
       setPrayerName('');
@@ -372,14 +421,22 @@ export default function YouthPortalPage() {
       setLookNotice(`Te faltan ${item.cost - look.flames} Llamas para desbloquear ${item.label}.`);
       return;
     }
-
+    const equippedPrefix = category === 'effects' ? 'equipped:fx:' : category === 'badges' ? 'equipped:bdg:' : '';
+    const retainedItems = equippedPrefix ? look.ownedItems.filter((value) => !value.startsWith(equippedPrefix)) : look.ownedItems;
+    const nextOwnedItems = Array.from(new Set([
+      ...retainedItems,
+      ...(!alreadyOwned && item.cost > 0 ? [ownedKey] : []),
+      ...(equippedPrefix ? [`${equippedPrefix}${item.key}`] : []),
+    ]));
     const next: ProfileLook = {
       ...look,
       frame: category === 'frames' ? item.key : look.frame,
       avatar: category === 'avatars' ? item.key : look.avatar,
       title: category === 'titles' ? item.key : look.title,
       background: category === 'backgrounds' ? item.key : look.background,
-      ownedItems: alreadyOwned ? look.ownedItems : [...look.ownedItems, ownedKey],
+      effects: category === 'effects' ? item.key : look.effects,
+      badge: category === 'badges' ? item.key : look.badge,
+      ownedItems: nextOwnedItems,
       flames: alreadyOwned ? look.flames : look.flames - item.cost,
     };
     setLook(next);
@@ -387,7 +444,6 @@ export default function YouthPortalPage() {
     setLookNotice('');
     try {
       if (firebaseReadOnlyMode) {
-        // Permite probar marcos y fondos localmente sin escribir en producción.
         window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
         setLookNotice(`${item.label} equipado en este dispositivo. La sincronización de la comunidad se habilita en Staging.`);
         return;
@@ -396,12 +452,27 @@ export default function YouthPortalPage() {
       window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
       setLookNotice(`${item.label} equipado correctamente.`);
     } catch (cause) {
-      setLookNotice(cause instanceof Error
-        ? cause.message
-        : 'No se pudo guardar el cambio. Comprueba tu conexión.');
+      setLookNotice(cause instanceof Error ? cause.message : 'No se pudo guardar el cambio. Comprueba tu conexión.');
       setLook(readLook(selectedProfile));
     } finally {
       setLookSaving(false);
+    }
+  }
+
+  function saveProfileExtras() {
+    if (!selectedProfile) return;
+    const safeExtras = {
+      displayName: profileExtras.displayName.trim().slice(0,60),
+      nickname: profileExtras.nickname.trim().replace(/^@/, '').slice(0,30),
+      motto: profileExtras.motto.trim().slice(0,100),
+      weeklyGoal: profileExtras.weeklyGoal.trim().slice(0,160),
+    };
+    try {
+      window.localStorage.setItem(`jf-youth-profile-extra-${selectedProfile.id}`, JSON.stringify(safeExtras));
+      setProfileExtras(safeExtras);
+      setLookNotice('Tu información personal quedó guardada en este dispositivo.');
+    } catch {
+      setLookNotice('El navegador no permitió guardar los cambios en este dispositivo.');
     }
   }
 
@@ -563,6 +634,8 @@ export default function YouthPortalPage() {
           {activeGame === 'survival' && <SurvivalGame onExit={exitGame}/>}
           {activeGame === 'duel' && <DuelGame onExit={exitGame}/>}
           {activeGame === 'order' && <OrderVerseGame onExit={exitGame}/>}
+          {activeGame === 'truefalse' && <TrueFalseGame onExit={exitGame}/>}
+          {activeGame === 'whoami' && <WhoAmIGame onExit={exitGame}/>}
         </div>
       </main>
     );
@@ -586,16 +659,20 @@ export default function YouthPortalPage() {
             </button>
           </div>
 
-          <section className={`youth-welcome youth-home youth-frame-${look.frame} youth-background-${look.background}`}>
+          <section className={`youth-welcome youth-home youth-frame-${look.frame} youth-background-${look.background} youth-effect-${look.effects}`}>
             <div className="youth-welcome-decoration"><Sparkles size={24}/></div>
             <button type="button" className="youth-customize-trigger" onClick={() => setEditingLook((value) => !value)}>
               <Palette size={17}/> Personalizar perfil
             </button>
             <YouthAvatar profile={{...selectedProfile, frame: look.frame, avatar: look.avatar}} large/>
+            <span className={`youth-profile-badge badge-${look.badge}`}>
+              {({flame:'🔥 Llama viva',book:'📖 Amante de la Palabra',heart:'💛 Corazón de servicio',shield:'🛡️ Fe firme',star:'⭐ Luz del mundo',crown:'👑 Corona de vida'} as Record<string,string>)[look.badge] ?? '🔥 Llama viva'}
+            </span>
             <span className="youth-brand-label">COMUNIDAD JÓVENES DE FUEGO</span>
-            <h1 className="jf-title-reveal">¡Hola, <span className="jf-name-reveal">{selectedProfile.name}</span>!</h1>
+            <h1 className="jf-title-reveal">¡Hola, <span className="jf-name-reveal">{profileExtras.displayName || selectedProfile.name}</span>!</h1>
             <p>Tu espacio para crecer, servir, aprender y compartir.</p>
-            {selectedProfile.nick && <span className="youth-profile-nick">@{selectedProfile.nick}</span>}
+            {(profileExtras.nickname || selectedProfile.nick) && <span className="youth-profile-nick">@{profileExtras.nickname || selectedProfile.nick}</span>}
+            {profileExtras.motto && <p className="youth-profile-motto">“{profileExtras.motto}”</p>}
             {look.title && <span className="youth-profile-title">{({chispa:'Chispa Encendida',valiente:'Valiente',guerrero:'Guerrero de Fe',intercesor:'Intercesor',adorador:'Adorador',sabio:'Sabio de la Palabra',leyenda:'Leyenda de Fuego'} as Record<string,string>)[look.title] ?? look.title}</span>}
             <div className="youth-profile-quickstats">
               <span><Star size={15}/> {selectedProfile.points > 0 ? `${selectedProfile.points} puntos públicos` : 'Puntos aún no publicados'}</span>
@@ -605,6 +682,8 @@ export default function YouthPortalPage() {
           </section>
 
           {lookNotice && <p className="youth-look-notice" role="status">{lookNotice}</p>}
+
+          {profileExtras.weeklyGoal && <section className="youth-personal-goal"><span>MI META DE LA SEMANA</span><p>{profileExtras.weeklyGoal}</p></section>}
 
           {editingLook && (
             <section className="youth-customizer">
@@ -617,6 +696,7 @@ export default function YouthPortalPage() {
               <nav className="youth-store-tabs" aria-label="Personalización">
                 {([
                   ['frames','Marcos'],['avatars','Avatares'],['titles','Títulos'],['backgrounds','Fondos'],
+                  ['effects','Efectos'],['badges','Insignias'],
                 ] as [LookShopCategory,string][]).map(([key,label]) => (
                   <button type="button" key={key} className={lookCategory === key ? 'active' : ''} onClick={() => setLookCategory(key)}>{label}</button>
                 ))}
@@ -644,6 +724,20 @@ export default function YouthPortalPage() {
               {lookNotice && <p className="youth-inline-warning" role="status">{lookNotice}</p>}
               {firebaseReadOnlyMode && <p className="youth-inline-warning">En solo lectura, los cambios cosméticos se guardan solo en este dispositivo. Para sincronizarlos con todos los móviles usa Staging.</p>}
               {lookSaving && <p className="youth-inline-warning">Guardando personalización...</p>}
+              <section className="youth-profile-editor">
+                <div className="youth-profile-editor-heading">
+                  <div><b>Editar mi perfil personal</b><span>Nombre visible, apodo, frase y meta semanal.</span></div>
+                  <UserSearch size={20}/>
+                </div>
+                <div className="youth-profile-editor-grid">
+                  <label>Nombre visible en este dispositivo<input value={profileExtras.displayName} onChange={(event) => setProfileExtras((value) => ({...value,displayName:event.target.value}))} maxLength={60} placeholder={selectedProfile.name}/></label>
+                  <label>Mi apodo<input value={profileExtras.nickname} onChange={(event) => setProfileExtras((value) => ({...value,nickname:event.target.value}))} maxLength={30} placeholder={selectedProfile.nick || 'Mi apodo'}/></label>
+                  <label>Mi frase personal<input value={profileExtras.motto} onChange={(event) => setProfileExtras((value) => ({...value,motto:event.target.value}))} maxLength={100} placeholder="Una frase que me representa"/></label>
+                  <label>Mi meta de esta semana<textarea value={profileExtras.weeklyGoal} onChange={(event) => setProfileExtras((value) => ({...value,weeklyGoal:event.target.value}))} maxLength={160} rows={2} placeholder="Ej. Leer un capítulo diario y servir en mi grupo"/></label>
+                </div>
+                <button type="button" onClick={saveProfileExtras}>Guardar mi perfil</button>
+                <small>Estos campos se guardan únicamente en este dispositivo. No cambian el nombre oficial ni los datos públicos de Firebase.</small>
+              </section>
             </section>
           )}
 
