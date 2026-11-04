@@ -12,7 +12,14 @@ const db = getFirestore(app);
 const adminAuth = getAdminAuth(app);
 
 function requireStagingProject(): void {
-  const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || "";
+  let configuredProject = "";
+  try {
+    const firebaseConfig = JSON.parse(process.env.FIREBASE_CONFIG || "{}") as {projectId?: string};
+    configuredProject = typeof firebaseConfig.projectId === "string" ? firebaseConfig.projectId : "";
+  } catch {
+    configuredProject = "";
+  }
+  const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || configuredProject;
   if (projectId !== "jovenes-de-fuego-staging") {
     throw new HttpsError(
       "failed-precondition",
@@ -154,7 +161,7 @@ export const getMyApplicationProfile = onCall(async (request) => {
 
 const defaultLeaderPermissions = [
   "members", "attendance", "followups", "devotionals", "visitors",
-  "events", "ranking", "games", "profile",
+  "prayers", "events", "checkins", "turns", "ranking", "games", "profile",
 ];
 
 async function requireModulePermission(uid: string, moduleId: string): Promise<AuthorizedRole> {

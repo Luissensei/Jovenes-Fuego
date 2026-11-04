@@ -1,39 +1,50 @@
 /* Sistema visual unificado — Jóvenes de Fuego */
 :root {
-  --jf-accent: #e85d36;
-  --jf-accent-strong: #c94428;
-  --jf-bg: #0b1020;
-  --jf-surface: #121a2c;
-  --jf-surface-raised: #18243a;
-  --jf-text: #f4f6fb;
-  --jf-muted: #a7b1c3;
-  --jf-border: rgba(172, 190, 222, .16);
+  --jf-accent: #c5a36b;
+  --jf-accent-strong: #9c7747;
+  --jf-accent-2: #e0c68f;
+  --jf-purple: #a88bc6;
+  --jf-bg: #100e18;
+  --jf-surface: #1a1622;
+  --jf-surface-raised: #241e2d;
+  --jf-text: #f5efe6;
+  --jf-muted: #b6acbd;
+  --jf-border: rgba(197, 163, 107, .16);
   --jf-shadow: 0 12px 32px rgba(0, 0, 0, .18);
   color-scheme: dark;
 }
 :root[data-theme="dark"] {
-  --jf-bg: #0b1020;
-  --jf-surface: #121a2c;
-  --jf-surface-raised: #18243a;
-  --jf-text: #f4f6fb;
-  --jf-muted: #a7b1c3;
-  --jf-border: rgba(172, 190, 222, .16);
-  --jf-sidebar: #0e1728;
-  --jf-sidebar-text: #e4ebf7;
-  --jf-sidebar-muted: #9ba9bf;
-  --jf-input: #0d1627;
+  --jf-accent: #c5a36b;
+  --jf-accent-strong: #9c7747;
+  --jf-accent-2: #e0c68f;
+  --jf-purple: #9b80b9;
+  --jf-bg: #100e18;
+  --jf-surface: #1a1622;
+  --jf-surface-raised: #241e2d;
+  --jf-text: #f5efe6;
+  --jf-muted: #b6acbd;
+  --jf-border: rgba(197, 163, 107, .16);
+  --jf-sidebar: #15111c;
+  --jf-sidebar-text: #f1e9dd;
+  --jf-sidebar-muted: #b1a6b9;
+  --jf-input: #15111c;
+  --jf-icon: #c5a36b;
   color-scheme: dark;
 }
 :root[data-theme="light"] {
-  --jf-bg: #f3f5fa;
+  --jf-accent: #99733f;
+  --jf-accent-strong: #79572c;
+  --jf-accent-2: #b18b53;
+  --jf-purple: #7d6598;
+  --jf-bg: #f5f2f7;
   --jf-surface: #ffffff;
-  --jf-surface-raised: #f8f9fc;
-  --jf-text: #253047;
-  --jf-muted: #66748b;
-  --jf-border: #e1e6ef;
-  --jf-sidebar: #ffffff;
-  --jf-sidebar-text: #27354d;
-  --jf-sidebar-muted: #77849a;
+  --jf-surface-raised: #fbf9fc;
+  --jf-text: #352b3c;
+  --jf-muted: #796f83;
+  --jf-border: #e8e0eb;
+  --jf-sidebar: #fff;
+  --jf-sidebar-text: #352b3c;
+  --jf-sidebar-muted: #81758c;
   --jf-input: #ffffff;
   --jf-shadow: 0 10px 28px rgba(36, 52, 82, .07);
   color-scheme: light;
@@ -133,8 +144,8 @@ body {
   color: var(--jf-sidebar-text) !important;
 }
 .sidebar .nav-item.active {
-  background: linear-gradient(100deg, rgba(232, 93, 54, .16), rgba(232, 93, 54, .07)) !important;
-  border-color: rgba(232, 93, 54, .22);
+  background: linear-gradient(100deg, rgba(197, 163, 107, .17), rgba(168, 139, 198, .08)) !important;
+  border-color: rgba(197, 163, 107, .25);
   color: var(--jf-accent) !important;
   box-shadow: none !important;
 }
@@ -148,7 +159,7 @@ body {
   background: rgba(130, 145, 175, .10);
 }
 .nav-item.active .nav-item-icon {
-  background: rgba(232, 93, 54, .13);
+  background: rgba(197, 163, 107, .14);
 }
 .safe-note {
   color: var(--jf-sidebar-text) !important;

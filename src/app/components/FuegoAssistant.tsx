@@ -115,8 +115,8 @@ export default function FuegoAssistant({
         </form>
         <footer className={styles.footer}>
           {youth
-            ? 'No compartas contraseñas ni datos personales. Tu conversación no se guarda en Firebase.'
-            : 'La IA propone y redacta; no modifica usuarios, permisos ni registros.'}
+            ? 'No compartas contraseñas ni datos personales. El mensaje se envía al servicio de IA configurado en Firebase Staging; la app no guarda el historial en tu perfil.'
+            : 'El modelo recibe los mensajes que escribes. La conversación no se guarda en la app y la IA no modifica usuarios, permisos ni registros.'}
           {messages.length > 0 && <button type="button" onClick={() => {setMessages([]);setError('');}}><RotateCcw size={13}/> Nueva conversación</button>}
         </footer>
       </div>
