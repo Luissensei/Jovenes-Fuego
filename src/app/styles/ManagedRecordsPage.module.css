@@ -480,3 +480,20 @@
 .scope :global(.managed-modal-actions) button{
     width: 100%;
   }}
+
+
+/* Refinamiento visual de registros administrables */
+.scope :global(.managed-hero){border:1px solid rgba(222,174,111,.23);box-shadow:0 20px 48px rgba(5,4,10,.18),inset 0 1px rgba(255,255,255,.07)}
+.scope :global(.managed-stat),.scope :global(.managed-record),.scope :global(.managed-toolbar){background:var(--jf-surface);border:1px solid var(--jf-border);box-shadow:var(--jf-shadow)}
+.scope :global(.managed-stat){border-radius:16px}
+.scope :global(.managed-record){border-radius:17px;transition:transform .2s ease,border-color .2s ease}
+.scope :global(.managed-record):hover{transform:translateY(-2px);border-color:rgba(222,174,111,.4)}
+.scope :global(.managed-search){background:var(--jf-input);border:1px solid var(--jf-border);border-radius:12px}
+.scope :global(.managed-search) input{color:var(--jf-text);min-width:0}
+.scope :global(.managed-modal){background:var(--jf-surface);color:var(--jf-text);border:1px solid var(--jf-border);border-radius:22px;box-shadow:0 30px 90px rgba(0,0,0,.4)}
+:global(:root[data-theme="light"]) .scope :global(.managed-stat),
+:global(:root[data-theme="light"]) .scope :global(.managed-record),
+:global(:root[data-theme="light"]) .scope :global(.managed-toolbar),
+:global(:root[data-theme="light"]) .scope :global(.managed-modal){background:#fff;color:#382d40;border-color:#e9e0eb}
+@media(max-width:600px){.scope :global(.managed-hero){padding:20px;border-radius:18px}.scope :global(.managed-record){padding:14px;border-radius:15px}}
+@media(prefers-reduced-motion:reduce){.scope :global(.managed-record){transition:none}.scope :global(.managed-record):hover{transform:none}}
