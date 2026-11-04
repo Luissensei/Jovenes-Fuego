@@ -1,0 +1,660 @@
+/*
+ * Jóvenes de Fuego — sistema visual profesional
+ * Última capa de estilos: normaliza las pantallas sin alterar su lógica.
+ * Principios: jerarquía clara, superficies sólidas, acento moderado y contraste AA.
+ */
+
+:root {
+  --jf-bg: #151412;
+  --jf-surface: #201e1a;
+  --jf-surface-2: #292620;
+  --jf-surface-raised: #302c25;
+  --jf-glass: #201e1a;
+  --jf-glass-strong: #201e1a;
+  --jf-glass-soft: rgba(213, 138, 92, .08);
+  --jf-glass-border: #39352e;
+  --jf-glass-edge: #39352e;
+  --jf-text: #f2eee8;
+  --jf-muted: #b9b1a6;
+  --jf-border: #39352e;
+  --jf-sidebar: #211e1a;
+  --jf-sidebar-text: #f5f1eb;
+  --jf-sidebar-muted: #c2b9ad;
+  --jf-input: #191714;
+  --jf-icon: #df9869;
+  --jf-accent: #d58a5c;
+  --jf-accent-strong: #e4a071;
+  --jf-accent-2: #df9869;
+  --jf-purple: #a99aaf;
+  --jf-blue: #8ca7bd;
+  --jf-green: #83ad92;
+  --jf-coral: #d58a5c;
+  --jf-gradient-brand: #302a24;
+  --jf-gradient-action: #a64d2c;
+  --jf-shadow: 0 1px 2px rgba(0,0,0,.12), 0 8px 24px rgba(0,0,0,.12);
+  --jf-focus: #e3a173;
+  color-scheme: dark;
+}
+
+:root[data-theme="dark"] {
+  --jf-bg: #151412;
+  --jf-surface: #201e1a;
+  --jf-surface-2: #292620;
+  --jf-surface-raised: #302c25;
+  --jf-glass: #201e1a;
+  --jf-glass-strong: #201e1a;
+  --jf-glass-soft: rgba(213, 138, 92, .08);
+  --jf-glass-border: #39352e;
+  --jf-glass-edge: #39352e;
+  --jf-text: #f2eee8;
+  --jf-muted: #b9b1a6;
+  --jf-border: #39352e;
+  --jf-sidebar: #211e1a;
+  --jf-sidebar-text: #f5f1eb;
+  --jf-sidebar-muted: #c2b9ad;
+  --jf-input: #191714;
+  --jf-icon: #df9869;
+  --jf-accent: #d58a5c;
+  --jf-accent-strong: #e4a071;
+  --jf-accent-2: #df9869;
+  --jf-purple: #a99aaf;
+  --jf-blue: #8ca7bd;
+  --jf-green: #83ad92;
+  --jf-coral: #d58a5c;
+  --jf-gradient-brand: #302a24;
+  --jf-gradient-action: #a64d2c;
+  --jf-shadow: 0 1px 2px rgba(0,0,0,.12), 0 8px 24px rgba(0,0,0,.12);
+  --jf-focus: #e3a173;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --jf-bg: #f5f3ef;
+  --jf-surface: #ffffff;
+  --jf-surface-2: #faf9f6;
+  --jf-surface-raised: #ffffff;
+  --jf-glass: #ffffff;
+  --jf-glass-strong: #ffffff;
+  --jf-glass-soft: #f7eee7;
+  --jf-glass-border: #e6e0d8;
+  --jf-glass-edge: #e6e0d8;
+  --jf-text: #2b2926;
+  --jf-muted: #625d56;
+  --jf-border: #e6e0d8;
+  --jf-sidebar: #24211e;
+  --jf-sidebar-text: #f8f5ef;
+  --jf-sidebar-muted: #c7bfb4;
+  --jf-input: #ffffff;
+  --jf-icon: #8f3e22;
+  --jf-accent: #8f3e22;
+  --jf-accent-strong: #783119;
+  --jf-accent-2: #8f3e22;
+  --jf-purple: #665b69;
+  --jf-blue: #496b80;
+  --jf-green: #276b4a;
+  --jf-coral: #8f3e22;
+  --jf-gradient-brand: #302a24;
+  --jf-gradient-action: #8f3e22;
+  --jf-shadow: 0 1px 2px rgba(35,29,23,.04), 0 7px 22px rgba(35,29,23,.045);
+  --jf-focus: #8f3e22;
+  color-scheme: light;
+}
+
+/* El tema alternativo conserva el carácter de la marca sin volver a los brillos. */
+:root[data-theme="royal"] {
+  --jf-bg: #18151a;
+  --jf-surface: #231f26;
+  --jf-surface-2: #2d2731;
+  --jf-surface-raised: #342d38;
+  --jf-glass: #231f26;
+  --jf-glass-strong: #231f26;
+  --jf-glass-soft: rgba(193, 163, 111, .08);
+  --jf-glass-border: #443a46;
+  --jf-glass-edge: #443a46;
+  --jf-text: #f4eee4;
+  --jf-muted: #c0b5c1;
+  --jf-border: #443a46;
+  --jf-sidebar: #211b24;
+  --jf-sidebar-text: #f4eee4;
+  --jf-sidebar-muted: #c7bac7;
+  --jf-input: #1d1920;
+  --jf-icon: #cfb17b;
+  --jf-accent: #cfb17b;
+  --jf-accent-strong: #e1c492;
+  --jf-accent-2: #cfb17b;
+  --jf-purple: #b7a6bb;
+  --jf-blue: #91a7b5;
+  --jf-green: #91b39b;
+  --jf-coral: #cfb17b;
+  --jf-gradient-brand: #302833;
+  --jf-gradient-action: #735638;
+  --jf-shadow: 0 1px 2px rgba(0,0,0,.16), 0 8px 24px rgba(0,0,0,.16);
+  --jf-focus: #e1c492;
+  color-scheme: dark;
+}
+
+html, body, #root {
+  min-height: 100%;
+  background: var(--jf-bg) !important;
+  color: var(--jf-text);
+}
+
+body {
+  font-family: "DM Sans", "Segoe UI", system-ui, sans-serif;
+  background: var(--jf-bg) !important;
+  color: var(--jf-text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.layout {
+  background: var(--jf-bg) !important;
+  color: var(--jf-text);
+  isolation: isolate;
+}
+
+/* Navegación: un rail estable, sin gradientes ni estados luminosos. */
+.sidebar,
+.mobile-header {
+  background: var(--jf-sidebar) !important;
+  color: var(--jf-sidebar-text) !important;
+  border-color: rgba(255,255,255,.10) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.sidebar {
+  border-right: 1px solid rgba(255,255,255,.10) !important;
+}
+
+.brand strong,
+.mobile-header strong {
+  color: var(--jf-sidebar-text) !important;
+  font-family: "DM Sans", "Segoe UI", system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.brand small,
+.safe-note small {
+  color: var(--jf-sidebar-muted) !important;
+}
+
+.sidebar .env-chip,
+.safe-note {
+  color: var(--jf-sidebar-text) !important;
+  background: rgba(255,255,255,.055) !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  box-shadow: none !important;
+}
+
+.sidebar .nav-item {
+  min-height: 42px;
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  color: var(--jf-sidebar-muted) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-weight: 550;
+  transition: background-color .14s ease, color .14s ease, border-color .14s ease !important;
+}
+
+.sidebar .nav-item:hover {
+  color: var(--jf-sidebar-text) !important;
+  background: rgba(255,255,255,.07) !important;
+  border-color: transparent !important;
+}
+
+.sidebar .nav-item.active {
+  color: #ffffff !important;
+  background: rgba(213,138,92,.18) !important;
+  border-color: rgba(213,138,92,.28) !important;
+  box-shadow: inset 3px 0 0 var(--jf-accent) !important;
+}
+
+.sidebar .nav-item-icon,
+.sidebar .nav-item.active .nav-item-icon {
+  color: var(--jf-accent) !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.module-search {
+  background: rgba(255,255,255,.055) !important;
+  border-color: rgba(255,255,255,.12) !important;
+  border-radius: 8px !important;
+}
+
+.module-search input {
+  color: var(--jf-sidebar-text) !important;
+}
+
+.theme-toggle {
+  min-height: 42px;
+  border-radius: 8px !important;
+  background: transparent !important;
+  border-color: rgba(255,255,255,.14) !important;
+  color: var(--jf-sidebar-text) !important;
+  box-shadow: none !important;
+}
+
+.theme-toggle:hover {
+  background: rgba(255,255,255,.07) !important;
+}
+
+.main {
+  color: var(--jf-text);
+  background: transparent !important;
+}
+
+.topline {
+  color: var(--jf-muted) !important;
+  border-color: var(--jf-border) !important;
+}
+
+.topline-status-module {
+  color: var(--jf-text) !important;
+  font-weight: 650;
+}
+
+.project-label {
+  color: var(--jf-muted) !important;
+  background: var(--jf-surface) !important;
+  border: 1px solid var(--jf-border) !important;
+  border-radius: 7px !important;
+  box-shadow: none !important;
+}
+
+.main footer {
+  color: var(--jf-muted) !important;
+  border-color: var(--jf-border) !important;
+}
+
+/* Jerarquía tipográfica consistente y sin títulos con efectos decorativos. */
+.main h1,
+.main h2,
+.main h3,
+.main h4,
+.main h5,
+.main strong {
+  font-family: "DM Sans", "Segoe UI", system-ui, sans-serif;
+}
+
+.main h1 {
+  font-size: clamp(27px, 3vw, 36px);
+  line-height: 1.16;
+  letter-spacing: -.035em;
+  font-weight: 700;
+}
+
+.main h2 {
+  font-size: clamp(19px, 2vw, 24px);
+  line-height: 1.25;
+  letter-spacing: -.025em;
+  font-weight: 680;
+}
+
+.main h3 {
+  font-size: 16px;
+  line-height: 1.35;
+  font-weight: 650;
+}
+
+.main p,
+.main li {
+  line-height: 1.58;
+}
+
+.main :is(.eyebrow, .shared-eyebrow, .ranking-kicker, .members-kicker) {
+  color: var(--jf-accent) !important;
+  letter-spacing: .09em;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+/* Superficies sólidas: las tarjetas separan contenido, no decoran la pantalla. */
+:root[data-theme="light"] .main :is(
+  .page-card, .shared-page-header, .shared-stat-card, .shared-empty-state,
+  .dashboard-stat, .dashboard-shortcut, .dashboard-community-stat,
+  .dashboard-chart-card, .dashboard-bottom-note, .ranking-content,
+  .ranking-progress-panel, .ranking-visual-toolbar, .ranking-info-grid article,
+  .ranking-player, .game-card, .profile-card, .selected-profile-panel,
+  .members-total-card, .members-controls, .members-state, .member-card,
+  .member-row, .attendance-card, .attendance-member, .followup-stat,
+  .followup-content, .followup-card, .visitors-stat, .visitors-content,
+  .visitor-card, .devotionals-controls, .devotional-card, .photos-stats article,
+  .photo-card, .reports-card, .reports-stats article, .checkin-config,
+  .checkin-panel, .checkin-summary article, .management-summary,
+  .management-form, .management-records, .management-record,
+  .managed-record, .managed-stat, .managed-empty, .settings-card,
+  .leaders-card, .weekly-admin-panel, .weekly-admin-item, .prayer-admin-card,
+  .youth-selector, .youth-activities, .youth-growth-plan, .youth-game-hub,
+  .youth-prayer-panel, .youth-journal-panel, .youth-hall-card,
+  .youth-customizer, .youth-profile-editor, .youth-look-templates,
+  .youth-saved-templates, .shared-modal, .managed-modal, .followup-modal,
+  .visitors-modal, .devotionals-modal, .photos-modal
+) {
+  background: var(--jf-surface) !important;
+  color: var(--jf-text) !important;
+  border: 1px solid var(--jf-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--jf-shadow) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:root[data-theme="dark"] .main :is(
+  .page-card, .shared-page-header, .shared-stat-card, .shared-empty-state,
+  .dashboard-stat, .dashboard-shortcut, .dashboard-community-stat,
+  .dashboard-chart-card, .dashboard-bottom-note, .ranking-content,
+  .ranking-progress-panel, .ranking-visual-toolbar, .ranking-info-grid article,
+  .ranking-player, .game-card, .profile-card, .selected-profile-panel,
+  .members-total-card, .members-controls, .members-state, .member-card,
+  .member-row, .attendance-card, .attendance-member, .followup-stat,
+  .followup-content, .followup-card, .visitors-stat, .visitors-content,
+  .visitor-card, .devotionals-controls, .devotional-card, .photos-stats article,
+  .photo-card, .reports-card, .reports-stats article, .checkin-config,
+  .checkin-panel, .checkin-summary article, .management-summary,
+  .management-form, .management-records, .management-record,
+  .managed-record, .managed-stat, .managed-empty, .settings-card,
+  .leaders-card, .weekly-admin-panel, .weekly-admin-item, .prayer-admin-card,
+  .youth-selector, .youth-activities, .youth-growth-plan, .youth-game-hub,
+  .youth-prayer-panel, .youth-journal-panel, .youth-hall-card,
+  .youth-customizer, .youth-profile-editor, .youth-look-templates,
+  .youth-saved-templates, .shared-modal, .managed-modal, .followup-modal,
+  .visitors-modal, .devotionals-modal, .photos-modal
+) {
+  background: var(--jf-surface) !important;
+  color: var(--jf-text) !important;
+  border-color: var(--jf-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--jf-shadow) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:root[data-theme="royal"] .main :is(
+  .page-card, .shared-page-header, .shared-stat-card, .shared-empty-state,
+  .dashboard-stat, .dashboard-shortcut, .dashboard-community-stat,
+  .dashboard-chart-card, .dashboard-bottom-note, .ranking-content,
+  .ranking-progress-panel, .ranking-visual-toolbar, .attendance-card,
+  .attendance-member, .members-controls, .members-state, .management-summary,
+  .management-form, .management-records, .reports-card, .checkin-panel,
+  .checkin-config, .visitors-content, .devotionals-controls, .settings-card,
+  .leaders-card, .followup-stat, .followup-content, .visitors-stat,
+  .shared-modal
+) {
+  background: var(--jf-surface) !important;
+  color: var(--jf-text) !important;
+  border-color: var(--jf-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--jf-shadow) !important;
+  backdrop-filter: none !important;
+}
+
+/* Los encabezados de sección usan un solo plano de color, no gradientes multicolor. */
+:root[data-theme] .main :is(
+  .members-hero, .attendance-header, .ranking-hero, .dashboard-hero,
+  .reports-hero, .checkin-hero, .visitors-header, .devotionals-hero,
+  .management-header, .photos-hero
+) {
+  background: #302a24 !important;
+  color: #f7f2eb !important;
+  border: 1px solid rgba(255,255,255,.09) !important;
+  border-left: 4px solid var(--jf-accent) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:root[data-theme] .main :is(
+  .members-hero, .attendance-header, .ranking-hero, .dashboard-hero,
+  .reports-hero, .checkin-hero, .visitors-header, .devotionals-hero,
+  .management-header, .photos-hero
+) :is(h1,h2,h3,p,span,small,strong) {
+  color: #f7f2eb;
+}
+
+/* Los heroes definidos como primer bloque de una pantalla CSS Module. */
+:root[data-theme] .main [class*="scope"] > [class*="hero"] {
+  background: #302a24 !important;
+  color: #f7f2eb !important;
+  border: 1px solid rgba(255,255,255,.09) !important;
+  border-left: 4px solid var(--jf-accent) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:root[data-theme] .main [class*="scope"] > [class*="hero"] :is(h1,h2,h3,p,span,small,strong) {
+  color: #f7f2eb;
+}
+
+/* Botones primarios: una sola acción claramente reconocible. */
+:root[data-theme] .main :is(
+  .btn-primary, .primary-button, .login-submit, .submit-button,
+  .member-detail-save, .attendance-card > button, .ranking-hero-button,
+  .shared-button.primary, .management-submit, .weekly-add-button,
+  .youth-prayer-submit-row button, .topline-ai-trigger
+) {
+  min-height: 40px;
+  padding-inline: 14px;
+  border: 1px solid var(--jf-accent-strong) !important;
+  border-radius: 8px !important;
+  background: var(--jf-accent) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  font-weight: 650;
+  transition: background-color .14s ease, border-color .14s ease !important;
+}
+
+:root[data-theme] .main :is(
+  .btn-primary, .primary-button, .login-submit, .submit-button,
+  .member-detail-save, .attendance-card > button, .ranking-hero-button,
+  .shared-button.primary, .management-submit, .weekly-add-button,
+  .youth-prayer-submit-row button, .topline-ai-trigger
+):hover:not(:disabled) {
+  background: var(--jf-accent-strong) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+:root[data-theme="light"] .main :is(button, input, select, textarea) {
+  font-family: "DM Sans", "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="light"] .main :is(input, select, textarea) {
+  background: #ffffff !important;
+  color: #2b2926 !important;
+  border: 1px solid #d8d2c9 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme="light"] .main :is(input, select, textarea)::placeholder {
+  color: #706a62 !important;
+  opacity: 1;
+}
+
+:root[data-theme="dark"] .main :is(input, select, textarea),
+:root[data-theme="royal"] .main :is(input, select, textarea) {
+  background: var(--jf-input) !important;
+  color: var(--jf-text) !important;
+  border: 1px solid var(--jf-border) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme] .main :is(button, input, select, textarea, a):focus-visible,
+:root[data-theme] .sidebar :is(button, input, select, textarea, a):focus-visible {
+  outline: 2px solid var(--jf-focus) !important;
+  outline-offset: 2px !important;
+}
+
+/* Texto y controles del tema claro: tinta oscura uniforme sobre papel claro. */
+:root[data-theme="light"] .main {
+  color: #2b2926 !important;
+}
+
+:root[data-theme="light"] .main :is(h1,h2,h3,h4,h5,strong,label,legend,th,td) {
+  color: #2b2926;
+}
+
+:root[data-theme="light"] .main :is(p,small,li,dt,dd,figcaption,.muted,.lead,.shared-stat-detail,.shared-page-header p) {
+  color: #625d56;
+}
+
+:root[data-theme="light"] .main .shared-table th,
+:root[data-theme="light"] .main .shared-table thead,
+:root[data-theme="light"] .main :is(th, thead) {
+  background: #efede8 !important;
+  color: #49443d !important;
+}
+
+:root[data-theme="light"] .main :is(td, .shared-table td) {
+  border-color: #e7e2da !important;
+}
+
+:root[data-theme="light"] .main tbody tr:hover {
+  background: #f8f6f2 !important;
+}
+
+:root[data-theme="light"] .main .notice,
+:root[data-theme="light"] .main .preview-warning {
+  background: #fbf0e8 !important;
+  border: 1px solid #e8c8b4 !important;
+  color: #573b2d !important;
+}
+
+:root[data-theme="light"] .main .notice p,
+:root[data-theme="light"] .main .preview-warning p {
+  color: #654838 !important;
+}
+
+:root[data-theme="light"] .main .error,
+:root[data-theme="light"] .main .attendance-error {
+  background: #fff0ed !important;
+  color: #8f2f22 !important;
+  border-color: #e9bdb5 !important;
+}
+
+:root[data-theme="light"] .main .attendance-success {
+  background: #edf6ef !important;
+  color: #245c38 !important;
+  border-color: #b9d9c1 !important;
+}
+
+/* Pantallas juveniles: mantener los avatares y el contenido lúdico, simplificar el marco. */
+.youth-portal {
+  background: var(--jf-bg) !important;
+  color: var(--jf-text) !important;
+}
+
+.youth-portal::before,
+.youth-portal::after {
+  display: none !important;
+  animation: none !important;
+}
+
+:root[data-theme="light"] .youth-portal :is(
+  .youth-selector, .youth-welcome, .youth-activities, .youth-growth-plan,
+  .youth-game-hub, .youth-prayer-panel, .youth-journal-panel,
+  .youth-hall-card, .youth-customizer, .youth-profile-editor,
+  .youth-look-templates, .youth-saved-templates
+) {
+  background: #ffffff !important;
+  color: #2b2926 !important;
+  border: 1px solid #e6e0d8 !important;
+  border-radius: 12px !important;
+  box-shadow: var(--jf-shadow) !important;
+  backdrop-filter: none !important;
+}
+
+:root[data-theme="dark"] .youth-portal :is(
+  .youth-selector, .youth-welcome, .youth-activities, .youth-growth-plan,
+  .youth-game-hub, .youth-prayer-panel, .youth-journal-panel,
+  .youth-hall-card, .youth-customizer, .youth-profile-editor,
+  .youth-look-templates, .youth-saved-templates
+) {
+  background: var(--jf-surface) !important;
+  color: var(--jf-text) !important;
+  border: 1px solid var(--jf-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--jf-shadow) !important;
+  backdrop-filter: none !important;
+}
+
+:root[data-theme="light"] .youth-portal :is(
+  .youth-selector, .youth-activities, .youth-growth-plan,
+  .youth-game-hub, .youth-prayer-panel, .youth-journal-panel,
+  .youth-hall-card, .youth-customizer, .youth-profile-editor,
+  .youth-look-templates, .youth-saved-templates
+) :is(h1,h2,h3,h4,strong,label,p,small,span) {
+  color: #2b2926;
+}
+
+/* Evitar los brillos y movimientos que distraen del contenido. Las ilustraciones/avatar permanecen. */
+:root[data-theme] .main :is(
+  .dashboard-stat, .dashboard-shortcut, .dashboard-community-stat,
+  .dashboard-chart-card, .member-card, .attendance-card, .ranking-player,
+  .game-card, .profile-card, .shared-stat-card, .management-record,
+  .managed-record, .followup-card, .visitor-card, .devotional-card,
+  .photo-card, .reports-card, .checkin-panel
+) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: border-color .14s ease, box-shadow .14s ease, background-color .14s ease !important;
+  animation: none !important;
+}
+
+:root[data-theme] .main :is(
+  .dashboard-stat, .dashboard-shortcut, .dashboard-community-stat,
+  .dashboard-chart-card, .member-card, .attendance-card, .ranking-player,
+  .game-card, .profile-card, .shared-stat-card, .management-record,
+  .managed-record, .followup-card, .visitor-card, .devotional-card,
+  .photo-card, .reports-card, .checkin-panel
+):hover {
+  transform: none !important;
+  filter: none !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+
+:root[data-theme] .jf-fire-atmosphere {
+  opacity: .12;
+}
+
+:root[data-theme] .jf-fire-atmosphere::before {
+  animation: none !important;
+  filter: none !important;
+  opacity: .18 !important;
+}
+
+@media (max-width: 900px) {
+  .main {
+    background: transparent !important;
+  }
+  .mobile-header {
+    min-height: 58px;
+  }
+}
+
+@media (max-width: 600px) {
+  .main :is(.page-card, .shared-page-header, .shared-modal) {
+    border-radius: 10px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] *,
+  :root[data-theme] *::before,
+  :root[data-theme] *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
