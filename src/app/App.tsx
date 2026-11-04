@@ -33,6 +33,7 @@ import {
 } from '../services/firebase/client';
 import { AuthProvider, useAuth } from './AuthContext';
 import { useThemePreference } from './useThemePreference';
+import FuegoFloatingAssistant from './components/FuegoFloatingAssistant';
 
 const LoginPage = lazy(() => import('./LoginPage').then((module) => ({default: module.LoginPage})));
 const MembersPage = lazy(() => import('./MembersPage').then((module) => ({default: module.MembersPage})));
@@ -519,6 +520,21 @@ function AdminApp() {
             : 'vista previa'}
         </footer>
       </div>
+      {user && profile && (
+        <FuegoFloatingAssistant
+          audience={isStaff ? 'admin' : 'youth'}
+          quickPrompts={isStaff ? [
+            'Prepara un cronograma para un encuentro juvenil.',
+            'Redacta una invitación para el próximo servicio.',
+            'Organiza una vigilia con lista de tareas.',
+            'Diseña una estructura de informe mensual.',
+          ] : [
+            'Explícame un versículo de la Biblia de forma sencilla.',
+            'Ayúdame a preparar mi devocional de hoy.',
+            'Hazme tres preguntas para reflexionar sobre mi fe.',
+          ]}
+        />
+      )}
     </div>
   );
 }
