@@ -517,19 +517,44 @@ export default function RankingPage({
                   <button type="button" className={rankingScope === '25' ? 'active' : ''} aria-pressed={rankingScope === '25'} onClick={() => setRankingScope('25')}>Top 25</button>
                 </div>
               </div>
-              <div className="ranking-list" role="list" aria-label="Clasificación general">
-                {visibleRanking.map((profile) => {
+              <div className="ranking-card-grid" role="list" aria-label="Clasificación general">
+                {visibleRanking.map((profile, index) => {
                   const expanded = expandedRankingId === profile.id;
                   const leaderGap = Math.max(0, (ranking[0]?.points ?? 0) - (profile.points ?? 0));
                   const leaderShare = ranking[0]?.points ? Math.max(0, Math.min(100, ((profile.points ?? 0) / ranking[0].points) * 100)) : 0;
+                  const positionLabel = profile.position === 1 ? '1.º' : profile.position === 2 ? '2.º' : profile.position === 3 ? '3.º' : `${profile.position}.º`;
                   return (
-                    <article className={`ranking-player ${profile.position === 1 ? 'ranking-first' : profile.position === 2 ? 'ranking-second' : profile.position === 3 ? 'ranking-third' : ''}`} key={profile.id} role="listitem" aria-label={`Puesto ${profile.position}: ${profile.name}, ${profile.points} puntos`}>
-                      <span className="ranking-position" aria-label={`Puesto ${profile.position}`}>{profile.position === 1 ? <Crown size={21}/> : profile.position <= 3 ? <Medal size={20}/> : profile.position}</span>
-                      <span className="profile-avatar">{profile.pic ? <img src={profile.pic} alt={`Foto de ${profile.name}`} loading="lazy"/> : profile.name.trim().split(/\s+/).slice(0,2).map((part) => part[0] ?? '').join('').toUpperCase()}</span>
-                      <div className="ranking-player-info"><strong>{profile.name || 'Joven'}</strong>{profile.nick && <small>@{profile.nick}</small>}</div>
-                      <div className="ranking-player-data"><div className="ranking-player-points"><Star size={17}/><strong>{(profile.points ?? 0).toLocaleString('es-CO')}</strong><span>{profile.points === 1 ? 'punto' : 'puntos'}</span></div><div className="ranking-player-track" role="progressbar" aria-label="Porcentaje respecto al líder" aria-valuenow={Math.round(leaderShare)} aria-valuemin={0} aria-valuemax={100}><i style={{width: leaderShare + '%'}}/></div></div>
-                      <span className="ranking-player-gap">{profile.position === 1 ? 'LÍDER' : '-' + leaderGap.toLocaleString('es-CO') + ' pts'}</span>
-                      <button type="button" className="ranking-player-expand" aria-label={expanded ? 'Ocultar detalles' : 'Ver detalles'} aria-expanded={expanded} onClick={() => setExpandedRankingId(expanded ? null : profile.id)}><ChevronRight size={16}/></button>
+                    <article className={`ranking-player-card ${profile.position <= 3 ? `ranking-card-top-${profile.position}` : ''}`} key={profile.id} role="listitem" aria-label={`Puesto ${profile.position}: ${profile.name}, ${profile.points} puntos`} style={{'--card-order': index} as React.CSSProperties}>
+                      <div className="ranking-card-topline">
+                        <span className="ranking-card-position">
+                          {profile.position === 1 ? <Crown size={16}/> : profile.position <= 3 ? <Medal size={16}/> : <Trophy size={15}/>}
+                          <strong>{positionLabel}</strong>
+                        </span>
+                        {profile.position === 1 && <span className="ranking-card-champion">CAMPEÓN</span>}
+                      </div>
+                      <div className="ranking-card-identity">
+                        <span className="ranking-card-avatar">
+                          <span className="ranking-card-avatar-inner">
+                            {profile.pic ? <img src={profile.pic} alt={`Foto de ${profile.name}`} loading="lazy"/> : profile.name.trim().split(/\s+/).slice(0,2).map((part) => part[0] ?? '').join('').toUpperCase()}
+                          </span>
+                        </span>
+                        <div className="ranking-card-name">
+                          <strong>{profile.name || 'Joven'}</strong>
+                          {profile.nick && <small>@{profile.nick}</small>}
+                        </div>
+                      </div>
+                      <div className="ranking-card-meta">
+                        <span className="ranking-card-role"><ShieldCheck size={12}/> PARTICIPANTE</span>
+                        <span className="ranking-card-points"><Star size={16} fill="currentColor"/><strong>{(profile.points ?? 0).toLocaleString('es-CO')}</strong><small>{profile.points === 1 ? 'punto' : 'puntos'}</small></span>
+                      </div>
+                      <div className="ranking-card-progress">
+                        <div className="ranking-card-progress-label"><span>Progreso hacia el primer lugar</span><strong>{Math.round(leaderShare)}%</strong></div>
+                        <div className="ranking-player-track" role="progressbar" aria-label="Porcentaje respecto al líder" aria-valuenow={Math.round(leaderShare)} aria-valuemin={0} aria-valuemax={100}><i style={{width: leaderShare + '%'}}/></div>
+                      </div>
+                      <div className="ranking-card-footer">
+                        <span>{profile.position === 1 ? 'En la cima' : `${leaderGap.toLocaleString('es-CO')} pts para alcanzar al líder`}</span>
+                        <button type="button" className="ranking-player-expand" aria-label={expanded ? 'Ocultar detalles' : 'Ver detalles'} aria-expanded={expanded} onClick={() => setExpandedRankingId(expanded ? null : profile.id)}><ChevronRight size={16}/></button>
+                      </div>
                       {expanded && <div className="ranking-player-tooltip"><span><b>Posición:</b> #{profile.position}</span><span><b>Puntuación:</b> {(profile.points ?? 0).toLocaleString('es-CO')} puntos</span><span><b>Brecha al líder:</b> {profile.position === 1 ? 'Está en la cima' : leaderGap.toLocaleString('es-CO') + ' puntos'}</span><span><b>Avance relativo:</b> {Math.round(leaderShare)}%</span></div>}
                     </article>
                   );
