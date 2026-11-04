@@ -1956,3 +1956,65 @@
  .scope:global(.youth-portal) :global(.youth-profile-card){transition:none!important}
  .scope:global(.youth-portal) :global(.youth-profile-card):hover{transform:none!important}
 }
+
+
+/* Refinamiento final del portal juvenil: jerarquía, superficies y móvil */
+.scope:global(.youth-portal) {
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 88% 4%, rgba(255,111,58,.13), transparent 30%),
+    radial-gradient(ellipse at 8% 72%, rgba(145,92,190,.11), transparent 34%),
+    var(--jf-bg, #100e18);
+}
+.scope :global(.youth-header),
+.scope :global(.youth-selector),
+.scope :global(.youth-welcome),
+.scope :global(.youth-profile-card),
+.scope :global(.youth-hall-card),
+.scope :global(.youth-activity-card) {
+  min-width: 0;
+  border-color: var(--jf-border, rgba(197,163,107,.16));
+}
+.scope :global(.youth-profile-card),
+.scope :global(.youth-hall-card),
+.scope :global(.youth-activity-card) {
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.scope :global(.youth-profile-card):hover,
+.scope :global(.youth-hall-card):hover,
+.scope :global(.youth-activity-card):hover {
+  border-color: rgba(224,158,93,.48);
+  box-shadow: 0 18px 42px rgba(5,4,10,.2);
+}
+.scope :global(.youth-header) h1 {
+  text-wrap: balance;
+  letter-spacing: -.045em;
+}
+.scope :global(.youth-profile-card) :is(h2,h3,p,span,b,strong) {
+  overflow-wrap: anywhere;
+}
+.scope :global(.youth-portal) :is(button,a,[role="button"]):focus-visible {
+  outline: 3px solid rgba(226,174,105,.78);
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .scope:global(.youth-portal) { padding: 14px 10px 26px; }
+  .scope :global(.youth-header) { padding-top: 10px; }
+  .scope :global(.youth-brand-icon) { width: 58px; height: 58px; border-radius: 18px; }
+  .scope :global(.youth-selector) { padding: 16px; border-radius: 20px; }
+  .scope :global(.youth-profile-card) { border-radius: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scope :global(.youth-profile-card),
+  .scope :global(.youth-hall-card),
+  .scope :global(.youth-activity-card) { transition: none; }
+  .scope :global(.youth-profile-card):hover,
+  .scope :global(.youth-hall-card):hover,
+  .scope :global(.youth-activity-card):hover { transform: none; }
+}
+:global(:root[data-theme="light"]) .scope:global(.youth-portal) {
+  background:
+    radial-gradient(ellipse at 88% 4%, rgba(255,111,58,.09), transparent 30%),
+    radial-gradient(ellipse at 8% 72%, rgba(145,92,190,.08), transparent 34%),
+    var(--jf-bg, #f5f2f7);
+}
