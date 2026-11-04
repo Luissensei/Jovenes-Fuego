@@ -6,6 +6,7 @@ const suggestions = [
   'Prepara un cronograma para un encuentro juvenil de un día.',
   'Redacta una invitación cálida para el próximo servicio juvenil.',
   'Crea una lista de tareas para organizar una vigilia.',
+  'Prepara una lista para revisar devocionales publicados y entregas semanales pendientes.',
   'Diseña una estructura de informe mensual de actividades y asistencia.',
 ];
 
@@ -32,7 +33,7 @@ export default function AdminAssistantPage() {
         quickPrompts={suggestions}
         context="Eres el asistente administrativo de Jóvenes de Fuego. Ayuda con planificación, redacción y organización; no tienes acceso directo a los registros de Firebase."
       />
-      <p className="jf-assistant-safety"><ShieldCheck size={15}/> Fuego AI prepara propuestas. Las operaciones reales y los cambios de permisos siempre se realizan por separado y requieren confirmación.</p>
+      <p className="jf-assistant-safety"><ShieldCheck size={15}/> Fuego AI prepara propuestas; por ahora no consulta automáticamente registros privados de Firebase. Para analizar cifras, comparte solo resúmenes agregados y sin datos sensibles. Las operaciones reales requieren autorización en su módulo correspondiente.</p>
     </main>
   );
 }

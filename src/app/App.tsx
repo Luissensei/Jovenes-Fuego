@@ -58,7 +58,7 @@ const ReportsPage = lazy(() => import('./pages/ReportsPage'));
 const BonusPage = lazy(() => import('./pages/ManagementPages').then((module) => ({default: module.BonusPage})));
 const PastoralPage = lazy(() => import('./pages/ManagementPages').then((module) => ({default: module.PastoralPage})));
 const AuditPage = lazy(() => import('./pages/ManagementPages').then((module) => ({default: module.AuditPage})));
-const SettingsPage = lazy(() => import('./pages/ManagementPages').then((module) => ({default: module.SettingsPage})));
+const SettingsPage = lazy(() => import('./pages/SettingsHubPage'));
 
 function PageLoading({label = 'Cargando módulo'}: {label?: string}) {
   return <div className="jf-page-loading" role="status" aria-live="polite"><span/><strong>{label}</strong><small>Preparando esta sección...</small></div>;
@@ -107,6 +107,13 @@ function AdminApp() {
   const navigate = useNavigate();
   const location = useLocation();
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, []);
 
   if (loading) {
     return (

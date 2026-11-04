@@ -1,0 +1,27 @@
+.scope{width:min(1180px,100%);margin:0 auto;padding-bottom:26px;color:var(--jf-text,#f7f1e8)}
+.hero{display:flex;align-items:center;gap:16px;margin:8px 0 18px;padding:25px;border:1px solid rgba(190,157,103,.22);border-radius:23px;background:radial-gradient(circle at 0 0,rgba(133,99,155,.17),transparent 44%),var(--jf-surface,#1c1725)}
+.heroIcon{display:grid;place-items:center;width:54px;height:54px;flex:0 0 54px;border-radius:17px;background:linear-gradient(145deg,#614a72,#2b2235);color:#e0c48b}
+.hero span,.sectionTitle>span{color:#bea06a;font-size:9px;font-weight:850;letter-spacing:.16em}
+.hero h1{margin:4px 0;font-size:clamp(25px,4vw,36px);letter-spacing:-.04em}
+.hero p{margin:0;color:var(--jf-muted,#aaa);font-size:12px;line-height:1.55}
+.themeCard{display:flex;align-items:center;gap:14px;padding:18px 20px;border:1px solid rgba(190,157,103,.23);border-radius:18px;background:linear-gradient(110deg,rgba(130,95,151,.13),rgba(190,157,103,.08))}
+.themeIcon{display:grid;place-items:center;width:43px;height:43px;flex:0 0 43px;border-radius:13px;background:rgba(190,157,103,.13);color:#c7a96e}
+.themeCopy{display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}.themeCopy span{color:#bea06a;font-size:8px;font-weight:850;letter-spacing:.15em}.themeCopy b{font-size:13px}.themeCopy small{color:var(--jf-muted,#aaa);font-size:10px;line-height:1.4}
+.themeCard button{border:0;border-radius:11px;padding:11px 14px;background:#c4a36d;color:#241c26;font-size:10px;font-weight:850;cursor:pointer;white-space:nowrap}
+.section{margin-top:28px}.sectionTitle h2{margin:5px 0;font-size:21px;letter-spacing:-.035em}.sectionTitle p{margin:0;color:var(--jf-muted,#aaa);font-size:11px}
+.areaGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:15px}
+.areaCard{position:relative;display:flex;flex-direction:column;min-height:170px;padding:18px;border:1px solid var(--jf-border,rgba(255,255,255,.1));border-radius:17px;background:var(--jf-surface,rgba(255,255,255,.03));text-decoration:none;color:var(--jf-text,#fff);transition:border-color .16s,transform .16s}
+.areaCard:hover{transform:translateY(-2px);border-color:rgba(190,157,103,.38)}
+.areaIcon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:rgba(190,157,103,.11);color:#c5a66d}
+.areaTag{position:absolute;right:17px;top:20px;color:var(--jf-muted,#aaa);font-size:8px;font-weight:850;letter-spacing:.14em}
+.areaCard>b{margin-top:14px;font-size:14px}.areaCard>small{margin-top:5px;color:var(--jf-muted,#aaa);font-size:10px;line-height:1.5}
+.areaGo{display:flex;align-items:center;gap:4px;margin-top:auto;padding-top:13px;color:#c1a36e;font-size:10px;font-weight:850}
+.security{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:17px;padding:15px;border:1px solid var(--jf-border,rgba(255,255,255,.1));border-radius:15px;background:var(--jf-surface,rgba(255,255,255,.03))}
+.security>div{display:flex;align-items:center;gap:10px}.security svg{color:#c1a36e;flex:none}.security b,.security small{display:block}.security b{font-size:11px}.security small{margin-top:3px;color:var(--jf-muted,#aaa);font-size:9px;line-height:1.4}.security code{color:var(--jf-muted,#aaa);font-size:9px;overflow-wrap:anywhere}
+.advanced{margin-top:17px;padding:14px 16px;border:1px solid var(--jf-border,rgba(255,255,255,.1));border-radius:15px;background:var(--jf-surface,rgba(255,255,255,.025))}
+.advanced summary{display:flex;align-items:center;gap:9px;color:var(--jf-text,#fff);font-size:12px;font-weight:800;cursor:pointer;list-style:none}
+.advanced summary::-webkit-details-marker{display:none}.advanced summary svg{color:#c1a36e}
+.advanced>p{color:var(--jf-muted,#aaa);font-size:10px;line-height:1.5}
+:global(:root[data-theme="light"]) .hero,:global(:root[data-theme="light"]) .areaCard,:global(:root[data-theme="light"]) .security,:global(:root[data-theme="light"]) .advanced{background:#fff;border-color:#e8e1e9}
+:global(:root[data-theme="light"]) .hero h1,:global(:root[data-theme="light"]) .themeCopy b,:global(:root[data-theme="light"]) .sectionTitle h2,:global(:root[data-theme="light"]) .areaCard,:global(:root[data-theme="light"]) .security b,:global(:root[data-theme="light"]) .advanced summary{color:#352b3c}
+@media(max-width:640px){.hero{align-items:flex-start;padding:18px}.themeCard{align-items:flex-start;flex-wrap:wrap;padding:15px}.themeCopy{width:calc(100% - 60px);flex:1}.themeCard button{width:100%}.areaGrid{grid-template-columns:1fr}.areaCard{min-height:145px}.security{align-items:flex-start;flex-direction:column}}
