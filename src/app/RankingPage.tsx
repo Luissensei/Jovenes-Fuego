@@ -240,6 +240,15 @@ export default function RankingPage({
     0,
   );
 
+  // El podio se presenta visualmente en orden plata, oro y bronce.
+  // La posición y los puntos siguen viniendo de la clasificación original.
+  const podiumDisplay = [
+    { player: ranking[1], slot: 'second' as const },
+    { player: ranking[0], slot: 'first' as const },
+    { player: ranking[2], slot: 'third' as const },
+  ].filter((item): item is { player: (typeof ranking)[number]; slot: 'second' | 'first' | 'third' } => Boolean(item.player));
+
+
   function changeTab(tab: Tab) {
     setActiveTab(tab);
     setActiveGame(null);
@@ -380,15 +389,15 @@ export default function RankingPage({
               {loading ? (
                 <p className="youth-data-empty">Consultando puntuaciones…</p>
               ) : ranking.length ? (
-                <ol className="ranking-podium-list">
-                  {ranking.slice(0, 3).map((player, index) => (
+                <ol className="ranking-podium-list ranking-podium-stage">
+                  {podiumDisplay.map(({ player, slot }) => (
                     <li
                       key={player.id}
-                      className={`ranking-podium-player place-${index + 1}`}
+                      className={`ranking-podium-player podium-${slot} place-${player.position}`}
                       aria-label={`Puesto ${player.position}: ${player.name}, ${player.points} puntos`}
                     >
-                      <span className="ranking-podium-rank">
-                        {player.position === 1 ? <Crown size={19} /> : <Medal size={18} />}
+                      <span className="ranking-podium-rank" aria-hidden="true">
+                        {slot === 'first' ? <Crown size={22} /> : <Medal size={20} />}
                       </span>
                       <span className="ranking-podium-avatar">
                         {player.pic ? (
@@ -400,9 +409,12 @@ export default function RankingPage({
                       </span>
                       <span className="ranking-podium-details">
                         <strong>{player.name}</strong>
-                        <small>{player.points} {player.points === 1 ? 'punto' : 'puntos'}</small>
+                        <small>{(player.points ?? 0).toLocaleString('es-CO')} {player.points === 1 ? 'punto' : 'puntos'}</small>
                       </span>
-                      <span className="ranking-podium-place">Puesto {player.position}</span>
+                      <span className="ranking-podium-place">{slot === 'first' ? 'CAMPEÓN' : slot === 'second' ? 'SEGUNDO' : 'TERCERO'}</span>
+                      <span className="ranking-podium-base" aria-hidden="true">
+                        <b>{slot === 'first' ? '1' : slot === 'second' ? '2' : '3'}</b>
+                      </span>
                     </li>
                   ))}
                 </ol>
