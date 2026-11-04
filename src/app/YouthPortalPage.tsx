@@ -1279,7 +1279,6 @@ export default function YouthPortalPage() {
         </section>
         <footer className="youth-security-note"><ShieldCheck size={17}/> Seleccionar un perfil no verifica la identidad de la persona. No introduzcas información privada en este acceso.</footer>
       </div>
-      {floatingAssistant}
     </main>
   );
 }
