@@ -25,7 +25,6 @@ import {
 import TriviaGame from './TriviaGame';
 import VerseGame from './VerseGame';
 import ThreeDAvatarStudio from './ThreeDAvatarStudio';
-import FuegoFloatingAssistant from './components/FuegoFloatingAssistant';
 import { TrueFalseGame, WhoAmIGame } from './QuickBibleGames';
 import {
   MemoryGame,
@@ -921,20 +920,6 @@ export default function YouthPortalPage() {
     }
   }
 
-  const floatingAssistant = (
-    <FuegoFloatingAssistant
-      audience="youth"
-      pendingItems={weeklyGrowthPlan.filter((day) => !growthDone.includes(day.id)).map((day) => ({title: day.title, reference: day.reference}))}
-      quickPrompts={[
-        'Explícame un versículo de la Biblia de forma sencilla.',
-        'Ayúdame a preparar mi devocional de hoy.',
-        'Hazme tres preguntas para reflexionar sobre mi fe.',
-        '¿Cómo puedo aplicar la Palabra de Dios esta semana?',
-      ]}
-      context="Este portal es de acceso público y la selección de perfil no verifica identidad. Solo se proporciona contexto de actividades públicas."
-    />
-  );
-
   if (selectedProfile && activeGame) {
     const exitGame = () => {
       setGameExiting(true);
@@ -964,7 +949,6 @@ export default function YouthPortalPage() {
           {activeGame === 'truefalse' && <TrueFalseGame onExit={exitGame}/>}
           {activeGame === 'whoami' && <WhoAmIGame onExit={exitGame}/>}
         </div>
-        {floatingAssistant}
       </main>
     );
   }
@@ -1235,8 +1219,7 @@ export default function YouthPortalPage() {
           )}
           <div className="youth-security-note"><ShieldCheck size={17}/> Este acceso muestra únicamente información pública. No revela datos privados ni acredita la identidad; los puntos de partidas no se incorporan automáticamente al ranking oficial.</div>
         </div>
-        {floatingAssistant}
-      </main>
+        </main>
     );
   }
 
