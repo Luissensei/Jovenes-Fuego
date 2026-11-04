@@ -94,7 +94,7 @@ export const firebaseAiSetupMessage = !useStagingEnvironment
     ? 'Falta VITE_FIREBASE_APP_CHECK_SITE_KEY en las variables de entorno de Vercel para Staging. Registra la aplicación web en Firebase App Check con reCAPTCHA v3 y agrega aquí la clave pública del sitio (no la clave secreta).'
     : !appCheckReady
       ? `App Check no pudo inicializarse. Verifica que el dominio de Vercel esté autorizado para la clave reCAPTCHA v3. ${appCheckInitError}`
-      : 'La app está conectada a Staging y App Check está inicializado. Si el envío falla, revisa que Firebase AI Logic esté habilitado en el proyecto Staging.';
+      : 'La app está conectada a Staging y App Check está inicializado. Confirma en Firebase que Firebase AI Logic esté habilitado y que App Check para Firebase AI Logic aparezca como Enforced en el proyecto Staging.';
 export const firebaseConfigured = Boolean(app && authInstance && dbInstance);
 export const firebaseProjectId = config.projectId;
 export const auth: Auth | null = authInstance;
