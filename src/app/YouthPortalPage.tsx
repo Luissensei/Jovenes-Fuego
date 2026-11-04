@@ -7,7 +7,7 @@ import {
   Gamepad2, RefreshCw, ChevronRight, ShieldCheck, Sparkles,
   CalendarDays, Clock3, MapPin, HeartHandshake, Send, Medal, Crown,
   Palette, Volume2, VolumeX, Star, X, WandSparkles,
-  BookMarked, Timer, Swords, Brain, Layers, Moon, Sun, BadgeCheck, UserSearch, Circle, Check, CheckCircle2, Save, Trash2,
+  BookMarked, Timer, Swords, Brain, Layers, Moon, Sun, BadgeCheck, UserSearch, Circle, CheckCircle2, Save, Trash2,
 } from 'lucide-react';
 
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
@@ -538,8 +538,9 @@ export default function YouthPortalPage() {
   const personalStandingIndex = personalStanding
     ? communityRanking.findIndex((item) => item.id === personalStanding.id)
     : -1;
+  const personalPoints = personalStanding?.points ?? 0;
   const nextHigherPlayer = personalStandingIndex > 0
-    ? [...communityRanking.slice(0, personalStandingIndex)].reverse().find((item) => (item.points ?? 0) > (personalStanding.points ?? 0)) ?? null
+    ? [...communityRanking.slice(0, personalStandingIndex)].reverse().find((item) => (item.points ?? 0) > personalPoints) ?? null
     : null;
   const pointsToNextPlayer = nextHigherPlayer
     ? Math.max(0, (nextHigherPlayer.points ?? 0) - (personalStanding?.points ?? 0))

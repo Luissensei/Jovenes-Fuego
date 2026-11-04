@@ -271,6 +271,7 @@ export default function ThreeDAvatarStudio({
       {notice && <p className="youth-3d-avatar-notice" role="status">{notice}</p>}
       <small className="youth-3d-avatar-privacy"><CheckCircle2 size={13}/> Tu modelo se guarda en este navegador. No se envía a Firebase ni se publica automáticamente.</small>
       <a className="youth-3d-avatar-help" href="https://three.ws/avatar-studio/" target="_blank" rel="noreferrer">Abrir el estudio 3D en otra pestaña</a>
+      <a className="youth-3d-avatar-help" href="https://grab3d.com/tools/character-mixer/" target="_blank" rel="noreferrer">Crear con plantillas 3D y exportar GLB (CC0)</a>
     </section>
   );
 }

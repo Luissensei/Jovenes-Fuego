@@ -217,6 +217,23 @@ export default function RankingPage({
     const matching = ranking.filter((player) => `${player.name ?? ''} ${player.nick ?? ''}`.toLocaleLowerCase('es').includes(term));
     return rankingScope === 'all' ? matching : matching.slice(0, Number(rankingScope));
   }, [ranking, rankingSearch, rankingScope]);
+  const rankDistribution = useMemo(() => {
+    const ranges = [
+      {label:'0–99',min:0,max:99},
+      {label:'100–249',min:100,max:249},
+      {label:'250–499',min:250,max:499},
+      {label:'500–999',min:500,max:999},
+      {label:'1.000+',min:1000,max:Number.POSITIVE_INFINITY},
+    ];
+    return ranges.map((range) => ({
+      label:range.label,
+      count:ranking.filter((player) => {
+        const points = player.points ?? 0;
+        return points >= range.min && points <= range.max;
+      }).length,
+    }));
+  }, [ranking]);
+
 
   const totalPoints = profiles.reduce(
     (total, profile) => total + (profile.points ?? 0),
