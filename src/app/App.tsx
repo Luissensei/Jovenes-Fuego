@@ -102,9 +102,9 @@ function AdminApp() {
   const { theme, nextThemeLabel, toggleTheme } = useThemePreference();
   const [menuOpen, setMenuOpen] = useState(false);
   const [moduleSearch, setModuleSearch] = useState('');
-  useEffect(() => { setMenuOpen(false); }, [location.pathname]);
   const navigate = useNavigate();
   const location = useLocation();
+  useEffect(() => { setMenuOpen(false); }, [location.pathname]);
 
   if (loading) {
     return (

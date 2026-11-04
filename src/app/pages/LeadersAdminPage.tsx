@@ -1,5 +1,5 @@
 import {useEffect, useMemo, useState} from 'react';
-import {Users, UserPlus, RefreshCw, ShieldCheck, Mail, Copy, Pencil, UserX, UserCheck, X, Save, LockKeyhole} from 'lucide-react';
+import {Users, UserPlus, RefreshCw, Copy, Pencil, UserX, UserCheck, X, Save, LockKeyhole} from 'lucide-react';
 import {createLeader, listLeaders, updateLeader, type LeaderRecord} from '../../services/leaders';
 import styles from '../styles/LeadersAdminPage.module.css';
 
