@@ -623,3 +623,23 @@
   45% { transform: rotate(-45deg) scale(1.08,.96); filter: drop-shadow(0 4px 14px rgba(255,228,102,.62)); }
   72% { transform: rotate(-45deg) scale(.98,1.07); filter: drop-shadow(0 2px 12px rgba(255,118,45,.55)); }
 }
+
+
+/* Jóvenes de Fuego · dashboard glass refinement */
+.scope{color:var(--jf-text,#f5efe6);gap:22px}
+.hero{min-height:300px;border-radius:26px;border:1px solid rgba(213,180,119,.2);box-shadow:0 24px 65px rgba(5,4,10,.22),inset 0 1px rgba(255,255,255,.045)}
+.hero h1{font-size:clamp(30px,4vw,48px);line-height:1.08;letter-spacing:-.055em}
+.heroActions{gap:10px}
+.goldButton{border:1px solid rgba(255,230,185,.25);box-shadow:0 8px 24px rgba(193,157,98,.16);transition:transform .18s ease,filter .18s ease}
+.goldButton:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.quietButton{transition:background .18s ease,border-color .18s ease}
+.quietButton:hover{background:rgba(255,255,255,.075);border-color:rgba(226,211,185,.35)}
+.section{gap:15px}
+.sectionTitle{letter-spacing:-.035em}
+@media(max-width:760px){
+ .hero{min-height:unset;padding:25px 22px 52px}
+ .heroSeal{width:150px;height:150px;flex-basis:150px;margin:18px auto 0}
+ .sealInner{width:86px;height:86px;border-radius:28px}
+ .heroFoot{left:22px;right:22px;bottom:14px}
+}
+@media(prefers-reduced-motion:reduce){.goldButton,.quietButton{transition:none}.goldButton:hover{transform:none}}
