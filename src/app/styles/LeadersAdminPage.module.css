@@ -21,3 +21,14 @@
 .scope :global(.leaders-card),.scope :global(.leaders-stat),.scope :global(.leaders-table-wrapper){background:var(--jf-surface);border:1px solid var(--jf-border);border-radius:17px;box-shadow:var(--jf-shadow)}
 :global(:root[data-theme="light"]) .scope :global(.leaders-card),:global(:root[data-theme="light"]) .scope :global(.leaders-stat),:global(:root[data-theme="light"]) .scope :global(.leaders-table-wrapper){background:#fff;color:#382d40;border-color:#e9e0eb}
 @media(max-width:600px){.scope :global(.leaders-hero){padding:20px;border-radius:18px}}
+
+
+/* Ajustes aplicados a las clases reales del módulo */
+.scope .hero{position:relative;overflow:hidden;border-color:rgba(222,174,111,.28);background:radial-gradient(ellipse at 90% 0%,rgba(255,129,67,.18),transparent 38%),linear-gradient(115deg,#1b1726,#30223a 65%,#432c30);box-shadow:0 18px 45px rgba(5,4,10,.17)}
+.scope .summary article,.scope .listPanel{border-color:var(--jf-border);background:var(--jf-surface);box-shadow:var(--jf-shadow)}
+.scope .row{border-color:var(--jf-border);border-radius:14px;transition:background .18s ease,border-color .18s ease}
+.scope .row:hover{background:var(--jf-surface-2);border-color:rgba(222,174,111,.35)}
+.scope .search{border-color:var(--jf-border);background:var(--jf-input);border-radius:12px}
+.scope .search input{color:var(--jf-text)}
+.scope .modal{background:var(--jf-surface);color:var(--jf-text);border:1px solid var(--jf-border);border-radius:21px;box-shadow:0 30px 90px rgba(0,0,0,.4)}
+@media(max-width:650px){.scope .hero{align-items:flex-start;padding:18px;border-radius:18px}.scope .summary{grid-template-columns:repeat(2,minmax(0,1fr))}.scope .listPanel{padding:14px}}
