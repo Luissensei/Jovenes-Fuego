@@ -21,15 +21,27 @@ Presenta recomendaciones concretas y formatos listos para revisar. No afirmes ha
 No ejecutes ni simules crear, editar, eliminar, publicar, asignar permisos o modificar registros. Cuando se solicite una operación, prepara una propuesta y explica que requiere revisión y confirmación en el módulo correspondiente.
 Protege la información personal de los jóvenes. No pidas contraseñas ni datos sensibles. Para notas pastorales o situaciones delicadas, recomienda usar el módulo con permisos restringidos y no incluir detalles personales en el chat.`;
 
-function createModel(audience: AssistantAudience) {
+function createModel(audience: AssistantAudience, modelName = 'gemini-3.8-flash') {
   const ai = getAI(firebaseApp, {backend: new GoogleAIBackend()});
   return getGenerativeModel(ai, {
-    model: 'gemini-3.8-flash',
+    model: modelName,
     systemInstruction: audience === 'youth' ? YOUTH_INSTRUCTIONS : ADMIN_INSTRUCTIONS,
     generationConfig: {
       maxOutputTokens: 1400,
     },
   });
+}
+
+function isTemporaryModelOverload(cause: unknown): boolean {
+  const value = cause && typeof cause === 'object'
+    ? cause as {message?: unknown; status?: unknown; code?: unknown}
+    : {};
+  const detail = [
+    typeof value.message === 'string' ? value.message : '',
+    value.status,
+    value.code,
+  ].filter(Boolean).join(' ');
+  return /high demand|overload|temporarily unavailable|\b500\b|internal server error/i.test(detail);
 }
 
 export async function askFuegoAI(
@@ -60,7 +72,20 @@ export async function askFuegoAI(
   ].filter(Boolean).join('\n\n');
 
   try {
-    const result = await createModel(audience).generateContent(prompt);
+    let result;
+
+    try {
+      result = await createModel(audience, 'gemini-3.8-flash').generateContent(prompt);
+    } catch (primaryError) {
+      // 3.8 Flash is the preferred model. Only fall back when Google reports
+      // temporary saturation/server overload; do not hide auth, quota or setup errors.
+      if (!isTemporaryModelOverload(primaryError)) {
+        throw primaryError;
+      }
+
+      result = await createModel(audience, 'gemini-3.5-flash-lite').generateContent(prompt);
+    }
+
     const answer = result.response.text().trim();
     if (!answer) throw new Error('El asistente no generó una respuesta. Inténtalo de nuevo.');
     return answer.slice(0, 9000);
