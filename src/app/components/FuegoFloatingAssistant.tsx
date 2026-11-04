@@ -1,6 +1,5 @@
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import {createPortal} from 'react-dom';
-import {useLocation} from 'react-router-dom';
 import {Flame, Sparkles, X} from 'lucide-react';
 import FuegoAssistant from './FuegoAssistant';
 import type {AssistantAudience} from '../../services/fuegoAI';
@@ -24,11 +23,6 @@ export default function FuegoFloatingAssistant({
   quickPrompts,
 }: Props) {
   const [open, setOpen] = useState(false);
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.pathname === '/asistente') setOpen(true);
-  }, [location.pathname]);
 
   const prompts = quickPrompts ?? (audience === 'youth'
     ? [
