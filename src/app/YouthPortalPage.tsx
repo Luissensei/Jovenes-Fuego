@@ -25,7 +25,7 @@ import {
 import TriviaGame from './TriviaGame';
 import VerseGame from './VerseGame';
 import ThreeDAvatarStudio from './ThreeDAvatarStudio';
-import FuegoAssistant from './components/FuegoAssistant';
+import FuegoFloatingAssistant from './components/FuegoFloatingAssistant';
 import { TrueFalseGame, WhoAmIGame } from './QuickBibleGames';
 import {
   MemoryGame,
@@ -921,6 +921,20 @@ export default function YouthPortalPage() {
     }
   }
 
+  const floatingAssistant = (
+    <FuegoFloatingAssistant
+      audience="youth"
+      pendingItems={weeklyGrowthPlan.filter((day) => !growthDone.includes(day.id)).map((day) => ({title: day.title, reference: day.reference}))}
+      quickPrompts={[
+        'Explícame un versículo de la Biblia de forma sencilla.',
+        'Ayúdame a preparar mi devocional de hoy.',
+        'Hazme tres preguntas para reflexionar sobre mi fe.',
+        '¿Cómo puedo aplicar la Palabra de Dios esta semana?',
+      ]}
+      context="Este portal es de acceso público y la selección de perfil no verifica identidad. Solo se proporciona contexto de actividades públicas."
+    />
+  );
+
   if (selectedProfile && activeGame) {
     const exitGame = () => {
       setGameExiting(true);
@@ -950,6 +964,7 @@ export default function YouthPortalPage() {
           {activeGame === 'truefalse' && <TrueFalseGame onExit={exitGame}/>}
           {activeGame === 'whoami' && <WhoAmIGame onExit={exitGame}/>}
         </div>
+        {floatingAssistant}
       </main>
     );
   }
@@ -1109,19 +1124,6 @@ export default function YouthPortalPage() {
          </section>
 
 
-          <FuegoAssistant
-            audience="youth"
-            displayName={profileExtras.displayName || selectedProfile.name}
-            pendingItems={weeklyGrowthPlan.filter((day) => !growthDone.includes(day.id)).map((day) => ({title: day.title, reference: day.reference}))}
-            quickPrompts={[
-              'Explícame un versículo de la Biblia de forma sencilla.',
-              'Ayúdame a preparar mi devocional de hoy.',
-              'Hazme tres preguntas para reflexionar sobre mi fe.',
-              '¿Cómo puedo aplicar la Palabra de Dios esta semana?',
-            ]}
-            context={`Actividades visibles de esta semana: ${publishedActivities.map((item) => item.title + ' (' + item.date + ')').join('; ') || 'No hay actividades publicadas'}.`}
-          />
-
           <section className="youth-immersive-ranking">
             <header className="youth-immersive-ranking-header">
               <div><span>RANKING DE LA GENERACIÓN</span><h2>La tabla de fuego</h2><p>Tu lugar en la comunidad, actualizado con los puntos públicos del ranking.</p></div>
@@ -1233,6 +1235,7 @@ export default function YouthPortalPage() {
           )}
           <div className="youth-security-note"><ShieldCheck size={17}/> Este acceso muestra únicamente información pública. No revela datos privados ni acredita la identidad; los puntos de partidas no se incorporan automáticamente al ranking oficial.</div>
         </div>
+        {floatingAssistant}
       </main>
     );
   }
@@ -1293,6 +1296,7 @@ export default function YouthPortalPage() {
         </section>
         <footer className="youth-security-note"><ShieldCheck size={17}/> Seleccionar un perfil no verifica la identidad de la persona. No introduzcas información privada en este acceso.</footer>
       </div>
+      {floatingAssistant}
     </main>
   );
 }
