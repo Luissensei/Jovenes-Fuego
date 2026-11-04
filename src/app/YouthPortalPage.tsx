@@ -33,7 +33,7 @@ import {
 } from './MoreBibleGames';
 
 import { useThemePreference } from './useThemePreference';
-import './YouthPortalPage.css';
+
 
 type ProfileLook = {
   frame: string;

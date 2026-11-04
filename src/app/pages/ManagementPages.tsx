@@ -24,7 +24,7 @@ import {
   LockKeyhole,
 } from 'lucide-react';
 
-import './ManagementPages.css';
+
 
 type ModuleKind = 'bonus' | 'pastoral' | 'leaders' | 'audit' | 'settings';
 

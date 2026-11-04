@@ -22,3 +22,227 @@
   }}
 /* Migrated from src/visual-overhaul.css. */
 @media(max-width:600px){.scope :global(.management-record-top){align-items:flex-start;}}
+
+/* Migrated from ManagementPages.css. */
+.scope:global(.management-page){
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 30px;
+  color: var(--text-primary, inherit);
+}
+.scope :global(.management-header){
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  margin-bottom: 25px;
+}
+.scope :global(.management-icon){
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 17px;
+  background: rgba(234, 88, 12, .12);
+  color: #ea580c;
+}
+.scope :global(.management-kicker){
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #d97706;
+}
+.scope :global(.management-header) h1{
+  margin: 5px 0;
+  font-size: clamp(25px, 4vw, 34px);
+}
+.scope :global(.management-header) p{
+  margin: 0;
+  opacity: .7;
+}
+.scope :global(.management-summary),
+.scope :global(.management-form),
+.scope :global(.management-records){
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 16px;
+  background: var(--card-bg, #fff);
+}
+.scope :global(.management-summary){
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.scope :global(.management-summary) div:first-child{
+  display: grid;
+  gap: 5px;
+}
+.scope :global(.management-summary) span{
+  font-size: 13px;
+  opacity: .7;
+}
+.scope :global(.management-summary) strong{
+  font-size: 28px;
+}
+.scope :global(.management-summary-icon){
+  color: #d97706;
+}
+.scope :global(.management-form) h2,
+.scope :global(.management-records) h2{
+  font-size: 18px;
+  margin: 0 0 17px;
+}
+.scope :global(.management-form){
+  display: grid;
+  gap: 14px;
+}
+.scope :global(.management-form) label{
+  display: grid;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 650;
+}
+.scope :global(.management-form) input,
+.scope :global(.management-form) textarea{
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 13px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  resize: vertical;
+}
+.scope :global(.management-form) input:focus,
+.scope :global(.management-form) textarea:focus{
+  outline: 2px solid rgba(234, 88, 12, .25);
+  border-color: #ea580c;
+}
+.scope :global(.management-submit){
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 45px;
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: #ea580c;
+  color: white;
+  font-weight: 750;
+  cursor: pointer;
+}
+.scope :global(.management-submit):disabled{
+  opacity: .55;
+  cursor: wait;
+}
+.scope :global(.management-message){
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px;
+  margin: 14px 0;
+  border-radius: 11px;
+  font-size: 14px;
+}
+.scope :global(.management-message):global(.error){
+  color: #dc2626;
+  background: rgba(220, 38, 38, .09);
+}
+.scope :global(.management-message):global(.success){
+  color: #16a34a;
+  background: rgba(22, 163, 74, .09);
+}
+.scope :global(.management-private-note){
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  font-size: 12px;
+  opacity: .7;
+}
+.scope :global(.management-records-heading){
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.scope :global(.management-records-heading) h2{
+  margin: 0 0 15px;
+}
+.scope :global(.management-records-heading) button{
+  border: 0;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--border-color, #eee);
+  color: inherit;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+.scope :global(.management-list){
+  display: grid;
+  gap: 10px;
+}
+.scope :global(.management-record){
+  padding: 15px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+.scope :global(.management-record-top){
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.scope :global(.management-role){
+  padding: 5px 9px;
+  border-radius: 20px;
+  color: #b45309;
+  background: rgba(245, 158, 11, .12);
+  font-size: 12px;
+  font-weight: 750;
+}
+.scope :global(.management-record) p{
+  margin: 9px 0;
+  line-height: 1.5;
+}
+.scope :global(.management-note-content){
+  white-space: pre-wrap;
+}
+.scope :global(.management-record) small{
+  display: block;
+  font-size: 11px;
+  opacity: .65;
+  margin-top: 8px;
+}
+.scope :global(.management-empty){
+  padding: 25px 10px;
+  text-align: center;
+  opacity: .7;
+}
+.scope :global(.management-footer){
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 24px;
+  font-size: 12px;
+  opacity: .65;
+}
+@media (max-width: 600px){.scope :global(.management-header){
+    align-items: flex-start;
+  }
+.scope :global(.management-icon){
+    flex-basis: 48px;
+    width: 48px;
+    height: 48px;
+  }
+.scope :global(.management-summary),
+.scope :global(.management-form),
+.scope :global(.management-records){
+    padding: 15px;
+  }}
