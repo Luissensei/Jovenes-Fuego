@@ -189,3 +189,41 @@ html, body, #root {
 .jf-page-loading strong{color:var(--jf-text,#fff);font-size:13px}.jf-page-loading small{font-size:10px}
 @keyframes jf-loader-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.jf-page-loading>span{animation:none}}
+
+
+/* Capa común contra desbordamientos y controles que se salen de sus paneles. */
+.main{min-width:0;}
+.main :is(section,article,form,header,footer,nav,fieldset){min-width:0;box-sizing:border-box;}
+.main :is(input,select,textarea,button){max-width:100%;box-sizing:border-box;}
+.main :is(.management-table-wrapper,.data-table-wrapper,.shared-table-wrapper,[class*="table-wrapper"],[class*="TableWrapper"]){
+  width:100%;
+  max-width:100%;
+  overflow-x:auto;
+  overscroll-behavior-x:contain;
+  scrollbar-gutter:stable;
+}
+.main :is(.members-grid,.profiles-grid,.games-grid,.ranking-info-grid,.ranking-progress-bands,.youth-hall-grid,.attendance-summary)>*{
+  min-width:0;
+  max-width:100%;
+}
+.main :is(.member-card,.attendance-member,.ranking-player,.ranking-podium-player,.game-card,.profile-card,.management-record,.managed-record){
+  min-width:0;
+  box-sizing:border-box;
+  overflow-wrap:anywhere;
+}
+.main :is(button,a,input,select,textarea):focus-visible,
+.sidebar :is(button,a,input,select,textarea):focus-visible,
+.mobile-header :is(button,a,input,select,textarea):focus-visible{
+  outline:2px solid var(--jf-blue,#70b8ff);
+  outline-offset:3px;
+}
+@media(max-width:560px){
+  .main :is(.members-controls,.topline-status,.topline-status-environment,.ranking-section-heading){
+    min-width:0;
+    max-width:100%;
+  }
+  .main :is(.members-search,.ranking-search){width:100%;min-width:0;box-sizing:border-box;}
+}
+@media(prefers-reduced-motion:reduce){
+  .main :is(button,a,.member-card,.ranking-player,.game-card,.profile-card){scroll-behavior:auto;transition:none!important;}
+}

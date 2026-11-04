@@ -628,3 +628,89 @@
     transition: none !important;
   }
 }
+
+
+/* La ficha ocupa el alto visible; solo su formulario interno puede desplazarse. */
+.portalScope:global(.member-detail-backdrop){
+  position:fixed!important;
+  inset:0!important;
+  z-index:10000!important;
+  display:grid!important;
+  place-items:center!important;
+  align-content:center!important;
+  width:100vw!important;
+  height:100vh!important;
+  height:100dvh!important;
+  min-height:0!important;
+  box-sizing:border-box!important;
+  padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+.portalScope :global(.member-detail-modal){
+  display:flex!important;
+  flex-direction:column!important;
+  width:min(100%,820px)!important;
+  max-width:820px!important;
+  max-height:calc(100dvh - max(24px,env(safe-area-inset-top) + env(safe-area-inset-bottom)))!important;
+  min-height:0!important;
+  height:auto!important;
+  margin:0!important;
+  overflow:hidden!important;
+  overscroll-behavior:contain;
+}
+.portalScope :global(.member-detail-header){
+  position:relative!important;
+  top:auto!important;
+  z-index:4;
+  flex:0 0 auto;
+  min-width:0;
+}
+.portalScope :global(.member-detail-modal) form{
+  display:flex!important;
+  flex:1 1 auto!important;
+  flex-direction:column!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:20px 22px 22px;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+.portalScope :global(.member-detail-fields){
+  flex:0 0 auto;
+  min-width:0;
+}
+.portalScope :global(.member-detail-privacy),
+.portalScope :global(.member-detail-error),
+.portalScope :global(.member-detail-success){
+  flex:0 0 auto;
+}
+.portalScope :global(.member-detail-modal) form footer{
+  position:sticky;
+  bottom:0;
+  z-index:2;
+  flex:0 0 auto;
+  margin-top:14px;
+  padding-top:12px;
+  background:var(--jf-surface-2);
+}
+@media(max-width:700px){
+  .portalScope:global(.member-detail-backdrop){
+    padding:max(10px,env(safe-area-inset-top)) 8px max(10px,env(safe-area-inset-bottom))!important;
+  }
+  .portalScope :global(.member-detail-modal){
+    width:100%!important;
+    max-height:calc(100dvh - max(20px,env(safe-area-inset-top) + env(safe-area-inset-bottom)))!important;
+    border-radius:17px;
+  }
+  .portalScope :global(.member-detail-modal) form{padding:14px!important;}
+  .portalScope :global(.member-detail-fields){grid-template-columns:minmax(0,1fr)!important;}
+}
+@media(max-height:560px){
+  .portalScope :global(.member-detail-header){padding:10px 14px!important;}
+  .portalScope :global(.member-detail-header) h2{font-size:20px!important;}
+  .portalScope :global(.member-detail-modal) form{padding:12px 14px!important;}
+  .portalScope :global(.member-detail-fields){gap:9px;}
+}

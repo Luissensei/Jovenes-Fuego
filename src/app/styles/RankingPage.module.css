@@ -1651,3 +1651,39 @@
 @media(max-width:760px){.scope :global(.ranking-player){grid-template-columns:31px 40px minmax(0,1fr) minmax(105px,130px) 29px;gap:8px;padding:10px}.scope :global(.ranking-player-gap){display:none}}
 @media(max-width:560px){.scope :global(.ranking-player){grid-template-columns:27px 34px minmax(0,1fr) minmax(85px,105px) 25px;gap:6px;padding:9px 7px}.scope :global(.ranking-player) :global(.profile-avatar){width:33px;height:33px}.scope :global(.ranking-player-data) :global(.ranking-player-points) strong{font-size:12px}.scope :global(.ranking-player-data) :global(.ranking-player-points) span{display:none}}
 @media(prefers-reduced-motion:reduce){.scope :global(.ranking-player-track)>i,.scope :global(.ranking-player-expand){transition:none}}
+
+
+/* Paleta viva para la clasificación: energía sin perder contraste ni legibilidad. */
+.scope :global(.ranking-hero){
+  border:1px solid rgba(255,255,255,.18)!important;
+  background:
+    radial-gradient(ellipse at 82% 18%,rgba(255,195,91,.28),transparent 30%),
+    radial-gradient(ellipse at 16% 100%,rgba(72,211,196,.22),transparent 38%),
+    linear-gradient(118deg,#46228f 0%,#7736a8 44%,#c74c79 73%,#ed714a 100%)!important;
+}
+.scope :global(.ranking-hero-art){
+  color:#ffe09a!important;
+  border-color:rgba(255,255,255,.32)!important;
+  background:radial-gradient(circle,rgba(255,218,139,.27),rgba(255,255,255,.06) 68%)!important;
+  box-shadow:0 0 54px rgba(255,190,96,.2);
+}
+.scope :global(.ranking-hero-button),
+.scope :global(.ranking-tabs) button:global(.active),
+.scope :global(.ranking-view-filters) button:global(.active){
+  background:linear-gradient(110deg,#7650dc 0%,#ba4fa6 52%,#ed704c 100%)!important;
+  border-color:rgba(255,255,255,.24)!important;
+  color:#fff!important;
+}
+.scope :global(.ranking-progress-panel),
+.scope :global(.ranking-visual-toolbar),
+.scope :global(.ranking-content){
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+}
+.scope :global(.ranking-progress-band)>i em{background:linear-gradient(90deg,#8c62eb,#45c9c2,#f39a57)!important;}
+.scope :global(.ranking-player-track)>i{background:linear-gradient(90deg,#8d64ed,#4cc9bd,#f4a15a)!important;}
+@media(max-width:680px){
+  .scope :global(.ranking-hero){grid-template-columns:minmax(0,1fr) 70px!important;}
+  .scope :global(.ranking-hero-art){width:66px!important;}
+}
