@@ -32,3 +32,12 @@
 .scope :global(.settings-card),.scope :global(.settings-group){background:var(--jf-surface);border:1px solid var(--jf-border);border-radius:17px;box-shadow:var(--jf-shadow)}
 :global(:root[data-theme="light"]) .scope :global(.settings-card),:global(:root[data-theme="light"]) .scope :global(.settings-group){background:#fff;color:#382d40;border-color:#e9e0eb}
 @media(max-width:600px){.scope :global(.settings-hero){padding:20px;border-radius:18px}}
+
+
+/* Ajustes aplicados a las clases reales del módulo */
+.scope .hero{position:relative;overflow:hidden;border-color:rgba(222,174,111,.28);background:radial-gradient(ellipse at 90% 0%,rgba(255,129,67,.18),transparent 38%),linear-gradient(115deg,#1b1726,#30223a 65%,#432c30);box-shadow:0 18px 45px rgba(5,4,10,.17)}
+.scope .themeCard,.scope .section,.scope .security,.scope .advanced{border-color:var(--jf-border)}
+.scope .areaCard{box-shadow:0 12px 30px rgba(5,4,10,.12)}
+.scope .areaCard:hover{border-color:rgba(222,174,111,.48);box-shadow:0 17px 38px rgba(5,4,10,.18)}
+.scope .advanced{border:1px solid var(--jf-border);border-radius:15px;padding:14px;background:var(--jf-surface)}
+@media(max-width:600px){.scope .hero{padding:18px;border-radius:18px}.scope .themeCard{align-items:flex-start;flex-wrap:wrap;padding:15px}.scope .areaGrid{grid-template-columns:1fr}.scope .areaCard{min-height:145px}}
