@@ -394,45 +394,7 @@ body {
   backdrop-filter: none !important;
 }
 
-/* Los encabezados de sección usan un solo plano de color, no gradientes multicolor. */
-:root[data-theme] .main :is(
-  .members-hero, .attendance-header, .ranking-hero, .dashboard-hero,
-  .reports-hero, .checkin-hero, .visitors-header, .devotionals-hero,
-  .management-header, .photos-hero
-) {
-  background: #302a24 !important;
-  color: #f7f2eb !important;
-  border: 1px solid rgba(255,255,255,.09) !important;
-  border-left: 4px solid var(--jf-accent) !important;
-  border-radius: 12px !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-:root[data-theme] .main :is(
-  .members-hero, .attendance-header, .ranking-hero, .dashboard-hero,
-  .reports-hero, .checkin-hero, .visitors-header, .devotionals-hero,
-  .management-header, .photos-hero
-) :is(h1,h2,h3,p,span,small,strong) {
-  color: #f7f2eb;
-}
-
-/* Los heroes definidos como primer bloque de una pantalla CSS Module. */
-:root[data-theme] .main [class*="scope"] > [class*="hero"] {
-  background: #302a24 !important;
-  color: #f7f2eb !important;
-  border: 1px solid rgba(255,255,255,.09) !important;
-  border-left: 4px solid var(--jf-accent) !important;
-  border-radius: 12px !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-:root[data-theme] .main [class*="scope"] > [class*="hero"] :is(h1,h2,h3,p,span,small,strong) {
-  color: #f7f2eb;
-}
+/* Las cabeceras de dashboard/ranking conservan el arte y la paleta propios de cada módulo. */
 
 /* Botones primarios: una sola acción claramente reconocible. */
 :root[data-theme] .main :is(
