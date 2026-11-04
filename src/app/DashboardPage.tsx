@@ -50,6 +50,8 @@ export default function DashboardPage(){
   const today=localDateKey(new Date());
   const upcoming=useMemo(()=>activities.filter((item)=>item.date>=today).sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'').localeCompare(b.time||'')).slice(0,4),[activities,today]);
   const availableShortcuts=shortcuts.filter((item)=>!item.adminOnly||isAdmin);
+  const topRanked=ranked.slice(0,5);
+  const maxPoints=topRanked[0]?.points??0;
 
   return(
     <main className={styles.scope}>
@@ -90,6 +92,28 @@ export default function DashboardPage(){
               <div className={styles.eventInfo}><b>{item.title}</b><p>{item.description||'Actividad de Jóvenes de Fuego'}</p><span>{item.time&&<><Clock3 size={13}/>{item.time}</>}{item.location&&<><MapPin size={13}/>{item.location}</>}</span></div>
             </article>
           )):<div className={styles.empty}><CalendarDays size={25}/><b>{loading?'Consultando la agenda...':'No hay próximas actividades publicadas'}</b><span>Las actividades aparecerán aquí cuando estén disponibles.</span></div>}
+        </div>
+        <div className={styles.panel}>
+          <div className={styles.panelHeading}><div><span className={styles.kicker}>RANKING COMUNITARIO</span><h2>Jóvenes destacados</h2><p>Los cinco perfiles con más puntos publicados.</p></div><Trophy size={19}/></div>
+          {topRanked.length?(
+            <div className={styles.rankingBars} aria-label="Top cinco del ranking">
+              {topRanked.map((person,index)=>{
+                const points=Math.max(0,person.points??0);
+                const width=maxPoints>0?Math.max(points>0?4:0,(points/maxPoints)*100):0;
+                return <div className={styles.rankingBarRow} key={person.name}>
+                  <div className={styles.rankingBarMeta}>
+                    <span className={styles.rankingPosition}>{index+1}</span>
+                    <b title={person.name}>{person.name}</b>
+                    <strong>{points.toLocaleString('es-CO')} pts</strong>
+                  </div>
+                  <div className={styles.rankingBarTrack} role="progressbar" aria-label={`Puntos de ${person.name}`} aria-valuemin={0} aria-valuemax={maxPoints||1} aria-valuenow={points}>
+                    <span style={{width:`${width}%`}}/>
+                  </div>
+                </div>;
+              })}
+            </div>
+          ):<div className={styles.empty}><Trophy size={25}/><b>{loading?'Consultando el ranking...':'Aún no hay posiciones publicadas'}</b><span>Los puntos aparecerán aquí cuando haya perfiles disponibles.</span></div>}
+          <NavLink className={styles.rankingLink} to="/ranking">Ver ranking completo <ArrowRight size={14}/></NavLink>
         </div>
         <div className={styles.panel}>
           <div className={styles.panelHeading}><div><span className={styles.kicker}>ACCESOS DIRECTOS</span><h2>Ir a un módulo</h2></div><LayoutDashboard size={19}/></div>
