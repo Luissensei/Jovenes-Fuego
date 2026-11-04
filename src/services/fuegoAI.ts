@@ -21,7 +21,7 @@ Presenta recomendaciones concretas y formatos listos para revisar. No afirmes ha
 No ejecutes ni simules crear, editar, eliminar, publicar, asignar permisos o modificar registros. Cuando se solicite una operación, prepara una propuesta y explica que requiere revisión y confirmación en el módulo correspondiente.
 Protege la información personal de los jóvenes. No pidas contraseñas ni datos sensibles. Para notas pastorales o situaciones delicadas, recomienda usar el módulo con permisos restringidos y no incluir detalles personales en el chat.`;
 
-function createModel(audience: AssistantAudience, modelName = 'gemini-3.8-flash') {
+function createModel(audience: AssistantAudience, modelName = 'gemini-3.5-flash-lite') {
   const ai = getAI(firebaseApp, {backend: new GoogleAIBackend()});
   return getGenerativeModel(ai, {
     model: modelName,
@@ -75,15 +75,24 @@ export async function askFuegoAI(
     let result;
 
     try {
-      result = await createModel(audience, 'gemini-3.8-flash').generateContent(prompt);
+      // Start with Flash-Lite to reduce latency and stay within the free
+      // Gemini Developer API tier without depending on the busy 3.8 endpoint.
+      result = await createModel(audience, 'gemini-3.5-flash-lite').generateContent(prompt);
     } catch (primaryError) {
-      // 3.8 Flash is the preferred model. Only fall back when Google reports
-      // temporary saturation/server overload; do not hide auth, quota or setup errors.
+      // Use a second supported free Flash-Lite model only for temporary 5xx overload.
+      // Authentication, App Check, invalid-model and quota errors are not retried.
       if (!isTemporaryModelOverload(primaryError)) {
         throw primaryError;
       }
 
-      result = await createModel(audience, 'gemini-3.5-flash-lite').generateContent(prompt);
+      try {
+        result = await createModel(audience, 'gemini-3.1-flash-lite').generateContent(prompt);
+      } catch (fallbackError) {
+        if (isTemporaryModelOverload(fallbackError)) {
+          throw new Error('Los modelos gratuitos de Fuego AI están temporalmente saturados. Espera unos minutos y vuelve a intentarlo.');
+        }
+        throw fallbackError;
+      }
     }
 
     const answer = result.response.text().trim();
@@ -99,8 +108,8 @@ export async function askFuegoAI(
     if (/429|resource.?exhausted|quota|rate.?limit/i.test(detail) || /resource-exhausted|429/i.test(code)) {
       throw new Error('Fuego AI alcanzó el límite temporal de solicitudes de Firebase. Espera un momento y vuelve a intentarlo.');
     }
-    if (/404|not.?found|model|firebase.?ai.?logic/i.test(detail) || /not-found|404/i.test(code)) {
-      throw new Error(`Firebase no encontró el modelo o el servicio de IA. Confirma que Firebase AI Logic esté habilitado en jovenes-de-fuego y que gemini-3.8-flash esté disponible. Detalle: ${detail.slice(0, 240)}`);
+    if (/404|not.?found/i.test(detail) || /not-found|404/i.test(code)) {
+      throw new Error(`Firebase no encontró el modelo o el servicio de IA. Confirma que Firebase AI Logic esté habilitado en jovenes-de-fuego y que el modelo Flash-Lite seleccionado esté disponible. Detalle: ${detail.slice(0, 240)}`);
     }
     if (/api.?key|invalid.?argument|invalid.?api/i.test(detail) || /invalid-argument/i.test(code)) {
       throw new Error(`Firebase rechazó la configuración de la solicitud de IA. Revisa que esté seleccionado Gemini Developer API y que el proyecto siga en el plan Spark sin facturación. Detalle: ${detail.slice(0, 240)}`);
