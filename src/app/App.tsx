@@ -23,6 +23,8 @@ import {
   LockKeyhole,
   ShieldAlert,
   Search,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 
 import { modules } from './modules';
@@ -103,6 +105,7 @@ function AdminApp() {
 
   const { theme, nextThemeLabel, toggleTheme } = useThemePreference();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [moduleSearch, setModuleSearch] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -232,6 +235,13 @@ function AdminApp() {
       ? 'readonly'
       : 'staging';
 
+  const mobileNavIds = isStaff
+    ? ['dashboard', 'attendance', 'ranking', 'games', 'profile']
+    : ['dashboard', 'ranking', 'games', 'profile'];
+  const mobileNavItems = mobileNavIds
+    .map((id) => visibleModules.find((item) => item.id === id))
+    .filter((item): item is (typeof visibleModules)[number] => Boolean(item));
+
   function renderModule(
     id: string,
     label: string,
@@ -315,7 +325,8 @@ function AdminApp() {
   }
 
   return (
-    <div className="layout">
+    <div className={`layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+      <FireAtmosphere />
       <header className="mobile-header">
         <button
           className="icon-button"
@@ -341,7 +352,7 @@ function AdminApp() {
         </button>
       </header>
 
-      <aside className={`sidebar ${menuOpen ? 'open' : ''}`}>
+      <aside className={`sidebar ${menuOpen ? 'open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="brand">
           <span className="brand-mark church-brand-mark">
             <img src="/church-logo.webp" alt="" />
@@ -352,6 +363,16 @@ function AdminApp() {
             <small>Iglesia Cristiana Cuadrangular Alfa y Omega</small>
           </div>
         </div>
+
+        <button
+          className="sidebar-collapse-toggle"
+          type="button"
+          onClick={() => setSidebarCollapsed((value) => !value)}
+          aria-label={sidebarCollapsed ? 'Expandir menú lateral' : 'Contraer menú lateral'}
+          title={sidebarCollapsed ? 'Expandir menú' : 'Contraer menú'}
+        >
+          {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+        </button>
 
         <div className="env-chip">
           <span className="pulse" />
@@ -378,10 +399,10 @@ function AdminApp() {
             const items = filteredModules.filter((item) => group.ids.includes(item.id));
             if (!items.length) return null;
             const activeGroup = items.some((item) => item.path === location.pathname || (item.path !== '/' && location.pathname.startsWith(item.path + '/')));
-            return <details className="jf-nav-group" key={group.label} open={activeGroup || Boolean(moduleSearch.trim()) || false}>
+            return <details className="jf-nav-group" key={group.label} open={sidebarCollapsed || activeGroup || Boolean(moduleSearch.trim()) || false}>
               <summary><span>{group.label}</span><span className="jf-nav-count">{items.length}</span></summary>
               <div className="jf-nav-group-items">{items.map((item) => (
-                <NavLink key={item.id} to={item.path} end={item.path === '/'} onClick={() => setMenuOpen(false)} className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+                <NavLink key={item.id} to={item.path} end={item.path === '/'} title={sidebarCollapsed ? item.label : undefined} onClick={() => setMenuOpen(false)} className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
                   <span className="nav-item-icon" aria-hidden="true"><item.icon size={17} strokeWidth={1.9}/></span>
                   <span>{item.label}</span>
                 </NavLink>
@@ -485,6 +506,7 @@ function AdminApp() {
           </div>
         )}
 
+        <div className="jf-route-stage" key={location.pathname}>
         <Routes>
           {visibleModules.map((item) => (
             <Route
@@ -508,6 +530,7 @@ function AdminApp() {
             }
           />
         </Routes>
+        </div>
 
         <footer>
           Jóvenes de Fuego · reconstrucción independiente ·{' '}
@@ -518,6 +541,22 @@ function AdminApp() {
             : 'vista previa'}
         </footer>
       </div>
+      {user && (
+        <nav className="jf-bottom-nav" aria-label="Navegación principal">
+          {mobileNavItems.map((item) => (
+            <NavLink
+              key={item.id}
+              to={item.path}
+              end={item.path === '/'}
+              title={item.label}
+              className={({ isActive }) => `jf-bottom-nav-item ${isActive ? 'active' : ''}`}
+            >
+              <span className="jf-bottom-nav-icon"><item.icon size={20} strokeWidth={2.1} /></span>
+              <span>{item.label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      )}
       {user && profile && (
         <FuegoFloatingAssistant
           audience={isStaff ? 'admin' : 'youth'}
