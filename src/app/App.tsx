@@ -1,3 +1,4 @@
+import { FireAtmosphere } from './FireAtmosphere';
 import { useState } from 'react';
 import {
   NavLink,
@@ -101,9 +102,18 @@ function AdminApp() {
 
   if (loading) {
     return (
-      <main className="loading-shell">
-        <div className="spinner" />
-        Verificando sesión y permisos…
+      <main className="loading-shell jf-auth-loading" role="status" aria-live="polite">
+        <FireAtmosphere />
+        <div className="jf-auth-loader">
+          <span className="jf-auth-loader-emblem">
+            <Flame size={31}/>
+            <i aria-hidden="true"/>
+          </span>
+          <strong>Jóvenes de Fuego</strong>
+          <span>Verificando sesión y permisos</span>
+          <span className="jf-auth-loader-track"><i/></span>
+          <small>Conexión segura · Firebase</small>
+        </div>
       </main>
     );
   }
@@ -274,6 +284,7 @@ function AdminApp() {
 
   return (
     <div className="layout">
+      <FireAtmosphere />
       <header className="mobile-header">
         <button
           className="icon-button"

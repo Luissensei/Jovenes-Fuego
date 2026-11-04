@@ -1,3 +1,4 @@
+import { FireAtmosphere } from './FireAtmosphere';
 import styles from './styles/YouthPortalPage.module.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type {FormEvent} from 'react';
@@ -547,6 +548,7 @@ export default function YouthPortalPage() {
     };
     return (
       <main className={`${styles.scope} youth-portal`}>
+        <FireAtmosphere density="cinematic" />
         <div className={`youth-container youth-game-shell ${gameExiting ? "youth-game-exit" : ""}`}>
           <div className="youth-game-topbar">
             <button className="youth-back" type="button" onClick={exitGame}><ArrowLeft size={17}/> Volver a mi espacio</button>
@@ -571,6 +573,7 @@ export default function YouthPortalPage() {
   if (selectedProfile) {
     return (
       <main className={`${styles.scope} youth-portal youth-look-${look.background} ${portalExiting ? "youth-profile-exit" : ""}`}>
+        <FireAtmosphere density="cinematic" />
         <div className="youth-container youth-home-enter">
           <div className="youth-home-toolbar">
             <button type="button" className="youth-back" onClick={leaveProfile}>
@@ -593,7 +596,7 @@ export default function YouthPortalPage() {
             </button>
             <YouthAvatar profile={{...selectedProfile, frame: look.frame, avatar: look.avatar}} large/>
             <span className="youth-brand-label">COMUNIDAD JÓVENES DE FUEGO</span>
-            <h1>¡Hola, {selectedProfile.name}!</h1>
+            <h1 className="jf-title-reveal">¡Hola, <span className="jf-name-reveal">{selectedProfile.name}</span>!</h1>
             <p>Tu espacio para crecer, servir, aprender y compartir.</p>
             {selectedProfile.nick && <span className="youth-profile-nick">@{selectedProfile.nick}</span>}
             {look.title && <span className="youth-profile-title">{({chispa:'Chispa Encendida',valiente:'Valiente',guerrero:'Guerrero de Fe',intercesor:'Intercesor',adorador:'Adorador',sabio:'Sabio de la Palabra',leyenda:'Leyenda de Fuego'} as Record<string,string>)[look.title] ?? look.title}</span>}
@@ -694,13 +697,14 @@ export default function YouthPortalPage() {
 
   return (
     <main className={`${styles.scope} youth-portal`}>
+        <FireAtmosphere density="cinematic" />
       <div className="youth-container">
         <header className="youth-header">
           <div className="youth-brand-icon"><Flame size={34}/></div>
           <span className="youth-brand-label">COMUNIDAD CRISTIANA</span>
-          <h1>JÓVENES DE FUEGO</h1>
+          <h1 className="jf-title-reveal">JÓVENES DE FUEGO</h1>
           <div className="youth-title-divider"/>
-          <h2>¿Quién eres?</h2>
+          <h2 className="jf-title-reveal">¿Quién eres?</h2>
           <p>Elige tu perfil y entra a tu espacio de la comunidad.</p>
         </header>
 
@@ -734,7 +738,7 @@ export default function YouthPortalPage() {
                   <button type="button" className={`youth-profile-card float-card-${index % 4} ${openingProfileId === profile.id ? "is-opening" : ""}`} key={profile.id} disabled={Boolean(openingProfileId)} onClick={() => enterProfile(profile)} style={{animationDelay: `${Math.min(index,12) * 55}ms`}}>
                     <span className="youth-card-decoration"><Flame size={15}/></span>
                     <YouthAvatar profile={profile}/>
-                    <strong>{profile.name}</strong>
+                    <strong><span className="jf-name-reveal">{profile.name}</span></strong>
                     <span className="youth-card-nick">{profile.nick ? `@${profile.nick}` : 'Miembro de la comunidad'}</span>
                     <span className="youth-card-action">Entrar a mi espacio <ChevronRight size={15}/></span>
                   </button>

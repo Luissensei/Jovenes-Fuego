@@ -188,14 +188,14 @@ export default function DashboardPage() {
 
           <p className="dashboard-hero-index">01 / CENTRO DE MANDO</p>
 
-          <h1>
+          <h1 className="jf-title-reveal">
             Mantén la
             <br />
             <span>llama encendida.</span>
           </h1>
 
           <p className="dashboard-hero-description">
-            Hola, {firstName}. Este es el punto de partida para organizar,
+            Hola, <strong className="jf-name-reveal">{firstName}</strong>. Este es el punto de partida para organizar,
             acompañar y activar a nuestra generación.
           </p>
 

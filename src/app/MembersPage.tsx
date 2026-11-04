@@ -258,7 +258,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
       <header className="members-hero">
         <div className="members-hero-copy">
           <span className="members-kicker"><Flame size={15}/> NUESTRA COMUNIDAD</span>
-          <h1>Jóvenes</h1>
+          <h1 className="jf-title-reveal">Jóvenes</h1>
           <p>Consulta, abre y actualiza las fichas de los integrantes de la comunidad.</p>
         </div>
         <div className="members-total-card">
@@ -302,7 +302,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
                 <span className={`member-status ${member.nopub === true ? 'private' : 'public'}`}><span/>{member.nopub === true ? 'No publicado' : 'Perfil público'}</span>
               </div>
               <div className="member-card-info">
-                <h2>{String(member.name ?? 'Nombre sin registrar')}</h2>
+                <h2><span className="jf-name-reveal">{String(member.name ?? 'Nombre sin registrar')}</span></h2>
                 <p className="member-nick">{member.nick ? `@${String(member.nick)}` : 'Sin apodo registrado'}</p>
               </div>
               <div className="member-card-details">

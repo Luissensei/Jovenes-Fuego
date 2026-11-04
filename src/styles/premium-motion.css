@@ -1,0 +1,445 @@
+/* Jóvenes de Fuego — premium motion and visual identity layer.
+   Local 3D is limited to the login card; application cards stay level. */
+:root {
+  --jf-accent: #ff7546;
+  --jf-accent-2: #ffc078;
+  --jf-purple: #aa8cff;
+  --jf-cyan: #78dfff;
+  --jf-green: #78dfb2;
+}
+:root[data-theme="dark"] {
+  --jf-bg: #080b14;
+  --jf-surface: rgba(17, 22, 36, .78);
+  --jf-surface-2: rgba(22, 28, 44, .90);
+  --jf-glass: rgba(15, 20, 34, .58);
+  --jf-glass-border: rgba(188, 206, 255, .16);
+}
+:root:not([data-theme="dark"]) {
+  --jf-bg: #eef1f8;
+  --jf-surface: rgba(255, 255, 255, .78);
+  --jf-surface-2: rgba(249, 250, 255, .92);
+  --jf-glass: rgba(250, 251, 255, .68);
+  --jf-glass-border: rgba(91, 107, 156, .16);
+}
+
+/* Ambient fire, floating embers and occasional meteor trails. */
+.jf-fire-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+  isolation: isolate;
+}
+.jf-fire-atmosphere::before {
+  position: absolute;
+  inset: -18%;
+  content: "";
+  background:
+    radial-gradient(ellipse at 12% 88%, rgba(255, 105, 54, .15), transparent 34%),
+    radial-gradient(ellipse at 87% 10%, rgba(155, 111, 255, .13), transparent 36%),
+    radial-gradient(ellipse at 55% 100%, rgba(65, 191, 237, .09), transparent 42%);
+  filter: blur(30px);
+  animation: jfFireBreath 15s ease-in-out infinite alternate;
+}
+.jf-meteor {
+  position: absolute;
+  width: clamp(74px, 10vw, 150px);
+  height: 2px;
+  border-radius: 999px;
+  opacity: 0;
+  transform-origin: left center;
+  background: linear-gradient(90deg, transparent, rgba(255, 192, 120, .1) 35%, rgba(255, 219, 170, .95) 88%, #fff);
+  box-shadow: 0 0 9px rgba(255, 153, 85, .55), 0 0 22px rgba(255, 116, 70, .25);
+  animation: jfMeteorFlight 13s linear infinite;
+}
+.jf-meteor--one { top: 13%; left: 12%; animation-delay: 1.5s; }
+.jf-meteor--two { top: 32%; left: 70%; width: 105px; animation-delay: 5.2s; animation-duration: 16s; }
+.jf-meteor--three { top: 62%; left: 42%; width: 82px; animation-delay: 8.7s; animation-duration: 18s; }
+.jf-meteor--four { top: 8%; left: 86%; width: 65px; animation-delay: 11s; animation-duration: 20s; }
+.jf-ember {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #ffc17d;
+  box-shadow: 0 0 9px 2px rgba(255, 128, 70, .38);
+  opacity: .12;
+  animation: jfEmberLift 8s ease-in-out infinite;
+}
+.jf-ember--one { left: 17%; bottom: 8%; animation-delay: -1s; }
+.jf-ember--two { left: 76%; bottom: 18%; animation-delay: -4s; }
+.jf-ember--three { left: 52%; bottom: 5%; animation-delay: -6s; }
+.jf-ember--four { left: 91%; bottom: 39%; animation-delay: -2.5s; }
+.jf-fire-atmosphere--cinematic .jf-meteor { filter: saturate(1.25); }
+.jf-fire-atmosphere--cinematic .jf-ember { opacity: .2; }
+
+/* Correct stacking: atmospheric effects stay behind the app and navigation. */
+.layout {
+  position: relative;
+  isolation: isolate;
+}
+.main, .mobile-header { position: relative; z-index: 1; }
+.sidebar { z-index: 40; }
+.login-shell, .loading-shell, .youth-portal {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.login-card, .jf-auth-loader, .youth-portal > .youth-container {
+  position: relative;
+  z-index: 1;
+}
+.login-shell > .jf-fire-atmosphere,
+.loading-shell > .jf-fire-atmosphere,
+.youth-portal > .jf-fire-atmosphere {
+  z-index: 0;
+}
+
+/* Login: contained 3D entrance, animated flame mark and verification state. */
+.login-shell {
+  min-height: 100svh;
+  background:
+    radial-gradient(ellipse at 16% 13%, rgba(255, 130, 77, .13), transparent 36%),
+    radial-gradient(ellipse at 88% 82%, rgba(144, 107, 240, .12), transparent 36%),
+    var(--jf-bg);
+}
+.login-card {
+  position: relative;
+  overflow: hidden;
+  transform-origin: 50% 70%;
+  border: 1px solid rgba(193, 210, 255, .2);
+  border-radius: 24px !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.11), rgba(255,255,255,.025)), var(--jf-glass) !important;
+  box-shadow: 0 30px 90px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.16);
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  animation: jfLoginEnter3D .85s cubic-bezier(.16,.84,.2,1) both;
+}
+.login-card::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(255, 199, 135, .9), rgba(160, 139, 255, .75), transparent);
+  opacity: .8;
+}
+.login-card.has-error { animation: jfLoginShake .36s ease both; }
+.login-logo {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  width: 62px;
+  height: 62px;
+  border-radius: 19px;
+  background: linear-gradient(145deg, #ffb56c, #ff6847 52%, #a66cff) !important;
+  box-shadow: 0 12px 34px rgba(255, 104, 67, .3), 0 0 0 7px rgba(255, 255, 255, .035);
+  animation: jfLogoHover 4.8s ease-in-out infinite;
+}
+.login-logo svg { position: relative; z-index: 2; filter: drop-shadow(0 3px 8px rgba(92, 31, 21, .35)); animation: jfFlameFlicker 2.4s ease-in-out infinite; }
+.login-logo-orbit {
+  position: absolute;
+  inset: -7px;
+  border: 1px solid rgba(255, 187, 120, .38);
+  border-radius: 23px;
+  transform: rotateX(58deg) rotateZ(-28deg);
+  animation: jfLogoOrbit 8s linear infinite;
+}
+.login-logo-orbit::after {
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  content: "";
+  background: #8be4ff;
+  box-shadow: 0 0 13px #8be4ff;
+}
+.login-card h1 {
+  background: linear-gradient(100deg, #fff2df 0%, #ffb66f 30%, #ff8061 57%, #c0a4ff 85%, #8be2f5 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: jfTitleSheen 7s ease-in-out infinite alternate;
+}
+.login-card .eyebrow { color: #ffb177; }
+.login-card input {
+  border-color: rgba(157, 177, 220, .22);
+  background: rgba(8, 13, 26, .34);
+  color: var(--jf-text);
+  transition: border-color .22s ease, box-shadow .22s ease, background .22s ease;
+}
+.login-card input:focus {
+  border-color: rgba(255, 158, 103, .8);
+  box-shadow: 0 0 0 4px rgba(255, 129, 77, .12), 0 0 24px rgba(255, 129, 77, .08);
+  background: rgba(8, 13, 26, .5);
+}
+.login-submit {
+  position: relative;
+  overflow: hidden;
+  min-height: 49px;
+  border: 1px solid rgba(255, 207, 165, .24) !important;
+  border-radius: 13px !important;
+  background: linear-gradient(105deg, #ff9257, #f15b43 54%, #a56dea) !important;
+  box-shadow: 0 12px 28px rgba(228, 83, 59, .24), inset 0 1px 0 rgba(255,255,255,.25);
+  transition: transform .22s ease, box-shadow .22s ease, filter .22s ease;
+}
+.login-submit:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.012);
+  box-shadow: 0 17px 34px rgba(228, 83, 59, .3), 0 0 22px rgba(166, 109, 234, .13);
+}
+.login-submit svg { transition: transform .28s ease, filter .28s ease; }
+.login-submit:hover:not(:disabled) svg { transform: translateY(-2px) scale(1.08); filter: drop-shadow(0 0 7px rgba(255,255,255,.55)); }
+.login-submit-icon { display: inline-grid; place-items: center; }
+.login-submit-shield { opacity: .84; }
+.login-submit.is-busy { cursor: progress; filter: saturate(1.12); }
+.login-submit.is-busy::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  content: "";
+  background: linear-gradient(90deg, transparent, #fff, #9deeff, transparent);
+  animation: jfVerificationSweep 1.25s ease-in-out infinite;
+}
+.login-verification {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--jf-muted);
+  font-size: 10px;
+  line-height: 1.5;
+  animation: jfFadeUp .3s ease both;
+}
+.login-verification-dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: #7ee3bd;
+  box-shadow: 0 0 0 0 rgba(126, 227, 189, .45);
+  animation: jfVerifyPulse 1.4s ease-out infinite;
+}
+.login-verification-spinner { display: inline-grid; place-items: center; animation: jfVerifySpin 1.8s linear infinite; }
+.login-foot svg { color: #78d9b1; }
+
+/* Branded authentication preloader. */
+.jf-auth-loading { min-height: 100svh; }
+.jf-auth-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 30px;
+  color: var(--jf-muted);
+  text-align: center;
+}
+.jf-auth-loader-emblem {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  margin-bottom: 5px;
+  border: 1px solid rgba(255, 171, 113, .38);
+  border-radius: 25px;
+  background: linear-gradient(145deg, rgba(255,151,89,.2), rgba(154,112,235,.13));
+  color: #ffb576;
+  box-shadow: 0 0 48px rgba(255, 116, 70, .15), inset 0 1px 0 rgba(255,255,255,.12);
+  animation: jfLoaderFloat 3.6s ease-in-out infinite;
+}
+.jf-auth-loader-emblem::before, .jf-auth-loader-emblem::after {
+  position: absolute;
+  inset: -7px;
+  border: 1px solid rgba(120, 223, 255, .26);
+  border-radius: 30px;
+  content: "";
+  transform: rotate(28deg);
+  animation: jfLoaderOrbit 7s linear infinite;
+}
+.jf-auth-loader-emblem::after { inset: -13px; border-color: rgba(255,176,111,.18); animation-direction: reverse; animation-duration: 11s; }
+.jf-auth-loader-emblem i { position: absolute; inset: 12px; border-radius: 15px; box-shadow: 0 0 25px rgba(255,143,78,.28); }
+.jf-auth-loader strong { color: var(--jf-text); font-family: var(--jf-display); font-size: 19px; letter-spacing: .03em; }
+.jf-auth-loader > span:not(.jf-auth-loader-emblem):not(.jf-auth-loader-track) { font-size: 11px; }
+.jf-auth-loader-track {
+  display: block;
+  width: min(240px, 62vw);
+  height: 4px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgba(145, 165, 211, .16);
+}
+.jf-auth-loader-track i {
+  display: block;
+  width: 36%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff8b53, #ffc477, #a98aff, #80dfff);
+  box-shadow: 0 0 14px rgba(255, 147, 87, .45);
+  animation: jfLoaderProgress 1.6s ease-in-out infinite;
+}
+.jf-auth-loader small { color: var(--jf-muted); font-size: 9px; letter-spacing: .16em; text-transform: uppercase; }
+
+/* Transparent dashboard surfaces and a refined fire / aurora palette. */
+.dashboard-page .dashboard-stat,
+.dashboard-page .dashboard-shortcut,
+.dashboard-page .dashboard-community-stat,
+.dashboard-page .dashboard-chart-card,
+.dashboard-page .dashboard-bottom-note {
+  border-color: var(--jf-glass-border) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.085), rgba(255,255,255,.018)), var(--jf-glass) !important;
+  backdrop-filter: blur(22px) saturate(145%);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+  box-shadow: 0 18px 48px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.11);
+}
+:root:not([data-theme="dark"]) .dashboard-page .dashboard-stat,
+:root:not([data-theme="dark"]) .dashboard-page .dashboard-shortcut,
+:root:not([data-theme="dark"]) .dashboard-page .dashboard-community-stat,
+:root:not([data-theme="dark"]) .dashboard-page .dashboard-chart-card,
+:root:not([data-theme="dark"]) .dashboard-page .dashboard-bottom-note {
+  background: linear-gradient(145deg, rgba(255,255,255,.84), rgba(247,249,255,.56)) !important;
+  box-shadow: 0 17px 42px rgba(49, 63, 112, .08), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.dashboard-page .dashboard-stat-icon,
+.dashboard-page .dashboard-shortcut-icon,
+.dashboard-page .dashboard-community-stat-icon {
+  box-shadow: 0 8px 20px rgba(255, 121, 72, .10), inset 0 1px 0 rgba(255,255,255,.2);
+}
+.dashboard-page .dashboard-stat-icon svg,
+.dashboard-page .dashboard-shortcut-icon svg,
+.dashboard-page .dashboard-community-stat-icon svg,
+.members-page .members-kicker svg,
+.youth-portal .youth-brand-icon svg,
+.nav-item.active .nav-item-icon svg {
+  transform-origin: 50% 55%;
+  animation: jfIconEmber 3.4s ease-in-out infinite;
+}
+
+/* Meteor landings, staggered entrances and gentle card previews. */
+@keyframes jfMeteorCardLand {
+  0% { opacity: 0; transform: translate3d(-34px,-58px,0) scale(.76); filter: blur(8px); }
+  62% { opacity: 1; transform: translate3d(3px,3px,0) scale(1.025); filter: blur(0); }
+  80% { transform: translate3d(-1px,-1px,0) scale(.995); }
+  100% { opacity: 1; transform: translate3d(0,0,0) scale(1); filter: blur(0); }
+}
+@keyframes jfTitleReveal {
+  from { opacity: 0; transform: translateY(16px); filter: blur(5px); letter-spacing: .045em; }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@keyframes jfNameReveal {
+  from { opacity: 0; transform: translateY(8px) scale(.97); filter: blur(3px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes jfNameGlow {
+  from { text-shadow: 0 0 0 rgba(255,157,94,0); }
+  to { text-shadow: 0 0 14px rgba(255,157,94,.2); }
+}
+@keyframes jfSafeCardLift {
+  from { transform: translate3d(0,0,0) scale(1); }
+  to { transform: translate3d(0,-7px,0) scale(1.018); }
+}
+.main .member-card,
+.youth-portal .youth-profile-card {
+  animation: jfMeteorCardLand .88s cubic-bezier(.16,.84,.2,1) both;
+  will-change: transform, opacity;
+}
+.main .member-card:hover,
+.main .dashboard-stat:hover,
+.main .dashboard-shortcut:hover,
+.main .dashboard-community-stat:hover,
+.main .dashboard-chart-card:hover,
+.youth-portal .youth-profile-card:hover {
+  z-index: 6;
+  transform: translate3d(0,-7px,0) scale(1.018) !important;
+  border-color: rgba(255, 166, 113, .48) !important;
+  box-shadow: 0 24px 58px rgba(0,0,0,.2), 0 0 24px rgba(255,133,80,.09) !important;
+  filter: saturate(1.06);
+}
+.main .member-card,
+.main .dashboard-stat,
+.main .dashboard-shortcut,
+.main .dashboard-community-stat,
+.main .dashboard-chart-card,
+.youth-portal .youth-profile-card {
+  transition: transform .32s cubic-bezier(.2,.8,.2,1), box-shadow .32s ease, border-color .28s ease, filter .28s ease;
+  transform-origin: center bottom;
+}
+.jf-title-reveal,
+.members-page .members-hero h1,
+.dashboard-page .dashboard-hero h1,
+.youth-portal .youth-header h1,
+.youth-portal .youth-welcome h1,
+.youth-portal .youth-welcome h2 {
+  animation: jfTitleReveal .78s cubic-bezier(.16,.82,.2,1) both;
+}
+.jf-name-reveal {
+  display: inline-block;
+  animation: jfNameReveal .7s cubic-bezier(.16,.82,.2,1) both, jfNameGlow 3.8s 1s ease-in-out infinite alternate;
+}
+.dashboard-page .dashboard-hero h1 span {
+  background-image: linear-gradient(100deg, #fff1dc, #ffb16e 34%, #ff8068 65%, #c4a2ff);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: jfTitleSheen 6s ease-in-out infinite alternate;
+}
+.login-card .login-logo, .login-card .login-logo svg,
+.dashboard-page .dashboard-hero-art, .dashboard-page .dashboard-art-core {
+  transform-style: preserve-3d;
+}
+@keyframes jfFireBreath { from { transform: scale(1) translateY(0); opacity: .55; } to { transform: scale(1.08) translateY(-1.5%); opacity: .9; } }
+@keyframes jfMeteorFlight {
+  0%, 68% { opacity: 0; transform: translate3d(0,0,0) rotate(32deg) scaleX(.2); }
+  72% { opacity: .9; }
+  100% { opacity: 0; transform: translate3d(48vw,42vh,0) rotate(32deg) scaleX(1.15); }
+}
+@keyframes jfEmberLift { 0%,100% { opacity: .08; transform: translateY(0) scale(.7); } 50% { opacity: .55; transform: translateY(-75px) scale(1.25); } }
+@keyframes jfLoginEnter3D {
+  0% { opacity: 0; transform: perspective(1100px) translateY(42px) rotateX(11deg) rotateY(-4deg) scale(.93); filter: blur(8px); }
+  68% { opacity: 1; transform: perspective(1100px) translateY(-3px) rotateX(-1deg) rotateY(1deg) scale(1.008); filter: blur(0); }
+  100% { opacity: 1; transform: perspective(1100px) translateY(0) rotateX(0) rotateY(0) scale(1); filter: blur(0); }
+}
+@keyframes jfLoginShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@keyframes jfLogoHover { 0%,100% { transform: translateY(0) rotateX(0); } 50% { transform: translateY(-5px) rotateX(7deg); } }
+@keyframes jfFlameFlicker { 0%,100% { transform: scale(1) rotate(-2deg); } 50% { transform: scale(1.1) rotate(3deg); filter: drop-shadow(0 0 9px rgba(255,206,143,.7)); } }
+@keyframes jfLogoOrbit { to { transform: rotateX(58deg) rotateZ(332deg); } }
+@keyframes jfVerificationSweep { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+@keyframes jfVerifyPulse { 0% { box-shadow: 0 0 0 0 rgba(126,227,189,.5); } 100% { box-shadow: 0 0 0 9px rgba(126,227,189,0); } }
+@keyframes jfVerifySpin { to { transform: rotate(360deg); } }
+@keyframes jfLoaderFloat { 0%,100% { transform: translateY(0) rotateX(0); } 50% { transform: translateY(-7px) rotateX(8deg); } }
+@keyframes jfLoaderOrbit { to { transform: rotate(388deg); } }
+@keyframes jfLoaderProgress { 0% { transform: translateX(-125%); } 100% { transform: translateX(300%); } }
+@keyframes jfIconEmber { 0%,100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 0 rgba(255,150,87,0)); } 50% { transform: translateY(-2px) scale(1.07); filter: drop-shadow(0 0 7px rgba(255,150,87,.32)); } }
+@keyframes jfFadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes jfTitleSheen { from { background-position: 0% center; } to { background-position: 100% center; } }
+
+@media (max-width: 680px) {
+  .login-card { padding: 25px !important; border-radius: 20px !important; }
+  .jf-meteor { opacity: .4; }
+  .dashboard-page .dashboard-stat:hover,
+  .dashboard-page .dashboard-shortcut:hover,
+  .dashboard-page .dashboard-community-stat:hover,
+  .dashboard-page .dashboard-chart-card:hover,
+  .main .member-card:hover,
+  .youth-portal .youth-profile-card:hover { transform: translate3d(0,-3px,0) scale(1.008) !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jf-fire-atmosphere *, .jf-fire-atmosphere::before,
+  .login-logo, .login-logo svg, .login-logo-orbit,
+  .login-card, .login-submit, .login-verification *,
+  .jf-auth-loader *, .jf-title-reveal, .jf-name-reveal,
+  .main .member-card, .main .dashboard-stat, .main .dashboard-shortcut,
+  .main .dashboard-community-stat, .main .dashboard-chart-card,
+  .youth-portal .youth-profile-card,
+  .dashboard-page .dashboard-stat-icon svg,
+  .dashboard-page .dashboard-shortcut-icon svg,
+  .dashboard-page .dashboard-community-stat-icon svg {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
