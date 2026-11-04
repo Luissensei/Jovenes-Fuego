@@ -1,6 +1,6 @@
 import { FireAtmosphere } from './FireAtmosphere';
 import { useState, type FormEvent } from 'react';
-import { Flame, LockKeyhole, ShieldCheck } from 'lucide-react';
+import { LockKeyhole, ShieldCheck } from 'lucide-react';
 import { useAuth } from './AuthContext';
 
 export function LoginPage() {
@@ -27,9 +27,12 @@ export function LoginPage() {
     <main className={`login-shell ${busy ? "is-verifying" : ""}`}>
       <FireAtmosphere density="cinematic" />
       <section className={`login-card ${error || authError ? "has-error" : ""}`}>
-        <span className="login-logo"><span className="login-logo-orbit" aria-hidden="true" /><Flame size={28} /></span>
+        <span className="login-logo church-login-logo">
+          <img src="/church-logo.webp" alt="Logo de la Iglesia Cristiana Cuadrangular Alfa y Omega" />
+        </span>
         <p className="eyebrow">ENTORNO SEGURO DE PRUEBAS</p>
         <h1>Jóvenes de Fuego</h1>
+        <p className="login-church-name">Iglesia Cristiana Cuadrangular Alfa y Omega</p>
         <p className="login-intro">Inicia sesión con tu usuario o correo de la aplicación original.</p>
         {!configured && (
           <div className="setup-warning">

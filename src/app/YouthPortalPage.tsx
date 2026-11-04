@@ -1,4 +1,3 @@
-import { FireAtmosphere } from './FireAtmosphere';
 import styles from './styles/YouthPortalPage.module.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type {FormEvent} from 'react';
@@ -548,7 +547,6 @@ export default function YouthPortalPage() {
     };
     return (
       <main className={`${styles.scope} youth-portal`}>
-        <FireAtmosphere density="cinematic" />
         <div className={`youth-container youth-game-shell ${gameExiting ? "youth-game-exit" : ""}`}>
           <div className="youth-game-topbar">
             <button className="youth-back" type="button" onClick={exitGame}><ArrowLeft size={17}/> Volver a mi espacio</button>
@@ -573,7 +571,6 @@ export default function YouthPortalPage() {
   if (selectedProfile) {
     return (
       <main className={`${styles.scope} youth-portal youth-look-${look.background} ${portalExiting ? "youth-profile-exit" : ""}`}>
-        <FireAtmosphere density="cinematic" />
         <div className="youth-container youth-home-enter">
           <div className="youth-home-toolbar">
             <button type="button" className="youth-back" onClick={leaveProfile}>
@@ -697,11 +694,12 @@ export default function YouthPortalPage() {
 
   return (
     <main className={`${styles.scope} youth-portal`}>
-        <FireAtmosphere density="cinematic" />
       <div className="youth-container">
         <header className="youth-header">
-          <div className="youth-brand-icon"><Flame size={34}/></div>
-          <span className="youth-brand-label">COMUNIDAD CRISTIANA</span>
+          <div className="youth-brand-icon church-portal-logo">
+            <img src="/church-logo.webp" alt="Logo de la Iglesia Cristiana Cuadrangular Alfa y Omega" />
+          </div>
+          <span className="youth-brand-label">IGLESIA CRISTIANA CUADRANGULAR ALFA Y OMEGA</span>
           <h1 className="jf-title-reveal">JÓVENES DE FUEGO</h1>
           <div className="youth-title-divider"/>
           <h2 className="jf-title-reveal">¿Quién eres?</h2>

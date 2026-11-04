@@ -443,3 +443,54 @@
     filter: none !important;
   }
 }
+
+
+/* Rendimiento: evita recalcular blur, filtros y transformaciones durante el scroll. */
+html, body {
+  scroll-behavior: auto;
+  overscroll-behavior-y: auto;
+}
+.sidebar nav {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+}
+.jf-fire-atmosphere::before {
+  filter: none !important;
+  animation: none !important;
+}
+.main .member-card,
+.main .dashboard-stat,
+.main .dashboard-shortcut,
+.main .dashboard-community-stat,
+.main .dashboard-chart-card,
+.youth-portal .youth-profile-card {
+  animation: none !important;
+  will-change: auto !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: border-color .16s ease, box-shadow .16s ease !important;
+}
+.main .dashboard-stat,
+.main .dashboard-shortcut,
+.main .dashboard-community-stat,
+.main .dashboard-chart-card {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  .main .member-card:hover,
+  .main .dashboard-stat:hover,
+  .main .dashboard-shortcut:hover,
+  .main .dashboard-community-stat:hover,
+  .main .dashboard-chart-card:hover,
+  .youth-portal .youth-profile-card:hover {
+    transform: none !important;
+    filter: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html, body { scroll-behavior: auto !important; }
+}

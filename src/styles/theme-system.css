@@ -1,0 +1,386 @@
+/* Sistema visual unificado — Jóvenes de Fuego */
+:root {
+  --jf-accent: #e85d36;
+  --jf-accent-strong: #c94428;
+  --jf-bg: #0b1020;
+  --jf-surface: #121a2c;
+  --jf-surface-raised: #18243a;
+  --jf-text: #f4f6fb;
+  --jf-muted: #a7b1c3;
+  --jf-border: rgba(172, 190, 222, .16);
+  --jf-shadow: 0 12px 32px rgba(0, 0, 0, .18);
+  color-scheme: dark;
+}
+:root[data-theme="dark"] {
+  --jf-bg: #0b1020;
+  --jf-surface: #121a2c;
+  --jf-surface-raised: #18243a;
+  --jf-text: #f4f6fb;
+  --jf-muted: #a7b1c3;
+  --jf-border: rgba(172, 190, 222, .16);
+  --jf-sidebar: #0e1728;
+  --jf-sidebar-text: #e4ebf7;
+  --jf-sidebar-muted: #9ba9bf;
+  --jf-input: #0d1627;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --jf-bg: #f3f5fa;
+  --jf-surface: #ffffff;
+  --jf-surface-raised: #f8f9fc;
+  --jf-text: #253047;
+  --jf-muted: #66748b;
+  --jf-border: #e1e6ef;
+  --jf-sidebar: #ffffff;
+  --jf-sidebar-text: #27354d;
+  --jf-sidebar-muted: #77849a;
+  --jf-input: #ffffff;
+  --jf-shadow: 0 10px 28px rgba(36, 52, 82, .07);
+  color-scheme: light;
+}
+html, body, #root {
+  min-height: 100%;
+  background: var(--jf-bg);
+  color: var(--jf-text);
+}
+body {
+  font-family: "DM Sans", system-ui, sans-serif;
+  background: var(--jf-bg) !important;
+  color: var(--jf-text);
+}
+.layout {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 95% 0%, rgba(117, 107, 207, .06), transparent 34%),
+    var(--jf-bg) !important;
+  color: var(--jf-text);
+}
+.sidebar {
+  background: var(--jf-sidebar) !important;
+  color: var(--jf-sidebar-text) !important;
+  border-right: 1px solid var(--jf-border);
+  box-shadow: 12px 0 30px rgba(4, 10, 25, .06);
+}
+.brand {
+  gap: 12px;
+  padding: 2px 8px 22px;
+}
+.brand strong {
+  color: var(--jf-sidebar-text);
+  font-size: 13px;
+  letter-spacing: -.2px;
+}
+.brand small {
+  max-width: 165px;
+  color: var(--jf-sidebar-muted) !important;
+  font-size: 9px;
+  line-height: 1.45;
+}
+.brand-mark.church-brand-mark {
+  width: 48px;
+  height: 48px;
+  padding: 3px;
+  overflow: hidden;
+  flex: none;
+  border: 1px solid rgba(135, 149, 180, .22);
+  border-radius: 15px;
+  background: #fff !important;
+  box-shadow: 0 5px 16px rgba(28, 40, 67, .13);
+}
+.church-brand-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+}
+.mobile-header {
+  background: var(--jf-sidebar) !important;
+  color: var(--jf-sidebar-text) !important;
+  border-bottom: 1px solid var(--jf-border);
+}
+.mobile-header .church-brand-mark {
+  width: 35px;
+  height: 35px;
+  padding: 2px;
+  border-radius: 11px;
+}
+.sidebar .env-chip {
+  color: var(--jf-sidebar-text);
+  background: var(--jf-surface-raised);
+  border-color: var(--jf-border);
+  border-radius: 11px;
+}
+.sidebar nav {
+  gap: 5px;
+  padding: 3px 2px 8px 0;
+}
+.sidebar .nav-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  color: var(--jf-sidebar-muted) !important;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.sidebar .nav-item:hover {
+  background: var(--jf-surface-raised) !important;
+  color: var(--jf-sidebar-text) !important;
+}
+.sidebar .nav-item.active {
+  background: linear-gradient(100deg, rgba(232, 93, 54, .16), rgba(232, 93, 54, .07)) !important;
+  border-color: rgba(232, 93, 54, .22);
+  color: var(--jf-accent) !important;
+  box-shadow: none !important;
+}
+.nav-item-icon {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  flex: none;
+  border-radius: 8px;
+  background: rgba(130, 145, 175, .10);
+}
+.nav-item.active .nav-item-icon {
+  background: rgba(232, 93, 54, .13);
+}
+.safe-note {
+  color: var(--jf-sidebar-text) !important;
+  background: var(--jf-surface-raised) !important;
+  border: 1px solid var(--jf-border);
+}
+.safe-note small {
+  color: var(--jf-sidebar-muted) !important;
+}
+.theme-toggle {
+  color: var(--jf-sidebar-text) !important;
+  border-color: var(--jf-border) !important;
+  background: transparent !important;
+  border-radius: 10px;
+  transition: background .15s ease, border-color .15s ease;
+}
+.theme-toggle:hover {
+  background: var(--jf-surface-raised) !important;
+}
+.main {
+  min-height: 100vh;
+  padding: 28px clamp(18px, 3vw, 42px) 28px;
+  color: var(--jf-text);
+}
+.topline {
+  min-height: 42px;
+  height: auto;
+  gap: 12px;
+  padding-bottom: 14px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--jf-border);
+  color: var(--jf-muted);
+}
+.topline-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.topline-status-environment, .topline-status-module {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.topline-status-module { color: var(--jf-text); font-weight: 700; }
+.topline-status-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--jf-border);
+}
+.project-label {
+  color: var(--jf-muted) !important;
+  background: var(--jf-surface-raised) !important;
+  border: 1px solid var(--jf-border);
+  border-radius: 9px;
+}
+.preview-warning {
+  border-radius: 12px;
+}
+.main footer {
+  border-top: 1px solid var(--jf-border);
+  margin-top: 30px;
+  color: var(--jf-muted);
+}
+.main .app-page {
+  gap: 20px;
+}
+.main .shared-page-header {
+  border-radius: 19px;
+  box-shadow: var(--jf-shadow);
+}
+.main .shared-page-header h1 {
+  color: var(--jf-text);
+}
+.main .shared-page-header p {
+  color: var(--jf-muted);
+}
+
+/* Tarjetas y paneles: misma jerarquía visual en todos los módulos. */
+.main :is(
+  .page-card, .app-page, [class*="card"], [class*="Card"],
+  [class*="panel"], [class*="Panel"], [class*="stat"], [class*="Stat"],
+  [class*="table"], [class*="Table"]
+) {
+  border-color: var(--jf-border) !important;
+  border-radius: 16px;
+  box-shadow: var(--jf-shadow);
+}
+:root[data-theme="dark"] .main :is(
+  .page-card, [class*="card"], [class*="Card"], [class*="panel"],
+  [class*="Panel"], [class*="stat"], [class*="Stat"]
+) {
+  color: var(--jf-text);
+}
+:root[data-theme="light"] .main :is(
+  .page-card, [class*="card"], [class*="Card"], [class*="panel"],
+  [class*="Panel"], [class*="stat"], [class*="Stat"],
+  [class*="table"], [class*="Table"], [class*="form"], [class*="Form"]
+) {
+  background: #fff !important;
+  border-color: #e3e8f1 !important;
+  color: #29364d !important;
+  box-shadow: 0 9px 26px rgba(42, 58, 88, .055) !important;
+}
+:root[data-theme="light"] .main :is(h1,h2,h3,h4,strong,label,legend) {
+  color: #253047;
+}
+:root[data-theme="light"] .main :is(p,small,li,dt,dd,figcaption) {
+  color: #65748b;
+}
+:root[data-theme="light"] .main :is(input,textarea,select) {
+  color: #253047 !important;
+  background: #fff !important;
+  border-color: #dce3ee !important;
+}
+:root[data-theme="light"] .main :is(input,textarea,select)::placeholder {
+  color: #98a3b5 !important;
+}
+:root[data-theme="light"] .main :is(th,thead) {
+  background: #f4f6fa !important;
+  color: #44516a !important;
+}
+:root[data-theme="light"] .main :is(.muted-tag,.results-count,.read-only-note) {
+  color: #66748b !important;
+}
+:root[data-theme="light"] .main .notice {
+  background: #fff7f0 !important;
+  color: #68432f !important;
+  border-color: #f5dfd1 !important;
+}
+:root[data-theme="light"] .main .notice p {
+  color: #876b5b !important;
+}
+.main :is(button,input,textarea,select) {
+  font-family: inherit;
+}
+.main :is(input,textarea,select) {
+  max-width: 100%;
+  border-radius: 10px;
+}
+
+/* Formas coherentes para los portales, sin cubrir los colores personales de los avatares. */
+.youth-portal {
+  background-color: var(--jf-bg);
+  color: var(--jf-text);
+}
+.youth-portal .church-portal-logo {
+  display: grid;
+  place-items: center;
+  width: 86px;
+  height: 86px;
+  margin: 0 auto 16px;
+  padding: 4px;
+  overflow: hidden;
+  border: 1px solid var(--jf-border);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(25, 37, 67, .12);
+}
+.youth-portal .church-portal-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 17px;
+}
+.login-logo.church-login-logo {
+  width: 90px;
+  height: 90px;
+  padding: 4px;
+  border-radius: 24px;
+  background: #fff !important;
+  border: 1px solid rgba(131, 149, 183, .2);
+  box-shadow: 0 12px 30px rgba(24, 35, 61, .12);
+  animation: none;
+}
+.church-login-logo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  border-radius: 18px;
+}
+.login-church-name {
+  margin: -4px 0 12px;
+  color: var(--jf-muted);
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: .02em;
+}
+:root[data-theme="light"] .login-card {
+  background: rgba(255,255,255,.94) !important;
+  border-color: #e3e8f1 !important;
+  box-shadow: 0 24px 70px rgba(42, 58, 88, .10) !important;
+}
+:root[data-theme="light"] .login-card h1 {
+  color: #253047;
+}
+:root[data-theme="light"] .login-intro {
+  color: #66748b;
+}
+:root[data-theme="light"] .login-card input {
+  background: #fff !important;
+  color: #253047 !important;
+}
+@media (max-width: 900px) {
+  .main {
+    padding: 19px 16px 26px;
+  }
+  .topline {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .project-label {
+    max-width: 100%;
+    flex-wrap: wrap;
+    overflow-wrap: anywhere;
+  }
+  .sidebar {
+    box-shadow: 20px 0 42px rgba(5, 12, 28, .16);
+  }
+}
+@media (max-width: 560px) {
+  .brand strong { font-size: 12px; }
+  .main .shared-page-header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 20px;
+  }
+  .youth-portal .church-portal-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+  }
+}

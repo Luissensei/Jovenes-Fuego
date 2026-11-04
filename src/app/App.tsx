@@ -284,7 +284,6 @@ function AdminApp() {
 
   return (
     <div className="layout">
-      <FireAtmosphere />
       <header className="mobile-header">
         <button
           className="icon-button"
@@ -294,8 +293,8 @@ function AdminApp() {
           {menuOpen ? <X size={21} /> : <Menu size={21} />}
         </button>
 
-        <span className="brand-mark">
-          <Flame size={20} />
+        <span className="brand-mark church-brand-mark">
+          <img src="/church-logo.webp" alt="" />
         </span>
 
         <strong>Jóvenes de Fuego</strong>
@@ -311,13 +310,13 @@ function AdminApp() {
 
       <aside className={`sidebar ${menuOpen ? 'open' : ''}`}>
         <div className="brand">
-          <span className="brand-mark">
-            <Flame size={23} />
+          <span className="brand-mark church-brand-mark">
+            <img src="/church-logo.webp" alt="" />
           </span>
 
           <div>
             <strong>Jóvenes de Fuego</strong>
-            <small>Comunidad · Crecimiento</small>
+            <small>Iglesia Cristiana Cuadrangular Alfa y Omega</small>
           </div>
         </div>
 
