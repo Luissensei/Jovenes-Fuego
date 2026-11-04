@@ -803,3 +803,13 @@ body {
   transform: none !important;
   box-shadow: none !important;
 }
+
+
+:root[data-theme="royal"] .main :is(
+  .btn-primary, .primary-button, .login-submit, .submit-button,
+  .member-detail-save, .attendance-card > button, .ranking-hero-button,
+  .shared-button.primary, .management-submit, .weekly-add-button,
+  .youth-prayer-submit-row button, .topline-ai-trigger
+) {
+  color: #211b13 !important;
+}
