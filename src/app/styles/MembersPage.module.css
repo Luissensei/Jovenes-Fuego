@@ -714,3 +714,89 @@
   .portalScope :global(.member-detail-modal) form{padding:12px 14px!important;}
   .portalScope :global(.member-detail-fields){gap:9px;}
 }
+
+
+/* Jóvenes de Fuego · directorio y ficha administrativa */
+.scope :global(.members-hero) {
+  position:relative;isolation:isolate;overflow:hidden;
+  border:1px solid rgba(220,174,112,.22);border-radius:25px;
+  background:
+    radial-gradient(ellipse at 92% 0%,rgba(255,128,66,.2),transparent 35%),
+    radial-gradient(ellipse at 0% 100%,rgba(137,92,177,.2),transparent 40%),
+    linear-gradient(120deg,#171321,#292039 62%,#38262b);
+  box-shadow:0 22px 55px rgba(8,5,14,.19),inset 0 1px rgba(255,255,255,.06);
+}
+.scope :global(.members-total-card),
+.scope :global(.members-controls),
+.scope :global(.member-card) {
+  border:1px solid var(--jf-border,rgba(197,163,107,.17));
+  background:var(--jf-surface,rgba(27,23,35,.9));
+  color:var(--jf-text,#f5efe6);
+  box-shadow:0 13px 34px rgba(5,4,10,.12),inset 0 1px rgba(255,255,255,.025);
+}
+.scope :global(.members-controls) { border-radius:18px; }
+.scope :global(.members-search) {
+  min-width:0;border-radius:13px;
+  background:var(--jf-input,#15111c);
+  border-color:var(--jf-border,rgba(197,163,107,.2));
+}
+.scope :global(.members-search) input { min-width:0;color:var(--jf-text,#f5efe6); }
+.scope :global(.member-card) {
+  overflow:hidden;border-radius:20px;
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+.scope :global(.member-card):hover {
+  transform:translateY(-4px);border-color:rgba(222,171,105,.42);
+  box-shadow:0 20px 44px rgba(5,4,10,.2);
+}
+.scope :global(.member-detail-button) { min-height:44px; }
+.scope :global(.members-page) :is(button,a,input):focus-visible,
+.portalScope :global(.member-detail-modal) :is(button,a,input,textarea,select):focus-visible {
+  outline:3px solid rgba(222,174,111,.78);outline-offset:3px;
+}
+.portalScope:global(.member-detail-backdrop) {
+  background:rgba(8,6,13,.76);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
+}
+.portalScope :global(.member-detail-modal) {
+  border:1px solid rgba(215,177,119,.26);
+  border-radius:22px;
+  background:var(--jf-surface,#1a1622);
+  color:var(--jf-text,#f5efe6);
+  box-shadow:0 30px 100px rgba(0,0,0,.42),inset 0 1px rgba(255,255,255,.045);
+}
+.portalScope :global(.member-detail-header) {
+  background:linear-gradient(115deg,#21182d,#34243c 65%,#442b2a);
+  border-bottom:1px solid rgba(215,177,119,.18);
+}
+.portalScope :global(.member-detail-modal) form footer {
+  background:var(--jf-surface,#1a1622);
+  border-top:1px solid var(--jf-border,rgba(197,163,107,.16));
+}
+:global(:root[data-theme="light"]) .scope :global(.members-total-card),
+:global(:root[data-theme="light"]) .scope :global(.members-controls),
+:global(:root[data-theme="light"]) .scope :global(.member-card) {
+  background:#fff;color:#382d40;border-color:#e9e0eb;
+  box-shadow:0 12px 30px rgba(48,34,60,.055);
+}
+:global(:root[data-theme="light"]) .scope :global(.members-search) {
+  background:#faf8fb;border-color:#e8e0eb;
+}
+:global(:root[data-theme="light"]) .scope :global(.members-search) input {color:#382d40;}
+:global(:root[data-theme="light"]) .portalScope :global(.member-detail-modal) {
+  background:#fff;color:#382d40;border-color:#e9e0eb;
+}
+:global(:root[data-theme="light"]) .portalScope :global(.member-detail-modal) form footer {background:#fff;}
+@media(max-width:640px) {
+ .scope:global(.members-page){padding-inline:0}
+ .scope :global(.members-hero){padding:21px;border-radius:20px}
+ .scope :global(.members-controls){padding:13px;border-radius:16px}
+ .scope :global(.members-grid){gap:13px}
+ .scope :global(.member-card){border-radius:17px}
+ .portalScope :global(.member-detail-header){padding:14px!important}
+}
+@media(prefers-reduced-motion:reduce) {
+ .scope :global(.member-card){transition:none}
+ .scope :global(.member-card):hover{transform:none}
+}
