@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jóvenes de Fuego - Dashboard & Liderazgo Glass UI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for dynamic interactive graphics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        glass: {
+                            bg: 'rgba(15, 23, 42, 0.7)',
+                            border: 'rgba(255, 255, 255, 0.12)',
+                            hover: 'rgba(255, 255, 255, 0.1)',
+                        },
+                        fuego: {
+                            red: '#ef4444',
+                            blue: '#3b82f6',
+                            yellow: '#eab308',
+                            purple: '#a855f7'
+                        }
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                        'glow-red': '0 0 25px rgba(239, 68, 68, 0.4)',
+                        'glow-blue': '0 0 25px rgba(59, 130, 246, 0.4)',
+                        'glow-yellow': '0 0 25px rgba(234, 179, 8, 0.4)',
+                        'glow-purple': '0 0 25px rgba(168, 85, 247, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: radial-gradient(circle at 15% 15%, rgba(20, 24, 41, 1) 0%, rgba(9, 11, 20, 1) 50%, rgba(4, 6, 12, 1) 100%);
+            background-attachment: fixed;
+        }
+
+        .glass-panel {
+            background: rgba(18, 24, 43, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-panel-glow {
+            background: rgba(22, 30, 54, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            box-shadow: 0 0 30px rgba(234, 179, 8, 0.2);
+        }
+
+        .glass-gold-podium {
+            background: linear-gradient(180deg, rgba(234, 179, 8, 0.25) 0%, rgba(161, 98, 7, 0.15) 100%);
+            border: 1px solid rgba(234, 179, 8, 0.5);
+            box-shadow: 0 0 30px rgba(234, 179, 8, 0.3);
+        }
+
+        .glass-silver-podium {
+            background: linear-gradient(180deg, rgba(203, 213, 225, 0.2) 0%, rgba(71, 85, 105, 0.15) 100%);
+            border: 1px solid rgba(203, 213, 225, 0.3);
+        }
+
+        .glass-bronze-podium {
+            background: linear-gradient(180deg, rgba(239, 68, 68, 0.2) 0%, rgba(153, 27, 27, 0.15) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(234, 179, 8, 0.5);
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+        }
+
+        .ambient-glow {
+            animation: pulseGlow 9s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="h-full text-slate-100 flex overflow-hidden font-sans antialiased selection:bg-yellow-500 selection:text-slate-950">
+
+    <!-- Ambient Lighting Orbs (Representing the 4 pillars: Red, Blue, Yellow, Purple) -->
+    <div class="fixed top-[-10%] left-[-5%] w-[40vw] h-[40vw] rounded-full bg-red-600/15 blur-[140px] pointer-events-none ambient-glow z-0"></div>
+    <div class="fixed top-[30%] left-[60%] w-[35vw] h-[35vw] rounded-full bg-blue-600/15 blur-[150px] pointer-events-none ambient-glow z-0" style="animation-delay: -3s;"></div>
+    <div class="fixed bottom-[-10%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-yellow-500/15 blur-[140px] pointer-events-none ambient-glow z-0" style="animation-delay: -6s;"></div>
+    <div class="fixed top-[60%] right-[-5%] w-[35vw] h-[35vw] rounded-full bg-purple-600/15 blur-[150px] pointer-events-none ambient-glow z-0" style="animation-delay: -2s;"></div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="relative z-10 flex w-full h-screen overflow-hidden">
+
+        <!-- ========================================== -->
+        <!-- SIDEBAR MENU (DESPLEGABLE / COLLAPSIBLE) -->
+        <!-- ========================================== -->
+        <aside id="sidebar" class="h-full glass-panel flex flex-col justify-between transition-all duration-300 ease-in-out z-30 w-64 group shrink-0 border-r border-white/10">
+            
+            <!-- Sidebar Header & Toggle Button -->
+            <div class="p-4 flex items-center justify-between border-b border-white/10">
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-500 via-yellow-500 to-purple-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-yellow-500/30 shrink-0">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                    <div class="sidebar-text transition-opacity duration-200 whitespace-nowrap">
+                        <h1 class="font-extrabold text-sm tracking-wide bg-gradient-to-r from-white via-yellow-200 to-yellow-400 bg-clip-text text-transparent">JÓVENES DE FUEGO</h1>
+                        <p class="text-[10px] text-yellow-400 font-bold tracking-wider uppercase">Portal de Liderazgo</p>
+                    </div>
+                </div>
+                <!-- Toggle Button -->
+                <button id="sidebarToggle" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all">
+                    <i id="toggleIcon" class="fa-solid fa-chevron-left text-xs transition-transform duration-300"></i>
+                </button>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="px-3 py-4 flex-1 overflow-y-auto space-y-6">
+                <!-- Main Section -->
+                <div>
+                    <p class="sidebar-text px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Comunidad</p>
+                    <nav class="space-y-1">
+                        <a href="#" class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-yellow-500/30 to-amber-600/20 border border-yellow-500/40 text-white font-medium shadow-lg shadow-yellow-950/50 transition-all">
+                            <i class="fa-solid fa-house-chimney text-yellow-400 text-base w-5 text-center"></i>
+                            <span class="sidebar-text whitespace-nowrap">Dashboard General</span>
+                        </a>
+                        <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                            <i class="fa-solid fa-ranking-star text-base w-5 text-center text-yellow-400"></i>
+                            <span class="sidebar-text whitespace-nowrap">Podio & Ranking</span>
+                        </a>
+                        <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                            <i class="fa-solid fa-users-rectangle text-base w-5 text-center text-blue-400"></i>
+                            <span class="sidebar-text whitespace-nowrap">Células de Crecimiento</span>
+                        </a>
+                        <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                            <i class="fa-solid fa-calendar-days text-base w-5 text-center text-purple-400"></i>
+                            <span class="sidebar-text whitespace-nowrap">Eventos & Cultos</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Pillars & Resources Section -->
+                <div>
+                    <p class="sidebar-text px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Pilares & Recursos</p>
+                    <nav class="space-y-1">
+                        <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                            <i class="fa-solid fa-cross text-base w-5 text-center text-red-500"></i>
+                            <span class="sidebar-text whitespace-nowrap">Fe & Cruz (Pilar Rojo)</span>
+                        </a>
+                        <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                            <i class="fa-solid fa-champagne-glasses text-base w-5 text-center text-blue-500"></i>
+                            <span class="sidebar-text whitespace-nowrap">Comunión (Pilar Azul)</span>
+                        </a>
+                        <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                            <i class="fa-solid fa-dove text-base w-5 text-center text-yellow-400"></i>
+                            <span class="sidebar-text whitespace-nowrap">Espíritu (Pilar Amarillo)</span>
+                        </a>
+                        <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                            <i class="fa-solid fa-crown text-base w-5 text-center text-purple-400"></i>
+                            <span class="sidebar-text whitespace-nowrap">Reino (Pilar Morado)</span>
+                        </a>
+                        <a href="https://github.com/Luissensei/Jovenes-Fuego" target="_blank" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+                            <i class="fa-brands fa-github text-base w-5 text-center text-slate-300"></i>
+                            <span class="sidebar-text whitespace-nowrap">Repositorio GitHub</span>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- User Profile Footer Sidebar -->
+            <div class="p-3 border-t border-white/10">
+                <div class="glass-panel rounded-xl p-2.5 flex items-center gap-3">
+                    <div class="relative shrink-0">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150" class="w-9 h-9 rounded-lg object-cover border border-yellow-400/40" alt="Avatar User">
+                        <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-yellow-400 rounded-full border-2 border-slate-900"></span>
+                    </div>
+                    <div class="sidebar-text overflow-hidden">
+                        <p class="text-xs font-bold text-white truncate">Mariana Lima</p>
+                        <p class="text-[10px] text-yellow-400 truncate">Líder Destacada 2026</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ========================================== -->
+        <!-- MAIN CONTENT AREA -->
+        <!-- ========================================== -->
+        <main class="flex-1 h-full overflow-y-auto overflow-x-hidden flex flex-col p-4 md:p-6 space-y-6">
+
+            <!-- TOP HEADER BAR -->
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 glass-panel p-4 rounded-2xl">
+                <div>
+                    <h2 class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-3">
+                        <span>PANEL DE LIDERAZGO Y RANKING</span>
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-yellow-400 animate-ping"></span> Activo
+                        </span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Repositorio Luissensei/Jovenes-Fuego • Métricas de crecimiento y participación</p>
+                </div>
+
+                <!-- Controls & Global Actions -->
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <!-- Period Filter -->
+                    <div class="relative flex-1 md:flex-none">
+                        <select id="periodFilter" class="w-full md:w-auto bg-slate-900/80 border border-white/15 text-slate-200 text-xs rounded-xl px-3 py-2 pr-8 font-medium focus:outline-none focus:border-yellow-500 transition-all appearance-none cursor-pointer">
+                            <option value="month">Este Mes (Octubre)</option>
+                            <option value="quarter">Trimestre Actual</option>
+                            <option value="year">Anual 2026</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none"></i>
+                    </div>
+
+                    <!-- Share Button (ChatGPT / Link) -->
+                    <button onclick="shareDashboard()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-yellow-500/20 transition-all active:scale-95">
+                        <i class="fa-solid fa-share-nodes text-slate-950"></i>
+                        <span>Compartir en ChatGPT</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- KPI HIGHLIGHT CARDS (Row 1) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <!-- Card 1: Total Crecimiento -->
+                <div class="glass-panel p-4 rounded-2xl flex items-center justify-between relative overflow-hidden group hover:border-yellow-500/40 transition-all">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Jóvenes Activos</p>
+                        <h3 class="text-2xl font-black text-white mt-1">1,452</h3>
+                        <p class="text-[11px] text-yellow-400 font-medium flex items-center gap-1 mt-1">
+                            <i class="fa-solid fa-arrow-trend-up"></i> +24% <span class="text-slate-500">este mes</span>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-yellow-500/15 border border-yellow-500/30 flex items-center justify-center text-yellow-400 text-xl group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                </div>
+
+                <!-- Card 2: Células Multiplicadas -->
+                <div class="glass-panel p-4 rounded-2xl flex items-center justify-between relative overflow-hidden group hover:border-blue-500/40 transition-all">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Células de Fuego</p>
+                        <h3 class="text-2xl font-black text-white mt-1">86</h3>
+                        <p class="text-[11px] text-blue-400 font-medium flex items-center gap-1 mt-1">
+                            <i class="fa-solid fa-circle-check"></i> 100% activas
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-people-group"></i>
+                    </div>
+                </div>
+
+                <!-- Card 3: Participación Inbound -->
+                <div class="glass-panel p-4 rounded-2xl flex items-center justify-between relative overflow-hidden group hover:border-purple-500/40 transition-all">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Retención & Asistencia</p>
+                        <h3 class="text-2xl font-black text-white mt-1">94.2%</h3>
+                        <p class="text-[11px] text-purple-400 font-medium flex items-center gap-1 mt-1">
+                            <i class="fa-solid fa-bolt"></i> Récord histórico
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                </div>
+
+                <!-- Card 4: Top Líder Destacado -->
+                <div class="glass-panel p-4 rounded-2xl flex items-center gap-3 relative overflow-hidden border-yellow-500/30 bg-yellow-500/5">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150" class="w-12 h-12 rounded-xl object-cover border-2 border-yellow-400 shadow-lg shadow-yellow-500/20" alt="Top Leader">
+                    <div class="overflow-hidden">
+                        <p class="text-[10px] font-bold text-yellow-400 uppercase tracking-wider">★ Líder #1</p>
+                        <h4 class="text-sm font-bold text-white truncate">Mariana Lima</h4>
+                        <p class="text-xs text-slate-300 font-semibold">25 Conversiones <span class="text-[10px] text-yellow-400 font-normal">($126.5K)</span></p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- MAIN RANKING PODIUM & PILLARS SECTION (Row 2) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+
+                <!-- PODIUM SECTION (7 Cols) -->
+                <div class="lg:col-span-7 glass-panel-glow p-6 rounded-3xl flex flex-col justify-between relative overflow-hidden">
+                    
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-trophy text-yellow-400"></i> Podio de Liderazgo
+                            </h3>
+                            <p class="text-xs text-slate-400">Top 3 líderes con mayor impacto y células multiplicadas</p>
+                        </div>
+                        <span class="text-xs font-bold text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-full border border-yellow-400/30">
+                            Temporada de Fuego
+                        </span>
+                    </div>
+
+                    <!-- PODIUM DISPLAY -->
+                    <div class="grid grid-cols-3 gap-2 sm:gap-4 items-end pt-8 pb-4">
+                        
+                        <!-- 2ND PLACE (SILVER) -->
+                        <div class="flex flex-col items-center">
+                            <div class="relative group cursor-pointer mb-3" onclick="showSellerModal('Lucas Ferreira', '12 conversiones', 'R$ 69.750', '2º Lugar', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250')">
+                                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-gradient-to-b from-slate-300 to-slate-600 shadow-lg shadow-slate-500/20 group-hover:scale-105 transition-transform">
+                                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250" class="w-full h-full rounded-full object-cover" alt="2nd Place">
+                                </div>
+                                <span class="absolute -top-2 -right-1 w-7 h-7 bg-slate-300 text-slate-950 font-black rounded-full flex items-center justify-center text-xs shadow-md border-2 border-slate-900">
+                                    2º
+                                </span>
+                            </div>
+                            
+                            <div class="text-center mb-2">
+                                <h4 class="text-xs sm:text-sm font-bold text-white truncate max-w-[100px]">Lucas Ferreira</h4>
+                                <p class="text-[11px] font-bold text-slate-300">12 conversiones</p>
+                                <p class="text-[10px] text-slate-400 font-semibold">R$ 69.750</p>
+                            </div>
+
+                            <div class="w-full h-32 sm:h-40 glass-silver-podium rounded-t-2xl flex flex-col items-center justify-center border-t-2 border-slate-300">
+                                <span class="text-3xl sm:text-4xl font-black text-slate-300/80">2º</span>
+                                <i class="fa-solid fa-medal text-slate-300 text-xl mt-2"></i>
+                            </div>
+                        </div>
+
+                        <!-- 1ST PLACE (GOLD) -->
+                        <div class="flex flex-col items-center -mt-6">
+                            <div class="relative group cursor-pointer mb-3" onclick="showSellerModal('Mariana Lima', '25 conversiones', 'R$ 126.500', '1er Lugar Campeona', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250')">
+                                <div class="absolute -inset-1.5 rounded-full bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-600 blur-sm opacity-80 group-hover:opacity-100 transition-opacity animate-pulse"></div>
+                                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1 bg-gradient-to-b from-yellow-300 via-yellow-500 to-amber-700 relative shadow-glow-yellow group-hover:scale-105 transition-transform">
+                                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250" class="w-full h-full rounded-full object-cover" alt="1st Place">
+                                </div>
+                                <span class="absolute -top-3 -right-1 w-8 h-8 bg-gradient-to-tr from-yellow-400 to-amber-300 text-slate-950 font-black rounded-full flex items-center justify-center text-sm shadow-lg border-2 border-slate-900">
+                                    <i class="fa-solid fa-crown text-amber-950 text-xs"></i>
+                                </span>
+                            </div>
+
+                            <div class="text-center mb-2">
+                                <h4 class="text-sm sm:text-base font-extrabold text-yellow-300 truncate max-w-[120px]">Mariana Lima</h4>
+                                <p class="text-xs sm:text-sm font-black text-white">25 conversiones</p>
+                                <p class="text-[11px] text-yellow-400 font-bold">R$ 126.500</p>
+                            </div>
+
+                            <div class="w-full h-44 sm:h-52 glass-gold-podium rounded-t-2xl flex flex-col items-center justify-center border-t-2 border-yellow-400 relative">
+                                <span class="text-4xl sm:text-5xl font-black text-yellow-300 drop-shadow-md">1º</span>
+                                <i class="fa-solid fa-trophy text-yellow-400 text-3xl mt-3 animate-bounce"></i>
+                            </div>
+                        </div>
+
+                        <!-- 3RD PLACE (BRONZE) -->
+                        <div class="flex flex-col items-center">
+                            <div class="relative group cursor-pointer mb-3" onclick="showSellerModal('Juliana Alves', '10 conversiones', 'R$ 34.100', '3er Lugar', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250')">
+                                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-gradient-to-b from-red-400 to-red-800 shadow-lg shadow-red-500/20 group-hover:scale-105 transition-transform">
+                                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250" class="w-full h-full rounded-full object-cover" alt="3rd Place">
+                                </div>
+                                <span class="absolute -top-2 -right-1 w-7 h-7 bg-red-500 text-white font-black rounded-full flex items-center justify-center text-xs shadow-md border-2 border-slate-900">
+                                    3º
+                                </span>
+                            </div>
+
+                            <div class="text-center mb-2">
+                                <h4 class="text-xs sm:text-sm font-bold text-white truncate max-w-[100px]">Juliana Alves</h4>
+                                <p class="text-[11px] font-bold text-slate-300">10 conversiones</p>
+                                <p class="text-[10px] text-red-400 font-semibold">R$ 34.100</p>
+                            </div>
+
+                            <div class="w-full h-28 sm:h-36 glass-bronze-podium rounded-t-2xl flex flex-col items-center justify-center border-t-2 border-red-400">
+                                <span class="text-3xl sm:text-4xl font-black text-red-300/80">3º</span>
+                                <i class="fa-solid fa-award text-red-400 text-xl mt-2"></i>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- RIGHT SIDEBAR: Pillars Breakdown & Chart (5 Cols) -->
+                <div class="lg:col-span-5 flex flex-col gap-4">
+                    
+                    <!-- Chart Card: Pilares Corporativos (Doughnut) -->
+                    <div class="glass-panel p-5 rounded-3xl flex-1 flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-2">
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Distribución por Pilares</h4>
+                                <p class="text-[11px] text-slate-400">Fe, Comunión, Espíritu y Reino</p>
+                            </div>
+                            <span class="text-xs font-black text-yellow-400 bg-yellow-500/10 px-2.5 py-1 rounded-lg border border-yellow-500/20">
+                                4 Pilares
+                            </span>
+                        </div>
+                        
+                        <div class="relative w-full h-44 flex items-center justify-center">
+                            <canvas id="pillarsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Repository Info Widget -->
+                    <div class="glass-panel p-4 rounded-3xl flex items-center justify-between gap-4">
+                        <div class="overflow-hidden">
+                            <p class="text-xs font-bold text-yellow-400 uppercase flex items-center gap-1.5">
+                                <i class="fa-brands fa-github text-base"></i> Luissensei/Jovenes-Fuego
+                            </p>
+                            <h4 class="text-sm font-bold text-white truncate mt-1">Versión Web Interactiva</h4>
+                            <p class="text-[11px] text-slate-400">Glass UI v2.5 optimizada y lista para producción</p>
+                        </div>
+                        <a href="https://github.com/Luissensei/Jovenes-Fuego" target="_blank" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-xs transition-all shrink-0">
+                            Ver Repo
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- LEADERBOARD TABLE & DETAILED RANKING (Row 3) -->
+            <div class="glass-panel p-6 rounded-3xl">
+                
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-list-ol text-yellow-400"></i> Tabla General de Miembros y Líderes
+                        </h3>
+                        <p class="text-xs text-slate-400">Ranking completo de participación y aportes comunitarios</p>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar líder o miembro..." onkeyup="filterTable()" class="bg-slate-900/80 border border-white/10 text-white text-xs rounded-xl pl-9 pr-4 py-2 w-full sm:w-64 focus:outline-none focus:border-yellow-500 transition-all">
+                    </div>
+                </div>
+
+                <!-- TABLE -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse" id="rankingTable">
+                        <thead>
+                            <tr class="text-[11px] font-bold uppercase text-slate-400 border-b border-white/10">
+                                <th class="pb-3 px-4">Rank</th>
+                                <th class="pb-3 px-4">Líder / Miembro</th>
+                                <th class="pb-3 px-4">Puntaje / Valor</th>
+                                <th class="pb-3 px-4">Impacto</th>
+                                <th class="pb-3 px-4 text-center">Progreso</th>
+                                <th class="pb-3 px-4 text-right">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5 text-xs font-medium">
+                            
+                            <!-- Row 1 -->
+                            <tr class="hover:bg-yellow-500/10 transition-colors group">
+                                <td class="py-3.5 px-4 font-bold text-slate-400">#4</td>
+                                <td class="py-3.5 px-4 flex items-center gap-3">
+                                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150" class="w-9 h-9 rounded-xl object-cover border border-white/10" alt="Member">
+                                    <div>
+                                        <p class="font-bold text-white group-hover:text-yellow-300 transition-colors">Kaua Araujo</p>
+                                        <p class="text-[10px] text-slate-400">Líder de Célula</p>
+                                    </div>
+                                </td>
+                                <td class="py-3.5 px-4 font-bold text-slate-200">R$ 82.142</td>
+                                <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded-md bg-yellow-500/20 text-yellow-300 text-[11px] font-bold">4.6%</span></td>
+                                <td class="py-3.5 px-4 text-center">
+                                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                        <div class="bg-gradient-to-r from-yellow-500 to-amber-400 h-full rounded-full" style="width: 65%;"></div>
+                                    </div>
+                                </td>
+                                <td class="py-3.5 px-4 text-right">
+                                    <button onclick="showSellerModal('Kaua Araujo', '2,429 asistencias', 'R$ 82.142', 'Líder de Célula', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=250')" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-yellow-600 hover:text-slate-950 border border-white/10 text-slate-300 text-[11px] transition-all font-semibold">
+                                        Detalles
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Row 2 -->
+                            <tr class="hover:bg-yellow-500/10 transition-colors group">
+                                <td class="py-3.5 px-4 font-bold text-slate-400">#5</td>
+                                <td class="py-3.5 px-4 flex items-center gap-3">
+                                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=150" class="w-9 h-9 rounded-xl object-cover border border-white/10" alt="Member">
+                                    <div>
+                                        <p class="font-bold text-white group-hover:text-yellow-300 transition-colors">Felipe Goncalves</p>
+                                        <p class="text-[10px] text-slate-400">Discipulador</p>
+                                    </div>
+                                </td>
+                                <td class="py-3.5 px-4 font-bold text-slate-200">R$ 167.633</td>
+                                <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 text-[11px] font-bold">9.4%</span></td>
+                                <td class="py-3.5 px-4 text-center">
+                                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                        <div class="bg-gradient-to-r from-blue-500 to-indigo-400 h-full rounded-full" style="width: 85%;"></div>
+                                    </div>
+                                </td>
+                                <td class="py-3.5 px-4 text-right">
+                                    <button onclick="showSellerModal('Felipe Goncalves', '4,102 asistencias', 'R$ 167.633', 'Discipulador', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=250')" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-yellow-600 hover:text-slate-950 border border-white/10 text-slate-300 text-[11px] transition-all font-semibold">
+                                        Detalles
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Row 3 -->
+                            <tr class="hover:bg-yellow-500/10 transition-colors group">
+                                <td class="py-3.5 px-4 font-bold text-slate-400">#6</td>
+                                <td class="py-3.5 px-4 flex items-center gap-3">
+                                    <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=150" class="w-9 h-9 rounded-xl object-cover border border-white/10" alt="Member">
+                                    <div>
+                                        <p class="font-bold text-white group-hover:text-yellow-300 transition-colors">Leonardo Cardoso</p>
+                                        <p class="text-[10px] text-slate-400">Coordinador de Eventos</p>
+                                    </div>
+                                </td>
+                                <td class="py-3.5 px-4 font-bold text-slate-200">R$ 160.771</td>
+                                <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 text-[11px] font-bold">9.0%</span></td>
+                                <td class="py-3.5 px-4 text-center">
+                                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                        <div class="bg-gradient-to-r from-purple-500 to-indigo-400 h-full rounded-full" style="width: 80%;"></div>
+                                    </div>
+                                </td>
+                                <td class="py-3.5 px-4 text-right">
+                                    <button onclick="showSellerModal('Leonardo Cardoso', '3,890 asistencias', 'R$ 160.771', 'Coordinador', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=250')" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-yellow-600 hover:text-slate-950 border border-white/10 text-slate-300 text-[11px] transition-all font-semibold">
+                                        Detalles
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Row 4 -->
+                            <tr class="hover:bg-yellow-500/10 transition-colors group">
+                                <td class="py-3.5 px-4 font-bold text-slate-400">#7</td>
+                                <td class="py-3.5 px-4 flex items-center gap-3">
+                                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=150" class="w-9 h-9 rounded-xl object-cover border border-white/10" alt="Member">
+                                    <div>
+                                        <p class="font-bold text-white group-hover:text-yellow-300 transition-colors">Mateus Costa</p>
+                                        <p class="text-[10px] text-slate-400">Apoyo Logístico</p>
+                                    </div>
+                                </td>
+                                <td class="py-3.5 px-4 font-bold text-slate-200">R$ 78.524</td>
+                                <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded-md bg-red-500/20 text-red-300 text-[11px] font-bold">4.4%</span></td>
+                                <td class="py-3.5 px-4 text-center">
+                                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                        <div class="bg-gradient-to-r from-red-500 to-orange-400 h-full rounded-full" style="width: 50%;"></div>
+                                    </div>
+                                </td>
+                                <td class="py-3.5 px-4 text-right">
+                                    <button onclick="showSellerModal('Mateus Costa', '1,980 asistencias', 'R$ 78.524', 'Logística', 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=250')" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-yellow-600 hover:text-slate-950 border border-white/10 text-slate-300 text-[11px] transition-all font-semibold">
+                                        Detalles
+                                    </button>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- INTERACTIVE MODAL (GLASS STYLE) -->
+    <!-- ========================================== -->
+    <div id="sellerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="glass-panel-glow max-w-md w-full rounded-3xl p-6 relative transform scale-95 transition-transform duration-300" id="modalCard">
+            <!-- Close Button -->
+            <button onclick="closeSellerModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Modal Content -->
+            <div class="flex flex-col items-center text-center">
+                <img id="modalImg" src="" class="w-24 h-24 rounded-2xl object-cover border-2 border-yellow-400 shadow-glow-yellow mb-4" alt="Leader Image">
+                <h3 id="modalName" class="text-xl font-extrabold text-white">---</h3>
+                <p id="modalRole" class="text-xs text-yellow-400 font-semibold mb-4">Líder Destacado</p>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 gap-3 w-full my-4">
+                    <div class="bg-slate-900/60 border border-white/10 p-3 rounded-2xl">
+                        <p class="text-[10px] text-slate-400 uppercase font-bold">Impacto / Valor</p>
+                        <p id="modalRevenue" class="text-base font-black text-yellow-400 mt-1">---</p>
+                    </div>
+                    <div class="bg-slate-900/60 border border-white/10 p-3 rounded-2xl">
+                        <p class="text-[10px] text-slate-400 uppercase font-bold">Participación</p>
+                        <p id="modalShare" class="text-base font-black text-purple-300 mt-1">---</p>
+                    </div>
+                </div>
+
+                <div class="w-full bg-slate-900/40 border border-white/10 p-3 rounded-2xl flex items-center justify-between text-xs text-slate-300 mb-6">
+                    <span>Asistencias / Células:</span>
+                    <span id="modalOrders" class="font-bold text-white">---</span>
+                </div>
+
+                <button onclick="closeSellerModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-yellow-600/30 transition-all">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC & INTERACTION -->
+    <!-- ========================================== -->
+    <script>
+        // 1. SIDEBAR TOGGLE & COLLAPSE LOGIC
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const toggleIcon = document.getElementById('toggleIcon');
+        const sidebarTexts = document.querySelectorAll('.sidebar-text');
+
+        let isCollapsed = false;
+
+        sidebarToggle.addEventListener('click', () => {
+            isCollapsed = !isCollapsed;
+
+            if (isCollapsed) {
+                sidebar.classList.remove('w-64');
+                sidebar.classList.add('w-20');
+                toggleIcon.classList.add('rotate-180');
+                sidebarTexts.forEach(el => el.classList.add('hidden'));
+            } else {
+                sidebar.classList.remove('w-20');
+                sidebar.classList.add('w-64');
+                toggleIcon.classList.remove('rotate-180');
+                sidebarTexts.forEach(el => el.classList.remove('hidden'));
+            }
+
+            setTimeout(() => {
+                if (pillarsChart) pillarsChart.resize();
+            }, 300);
+        });
+
+        // 2. MODAL CONTROLS
+        const sellerModal = document.getElementById('sellerModal');
+        const modalCard = document.getElementById('modalCard');
+
+        function showSellerModal(name, orders, revenue, role, imgSrc) {
+            document.getElementById('modalName').innerText = name;
+            document.getElementById('modalRevenue').innerText = revenue;
+            document.getElementById('modalShare').innerText = role;
+            document.getElementById('modalOrders').innerText = orders;
+            document.getElementById('modalImg').src = imgSrc;
+
+            sellerModal.classList.remove('opacity-0', 'pointer-events-none');
+            modalCard.classList.remove('scale-95');
+            modalCard.classList.add('scale-100');
+        }
+
+        function closeSellerModal() {
+            sellerModal.classList.add('opacity-0', 'pointer-events-none');
+            modalCard.classList.remove('scale-100');
+            modalCard.classList.add('scale-95');
+        }
+
+        // 3. TABLE SEARCH FILTER
+        function filterTable() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const table = document.getElementById('rankingTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const nameCell = rows[i].getElementsByTagName('td')[1];
+                if (nameCell) {
+                    const txtValue = nameCell.textContent || nameCell.innerText;
+                    if (txtValue.toLowerCase().indexOf(input) > -1) {
+                        rows[i].style.display = "";
+                    } else {
+                        rows[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        // 4. SHARE DASHBOARD FUNCTION
+        function shareDashboard() {
+            const dummyUrl = "https://github.com/Luissensei/Jovenes-Fuego";
+            const tempInput = document.createElement("input");
+            document.body.appendChild(tempInput);
+            tempInput.value = `🔥 *Dashboard Jóvenes de Fuego (Glass UI)*\n¡Mira el podio y ranking de liderazgo actualizado!\nRepositorio: ${dummyUrl}`;
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 glass-panel-glow px-4 py-3 rounded-xl text-white text-xs font-bold shadow-2xl flex items-center gap-2 z-50 border-yellow-400/40 animate-bounce';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-yellow-400 text-base"></i> ¡Resumen y link copiados para compartir en ChatGPT!`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // 5. CHART.JS INITIALIZATION (PILLARS DOUGHNUT)
+        let pillarsChart;
+
+        window.onload = function() {
+            const ctxPillars = document.getElementById('pillarsChart').getContext('2d');
+            pillarsChart = new Chart(ctxPillars, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Fe & Cruz (Rojo)', 'Comunión (Azul)', 'Espíritu (Amarillo)', 'Reino (Morado)'],
+                    datasets: [{
+                        data: [35, 25, 25, 15],
+                        backgroundColor: [
+                            '#ef4444',
+                            '#3b82f6',
+                            '#eab308',
+                            '#a855f7'
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                font: { size: 10, family: 'Plus Jakarta Sans' },
+                                color: '#cbd5e1'
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        };
+    </script>
+
+</body>
+</html>
+```
+eof
