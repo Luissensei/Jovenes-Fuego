@@ -49,3 +49,8 @@ Para habilitarla en Staging:
 5. La interfaz mantiene la conversación solo en memoria del navegador; no se almacenan chats devocionales ni se comparten con líderes.
 
 La gestión avanzada de líderes debe utilizar exclusivamente las Cloud Functions administrativas protegidas. No otorgues permisos de lectura directa de `users` al navegador ni despliegues estas funciones en producción como parte de la prueba.
+
+
+### Gestión avanzada de líderes
+
+La administración de líderes se ejecuta mediante las callable Cloud Functions `adminListLeaders`, `adminCreateLeader` y `adminUpdateLeader`. Estas funciones exigen rol `admin` o `administrador`; las cuentas nuevas reciben un enlace de configuración de contraseña y no se guarda una contraseña temporal en el sistema. La suspensión deshabilita Authentication y conserva `users/{uid}`, grupos, permisos y auditoría para permitir una restauración. Los permisos de módulos se leen desde el perfil autenticado. Despliega estas funciones únicamente en el proyecto Firebase Staging y comprueba App Check/reglas antes de probar.

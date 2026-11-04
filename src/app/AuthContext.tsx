@@ -35,6 +35,9 @@ export type UserProfile = {
   name?: string;
   user?: string;
   role?: AppRole;
+  groups?: string[];
+  permissions?: string[];
+  status?: string;
   [key: string]: unknown;
 };
 
@@ -127,6 +130,9 @@ export function AuthProvider({
             name: typeof data.name === 'string' ? data.name : '',
             user: typeof data.user === 'string' ? data.user : '',
             role,
+            groups: Array.isArray(data.groups) ? data.groups.filter((item): item is string => typeof item === 'string').slice(0, 30) : [],
+            permissions: Array.isArray(data.permissions) ? data.permissions.filter((item): item is string => typeof item === 'string').slice(0, 40) : undefined,
+            status: typeof data.status === 'string' ? data.status : 'active',
           });
           setError(null);
         } catch (cause) {

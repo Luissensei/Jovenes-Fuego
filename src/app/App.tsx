@@ -156,11 +156,17 @@ function AdminApp() {
   const isPastor = role === 'pastor';
   const isLeader = ['lider', 'líder'].includes(role);
   const isStaff = isAdmin || isPastor || isLeader;
+  const defaultLeaderModules = ['members','attendance','followups','devotionals','visitors','events','prayers','checkins','turns','ranking','games','profile'];
+  const leaderPermissions = Array.isArray(profile?.permissions)
+    ? profile.permissions.filter((item): item is string => typeof item === 'string')
+    : defaultLeaderModules;
 
   const visibleModules = modules.filter((item) => {
     // La conexión al Firebase original no debe ocultar módulos completos.
     // La visibilidad sigue dependiendo del perfil y del rol autenticado.
     if (item.id === 'assistant') return isAdmin;
+
+    if (isLeader) return item.id === 'dashboard' || leaderPermissions.includes(item.id);
 
     if (item.id === 'pastoral') {
       return isPastor || isAdmin;

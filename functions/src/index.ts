@@ -3,11 +3,13 @@ import {setGlobalOptions} from "firebase-functions";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 import {initializeApp, getApps} from "firebase-admin/app";
 import {getFirestore, FieldValue} from "firebase-admin/firestore";
+import {getAuth as getAdminAuth} from "firebase-admin/auth";
 
 setGlobalOptions({maxInstances: 10});
 
 const app = getApps()[0] ?? initializeApp();
 const db = getFirestore(app);
+const adminAuth = getAdminAuth(app);
 
 type AuthorizedRole = "admin" | "administrador" | "pastor" | "lider" | "líder";
 
@@ -132,6 +134,194 @@ export const getMyApplicationProfile = onCall(async (request) => {
       "No se pudo consultar el perfil de aplicación.",
     );
   }
+});
+
+
+
+async function requireAdmin(uid: string): Promise<AuthorizedRole> {
+  const role = await requireAuthorizedRole(uid);
+  if (role !== "admin" && role !== "administrador") {
+    throw new HttpsError("permission-denied", "Esta operación está reservada para administradores.");
+  }
+  return role;
+}
+
+const leaderRoles = ["lider", "líder", "pastor", "admin", "administrador"];
+const manageablePermissions = [
+  "members", "attendance", "followups", "devotionals", "visitors",
+  "prayers", "events", "checkins", "turns", "reports", "ranking", "games", "profile",
+];
+
+function cleanStringArray(value: unknown, allowed?: string[]): string[] {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => text(item, 80))
+    .filter((item) => item && (!allowed || allowed.includes(item))))].slice(0, 30);
+}
+
+export const adminListLeaders = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdmin(request.auth.uid);
+
+  const snapshot = await db.collection("users").limit(400).get();
+  const visible = snapshot.docs.filter((document) => {
+    const role = String(document.data().role ?? "").trim().toLowerCase();
+    return leaderRoles.includes(role);
+  }).slice(0, 200);
+
+  const leaders = await Promise.all(visible.map(async (document) => {
+    const data = document.data();
+    let authRecord: Awaited<ReturnType<typeof adminAuth.getUser>> | null = null;
+    try {
+      authRecord = await adminAuth.getUser(document.id);
+    } catch {
+      authRecord = null;
+    }
+    return {
+      id: document.id,
+      name: text(data.name, 120),
+      email: text(data.email, 180) || authRecord?.email || text(data.user, 180),
+      user: text(data.user, 180),
+      role: String(data.role ?? "lider").trim().toLowerCase(),
+      groups: cleanStringArray(data.groups),
+      permissions: cleanStringArray(data.permissions, manageablePermissions),
+      active: authRecord ? !authRecord.disabled && data.status !== "inactive" : data.status !== "inactive",
+    };
+  }));
+
+  return {leaders};
+});
+
+export const adminCreateLeader = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdmin(request.auth.uid);
+
+  const name = text(request.data?.name, 100);
+  const email = text(request.data?.email, 180).toLowerCase();
+  const role = text(request.data?.role, 30).toLowerCase() || "lider";
+  const groups = cleanStringArray(request.data?.groups);
+  const permissions = cleanStringArray(request.data?.permissions, manageablePermissions);
+
+  if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new HttpsError("invalid-argument", "Indica un nombre y un correo electrónico válidos.");
+  }
+  if (!["lider", "líder", "pastor"].includes(role)) {
+    throw new HttpsError("invalid-argument", "Las cuentas nuevas deben crearse como líder o pastor. La administración se asigna por separado.");
+  }
+  if (permissions.length === 0) {
+    throw new HttpsError("invalid-argument", "Asigna al menos un permiso de módulo.");
+  }
+
+  let userRecord: Awaited<ReturnType<typeof adminAuth.createUser>>;
+  try {
+    userRecord = await adminAuth.createUser({
+      email,
+      displayName: name,
+      emailVerified: false,
+      disabled: false,
+    });
+  } catch (cause) {
+    const code = (cause as {code?: string})?.code;
+    if (code === "auth/email-already-exists") {
+      throw new HttpsError("already-exists", "Ya existe una cuenta con ese correo.");
+    }
+    throw new HttpsError("internal", "No se pudo crear la cuenta de autenticación.");
+  }
+
+  let setupLink = "";
+  try {
+    setupLink = await adminAuth.generatePasswordResetLink(email);
+    const userRef = db.collection("users").doc(userRecord.uid);
+    const auditRef = db.collection("audit").doc();
+    const batch = db.batch();
+    batch.set(userRef, {
+      name,
+      user: email,
+      email,
+      role,
+      groups,
+      permissions,
+      status: "active",
+      createdAt: new Date().toISOString(),
+      createdBy: request.auth.uid,
+      updatedAt: new Date().toISOString(),
+    });
+    batch.set(auditRef, {
+      action: "leader.created",
+      actorUid: request.auth.uid,
+      targetUid: userRecord.uid,
+      createdAt: new Date().toISOString(),
+    });
+    await batch.commit();
+  } catch {
+    await adminAuth.deleteUser(userRecord.uid).catch(() => undefined);
+    throw new HttpsError("internal", "No se pudo completar el registro. La cuenta temporal fue retirada.");
+  }
+
+  return {uid: userRecord.uid, setupLink};
+});
+
+export const adminUpdateLeader = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdmin(request.auth.uid);
+
+  const uid = text(request.data?.uid, 150);
+  const role = text(request.data?.role, 30).toLowerCase();
+  const active = request.data?.active === true;
+  const groups = cleanStringArray(request.data?.groups);
+  const permissions = cleanStringArray(request.data?.permissions, manageablePermissions);
+
+  if (!uid || uid === request.auth.uid) {
+    throw new HttpsError("failed-precondition", "No puedes modificar tu propia cuenta desde este panel.");
+  }
+  if (!leaderRoles.includes(role) || !permissions.length) {
+    throw new HttpsError("invalid-argument", "El rol o los permisos no son válidos.");
+  }
+
+  const userRef = db.collection("users").doc(uid);
+  const existing = await userRef.get();
+  if (!existing.exists) throw new HttpsError("not-found", "No se encontró el usuario.");
+
+  const previousRole = String(existing.data()?.role ?? "").trim().toLowerCase();
+  const demotingAdmin = ["admin", "administrador"].includes(previousRole) &&
+    (!["admin", "administrador"].includes(role) || !active);
+  if (demotingAdmin) {
+    const admins = await db.collection("users")
+      .where("role", "in", ["admin", "administrador"]).limit(20).get();
+    const otherActiveAdmins = admins.docs.filter((item) =>
+      item.id !== uid && item.data().status !== "inactive",
+    );
+    if (otherActiveAdmins.length === 0) {
+      throw new HttpsError("failed-precondition", "Debe permanecer al menos un administrador activo.");
+    }
+  }
+
+  try {
+    await adminAuth.updateUser(uid, {disabled: !active, displayName: text(existing.data()?.name, 100)});
+  } catch {
+    throw new HttpsError("not-found", "No se encontró la cuenta de autenticación asociada.");
+  }
+
+  await userRef.set({
+    role,
+    groups,
+    permissions,
+    status: active ? "active" : "inactive",
+    updatedAt: new Date().toISOString(),
+    updatedBy: request.auth.uid,
+    ...(active ? {reactivatedAt: new Date().toISOString()} : {disabledAt: new Date().toISOString()}),
+  }, {merge: true});
+
+  await db.collection("audit").add({
+    action: active ? "leader.updated" : "leader.access-suspended",
+    actorUid: request.auth.uid,
+    targetUid: uid,
+    createdAt: new Date().toISOString(),
+    metadata: {role, groups, permissions},
+  });
+
+  return {success: true};
 });
 
 export const getPublicProfiles = onCall(async () => {
