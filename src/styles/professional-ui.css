@@ -1,7 +1,7 @@
 /*
  * Jóvenes de Fuego — sistema visual profesional
  * Última capa de estilos: normaliza las pantallas sin alterar su lógica.
- * Principios: jerarquía clara, superficies sólidas, acento moderado y contraste AA.
+ * Principios: energía juvenil, jerarquía clara, superficies sólidas y contraste AA.
  */
 
 :root {
@@ -779,5 +779,5 @@ body {
   .shared-button.primary, .management-submit, .weekly-add-button,
   .youth-prayer-submit-row button, .topline-ai-trigger
 ) {
-  color: #211b13 !important;
+  color: #ffffff !important;
 }
