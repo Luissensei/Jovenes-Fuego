@@ -276,3 +276,31 @@
 .scope :global(.visitor-status-control) select{
     flex: 1;
   }}
+
+
+/* Jóvenes de Fuego · visitantes */
+.scope :global(.visitors-header) {
+ position:relative;isolation:isolate;overflow:hidden;
+ border:1px solid rgba(220,174,112,.23);border-radius:24px;
+ background:radial-gradient(ellipse at 90% 0%,rgba(255,129,67,.2),transparent 34%),radial-gradient(ellipse at 0% 100%,rgba(133,83,174,.2),transparent 42%),linear-gradient(120deg,#171321,#292039 58%,#3b272a);
+ box-shadow:0 22px 55px rgba(8,5,14,.19),inset 0 1px rgba(255,255,255,.06);
+}
+.scope :global(.visitor-card),.scope :global(.visitors-stat),.scope :global(.visitors-content) {
+ min-width:0;border:1px solid var(--jf-border,rgba(197,163,107,.17));
+ background:var(--jf-surface,rgba(27,23,35,.9));color:var(--jf-text,#f5efe6);
+ box-shadow:0 13px 34px rgba(5,4,10,.12),inset 0 1px rgba(255,255,255,.025);
+}
+.scope :global(.visitor-card){border-radius:19px;overflow:hidden;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.scope :global(.visitor-card):hover{transform:translateY(-3px);border-color:rgba(222,171,105,.42);box-shadow:0 20px 44px rgba(5,4,10,.2)}
+.scope :global(.visitors-search){min-width:0;background:var(--jf-input,#15111c);border:1px solid var(--jf-border,rgba(197,163,107,.2));border-radius:13px}
+.scope :global(.visitors-search) input{min-width:0;color:var(--jf-text,#f5efe6)}
+.scope :global(.visitors-modal){border:1px solid rgba(215,177,119,.24);border-radius:22px;background:var(--jf-surface,#1a1622);color:var(--jf-text,#f5efe6);box-shadow:0 30px 100px rgba(0,0,0,.42)}
+.scope :global(.visitors-page) :is(button,a,input,select):focus-visible{outline:3px solid rgba(222,174,111,.78);outline-offset:3px}
+:global(:root[data-theme="light"]) .scope :global(.visitor-card),
+:global(:root[data-theme="light"]) .scope :global(.visitors-stat),
+:global(:root[data-theme="light"]) .scope :global(.visitors-content){background:#fff;color:#382d40;border-color:#e9e0eb;box-shadow:0 12px 30px rgba(48,34,60,.055)}
+:global(:root[data-theme="light"]) .scope :global(.visitors-search){background:#faf8fb;border-color:#e8e0eb}
+:global(:root[data-theme="light"]) .scope :global(.visitors-search) input{color:#382d40}
+:global(:root[data-theme="light"]) .scope :global(.visitors-modal){background:#fff;color:#382d40}
+@media(max-width:600px){.scope :global(.visitors-page){gap:16px}.scope :global(.visitors-header){padding:20px;border-radius:19px}.scope :global(.visitors-stat){padding:14px;border-radius:15px}.scope :global(.visitor-card){border-radius:16px}}
+@media(prefers-reduced-motion:reduce){.scope :global(.visitor-card){transition:none}.scope :global(.visitor-card):hover{transform:none}}
