@@ -264,3 +264,200 @@
 .scope :global(.attendance-refresh):disabled{opacity:.55;cursor:wait;}
 @media (max-width:620px){.scope :global(.attendance-header){align-items:flex-start;gap:12px;flex-direction:column;}
 .scope :global(.attendance-refresh){width:100%;}}
+
+/* Migrated from ui-fixes.css: responsive layout and attendance status controls. */
+.scope:global(.attendance-page){
+  display: grid;
+  align-content: start;
+  width: min(100%, 1280px);
+  max-width: 1280px;
+  min-width: 0;
+  margin-inline: auto;
+  gap: 20px;
+}
+.scope:global(.attendance-page) > *{
+  min-width: 0;
+}
+.scope :global(.attendance-header){
+  min-width: 0;
+  min-height: 132px;
+  box-sizing: border-box;
+  padding: clamp(20px, 3vw, 32px);
+}
+.scope :global(.attendance-card){
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: clamp(16px, 2.2vw, 24px);
+  border-radius: 18px;
+}
+.scope :global(.attendance-card) form{
+  grid-template-columns: minmax(0, 1.5fr) minmax(170px, 1fr) auto;
+  align-items: end;
+}
+.scope :global(.attendance-summary){
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 14px;
+}
+.scope :global(.attendance-summary) :global(.attendance-card){
+  display: flex;
+  min-height: 112px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  box-sizing: border-box;
+}
+.scope :global(.attendance-summary) :global(.attendance-card) h3{
+  margin: 0;
+}
+.scope :global(.attendance-list){
+  display: grid;
+  min-width: 0;
+  gap: 11px;
+  margin: 18px 0;
+}
+.scope :global(.attendance-member){
+  display: grid;
+  grid-template-columns: minmax(150px, .72fr) minmax(0, 1.28fr);
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 14px;
+  border-radius: 14px;
+}
+.scope :global(.attendance-member-info){
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+.scope :global(.attendance-member-info) strong{
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+.scope :global(.attendance-member-info) > span{
+  color: var(--jf-muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+.scope :global(.attendance-status-options){
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
+  min-width: 0;
+}
+.scope :global(.attendance-member) :global(.attendance-status-button){
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 39px;
+  padding: 7px 8px;
+  border: 1px solid var(--jf-glass-edge);
+  border-radius: 10px;
+  background: var(--jf-glass-soft);
+  color: var(--jf-text);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  box-shadow: none;
+  transform: none;
+  transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+}
+.scope :global(.attendance-member) :global(.attendance-status-button):hover:not(:disabled){
+  transform: translateY(-1px);
+  filter: none;
+  box-shadow: 0 5px 13px rgba(20, 30, 55, .10);
+}
+.scope :global(.attendance-member) :global(.attendance-status-button)[aria-pressed="true"]{
+  border-color: currentColor;
+  box-shadow: inset 0 0 0 1px currentColor, 0 0 0 2px rgba(80, 150, 220, .10);
+}
+.scope :global(.attendance-member) :global(.tone-present){ color: #16865c; }
+.scope :global(.attendance-member) :global(.tone-late){ color: #a66b0b; }
+.scope :global(.attendance-member) :global(.tone-missing){ color: #c34252; }
+.scope :global(.attendance-member) :global(.tone-justified){ color: #3479bd; }
+.scope :global(.attendance-member) :global(.tone-absent){ color: #657086; }
+:global(:root[data-theme="dark"]) .scope :global(.attendance-member) :global(.attendance-status-button){
+  background: rgba(255, 255, 255, .045);
+}
+:global(:root[data-theme="dark"]) .scope :global(.attendance-member) :global(.tone-present){ color: #70ddb2; }
+:global(:root[data-theme="dark"]) .scope :global(.attendance-member) :global(.tone-late){ color: #f2c16e; }
+:global(:root[data-theme="dark"]) .scope :global(.attendance-member) :global(.tone-missing){ color: #ff8b9a; }
+:global(:root[data-theme="dark"]) .scope :global(.attendance-member) :global(.tone-justified){ color: #8bc5ff; }
+:global(:root[data-theme="dark"]) .scope :global(.attendance-member) :global(.tone-absent){ color: #c0c8d8; }
+.scope :global(.attendance-member) :global(.attendance-status-button):disabled{
+  opacity: .55;
+  cursor: wait;
+}
+.scope:global(.attendance-page) :global(.attendance-card) > button{
+  min-height: 44px;
+  padding-inline: 18px;
+}
+@media (max-width: 900px){.scope :global(.attendance-card) form{
+    grid-template-columns: minmax(0, 1fr) minmax(0, .8fr);
+  }
+.scope :global(.attendance-card) form > button{
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+.scope :global(.attendance-summary){
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+.scope :global(.attendance-member){
+    grid-template-columns: minmax(0, 1fr);
+  }
+.scope :global(.attendance-status-options){
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }}
+@media (max-width: 600px){.scope:global(.attendance-page){
+    gap: 15px;
+  }
+.scope :global(.attendance-header){
+    min-height: 0;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 13px;
+  }
+.scope :global(.attendance-summary){
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+  }
+.scope :global(.attendance-summary) :global(.attendance-card){
+    display: flex;
+    min-height: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+  }
+.scope :global(.attendance-summary) :global(.attendance-card) strong{
+    font-size: 24px;
+  }
+.scope :global(.attendance-card) form{
+    grid-template-columns: minmax(0, 1fr);
+  }
+.scope :global(.attendance-card) form > button{
+    grid-column: auto;
+  }}
+@media (max-width: 430px){.scope :global(.attendance-status-options){
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+.scope :global(.attendance-member) :global(.attendance-status-button){
+    min-height: 42px;
+    padding-inline: 6px;
+    font-size: 10px;
+  }}
+@media (max-width: 350px){.scope :global(.attendance-status-options){
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }}

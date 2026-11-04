@@ -7,7 +7,7 @@ import './styles/app.css';
 
 
 
-import './ui-fixes.css';
+
 
 try {
   const savedTheme = window.localStorage.getItem('jf-theme');
