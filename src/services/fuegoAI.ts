@@ -27,7 +27,6 @@ function createModel(audience: AssistantAudience) {
     model: 'gemini-3.8-flash',
     systemInstruction: audience === 'youth' ? YOUTH_INSTRUCTIONS : ADMIN_INSTRUCTIONS,
     generationConfig: {
-      temperature: audience === 'youth' ? 0.55 : 0.35,
       maxOutputTokens: 1400,
     },
   });
@@ -41,7 +40,7 @@ export async function askFuegoAI(
 ): Promise<string> {
   if (!firebaseAiAvailable) {
     throw new Error(
-      'Fuego AI aún no está activada. Conecta esta app a Firebase Staging, configura VITE_FIREBASE_APP_CHECK_SITE_KEY y habilita Firebase AI Logic y App Check en la consola de Staging.',
+      'Fuego AI aún no está disponible. Comprueba que App Check Enterprise esté inicializado y que Firebase AI Logic esté habilitado en el proyecto original jovenes-de-fuego.',
     );
   }
 
@@ -70,16 +69,16 @@ export async function askFuegoAI(
     const detail = typeof value.message === 'string' ? value.message : 'Firebase no devolvió un detalle legible.';
     const code = [value.code, value.status].filter(Boolean).join(' · ');
     if (/app.?check|403|permission|unauthenticated|permission-denied/i.test(detail) || /app.?check|permission-denied/i.test(code)) {
-      throw new Error(`Firebase AI Logic rechazó la solicitud (App Check o permisos). Verifica el registro de la app web y el dominio en Firebase Staging. Detalle: ${detail.slice(0, 240)}`);
+      throw new Error(`Firebase AI Logic rechazó la solicitud (App Check o permisos). Verifica el registro Enterprise de la app web y que el dominio jovenes-fuego.vercel.app esté autorizado. Detalle: ${detail.slice(0, 240)}`);
     }
     if (/429|resource.?exhausted|quota|rate.?limit/i.test(detail) || /resource-exhausted|429/i.test(code)) {
       throw new Error('Fuego AI alcanzó el límite temporal de solicitudes de Firebase. Espera un momento y vuelve a intentarlo.');
     }
     if (/404|not.?found|model|firebase.?ai.?logic/i.test(detail) || /not-found|404/i.test(code)) {
-      throw new Error(`Firebase no encontró el modelo o el servicio de IA. Confirma que Firebase AI Logic esté habilitado en jovenes-de-fuego-staging y que el modelo gemini-3.8-flash esté disponible. Detalle: ${detail.slice(0, 240)}`);
+      throw new Error(`Firebase no encontró el modelo o el servicio de IA. Confirma que Firebase AI Logic esté habilitado en jovenes-de-fuego y que gemini-3.8-flash esté disponible. Detalle: ${detail.slice(0, 240)}`);
     }
     if (/api.?key|invalid.?argument|invalid.?api/i.test(detail) || /invalid-argument/i.test(code)) {
-      throw new Error(`Firebase rechazó la configuración de la solicitud de IA. Revisa la API key y el proveedor Gemini Developer API en Staging. Detalle: ${detail.slice(0, 240)}`);
+      throw new Error(`Firebase rechazó la configuración de la solicitud de IA. Revisa que esté seleccionado Gemini Developer API y que el proyecto siga en el plan Spark sin facturación. Detalle: ${detail.slice(0, 240)}`);
     }
     throw new Error(`No se pudo consultar Fuego AI${code ? ` (${code})` : ''}. Detalle de Firebase: ${detail.slice(0, 320)}`);
   }
