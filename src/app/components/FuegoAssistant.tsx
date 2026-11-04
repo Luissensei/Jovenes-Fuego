@@ -1,9 +1,9 @@
 import {useState} from 'react';
 import type {FormEvent} from 'react';
-import {Bot, Send, Sparkles, UserRound, RotateCcw, LockKeyhole, BookOpen, LoaderCircle} from 'lucide-react';
+import {Bot, Send, Sparkles, UserRound, RotateCcw, LockKeyhole, BookOpen, LoaderCircle, X} from 'lucide-react';
 import styles from '../styles/FuegoAssistant.module.css';
 import {askFuegoAI, type AssistantAudience, type AssistantMessage} from '../../services/fuegoAI';
-import {firebaseAiAvailable} from '../../services/firebase/client';
+import {firebaseAiAvailable, firebaseAiSetupMessage} from '../../services/firebase/client';
 
 type PendingItem = {title: string; reference?: string};
 type Props = {
@@ -12,6 +12,8 @@ type Props = {
   context?: string;
   pendingItems?: PendingItem[];
   quickPrompts?: string[];
+  compact?: boolean;
+  onClose?: () => void;
 };
 
 export default function FuegoAssistant({
@@ -20,6 +22,8 @@ export default function FuegoAssistant({
   context = '',
   pendingItems = [],
   quickPrompts = [],
+  compact = false,
+  onClose,
 }: Props) {
   const [messages, setMessages] = useState<AssistantMessage[]>([]);
   const [input, setInput] = useState('');
@@ -56,7 +60,7 @@ export default function FuegoAssistant({
 
   return (
     <section className={styles.scope} aria-label={youth ? 'Fuego AI para jóvenes' : 'Fuego AI para administración'}>
-      <div className={styles.panel}>
+      <div className={compact ? `${styles.panel} ${styles.compactPanel}` : styles.panel}>
         <header className={styles.header}>
           <span className={styles.emblem}><Sparkles size={20}/></span>
           <div className={styles.heading}>
@@ -64,7 +68,8 @@ export default function FuegoAssistant({
             <h2>Fuego AI</h2>
             <p>{youth ? 'Tu compañero para aprender, reflexionar y crecer en la Palabra.' : 'Ideas, planificación y apoyo para organizar la comunidad.'}</p>
           </div>
-          <span className={styles.status}>{firebaseAiAvailable ? 'Disponible en Staging' : 'Pendiente de activar'}</span>
+          <span className={styles.status}>{firebaseAiAvailable ? 'Conectada a Staging' : 'Requiere configuración'}</span>
+          {compact && onClose && <button type="button" className={styles.closeButton} onClick={onClose} aria-label="Minimizar Fuego AI"><X size={19}/></button>}
         </header>
 
         {youth && (
@@ -103,7 +108,7 @@ export default function FuegoAssistant({
         {!firebaseAiAvailable && (
           <div className={styles.setupNotice}>
             <LockKeyhole size={16}/>
-            <span>La interfaz está preparada, pero el servicio aún no está habilitado. Se requiere Firebase AI Logic y App Check configurados en el proyecto de Staging.</span>
+            <span>{firebaseAiSetupMessage}</span>
           </div>
         )}
 
