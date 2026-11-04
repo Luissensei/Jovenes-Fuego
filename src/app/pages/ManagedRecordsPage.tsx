@@ -1,3 +1,4 @@
+import styles from '../styles/ManagedRecordsPage.module.css';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Plus,
@@ -267,7 +268,7 @@ export default function ManagedRecordsPage({ config }: Props) {
   }
 
   return (
-    <main className="managed-page">
+    <main className={`${styles.scope} managed-page`}>
       <header className="managed-hero">
         <div>
           <span className="managed-eyebrow">{config.eyebrow}</span>

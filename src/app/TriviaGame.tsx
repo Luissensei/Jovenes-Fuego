@@ -1,3 +1,4 @@
+import styles from './styles/TriviaGame.module.css';
 import {playGameTone} from './gameAudio';
 
 import { useEffect, useState } from 'react';
@@ -134,7 +135,7 @@ export default function TriviaGame({ onExit }: Props) {
 
   if (!started) {
     return (
-      <section className="trivia-shell trivia-enter">
+      <section className={`${styles.scope} trivia-shell trivia-enter`}>
         <button className="trivia-back" onClick={onExit}>
           <ArrowLeft size={18} /> Volver a los juegos
         </button>
@@ -196,7 +197,7 @@ export default function TriviaGame({ onExit }: Props) {
     );
 
     return (
-      <section className="trivia-shell trivia-enter">
+      <section className={`${styles.scope} trivia-shell trivia-enter`}>
         <div className="trivia-result">
           <div className="trivia-result-icon">
             <Trophy size={44} />
@@ -264,7 +265,7 @@ export default function TriviaGame({ onExit }: Props) {
   }
 
   return (
-    <section className="trivia-shell trivia-enter">
+    <section className={`${styles.scope} trivia-shell trivia-enter`}>
       <div className="trivia-game-top">
         <button className="trivia-back" onClick={onExit}>
           <ArrowLeft size={18} /> Salir

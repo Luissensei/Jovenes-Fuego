@@ -1,3 +1,4 @@
+import styles from './styles/RankingPage.module.css';
 
 import { useEffect, useMemo, useState } from 'react';
 
@@ -214,7 +215,7 @@ export default function RankingPage({
   }
 
   return (
-    <section className="ranking-hub">
+    <section className={`${styles.scope} ranking-hub`}>
 
       {/* ENCABEZADO PRINCIPAL */}
       <header className="ranking-hero">

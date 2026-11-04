@@ -1,3 +1,4 @@
+import styles from './styles/DashboardPage.module.css';
 import {useEffect, useMemo, useState} from 'react';
 import {
   Activity,
@@ -160,7 +161,7 @@ export default function DashboardPage() {
   }, [publicProfiles]);
 
   return (
-    <div className="dashboard-page tactical-dashboard">
+    <div className={`${styles.scope} dashboard-page tactical-dashboard`}>
       <div className="dashboard-commandline">
         <div className="dashboard-commandline-left">
           <span className="dashboard-live-dot" />

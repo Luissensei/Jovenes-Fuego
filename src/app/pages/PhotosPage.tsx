@@ -1,3 +1,4 @@
+import styles from '../styles/PhotosPage.module.css';
 
 import { useEffect, useState } from 'react';
 import {
@@ -167,7 +168,7 @@ export default function PhotosPage() {
   const currentItems = activeTab === 'pending' ? pending : approved;
 
   return (
-    <main className="photos-page">
+    <main className={`${styles.scope} photos-page`}>
       <header className="photos-hero">
         <div>
           <span className="photos-eyebrow">

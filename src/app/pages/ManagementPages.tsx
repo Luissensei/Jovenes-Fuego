@@ -1,3 +1,4 @@
+import styles from '../styles/ManagementPages.module.css';
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import {
@@ -233,7 +234,7 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
   const canCreate = !readOnly;
 
   return (
-    <section className="management-page">
+    <section className={`${styles.scope} management-page`}>
       <header className="management-header">
         <div className="management-icon">
           <Icon size={27} />

@@ -1,3 +1,4 @@
+import styles from '../styles/CheckinPage.module.css';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
@@ -242,7 +243,7 @@ export default function CheckinPage() {
   }
 
   return (
-    <main className="checkin-page">
+    <main className={`${styles.scope} checkin-page`}>
       <header className="checkin-hero">
         <div>
           <span className="checkin-eyebrow">

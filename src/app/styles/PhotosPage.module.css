@@ -1,0 +1,233 @@
+/* CSS Module: PhotosPage. Scoped to its screen root; Members modal portal uses .portalScope. */
+.scope{min-width:0;width:100%;box-sizing:border-box;}
+.portalScope{box-sizing:border-box;}
+/* Migrated from src/styles.css. */
+.scope :global(.photos-hero){
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 30px;
+  border-radius: 21px;
+  background: linear-gradient(115deg, #24113f, #54246b 60%, #a94e2c);
+  color: white;
+}
+.scope :global(.photos-primary),
+.scope :global(.photos-approve),
+.scope :global(.photos-reject){
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 15px;
+  border: 0;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.scope :global(.photos-primary),
+.scope :global(.photos-approve){
+  background: #e87935;
+  color: white;
+}
+.scope :global(.photos-reject){
+  background: #fff0f0;
+  color: #bd3939;
+}
+.scope :global(.photos-tabs){
+  display: flex;
+  gap: 9px;
+  padding: 6px;
+  border: 1px solid var(--border, #ebe7ef);
+  border-radius: 12px;
+  background: var(--card, #fff);
+}
+.scope :global(.photos-tabs) button{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 8px;
+  padding: 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #93899a;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.scope :global(.photos-tabs) button:global(.active){
+  background: #54216e;
+  color: white;
+}
+.scope :global(.photos-grid){
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+  gap: 15px;
+}
+.scope :global(.photo-card){
+  overflow: hidden;
+  border: 1px solid var(--border, #ebe7ef);
+  border-radius: 15px;
+  background: var(--card, #fff);
+}
+.scope :global(.photo-preview){
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  height: 190px;
+  background: #eeeaf2;
+}
+.scope :global(.photo-preview) img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.scope :global(.photo-card-content){
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 16px;
+}
+.scope :global(.photo-status){
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: #fff0e5;
+  color: #b95a2c;
+  font-size: 10px;
+  font-weight: 800;
+}
+.scope :global(.photo-card-content) h3{
+  margin: 0;
+  font-size: 15px;
+}
+.scope :global(.photo-card-content) p,
+.scope :global(.photo-card-content) small{
+  margin: 0;
+  color: #93899a;
+  font-size: 11px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.scope :global(.photo-actions){
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  margin-top: 7px;
+}
+.scope :global(.photo-actions) button{
+  flex: 1;
+}
+.scope :global(.photos-empty){
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 210px;
+  padding: 25px;
+  border: 1px dashed var(--border, #ded8e5);
+  border-radius: 15px;
+  color: #93899a;
+  text-align: center;
+}
+.scope :global(.photos-empty) h3{
+  color: var(--text, #292331);
+}
+.scope :global(.photos-empty) p{
+  font-size: 12px;
+}
+.scope :global(.photos-overlay){
+  position: fixed;
+  inset: 0;
+  z-index: 1600;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: #000a;
+}
+.scope :global(.photos-modal){
+  display: grid;
+  gap: 12px;
+  width: min(100%, 520px);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 23px;
+  border: 1px solid var(--border, #ebe7ef);
+  border-radius: 17px;
+  background: var(--card, #fff);
+  color: var(--text, #292331);
+}
+.scope :global(.photos-modal) header{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.scope :global(.photos-modal) header h2{
+  margin: 8px 0;
+  font-family: Manrope, sans-serif;
+}
+.scope :global(.photos-modal) header button{
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+.scope :global(.photos-modal) label{
+  font-size: 12px;
+  font-weight: 800;
+}
+.scope :global(.photos-modal) input,
+.scope :global(.photos-modal) textarea{
+  width: 100%;
+  padding: 11px;
+  border: 1px solid var(--border, #ebe7ef);
+  border-radius: 9px;
+  background: var(--card, #fff);
+  color: var(--text, #292331);
+  font: inherit;
+  font-size: 12px;
+}
+.scope :global(.photos-form-preview){
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: #eeeaf2;
+}
+@media (max-width: 430px){.scope :global(.photos-grid){
+    grid-template-columns: 1fr;
+  }
+.scope :global(.photos-tabs) button{
+    padding: 10px 5px;
+    font-size: 10px;
+  }}
+/* Migrated from src/visual-overhaul.css. */
+.scope :global(.photo-preview){
+  aspect-ratio:16 / 10;
+  overflow:hidden;
+  background:rgba(115,130,160,.12);
+}
+.scope :global(.photo-preview) img,
+.scope :global(.photo-form-preview){
+  display:block;
+  width:100%;
+  max-width:100%;
+  object-fit:cover;
+}
+.scope :global(.photo-preview) img{height:100%;}
+.scope :global(.photo-form-preview){
+  max-height:260px;
+  aspect-ratio:16 / 9;
+  border:1px solid var(--jf-glass-edge);
+  border-radius:14px;
+  background:rgba(115,130,160,.10);
+}
+.scope :global(.photo-card-content){display:flex;flex-direction:column;gap:8px;}
+.scope :global(.photo-card-content) h3{margin:4px 0 0;}
+.scope :global(.photo-card-content) p{line-height:1.55;}
+@media(max-width:600px){.scope :global(.photo-form-preview){max-height:200px;}}

@@ -1,3 +1,4 @@
+import styles from './styles/YouthPortalPage.module.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type {FormEvent} from 'react';
 
@@ -535,7 +536,7 @@ export default function YouthPortalPage() {
       }, 300);
     };
     return (
-      <main className="youth-portal">
+      <main className={`${styles.scope} youth-portal`}>
         <div className={`youth-container youth-game-shell ${gameExiting ? "youth-game-exit" : ""}`}>
           <div className="youth-game-topbar">
             <button className="youth-back" type="button" onClick={exitGame}><ArrowLeft size={17}/> Volver a mi espacio</button>
@@ -559,7 +560,7 @@ export default function YouthPortalPage() {
 
   if (selectedProfile) {
     return (
-      <main className={`youth-portal youth-look-${look.background} ${portalExiting ? "youth-profile-exit" : ""}`}>
+      <main className={`${styles.scope} youth-portal youth-look-${look.background} ${portalExiting ? "youth-profile-exit" : ""}`}>
         <div className="youth-container youth-home-enter">
           <div className="youth-home-toolbar">
             <button type="button" className="youth-back" onClick={leaveProfile}>
@@ -682,7 +683,7 @@ export default function YouthPortalPage() {
   }
 
   return (
-    <main className="youth-portal">
+    <main className={`${styles.scope} youth-portal`}>
       <div className="youth-container">
         <header className="youth-header">
           <div className="youth-brand-icon"><Flame size={34}/></div>

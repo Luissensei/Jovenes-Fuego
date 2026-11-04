@@ -1,0 +1,274 @@
+/* CSS Module: FollowupPage. Scoped to its screen root; Members modal portal uses .portalScope. */
+.scope{min-width:0;width:100%;box-sizing:border-box;}
+.portalScope{box-sizing:border-box;}
+/* Migrated from src/styles.css. */
+.scope:global(.followup-page){
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+.scope :global(.followup-header),
+.scope :global(.followup-card-top),
+.scope :global(.followup-card-bottom),
+.scope :global(.followup-toolbar),
+.scope :global(.followup-person),
+.scope :global(.followup-actions),
+.scope :global(.followup-modal-header),
+.scope :global(.followup-modal-actions){
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.scope :global(.followup-eyebrow){
+  color: var(--accent, #e87935);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+.scope :global(.followup-header) h1{
+  margin: 7px 0;
+  font-size: clamp(24px, 4vw, 32px);
+}
+.scope :global(.followup-header) p,
+.scope :global(.followup-modal-header) p{
+  color: var(--text-muted, #9298a5);
+  margin: 0;
+}
+.scope :global(.followup-primary),
+.scope :global(.followup-secondary){
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 17px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.scope :global(.followup-primary){
+  background: var(--accent, #e87935);
+  color: white;
+}
+.scope :global(.followup-secondary){
+  background: var(--surface-2, #30343d);
+  color: var(--text, #fff);
+}
+.scope :global(.followup-stats){
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.scope :global(.followup-stat),
+.scope :global(.followup-card){
+  background: var(--surface, #20242d);
+  border: 1px solid var(--border, #343945);
+  border-radius: 15px;
+  padding: 18px;
+}
+.scope :global(.followup-stat){
+  display: grid;
+  gap: 9px;
+}
+.scope :global(.followup-stat-icon),
+.scope :global(.followup-avatar){
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--surface-2, #30343d);
+  color: var(--accent, #e87935);
+}
+.scope :global(.followup-stat) span,
+.scope :global(.followup-person) span,
+.scope :global(.followup-card-bottom),
+.scope :global(.followup-notice){
+  color: var(--text-muted, #9298a5);
+  font-size: 13px;
+}
+.scope :global(.followup-stat) strong{
+  font-size: 27px;
+}
+.scope :global(.followup-content){
+  display: grid;
+  gap: 16px;
+}
+.scope :global(.followup-search){
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  max-width: 520px;
+  padding: 0 13px;
+  border: 1px solid var(--border, #343945);
+  border-radius: 10px;
+  color: var(--text-muted, #9298a5);
+}
+.scope :global(.followup-search) input{
+  width: 100%;
+  min-width: 0;
+  padding: 12px 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text, #fff);
+}
+.scope :global(.followup-toolbar) select,
+.scope :global(.followup-actions) select,
+.scope :global(.followup-modal) input,
+.scope :global(.followup-modal) select,
+.scope :global(.followup-modal) textarea{
+  border: 1px solid var(--border, #343945);
+  border-radius: 9px;
+  padding: 11px;
+  background: var(--surface, #20242d);
+  color: var(--text, #fff);
+}
+.scope :global(.followup-list){
+  display: grid;
+  gap: 13px;
+}
+.scope :global(.followup-card){
+  display: grid;
+  gap: 17px;
+}
+.scope :global(.followup-person){
+  justify-content: flex-start;
+}
+.scope :global(.followup-person) h3{
+  margin: 0 0 5px;
+  font-size: 16px;
+}
+.scope :global(.followup-status){
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 20px;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--surface-2, #30343d);
+}
+.scope :global(.followup-status):global(.pendiente){
+  color: #e9b65c;
+}
+.scope :global(.followup-status):global(.en-proceso){
+  color: #6caeff;
+}
+.scope :global(.followup-status):global(.completado){
+  color: #59c98c;
+}
+.scope :global(.followup-notes){
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--text-muted, #9298a5);
+}
+.scope :global(.followup-notes) p{
+  margin: 0;
+  line-height: 1.5;
+}
+.scope :global(.followup-card-bottom){
+  padding-top: 13px;
+  border-top: 1px solid var(--border, #343945);
+}
+.scope :global(.followup-card-bottom) > span{
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.scope :global(.followup-delete),
+.scope :global(.followup-modal-header) button{
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  padding: 9px;
+  background: var(--surface-2, #30343d);
+  color: var(--text, #fff);
+  cursor: pointer;
+}
+.scope :global(.followup-delete){
+  color: #ef7777;
+}
+.scope :global(.followup-empty){
+  text-align: center;
+  padding: 45px 15px;
+  color: var(--text-muted, #9298a5);
+}
+.scope :global(.followup-modal-backdrop){
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, .65);
+}
+.scope :global(.followup-modal){
+  display: grid;
+  gap: 12px;
+  width: min(100%, 510px);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  border: 1px solid var(--border, #343945);
+  border-radius: 16px;
+  background: var(--surface, #20242d);
+  color: var(--text, #fff);
+}
+.scope :global(.followup-modal-header){
+  margin-bottom: 8px;
+}
+.scope :global(.followup-modal-header) h2{
+  margin: 0 0 6px;
+}
+.scope :global(.followup-modal) label{
+  font-size: 13px;
+  font-weight: 700;
+}
+.scope :global(.followup-modal) input,
+.scope :global(.followup-modal) select,
+.scope :global(.followup-modal) textarea{
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+}
+.scope :global(.followup-modal) textarea{
+  resize: vertical;
+}
+.scope :global(.followup-modal-actions){
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+@media (max-width: 760px){.scope :global(.followup-header){
+    align-items: flex-start;
+    flex-direction: column;
+  }
+.scope :global(.followup-stats){
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+.scope :global(.followup-toolbar){
+    align-items: stretch;
+    flex-direction: column;
+  }
+.scope :global(.followup-search){
+    max-width: none;
+  }
+.scope :global(.followup-toolbar) select{
+    width: 100%;
+  }}
+@media (max-width: 460px){.scope :global(.followup-card-top),
+.scope :global(.followup-card-bottom){
+    align-items: flex-start;
+    flex-direction: column;
+  }
+.scope :global(.followup-actions){
+    width: 100%;
+  }
+.scope :global(.followup-actions) select{
+    flex: 1;
+  }}

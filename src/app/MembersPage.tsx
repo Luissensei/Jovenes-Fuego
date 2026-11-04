@@ -1,3 +1,4 @@
+import styles from './styles/MembersPage.module.css';
 import {useEffect, useMemo, useState} from 'react';
 import type {FormEvent} from 'react';
 import {createPortal} from 'react-dom';
@@ -253,7 +254,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
   }
 
   return (
-    <section className="members-page">
+    <section className={`${styles.scope} members-page`}>
       <header className="members-hero">
         <div className="members-hero-copy">
           <span className="members-kicker"><Flame size={15}/> NUESTRA COMUNIDAD</span>
@@ -325,7 +326,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
       )}
 
       {selectedMember && !detailMinimized && createPortal((
-        <div className={`member-detail-backdrop ${detailClosing ? 'closing' : ''}`} role="presentation" onMouseDown={(event) => {if (event.target === event.currentTarget) closeMember();}}>
+        <div className={`${styles.portalScope} member-detail-backdrop ${detailClosing ? 'closing' : ''}`} role="presentation" onMouseDown={(event) => {if (event.target === event.currentTarget) closeMember();}}>
           <section className={`member-detail-modal ${detailClosing ? 'closing' : ''}`} role="dialog" aria-modal="true" aria-labelledby="member-detail-title">
             <header className="member-detail-header">
               <div className="member-detail-avatar">{memberImage(draft.pic) ? <img src={memberImage(draft.pic)} alt={String(draft.name ?? selectedMember.name)}/> : initials(String(draft.name ?? selectedMember.name))}</div>

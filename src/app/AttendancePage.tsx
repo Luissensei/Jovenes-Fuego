@@ -1,3 +1,4 @@
+import styles from './styles/AttendancePage.module.css';
 import {useEffect, useMemo, useState} from 'react';
 import type {FormEvent} from 'react';
 import {RefreshCw} from 'lucide-react';
@@ -145,7 +146,7 @@ export default function AttendancePage() {
   const justifiedCount = members.filter((member) => attendance[member.id] === 'Justificada').length;
 
   return (
-    <main className="attendance-page">
+    <main className={`${styles.scope} attendance-page`}>
       <header className="attendance-header">
         <div>
           <h1>Control de asistencia</h1>

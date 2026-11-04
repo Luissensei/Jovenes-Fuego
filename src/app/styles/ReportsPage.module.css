@@ -1,0 +1,193 @@
+/* CSS Module: ReportsPage. Scoped to its screen root; Members modal portal uses .portalScope. */
+.scope{min-width:0;width:100%;box-sizing:border-box;}
+.portalScope{box-sizing:border-box;}
+/* Migrated from src/styles.css. */
+.scope :global(.reports-hero){
+  min-height: 190px;
+}
+.scope :global(.reports-hero) > svg{
+  flex: none;
+  color: #ffc078;
+}
+.scope :global(.reports-filter){
+  display: flex;
+  align-items: flex-end;
+  gap: 13px;
+  flex-wrap: wrap;
+  padding: 19px;
+  border: 1px solid var(--border, #ebe7ef);
+  border-radius: 14px;
+  background: var(--card, #fff);
+}
+.scope :global(.reports-filter) label{
+  min-width: 200px;
+  color: var(--text, #292331);
+}
+.scope :global(.reports-filter) input{
+  min-width: 200px;
+}
+.scope :global(.reports-export){
+  margin-left: auto;
+}
+.scope :global(.reports-stats){
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.scope :global(.reports-icon){
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  border-radius: 12px;
+}
+.scope :global(.reports-icon):global(.purple){
+  background: #f1eaff;
+  color: #8656c9;
+}
+.scope :global(.reports-icon):global(.orange){
+  background: #fff0e5;
+  color: #e87935;
+}
+.scope :global(.reports-icon):global(.green){
+  background: #e7f6ed;
+  color: #3b9b68;
+}
+.scope :global(.reports-icon):global(.red){
+  background: #fff0ef;
+  color: #db5b53;
+}
+.scope :global(.reports-section-heading){
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 21px;
+}
+.scope :global(.reports-section-heading) > div > span{
+  color: #e87935;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 1.2px;
+}
+.scope :global(.reports-section-heading) h2{
+  margin: 7px 0 0;
+  font-family: Manrope, sans-serif;
+  font-size: 19px;
+}
+.scope :global(.reports-section-heading) > svg{
+  color: #e87935;
+}
+.scope :global(.reports-rate) > div:first-child{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  color: #93899a;
+  font-size: 12px;
+}
+.scope :global(.reports-rate) > div:first-child strong{
+  color: #e87935;
+  font-family: Manrope, sans-serif;
+  font-size: 28px;
+}
+.scope :global(.reports-progress){
+  height: 12px;
+  margin: 16px 0;
+  overflow: hidden;
+  border-radius: 30px;
+  background: #eeeaf2;
+}
+.scope :global(.reports-progress) div{
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #f1a255, #e87935);
+  transition: width .3s ease;
+}
+.scope :global(.reports-breakdown){
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  color: #93899a;
+  font-size: 11px;
+}
+.scope :global(.reports-table-wrapper){
+  width: 100%;
+  overflow-x: auto;
+}
+.scope :global(.reports-table){
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.scope :global(.reports-table) th,
+.scope :global(.reports-table) td{
+  padding: 13px 12px;
+  border-bottom: 1px solid var(--border, #ebe7ef);
+  text-align: left;
+  white-space: nowrap;
+}
+.scope :global(.reports-table) th{
+  color: #93899a;
+  font-size: 10px;
+}
+.scope :global(.reports-table) td{
+  color: var(--text, #292331);
+}
+.scope :global(.reports-meeting-list){
+  display: grid;
+  gap: 9px;
+}
+.scope :global(.reports-meeting-list) article{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 13px;
+  border: 1px solid var(--border, #ebe7ef);
+  border-radius: 10px;
+}
+.scope :global(.reports-meeting-list) article div{
+  display: grid;
+  gap: 5px;
+}
+.scope :global(.reports-meeting-list) strong{
+  color: var(--text, #292331);
+  font-size: 12px;
+}
+.scope :global(.reports-meeting-list) span{
+  color: #93899a;
+  font-size: 11px;
+}
+.scope :global(.reports-empty){
+  padding: 30px 15px;
+  border: 1px dashed var(--border, #ded8e5);
+  border-radius: 12px;
+  color: #93899a;
+  text-align: center;
+  font-size: 12px;
+}
+@media (max-width: 760px){.scope :global(.reports-stats){
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+.scope :global(.reports-filter){
+    align-items: stretch;
+    flex-direction: column;
+  }
+.scope :global(.reports-filter) label,
+.scope :global(.reports-filter) input{
+    width: 100%;
+    min-width: 0;
+  }
+.scope :global(.reports-export){
+    width: 100%;
+    margin-left: 0;
+  }}
+@media (max-width: 430px){.scope :global(.reports-stats){
+    gap: 8px;
+  }
+.scope :global(.reports-stats) article{
+    padding: 13px;
+  }
+.scope :global(.reports-meeting-list) article{
+    align-items: flex-start;
+    flex-direction: column;
+  }}

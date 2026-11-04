@@ -1,3 +1,4 @@
+import styles from './styles/FollowupPage.module.css';
 
 import { useMemo, useState } from 'react';
 import {
@@ -110,7 +111,7 @@ export default function FollowupPage() {
   }
 
   return (
-    <main className="followup-page">
+    <main className={`${styles.scope} followup-page`}>
       <header className="followup-header">
         <div>
           <span className="followup-eyebrow">ACOMPAÑAMIENTO JUVENIL</span>

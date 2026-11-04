@@ -1,3 +1,4 @@
+import styles from '../styles/ReportsPage.module.css';
 
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -169,14 +170,14 @@ export default function ReportsPage() {
 
   if (loading) {
     return (
-      <main className="reports-page">
+      <main className={`${styles.scope} reports-page`}>
         <p>Cargando informes...</p>
       </main>
     );
   }
 
   return (
-    <main className="reports-page">
+    <main className={`${styles.scope} reports-page`}>
       <header className="reports-hero">
         <div>
           <span className="reports-eyebrow">

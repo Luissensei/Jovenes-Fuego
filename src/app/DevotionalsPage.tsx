@@ -1,3 +1,4 @@
+import styles from './styles/DevotionalsPage.module.css';
 
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -153,7 +154,7 @@ export default function DevotionalsPage() {
   }
 
   return (
-    <main className="devotionals-page">
+    <main className={`${styles.scope} devotionals-page`}>
       <header className="devotionals-hero">
         <div>
           <span className="devotionals-eyebrow">

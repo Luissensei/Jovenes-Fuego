@@ -1,3 +1,4 @@
+import styles from './styles/VisitorsPage.module.css';
 
 import { useMemo, useState } from 'react';
 import {
@@ -131,7 +132,7 @@ export default function VisitorsPage() {
   }
 
   return (
-    <main className="visitors-page">
+    <main className={`${styles.scope} visitors-page`}>
       <header className="visitors-header">
         <div>
           <span className="visitors-eyebrow">BIENVENIDA E INTEGRACIÓN</span>

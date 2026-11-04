@@ -1,0 +1,482 @@
+/* CSS Module: ManagedRecordsPage. Scoped to its screen root; Members modal portal uses .portalScope. */
+.scope{min-width:0;width:100%;box-sizing:border-box;}
+.portalScope{box-sizing:border-box;}
+/* Migrated from src/styles.css. */
+.scope:global(.managed-page){
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 auto;
+}
+.scope :global(.managed-hero){
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 32px;
+  border-radius: 21px;
+  color: white;
+  background: linear-gradient(115deg, #24113f, #54246b 60%, #a94e2c);
+  box-shadow: 0 12px 30px rgba(40,17,63,.12);
+}
+.scope :global(.managed-hero) h1{
+  margin: 10px 0;
+  color: white;
+  font-family: Manrope, sans-serif;
+  font-size: clamp(26px, 4vw, 38px);
+  letter-spacing: -.8px;
+}
+.scope :global(.managed-hero) p{
+  max-width: 560px;
+  margin: 0;
+  color: rgba(255,255,255,.78);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.scope :global(.managed-eyebrow){
+  color: #ffc078;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+}
+.scope :global(.managed-primary),
+.scope :global(.managed-secondary){
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 43px;
+  padding: 11px 17px;
+  border: 0;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+.scope :global(.managed-primary){
+  color: white;
+  background: #e87935;
+}
+.scope :global(.managed-primary):hover:not(:disabled){
+  background: #d76529;
+  transform: translateY(-2px);
+}
+.scope :global(.managed-secondary){
+  border: 1px solid var(--border, #ebe7ef);
+  background: var(--card, #fff);
+  color: var(--text, #292331);
+}
+.scope :global(.managed-primary):disabled,
+.scope :global(.managed-secondary):disabled{
+  opacity: .55;
+  cursor: not-allowed;
+}
+.scope :global(.managed-stat-grid){
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 13px;
+}
+.scope :global(.managed-stat){
+  padding: 19px;
+  border: 1px solid var(--border, #ebe7ef);
+  border-radius: 15px;
+  background: var(--card, #fff);
+  box-shadow: 0 5px 18px rgba(25,15,40,.035);
+}
+.scope :global(.managed-stat) span{
+  display: block;
+  color: #93899a;
+  font-size: 11px;
+  font-weight: 600;
+}
+.scope :global(.managed-stat) strong{
+  display: block;
+  margin-top: 11px;
+  color: var(--text, #292331);
+  font-family: Manrope, sans-serif;
+  font-size: 29px;
+  font-weight: 850;
+}
+.scope :global(.managed-toolbar){
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.scope :global(.managed-search){
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 550px;
+  padding: 0 14px;
+  border: 1px solid var(--border, #ebe7ef);
+  border-radius: 11px;
+  background: var(--card, #fff);
+  color: #93899a;
+}
+.scope :global(.managed-search) input{
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text, #292331);
+  font: inherit;
+  font-size: 13px;
+}
+.scope :global(.managed-search) button{
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #93899a;
+  cursor: pointer;
+}
+.scope :global(.managed-results){
+  color: #93899a;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.scope :global(.managed-record-list){
+  display: grid;
+  gap: 13px;
+}
+.scope :global(.managed-record){
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 22px;
+  padding: 21px;
+  border: 1px solid var(--border, #ebe7ef);
+  border-radius: 16px;
+  background: var(--card, #fff);
+  box-shadow: 0 5px 18px rgba(25,15,40,.035);
+  transition: border-color .2s, transform .2s;
+}
+.scope :global(.managed-record):hover{
+  border-color: #e7a17d;
+}
+.scope :global(.managed-record-main){
+  min-width: 0;
+  flex: 1;
+}
+.scope :global(.managed-record-heading){
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.scope :global(.managed-record-heading) h3{
+  margin: 0;
+  color: var(--text, #292331);
+  font-size: 15px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.scope :global(.managed-status){
+  display: inline-flex;
+  padding: 6px 11px;
+  border-radius: 20px;
+  background: #fff0e5;
+  color: #b95a2c;
+  font-size: 10px;
+  font-weight: 800;
+}
+.scope :global(.managed-record-description){
+  margin: 13px 0;
+  color: #82788b;
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.scope :global(.managed-record-details){
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px 18px;
+  margin-top: 12px;
+  color: #82788b;
+  font-size: 11px;
+}
+.scope :global(.managed-record-details) strong{
+  color: var(--text, #292331);
+}
+.scope :global(.managed-created){
+  display: block;
+  margin-top: 13px;
+  color: #a096a8;
+  font-size: 10px;
+}
+.scope :global(.managed-record-actions){
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 13px;
+  flex: none;
+}
+.scope :global(.managed-status-label){
+  display: grid;
+  gap: 7px;
+  color: #93899a;
+  font-size: 10px;
+  font-weight: 700;
+}
+.scope :global(.managed-status-label) select{
+  width: 165px;
+  min-height: 38px;
+  padding: 9px;
+  border: 1px solid var(--border, #ebe7ef);
+  border-radius: 9px;
+  outline: none;
+  background: var(--card, #fff);
+  color: var(--text, #292331);
+  font: inherit;
+  font-size: 11px;
+}
+.scope :global(.managed-action-buttons){
+  display: flex;
+  gap: 8px;
+}
+.scope :global(.managed-action-buttons) button{
+  display: grid;
+  place-items: center;
+  width: 37px;
+  height: 37px;
+  border: 1px solid var(--border, #ebe7ef);
+  border-radius: 10px;
+  background: var(--card, #fff);
+  color: #786c83;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.scope :global(.managed-action-buttons) button:hover:not(:disabled){
+  background: #f3eff7;
+  color: #54216e;
+}
+.scope :global(.managed-action-buttons) button:global(.managed-delete){
+  background: #fff1f1;
+  color: #d44848;
+}
+.scope :global(.managed-action-buttons) button:disabled{
+  opacity: .5;
+  cursor: not-allowed;
+}
+.scope :global(.managed-empty){
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  min-height: 230px;
+  padding: 32px;
+  border: 1px dashed var(--border, #ded8e5);
+  border-radius: 17px;
+  background: var(--card, #fff);
+  color: #93899a;
+  text-align: center;
+}
+.scope :global(.managed-empty) strong{
+  color: var(--text, #292331);
+  font-size: 15px;
+}
+.scope :global(.managed-empty) p{
+  max-width: 450px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.scope :global(.managed-loading-icon){
+  animation: managedSpin 1s linear infinite;
+}
+.scope :global(.managed-alert){
+  padding: 14px 16px;
+  border-radius: 11px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.scope :global(.managed-alert):global(.error){
+  border: 1px solid #f1caca;
+  background: #fff0f0;
+  color: #a52c2c;
+}
+.scope :global(.managed-alert):global(.success){
+  border: 1px solid #bde5ca;
+  background: #edf9f1;
+  color: #237446;
+}
+.scope :global(.managed-overlay){
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(15,10,20,.68);
+  backdrop-filter: blur(4px);
+}
+.scope :global(.managed-modal){
+  display: grid;
+  gap: 14px;
+  width: min(100%, 550px);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 25px;
+  border: 1px solid var(--border, #ebe7ef);
+  border-radius: 18px;
+  background: var(--card, #fff);
+  color: var(--text, #292331);
+  box-shadow: 0 25px 80px rgba(0,0,0,.25);
+}
+.scope :global(.managed-modal-header){
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 8px;
+}
+.scope :global(.managed-modal-header) h2{
+  margin: 8px 0 0;
+  font-family: Manrope, sans-serif;
+  font-size: 21px;
+}
+.scope :global(.managed-close){
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border: 0;
+  border-radius: 10px;
+  background: #f3f0f5;
+  color: #706578;
+  cursor: pointer;
+}
+.scope :global(.managed-form-field){
+  display: grid;
+  gap: 8px;
+}
+.scope :global(.managed-form-field) label{
+  color: var(--text, #292331);
+  font-size: 12px;
+  font-weight: 800;
+}
+.scope :global(.managed-form-field) input,
+.scope :global(.managed-form-field) textarea{
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border, #ded7e5);
+  border-radius: 10px;
+  outline: none;
+  background: var(--card, #fff);
+  color: var(--text, #292331);
+  font: inherit;
+  font-size: 13px;
+}
+.scope :global(.managed-form-field) textarea{
+  min-height: 100px;
+  resize: vertical;
+}
+.scope :global(.managed-form-field) input:focus,
+.scope :global(.managed-form-field) textarea:focus{
+  border-color: #e87935;
+  box-shadow: 0 0 0 3px rgba(232,121,53,.12);
+}
+.scope :global(.managed-modal-actions){
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 9px;
+}
+:global(:root[data-theme="dark"]) .scope :global(.managed-stat),
+:global(:root[data-theme="dark"]) .scope :global(.managed-record),
+:global(:root[data-theme="dark"]) .scope :global(.managed-search),
+:global(:root[data-theme="dark"]) .scope :global(.managed-empty),
+:global(:root[data-theme="dark"]) .scope :global(.managed-modal){
+  --card: #1d1824;
+  --border: #352b40;
+  --text: #f2edf6;
+  background: #1d1824;
+  color: #f2edf6;
+}
+:global(:root[data-theme="dark"]) .scope :global(.managed-stat) strong,
+:global(:root[data-theme="dark"]) .scope :global(.managed-record-heading) h3,
+:global(:root[data-theme="dark"]) .scope :global(.managed-form-field) label,
+:global(:root[data-theme="dark"]) .scope :global(.managed-empty) strong{
+  color: #f2edf6;
+}
+:global(:root[data-theme="dark"]) .scope :global(.managed-search) input,
+:global(:root[data-theme="dark"]) .scope :global(.managed-status-label) select,
+:global(:root[data-theme="dark"]) .scope :global(.managed-form-field) input,
+:global(:root[data-theme="dark"]) .scope :global(.managed-form-field) textarea{
+  border-color: #40354b;
+  background: #211b29;
+  color: #f2edf6;
+}
+:global(:root[data-theme="dark"]) .scope :global(.managed-secondary),
+:global(:root[data-theme="dark"]) .scope :global(.managed-action-buttons) button{
+  border-color: #40354b;
+  background: #211b29;
+  color: #f2edf6;
+}
+@media (max-width: 760px){.scope:global(.managed-page){
+    gap: 17px;
+  }
+.scope :global(.managed-hero){
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 23px;
+  }
+.scope :global(.managed-hero) > button{
+    width: 100%;
+  }
+.scope :global(.managed-stat-grid){
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+.scope :global(.managed-stat){
+    padding: 14px;
+  }
+.scope :global(.managed-toolbar){
+    align-items: stretch;
+    flex-direction: column;
+  }
+.scope :global(.managed-search){
+    max-width: none;
+  }
+.scope :global(.managed-results){
+    text-align: right;
+  }
+.scope :global(.managed-record){
+    flex-direction: column;
+    gap: 17px;
+    padding: 17px;
+  }
+.scope :global(.managed-record-actions){
+    align-items: stretch;
+    width: 100%;
+  }
+.scope :global(.managed-status-label) select{
+    width: 100%;
+  }
+.scope :global(.managed-action-buttons){
+    justify-content: flex-end;
+  }}
+@media (max-width: 430px){.scope :global(.managed-stat-grid){
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+.scope :global(.managed-modal){
+    padding: 19px;
+  }
+.scope :global(.managed-modal-actions){
+    flex-direction: column-reverse;
+  }
+.scope :global(.managed-modal-actions) button{
+    width: 100%;
+  }}
