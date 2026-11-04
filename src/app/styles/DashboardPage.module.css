@@ -643,3 +643,69 @@
  .heroFoot{left:22px;right:22px;bottom:14px}
 }
 @media(prefers-reduced-motion:reduce){.goldButton,.quietButton{transition:none}.goldButton:hover{transform:none}}
+
+
+/* Refinamiento responsive y soporte real del tema claro */
+.scope .metrics article,
+.scope .panel,
+.scope .environmentCard {
+  min-width: 0;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.scope .metrics article {
+  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.scope .metrics article:hover {
+  transform: translateY(-3px);
+  border-color: rgba(213,180,119,.38);
+  box-shadow: 0 18px 42px rgba(8,5,14,.13);
+}
+.scope .panelHeading h2,
+.scope .sectionHeading h2 { letter-spacing: -.045em; }
+.scope .eventRow,
+.scope .shortcuts a,
+.scope .rankingBarRow { min-width: 0; }
+.scope .eventInfo,
+.scope .shortcuts a > div,
+.scope .rankingBarMeta b { min-width: 0; }
+.scope .eventInfo b,
+.scope .shortcuts a b,
+.scope .rankingBarMeta b { overflow-wrap: anywhere; }
+.scope .rankingBarTrack { overflow: hidden; border-radius: 999px; }
+.scope .rankingBarTrack > span { min-width: 0; border-radius: inherit; }
+.scope :is(a,button):focus-visible {
+  outline: 3px solid rgba(221,178,105,.72);
+  outline-offset: 3px;
+}
+@media (max-width: 520px) {
+  .scope { gap: 16px; }
+  .scope .hero { border-radius: 20px; }
+  .scope .hero h1 { max-width: 100%; font-size: clamp(28px, 8vw, 38px); }
+  .scope .heroActions { align-items: stretch; flex-direction: column; }
+  .scope .heroActions > a { justify-content: center; }
+  .scope .heroFoot { gap: 7px; flex-direction: column; align-items: flex-start; }
+  .scope .sectionHeading { align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  .scope .metrics article { padding: 16px; }
+  .scope .panel { padding: 18px; border-radius: 19px; }
+  .scope .panelHeading { gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scope .metrics article { transition: none; }
+  .scope .metrics article:hover { transform: none; }
+}
+:global(:root[data-theme="light"]) .scope .hero {
+  background:
+    radial-gradient(ellipse at 2% 0%,rgba(130,92,159,.14),transparent 42%),
+    radial-gradient(ellipse at 92% 10%,rgba(195,154,82,.13),transparent 32%),
+    linear-gradient(120deg,#fffaf4 0%,#f4edf8 54%,#f9f2e8 100%);
+  border-color: rgba(147,112,65,.22);
+  color: #34283d;
+  box-shadow: 0 20px 55px rgba(58,38,75,.09);
+}
+:global(:root[data-theme="light"]) .scope .hero h1 { color: #30243a; }
+:global(:root[data-theme="light"]) .scope .intro { color: #6c6075; }
+:global(:root[data-theme="light"]) .scope .quietButton {
+  color: #493b52; border-color: rgba(111,85,125,.22); background: rgba(255,255,255,.6);
+}
+:global(:root[data-theme="light"]) .scope .heroFoot { color: #766783; }
