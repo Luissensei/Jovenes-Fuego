@@ -2343,7 +2343,7 @@ button:not(:disabled):active{
   --jf-surface: rgba(16,23,45,.72);
   --jf-surface-2: rgba(11,17,34,.88);
 }
-:root:not([data-theme="dark"]){
+:root[data-theme="light"]{
   color-scheme: light;
   --jf-bg: #e9edfa;
   --jf-text: #1a2340;
@@ -2389,13 +2389,13 @@ body::after{
     radial-gradient(ellipse at 82% 16%, rgba(133,86,255,.18), transparent 34%),
     radial-gradient(ellipse at 52% 100%, rgba(40,205,255,.10), transparent 42%);
 }
-:root:not([data-theme="dark"]) body::before{
+:root[data-theme="light"] body::before{
   background:
     linear-gradient(180deg, rgba(234,240,255,.74), rgba(235,239,252,.84)),
     url("/jf-flame-atmosphere.svg") center / cover no-repeat;
   opacity: .9;
 }
-:root:not([data-theme="dark"]) body::after{ opacity: .42; }
+:root[data-theme="light"] body::after{ opacity: .42; }
 #root{ position: relative; z-index: 0; }
 .layout, .main, .dashboard-page, .members-page, .youth-portal{
   background: transparent !important;
@@ -2417,12 +2417,12 @@ body::after{
   backdrop-filter: blur(25px) saturate(155%);
   -webkit-backdrop-filter: blur(25px) saturate(155%);
 }
-:root:not([data-theme="dark"]) .mobile-header{
+:root[data-theme="light"] .mobile-header{
   background: rgba(247,249,255,.88) !important;
   color: #1b2542;
 }
-:root:not([data-theme="dark"]) .mobile-header strong{ color: #1b2542; }
-:root:not([data-theme="dark"]) .mobile-header .icon-button{ color: #1b2542; }
+:root[data-theme="light"] .mobile-header strong{ color: #1b2542; }
+:root[data-theme="light"] .mobile-header .icon-button{ color: #1b2542; }
 .brand-mark{
   background: linear-gradient(140deg,#ffb55f 0%,#ff654b 48%,#bd51e9 100%) !important;
   box-shadow: 0 9px 28px rgba(255,103,74,.34), 0 0 0 5px rgba(255,255,255,.045);
@@ -2488,9 +2488,9 @@ input, select, textarea{
   color: var(--jf-text) !important;
   backdrop-filter: blur(12px);
 }
-:root:not([data-theme="dark"]) input,
-:root:not([data-theme="dark"]) select,
-:root:not([data-theme="dark"]) textarea{
+:root[data-theme="light"] input,
+:root[data-theme="light"] select,
+:root[data-theme="light"] textarea{
   background: rgba(255,255,255,.68) !important;
 }
 input::placeholder, textarea::placeholder{ color: var(--jf-muted); opacity: .75; }
@@ -2635,7 +2635,7 @@ body::after{
   animation: jfEmberField 26s linear infinite, jfAuroraPulse 13s ease-in-out infinite alternate;
   will-change: background-position, opacity;
 }
-:root:not([data-theme="dark"]) body::after{
+:root[data-theme="light"] body::after{
   background-image:
     radial-gradient(ellipse at 12% 12%, rgba(255,137,75,.20), transparent 32%),
     radial-gradient(ellipse at 82% 16%, rgba(133,86,255,.17), transparent 34%),
@@ -2718,11 +2718,11 @@ body::after{
   box-shadow: 0 0 22px rgba(255,130,77,.13), inset 0 1px 0 rgba(255,255,255,.14);
 }
 .nav-item.active .nav-item-icon svg{ filter: drop-shadow(0 0 6px rgba(255,190,125,.36)); }
-:root:not([data-theme="dark"]) .nav-item-icon{
+:root[data-theme="light"] .nav-item-icon{
   border-color: rgba(53,68,112,.13);
   background: linear-gradient(145deg,rgba(255,255,255,.88),rgba(225,232,250,.62));
 }
-:root:not([data-theme="dark"]) .nav-item.active .nav-item-icon{
+:root[data-theme="light"] .nav-item.active .nav-item-icon{
   color: #fff;
   background: linear-gradient(140deg,#ff995c,#bd75e8,#56c9e8);
 }
@@ -3098,18 +3098,18 @@ img{max-width:100%;}
 .youth-faithful-rank{width:25px;height:25px;border-radius:8px;font-size:11px;}
 .youth-faithful-name{font-size:12px;font-weight:700;}
 .youth-faithful-list li > strong{font-size:11px;text-align:right;white-space:nowrap;}
-:root:not([data-theme="dark"]) .youth-hall-card{
+:root[data-theme="light"] .youth-hall-card{
   border-color:rgba(53,68,112,.14);
   background:rgba(248,250,255,.92);
   color:#1a2340;
   box-shadow:0 16px 38px rgba(35,48,90,.08);
 }
-:root:not([data-theme="dark"]) .youth-hall-card h2{color:#1a2340 !important;}
-:root:not([data-theme="dark"]) .youth-hall-card > header span{color:#536a98;}
-:root:not([data-theme="dark"]) .youth-hall-caption{color:#65708a;}
-:root:not([data-theme="dark"]) .youth-faithful-list li{border-color:rgba(53,68,112,.12);}
-:root:not([data-theme="dark"]) .youth-faithful-name{color:#283451;}
-:root:not([data-theme="dark"]) .youth-faithful-list li > strong{color:#32718e;}
+:root[data-theme="light"] .youth-hall-card h2{color:#1a2340 !important;}
+:root[data-theme="light"] .youth-hall-card > header span{color:#536a98;}
+:root[data-theme="light"] .youth-hall-caption{color:#65708a;}
+:root[data-theme="light"] .youth-faithful-list li{border-color:rgba(53,68,112,.12);}
+:root[data-theme="light"] .youth-faithful-name{color:#283451;}
+:root[data-theme="light"] .youth-faithful-list li > strong{color:#32718e;}
 @media (max-width:680px){.youth-hall-card{padding:15px 13px;border-radius:16px !important;}
 .youth-hall-card h2{font-size:22px;}
 .youth-faithful-list li{grid-template-columns:26px minmax(0,1fr) auto;gap:7px;}
@@ -3128,7 +3128,7 @@ img{max-width:100%;}
   --jf-glass-edge: rgba(222,234,255,.19);
   --jf-glass-highlight: rgba(255,255,255,.12);
 }
-:root:not([data-theme="dark"]){
+:root[data-theme="light"]{
   --jf-glass-strong: rgba(250,252,255,.88);
   --jf-glass-soft: rgba(247,250,255,.68);
   --jf-glass-edge: rgba(69,88,139,.15);
@@ -3201,19 +3201,19 @@ img{max-width:100%;}
   backdrop-filter:blur(24px) saturate(150%);
   -webkit-backdrop-filter:blur(24px) saturate(150%);
 }
-:root:not([data-theme="dark"]) .page-card,
-:root:not([data-theme="dark"]) .ranking-content,
-:root:not([data-theme="dark"]) .attendance-card,
-:root:not([data-theme="dark"]) .management-summary,
-:root:not([data-theme="dark"]) .management-form,
-:root:not([data-theme="dark"]) .management-records,
-:root:not([data-theme="dark"]) .shared-page-header,
-:root:not([data-theme="dark"]) .checkin-panel,
-:root:not([data-theme="dark"]) .checkin-config,
-:root:not([data-theme="dark"]) .reports-card,
-:root:not([data-theme="dark"]) .visitors-content,
-:root:not([data-theme="dark"]) .members-controls,
-:root:not([data-theme="dark"]) .members-state{
+:root[data-theme="light"] .page-card,
+:root[data-theme="light"] .ranking-content,
+:root[data-theme="light"] .attendance-card,
+:root[data-theme="light"] .management-summary,
+:root[data-theme="light"] .management-form,
+:root[data-theme="light"] .management-records,
+:root[data-theme="light"] .shared-page-header,
+:root[data-theme="light"] .checkin-panel,
+:root[data-theme="light"] .checkin-config,
+:root[data-theme="light"] .reports-card,
+:root[data-theme="light"] .visitors-content,
+:root[data-theme="light"] .members-controls,
+:root[data-theme="light"] .members-state{
   color:#202b49;
   box-shadow:0 16px 40px rgba(36,53,96,.08),inset 0 1px 0 rgba(255,255,255,.92);
 }
@@ -3253,7 +3253,7 @@ img{max-width:100%;}
     inset 0 1px 0 rgba(255,255,255,.24),
     inset 0 -1px 0 rgba(0,0,0,.08);
 }
-:root:not([data-theme="dark"]){
+:root[data-theme="light"]{
   --jf-depth-shadow:
     0 5px 10px rgba(34,48,87,.05),
     0 16px 30px rgba(34,48,87,.08),
@@ -3749,7 +3749,7 @@ h1,h2,h3,h4,p,small,strong,label{
     0 34px 58px rgba(0,0,0,.21),
     0 58px 95px rgba(0,0,0,.18);
 }
-:root:not([data-theme="dark"]){
+:root[data-theme="light"]{
   --jf-depth-shadow:
     0 1px 0 rgba(255,255,255,.98) inset,
     0 -1px 0 rgba(49,68,115,.035) inset,
@@ -3912,7 +3912,7 @@ h1,h2,h3,h4,p,small,strong,label{
   --jf-shadow: 0 18px 45px rgba(0,0,0,.30);
   --jf-shadow-hover: 0 25px 58px rgba(0,0,0,.40);
 }
-:root:not([data-theme="dark"]){
+:root[data-theme="light"]{
   color-scheme: light;
   --jf-bg: #f3f5fb;
   --jf-text: #202a43;
@@ -4168,7 +4168,7 @@ input[type="search"]::-webkit-search-cancel-button{display:none;}
   color:var(--jf-text);
   border-color:var(--jf-glass-edge);
 }
-:root:not([data-theme="dark"]) :is(
+:root[data-theme="light"] :is(
   .page-card,.ranking-content,.attendance-card,.management-summary,.management-form,
   .management-records,.shared-page-header,.shared-stat-card,.shared-empty-state,
   .management-record,.managed-record,.managed-stat,.managed-empty,.reports-card,
@@ -4188,7 +4188,7 @@ input[type="search"]::-webkit-search-cancel-button{display:none;}
   background:var(--jf-glass-strong) !important;
   box-shadow:var(--jf-shadow);
 }
-:root:not([data-theme="dark"]) :is(
+:root[data-theme="light"] :is(
   .dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
   .dashboard-bottom-note,.ranking-info-grid article,.ranking-player,.game-card,
   .profile-card,.selected-profile-panel,.members-total-card,.member-card,.member-row,
@@ -4198,7 +4198,7 @@ input[type="search"]::-webkit-search-cancel-button{display:none;}
   .weekly-admin-item,.prayer-admin-card,.youth-activity-card,.youth-store-item,
   .youth-game-tile,.youth-profile-card,.youth-hall-card
 ) :is(h1,h2,h3,h4,strong){color:var(--jf-text) !important;}
-:root:not([data-theme="dark"]) :is(
+:root[data-theme="light"] :is(
   .dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
   .dashboard-bottom-note,.ranking-info-grid article,.ranking-player,.game-card,
   .profile-card,.selected-profile-panel,.members-total-card,.member-card,.member-row,

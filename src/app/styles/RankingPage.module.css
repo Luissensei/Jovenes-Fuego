@@ -1478,13 +1478,13 @@
 .scope :global(.ranking-player-points) span{color:var(--jf-muted);font-size:10px;}
 .scope :global(.ranking-empty),
 .scope :global(.ranking-state){border-radius:18px !important;}
-:global(:root:not([data-theme="dark"])) .scope :global(.ranking-podium-player){
+:global(:root[data-theme="light"]) .scope :global(.ranking-podium-player){
   border-color:rgba(53,68,112,.13);
   background:rgba(255,255,255,.78);
 }
-:global(:root:not([data-theme="dark"])) .scope :global(.ranking-podium-details) strong{color:#202b49;}
-:global(:root:not([data-theme="dark"])) .scope :global(.ranking-podium-details) small{color:#9b641d;}
-:global(:root:not([data-theme="dark"])) .scope :global(.ranking-podium-place){
+:global(:root[data-theme="light"]) .scope :global(.ranking-podium-details) strong{color:#202b49;}
+:global(:root[data-theme="light"]) .scope :global(.ranking-podium-details) small{color:#9b641d;}
+:global(:root[data-theme="light"]) .scope :global(.ranking-podium-place){
   border-color:rgba(170,112,33,.2);
   color:#8a5a18;
   background:rgba(255,206,123,.12);

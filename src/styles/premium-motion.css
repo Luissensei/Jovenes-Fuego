@@ -494,3 +494,9 @@ html, body {
 @media (prefers-reduced-motion: reduce) {
   html, body { scroll-behavior: auto !important; }
 }
+
+
+:root[data-theme="royal"]{
+  --jf-accent:#d0ad68;--jf-accent-2:#e7ce92;--jf-purple:#a58ac9;--jf-cyan:#c8b7de;--jf-green:#9ab99e;
+  --jf-glass:rgba(27,21,42,.84);--jf-glass-border:rgba(211,181,116,.23)
+}

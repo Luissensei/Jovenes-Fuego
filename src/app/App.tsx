@@ -14,6 +14,7 @@ import {
   Menu,
   Moon,
   Sun,
+  Crown,
   ShieldCheck,
   X,
   LogOut,
@@ -96,7 +97,7 @@ function AdminApp() {
     logout,
   } = useAuth();
 
-  const { isDark, toggleTheme } = useThemePreference();
+  const { theme, nextThemeLabel, toggleTheme } = useThemePreference();
   const [menuOpen, setMenuOpen] = useState(false);
   const [moduleSearch, setModuleSearch] = useState('');
   const navigate = useNavigate();
@@ -309,10 +310,11 @@ function AdminApp() {
 
         <button
           className="icon-button"
-          aria-label="Cambiar tema"
+          aria-label={`Cambiar a ${nextThemeLabel}`}
+          title={`Cambiar a ${nextThemeLabel}`}
           onClick={toggleTheme}
         >
-          {isDark ? <Sun size={19} /> : <Moon size={19} />}
+          {theme === 'dark' ? <Sun size={19} /> : theme === 'light' ? <Crown size={19} /> : <Moon size={19} />}
         </button>
       </header>
 
@@ -381,9 +383,11 @@ function AdminApp() {
           <button
             className="theme-toggle"
             onClick={toggleTheme}
+            aria-label={`Cambiar a ${nextThemeLabel}`}
+            title={`Cambiar a ${nextThemeLabel}`}
           >
-            {isDark ? <Sun size={17} /> : <Moon size={17} />}
-            {isDark ? 'Modo claro' : 'Modo oscuro'}
+            {theme === 'dark' ? <Sun size={17} /> : theme === 'light' ? <Crown size={17} /> : <Moon size={17} />}
+            Cambiar a {nextThemeLabel}
           </button>
 
           {user && (

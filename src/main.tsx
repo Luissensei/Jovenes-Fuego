@@ -14,7 +14,7 @@ import './styles/theme-system.css';
 
 try {
   const savedTheme = window.localStorage.getItem('jf-theme');
-  document.documentElement.dataset.theme = savedTheme === 'light' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = savedTheme === 'light' || savedTheme === 'royal' ? savedTheme : 'dark';
 } catch {
   document.documentElement.dataset.theme = 'dark';
 }

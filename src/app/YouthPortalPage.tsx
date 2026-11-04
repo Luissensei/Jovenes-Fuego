@@ -58,7 +58,7 @@ type LookShopCategory = 'frames' | 'avatars' | 'titles' | 'backgrounds' | 'effec
 const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: string; cost: number}[]> = {
   frames: [
     {key:'fuego',label:'Fuego',emoji:'🔥',cost:0},
-    {key:'neon',label:'Neón',emoji:'💜',cost:40},
+    {key:'neon',label:'Amatista',emoji:'💜',cost:40},
     {key:'cielo',label:'Cielo',emoji:'🕊️',cost:40},
     {key:'hielo',label:'Hielo',emoji:'❄️',cost:50},
     {key:'arco',label:'Arcoíris',emoji:'🌈',cost:60},
@@ -71,6 +71,10 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'obsidiana',label:'Obsidiana',emoji:'🖤',cost:125},
     {key:'solar',label:'Solar',emoji:'☀️',cost:95},
     {key:'cristal',label:'Cristal',emoji:'💎',cost:145},
+    {key:'emperador',label:'Emperador',emoji:'👑',cost:185},
+    {key:'filigrana',label:'Filigrana dorada',emoji:'✨',cost:155},
+    {key:'bronce',label:'Bronce noble',emoji:'🏅',cost:100},
+    {key:'runa',label:'Runas reales',emoji:'🔱',cost:175},
   ],
   avatars: [
     {key:'',label:'Iniciales',emoji:'🔤',cost:0},
@@ -89,6 +93,9 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'fenix',label:'Fénix',emoji:'🪽',cost:95},
     {key:'delfin',label:'Delfín',emoji:'🐬',cost:45},
     {key:'zorro',label:'Zorro',emoji:'🦊',cost:55},
+    {key:'pantera',label:'Pantera',emoji:'🐆',cost:75},
+    {key:'tigre',label:'Tigre',emoji:'🐯',cost:75},
+    {key:'fenix-real',label:'Fénix real',emoji:'🔥',cost:135},
   ],
   titles: [
     {key:'chispa',label:'Chispa Encendida',emoji:'✨',cost:0},
@@ -111,6 +118,12 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'aurora-boreal',label:'Aurora boreal',emoji:'🌠',cost:115},
     {key:'atardecer',label:'Atardecer',emoji:'🌇',cost:55},
     {key:'cosmos',label:'Cosmos',emoji:'🪐',cost:125},
+    {key:'imperial',label:'Imperial',emoji:'👑',cost:145},
+    {key:'amatista',label:'Amatista real',emoji:'💜',cost:95},
+    {key:'santuario',label:'Santuario',emoji:'🕯️',cost:110},
+    {key:'aurum',label:'Aurum',emoji:'🌟',cost:130},
+    {key:'seda',label:'Seda y oro',emoji:'🌙',cost:120},
+    {key:'nebula-real',label:'Nebulosa real',emoji:'🪐',cost:155},
   ],
   effects: [
     {key:'ember',label:'Brasa suave',emoji:'🔥',cost:0},
@@ -122,6 +135,13 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'sun',label:'Destello solar',emoji:'☀️',cost:90},
     {key:'lightning',label:'Relámpagos',emoji:'⚡',cost:105},
     {key:'bloom',label:'Luz floreciente',emoji:'🌸',cost:95},
+    {key:'royal',label:'Aura imperial',emoji:'👑',cost:125},
+    {key:'orbit',label:'Órbitas doradas',emoji:'🪐',cost:135},
+    {key:'runes',label:'Runas de luz',emoji:'🔱',cost:150},
+    {key:'golden',label:'Llama dorada',emoji:'🔥',cost:165},
+    {key:'comet',label:'Cometa de oro',emoji:'☄️',cost:145},
+    {key:'crown',label:'Resplandor de corona',emoji:'💫',cost:175},
+    {key:'vortex',label:'Vórtice amatista',emoji:'🌀',cost:155},
   ],
   badges: [
     {key:'flame',label:'Llama viva',emoji:'🔥',cost:0},
@@ -134,6 +154,11 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'mission',label:'En misión',emoji:'🌍',cost:85},
     {key:'brave',label:'Valentía',emoji:'🦁',cost:90},
     {key:'joy',label:'Gozo',emoji:'😊',cost:55},
+    {key:'royal',label:'Linaje real',emoji:'👑',cost:135},
+    {key:'guardian',label:'Guardián de fe',emoji:'🛡️',cost:110},
+    {key:'victory',label:'Victoria',emoji:'🏆',cost:125},
+    {key:'covenant',label:'Pacto de luz',emoji:'📜',cost:100},
+    {key:'radiance',label:'Resplandor',emoji:'🌟',cost:145},
   ],
   hair: [
     {key:'natural',label:'Natural',emoji:'🌿',cost:0},
@@ -158,6 +183,10 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'street',label:'Street style',emoji:'🛹',cost:75},
     {key:'warrior',label:'Guerrero de fe',emoji:'🛡️',cost:90},
     {key:'formal',label:'Formal',emoji:'🤵',cost:70},
+    {key:'guardian',label:'Armadura noble',emoji:'🛡️',cost:115},
+    {key:'royal',label:'Manto imperial',emoji:'👑',cost:145},
+    {key:'champion',label:'Campeón',emoji:'🏅',cost:120},
+    {key:'satin',label:'Satén dorado',emoji:'✨',cost:130},
   ],
   accessories: [
     {key:'none',label:'Sin accesorio',emoji:'➖',cost:0},
@@ -170,6 +199,10 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'cap',label:'Gorra urbana',emoji:'🧢',cost:40},
     {key:'crown',label:'Corona',emoji:'👑',cost:80},
     {key:'scarf',label:'Bufanda',emoji:'🧣',cost:50},
+    {key:'wings',label:'Alas reales',emoji:'🪽',cost:135},
+    {key:'sword',label:'Espada ceremonial',emoji:'⚔️',cost:125},
+    {key:'staff',label:'Bastón de luz',emoji:'🪄',cost:100},
+    {key:'cape',label:'Capa de campeón',emoji:'🦸',cost:115},
   ],
 };
 
@@ -207,8 +240,11 @@ const lookTemplates: {key:string;label:string;description:string;emoji:string;pr
   {key:'llama',label:'Llama viva',description:'Energía cálida y espíritu valiente.',emoji:'🔥',preset:{frame:'fuego',background:'brasa',avatar:'leon',title:'guerrero',effects:'ember',badge:'flame',hair:'natural',outfit:'basic',accessory:'none'}},
   {key:'celestial',label:'Cielo abierto',description:'Luz, paz y una identidad luminosa.',emoji:'🕊️',preset:{frame:'cielo',background:'aurora',avatar:'paloma',title:'adorador',effects:'aurora',badge:'star',hair:'waves',outfit:'white',accessory:'halo'}},
   {key:'guerrero',label:'Guerrero de fe',description:'Un look de fuerza, valor y propósito.',emoji:'🛡️',preset:{frame:'corona',background:'volcan',avatar:'guerrero',title:'valiente',effects:'spark',badge:'shield',hair:'fade',outfit:'warrior',accessory:'wristband'}},
-  {key:'urbano',label:'Luz urbana',description:'Estilo moderno con personalidad propia.',emoji:'🎧',preset:{frame:'neon',background:'noche',avatar:'estrella',title:'chispa',effects:'galaxy',badge:'heart',hair:'curly',outfit:'street',accessory:'headphones'}},
+  {key:'urbano',label:'Luz urbana',description:'Estilo moderno con personalidad propia.',emoji:'🎧',preset:{frame:'amatista',background:'noche',avatar:'estrella',title:'chispa',effects:'galaxy',badge:'heart',hair:'curly',outfit:'street',accessory:'headphones'}},
   {key:'sabiduria',label:'Amante de la Palabra',description:'Una identidad centrada en aprender y crecer.',emoji:'📖',preset:{frame:'oro',background:'ocaso',avatar:'cordero',title:'sabio',effects:'halo',badge:'book',hair:'classic',outfit:'formal',accessory:'book'}},
+  {key:'imperial',label:'Imperial',description:'Oro antiguo, amatista y presencia de leyenda.',emoji:'👑',preset:{frame:'emperador',background:'imperial',avatar:'fenix-real',title:'leyenda',effects:'royal',badge:'royal',hair:'long',outfit:'royal',accessory:'wings'}},
+  {key:'amatista',label:'Amatista real',description:'Tonos ciruela con detalles de oro suave.',emoji:'💜',preset:{frame:'amatista',background:'amatista',avatar:'pantera',title:'valiente',effects:'orbit',badge:'guardian',hair:'afro',outfit:'satin',accessory:'cape'}},
+  {key:'aurum',label:'Aurum',description:'Un estilo luminoso con marco y detalles dorados.',emoji:'🌟',preset:{frame:'filigrana',background:'aurum',avatar:'guerrero',title:'guerrero',effects:'golden',badge:'victory',hair:'classic',outfit:'champion',accessory:'sword'}},
   {key:'misionero',label:'Luz en el mundo',description:'Una imagen alegre, cercana y lista para servir.',emoji:'🌍',preset:{frame:'esmeralda',background:'bosque',avatar:'aguila',title:'intercesor',effects:'sun',badge:'mission',hair:'braids',outfit:'sport',accessory:'book'}},
   {key:'cosmico',label:'Fuego galáctico',description:'Colores intensos, brillo y una vibra futurista.',emoji:'🌌',preset:{frame:'prisma',background:'cosmos',avatar:'fenix',title:'leyenda',effects:'galaxy',badge:'hope',hair:'afro',outfit:'street',accessory:'glasses'}},
 ];
@@ -264,7 +300,7 @@ function YouthAvatar({profile, large = false}: {profile: PublicProfile; large?: 
     <div className={`youth-avatar youth-avatar-frame-${profile.frame || 'fuego'} ${large ? 'large' : ''}`}>
       {profile.pic && !imageFailed ? (
         <img src={profile.pic} alt={`Fotografía de ${profile.name}`} onError={() => setImageFailed(true)} />
-      ) : <span className={profile.avatar ? 'youth-avatar-symbol' : ''}>{profile.avatar ? ({paloma:'🕊️',leon:'🦁',aguila:'🦅',cordero:'🐑',mariposa:'🦋',lobo:'🐺',estrella:'🌟',guerrero:'🛡️',dragon:'🐉',cohete:'🚀',rey:'👑',volcan:'🌋'} as Record<string,string>)[profile.avatar] ?? getInitials(profile.name) : getInitials(profile.name)}</span>}
+      ) : <span className={profile.avatar ? 'youth-avatar-symbol' : ''}>{profile.avatar ? ({paloma:'🕊️',leon:'🦁',aguila:'🦅',cordero:'🐑',mariposa:'🦋',lobo:'🐺',estrella:'🌟',guerrero:'🛡️',dragon:'🐉',cohete:'🚀',rey:'👑',volcan:'🌋',fenix:'🔥','fenix-real':'🔥',delfin:'🐬',zorro:'🦊',pantera:'🐆',tigre:'🐯'} as Record<string,string>)[profile.avatar] ?? getInitials(profile.name) : getInitials(profile.name)}</span>}
     </div>
   );
 }
@@ -392,7 +428,8 @@ function HallOfFame({topPlayers, faithful, attendanceLimited}: {
 }
 
 export default function YouthPortalPage() {
-  const { isDark, toggleTheme } = useThemePreference();
+  const { theme, nextThemeLabel, toggleTheme } = useThemePreference();
+  const ThemeIcon = theme === 'dark' ? Sun : theme === 'light' ? Crown : Moon;
   const [profiles, setProfiles] = useState<PublicProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -897,9 +934,9 @@ export default function YouthPortalPage() {
           <div className="youth-game-topbar">
             <button className="youth-back" type="button" onClick={exitGame}><ArrowLeft size={17}/> Volver a mi espacio</button>
             <span><Gamepad2 size={16}/> JUGADOR · {selectedProfile.name}</span>
-            <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'} aria-pressed={isDark}>
-              {isDark ? <Sun size={17}/> : <Moon size={17}/>}
-              <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>
+            <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={`Cambiar a ${nextThemeLabel}`} title={`Cambiar a ${nextThemeLabel}`}>
+              <ThemeIcon size={17}/>
+              <span>Cambiar a {nextThemeLabel}</span>
             </button>
           </div>
           {activeGame === 'trivia' && <TriviaGame onExit={exitGame}/>}
@@ -928,9 +965,9 @@ export default function YouthPortalPage() {
               {soundOn ? <Volume2 size={17}/> : <VolumeX size={17}/>}
               {soundOn ? 'Ambiente activado' : 'Activar ambiente'}
             </button>
-            <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'} aria-pressed={isDark}>
-              {isDark ? <Sun size={17}/> : <Moon size={17}/>}
-              <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>
+            <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={`Cambiar a ${nextThemeLabel}`} title={`Cambiar a ${nextThemeLabel}`}>
+              <ThemeIcon size={17}/>
+              <span>Cambiar a {nextThemeLabel}</span>
             </button>
           </div>
 
@@ -1025,7 +1062,7 @@ export default function YouthPortalPage() {
                     <button
                       type="button"
                       key={item.key || 'default'}
-                      className={`youth-store-item ${selected ? 'selected' : ''} ${unlocked ? 'unlocked' : 'locked'}`}
+                      className={`youth-store-item rarity-${item.cost >= 150 ? 'legendary' : item.cost >= 100 ? 'epic' : item.cost >= 50 ? 'rare' : 'common'} ${selected ? 'selected' : ''} ${unlocked ? 'unlocked' : 'locked'}`}
                       disabled={lookSaving}
                       onClick={() => void equipLookItem(lookCategory,item)}
                     >
@@ -1204,9 +1241,9 @@ export default function YouthPortalPage() {
           <div className="youth-selector-heading">
             <div><span>ACCESO JUVENIL</span><h3>Nuestra comunidad</h3></div>
             <div className="youth-selector-actions">
-              <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'} aria-pressed={isDark}>
-                {isDark ? <Sun size={17}/> : <Moon size={17}/>}
-                <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>
+              <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={`Cambiar a ${nextThemeLabel}`} title={`Cambiar a ${nextThemeLabel}`}>
+                <ThemeIcon size={17}/>
+                <span>Cambiar a {nextThemeLabel}</span>
               </button>
               <div className="youth-total"><Users size={17}/>{profiles.length} perfiles</div>
             </div>
