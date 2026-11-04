@@ -1687,3 +1687,273 @@
   .scope :global(.ranking-hero){grid-template-columns:minmax(0,1fr) 70px!important;}
   .scope :global(.ranking-hero-art){width:66px!important;}
 }
+
+
+/* Podio visual de tres niveles: plata, oro y bronce. */
+.scope :global(.ranking-podium-stage) {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  align-items: end;
+  gap: clamp(8px,2vw,18px);
+  min-height: 315px;
+  margin: 18px 0 8px;
+  padding: 18px 10px 0;
+  list-style: none;
+  isolation: isolate;
+}
+
+.scope :global(.ranking-podium-stage)::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 52% 0 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 100%,rgba(255,126,55,.16),transparent 48%),
+    radial-gradient(ellipse at 50% 100%,rgba(126,79,235,.10),transparent 72%);
+}
+
+.scope :global(.ranking-podium-stage) :global(.ranking-podium-player) {
+  --podium-card-height: 248px;
+  --podium-block-height: 104px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
+  width: 100%;
+  height: var(--podium-card-height);
+  min-width: 0;
+  min-height: 0;
+  overflow: visible;
+  padding: 7px 8px calc(var(--podium-block-height) + 13px);
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-align: center;
+  transform: none !important;
+}
+
+.scope :global(.ranking-podium-stage) :global(.ranking-podium-player)::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: auto 0 0;
+  height: var(--podium-block-height);
+  border: 1px solid rgba(255,255,255,.34);
+  border-top: 4px solid rgba(255,255,255,.76);
+  border-radius: 13px 13px 5px 5px;
+  background: linear-gradient(155deg,var(--podium-top),var(--podium-bottom));
+  box-shadow: 0 12px 25px rgba(36,24,52,.18),inset 0 1px 0 rgba(255,255,255,.3);
+}
+
+.scope :global(.ranking-podium-stage) :global(.ranking-podium-player)::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: auto 8px 8px;
+  height: 1px;
+  background: rgba(255,255,255,.36);
+}
+
+.scope :global(.ranking-podium-stage) :global(.podium-second) {
+  --podium-card-height: 250px;
+  --podium-block-height: 112px;
+  --podium-top: #e7edf5;
+  --podium-bottom: #8e9db2;
+  grid-column: 1;
+}
+
+.scope :global(.ranking-podium-stage) :global(.podium-first) {
+  --podium-card-height: 292px;
+  --podium-block-height: 158px;
+  --podium-top: #ffe98a;
+  --podium-bottom: #e4a51d;
+  grid-column: 2;
+}
+
+.scope :global(.ranking-podium-stage) :global(.podium-third) {
+  --podium-card-height: 228px;
+  --podium-block-height: 92px;
+  --podium-top: #f7b184;
+  --podium-bottom: #bd603b;
+  grid-column: 3;
+}
+
+.scope :global(.ranking-podium-stage) :global(.ranking-podium-player) > * {
+  position: relative;
+  z-index: 2;
+}
+
+.scope :global(.ranking-podium-stage) :global(.ranking-podium-rank) {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  border: 1px solid rgba(255,255,255,.54);
+  border-radius: 50%;
+  background: rgba(255,255,255,.88);
+  color: #8b5d16 !important;
+  box-shadow: 0 5px 14px rgba(38,24,14,.12);
+}
+
+.scope :global(.ranking-podium-stage) :global(.podium-second) :global(.ranking-podium-rank) {
+  color: #52647b !important;
+}
+
+.scope :global(.ranking-podium-stage) :global(.podium-third) :global(.ranking-podium-rank) {
+  color: #96502f !important;
+}
+
+.scope :global(.ranking-podium-stage) :global(.ranking-podium-avatar) {
+  width: 58px;
+  height: 58px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  background: linear-gradient(140deg,#f5a23c,#e34d34);
+  color: #ffffff;
+  font-size: 15px;
+  box-shadow: 0 5px 16px rgba(32,20,38,.18);
+}
+
+.scope :global(.ranking-podium-stage) :global(.podium-first) :global(.ranking-podium-avatar) {
+  width: 76px;
+  height: 76px;
+  border-width: 4px;
+  box-shadow: 0 0 0 5px rgba(255,226,118,.30),0 9px 24px rgba(32,20,38,.2);
+}
+
+.scope :global(.ranking-podium-stage) :global(.ranking-podium-details) {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+  padding: 0 3px;
+  text-shadow: 0 1px 2px rgba(255,255,255,.24);
+}
+
+.scope :global(.ranking-podium-stage) :global(.ranking-podium-details) strong {
+  max-width: 100%;
+  overflow: hidden;
+  color: #30200f !important;
+  font-size: clamp(10px,1vw,13px);
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scope :global(.ranking-podium-stage) :global(.ranking-podium-details) small {
+  color: #493018 !important;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.scope :global(.ranking-podium-stage) :global(.ranking-podium-place) {
+  padding: 5px 9px;
+  border: 1px solid rgba(77,49,19,.22);
+  border-radius: 999px;
+  background: rgba(255,255,255,.76);
+  color: #503315 !important;
+  font-size: 8px;
+  font-weight: 950;
+  letter-spacing: .07em;
+  white-space: nowrap;
+}
+
+.scope :global(.ranking-podium-stage) :global(.ranking-podium-base) {
+  position: absolute !important;
+  right: 13px;
+  bottom: 4px;
+  z-index: 1 !important;
+  color: rgba(61,39,18,.23);
+  font-size: 76px;
+  font-weight: 950;
+  line-height: .9;
+  pointer-events: none;
+}
+
+.scope :global(.ranking-podium-stage) :global(.podium-first) :global(.ranking-podium-base) {
+  font-size: 100px;
+}
+
+:global(:root[data-theme="light"]) .scope :global(.ranking-podium-stage)::before {
+  background:
+    radial-gradient(ellipse at 50% 100%,rgba(255,126,55,.13),transparent 48%),
+    radial-gradient(ellipse at 50% 100%,rgba(126,79,235,.08),transparent 72%);
+}
+
+@media(max-width:600px) {
+  .scope :global(.ranking-podium-stage) {
+    min-height: 260px;
+    gap: 5px;
+    padding-inline: 2px;
+  }
+  .scope :global(.ranking-podium-stage) :global(.ranking-podium-player) {
+    --podium-card-height: 216px;
+    gap: 7px;
+    padding: 5px 3px calc(var(--podium-block-height) + 10px);
+  }
+  .scope :global(.ranking-podium-stage) :global(.podium-second) {
+    --podium-block-height: 85px;
+  }
+  .scope :global(.ranking-podium-stage) :global(.podium-first) {
+    --podium-card-height: 247px;
+    --podium-block-height: 125px;
+  }
+  .scope :global(.ranking-podium-stage) :global(.podium-third) {
+    --podium-card-height: 197px;
+    --podium-block-height: 69px;
+  }
+  .scope :global(.ranking-podium-stage) :global(.ranking-podium-rank) {
+    width: 27px;
+    height: 27px;
+  }
+  .scope :global(.ranking-podium-stage) :global(.ranking-podium-avatar) {
+    width: 42px;
+    height: 42px;
+  }
+  .scope :global(.ranking-podium-stage) :global(.podium-first) :global(.ranking-podium-avatar) {
+    width: 54px;
+    height: 54px;
+  }
+  .scope :global(.ranking-podium-stage) :global(.ranking-podium-place) {
+    padding: 4px 5px;
+    font-size: 6px;
+  }
+  .scope :global(.ranking-podium-stage) :global(.ranking-podium-details) strong {
+    font-size: 8px;
+  }
+  .scope :global(.ranking-podium-stage) :global(.ranking-podium-details) small {
+    font-size: 7px;
+  }
+  .scope :global(.ranking-podium-stage) :global(.ranking-podium-base) {
+    right: 6px;
+    bottom: 4px;
+    font-size: 57px;
+  }
+  .scope :global(.ranking-podium-stage) :global(.podium-first) :global(.ranking-podium-base) {
+    font-size: 74px;
+  }
+}
+
+@media(max-width:380px) {
+  .scope :global(.ranking-podium-stage) {
+    gap: 2px;
+  }
+  .scope :global(.ranking-podium-stage) :global(.ranking-podium-details) strong {
+    font-size: 7px;
+  }
+  .scope :global(.ranking-podium-stage) :global(.ranking-podium-place) {
+    letter-spacing: 0;
+  }
+}
+
+@media(prefers-reduced-motion:reduce) {
+  .scope :global(.ranking-podium-stage) :global(.ranking-podium-player) {
+    transition: none !important;
+  }
+}
