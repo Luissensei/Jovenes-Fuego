@@ -23,7 +23,6 @@ import {
   LockKeyhole,
   ShieldAlert,
   Search,
-  Sparkles,
 } from 'lucide-react';
 
 import { modules } from './modules';
@@ -459,7 +458,6 @@ function AdminApp() {
             </span>
           </div>
 
-          {isAdmin && <button className="topline-ai-trigger" type="button" onClick={() => navigate('/asistente')}><Sparkles size={16}/> Fuego AI</button>}
           <span className="project-label">
             {user ? (
               <>
