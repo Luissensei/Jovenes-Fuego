@@ -325,6 +325,19 @@ export default function RankingPage({
             </article>
           </div>
 
+          <section className="ranking-progress-panel">
+            <header><div><span>LECTURA RÁPIDA</span><h3>Distribución de puntuaciones</h3><p>Perfiles publicados por rango de puntos.</p></div><span>{profiles.length} jóvenes</span></header>
+            <div className="ranking-progress-bands">
+              {rankDistribution.map((band,index) => {
+                const percentage = profiles.length ? (band.count / profiles.length) * 100 : 0;
+                return <div className="ranking-progress-band" key={band.label}>
+                  <div><b>{band.label} puntos</b><span>{band.count} · {Math.round(percentage)}%</span></div>
+                  <i><em className={'band-' + index} style={{width: percentage + '%'}}/></i>
+                </div>;
+              })}
+            </div>
+          </section>
+
           {/* PODIO Y CONSTANCIA: el Top 3 sale de la misma lista que la clasificación general */}
           <section className="youth-hall-grid ranking-hall-grid" aria-label="Cuadro de honor">
             <article className="youth-hall-card youth-hall-points">

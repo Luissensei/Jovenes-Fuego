@@ -24,6 +24,7 @@ import {
 
 import TriviaGame from './TriviaGame';
 import VerseGame from './VerseGame';
+import ThreeDAvatarStudio from './ThreeDAvatarStudio';
 import { TrueFalseGame, WhoAmIGame } from './QuickBibleGames';
 import {
   MemoryGame,
@@ -45,11 +46,14 @@ type ProfileLook = {
   flames: number;
   effects: string;
   badge: string;
+  hair: string;
+  outfit: string;
+  accessory: string;
 };
 
 type ProfileExtras = {displayName: string; nickname: string; motto: string; weeklyGoal: string};
 const defaultProfileExtras: ProfileExtras = {displayName: '', nickname: '', motto: '', weeklyGoal: ''};
-type LookShopCategory = 'frames' | 'avatars' | 'titles' | 'backgrounds' | 'effects' | 'badges';
+type LookShopCategory = 'frames' | 'avatars' | 'titles' | 'backgrounds' | 'effects' | 'badges' | 'hair' | 'outfits' | 'accessories';
 
 const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: string; cost: number}[]> = {
   frames: [
@@ -112,6 +116,42 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'star',label:'Luz del mundo',emoji:'⭐',cost:80},
     {key:'crown',label:'Corona de vida',emoji:'👑',cost:120},
   ],
+  hair: [
+    {key:'natural',label:'Natural',emoji:'🌿',cost:0},
+    {key:'waves',label:'Ondulado',emoji:'🌊',cost:35},
+    {key:'curly',label:'Rizos',emoji:'🌀',cost:45},
+    {key:'fade',label:'Degradado',emoji:'💈',cost:45},
+    {key:'afro',label:'Afro',emoji:'☁️',cost:55},
+    {key:'braids',label:'Trenzas',emoji:'🧶',cost:65},
+    {key:'long',label:'Largo',emoji:'💇',cost:65},
+    {key:'bun',label:'Recogido',emoji:'🪮',cost:60},
+    {key:'classic',label:'Clásico',emoji:'✨',cost:30},
+    {key:'cap',label:'Gorra',emoji:'🧢',cost:40},
+  ],
+  outfits: [
+    {key:'basic',label:'Camiseta básica',emoji:'👕',cost:0},
+    {key:'hoodie',label:'Sudadera urbana',emoji:'🧥',cost:55},
+    {key:'white',label:'Blanco celestial',emoji:'🤍',cost:60},
+    {key:'sport',label:'Deportivo',emoji:'🏃',cost:45},
+    {key:'denim',label:'Chaqueta denim',emoji:'🧢',cost:70},
+    {key:'royal',label:'Elegancia real',emoji:'👑',cost:100},
+    {key:'worship',label:'Adorador',emoji:'🎵',cost:65},
+    {key:'street',label:'Street style',emoji:'🛹',cost:75},
+    {key:'warrior',label:'Guerrero de fe',emoji:'🛡️',cost:90},
+    {key:'formal',label:'Formal',emoji:'🤵',cost:70},
+  ],
+  accessories: [
+    {key:'none',label:'Sin accesorio',emoji:'➖',cost:0},
+    {key:'glasses',label:'Gafas',emoji:'👓',cost:25},
+    {key:'headphones',label:'Auriculares',emoji:'🎧',cost:40},
+    {key:'cross',label:'Colgante',emoji:'✝️',cost:45},
+    {key:'wristband',label:'Pulsera',emoji:'📿',cost:25},
+    {key:'halo',label:'Aureola',emoji:'😇',cost:70},
+    {key:'book',label:'Biblia',emoji:'📖',cost:35},
+    {key:'cap',label:'Gorra urbana',emoji:'🧢',cost:40},
+    {key:'crown',label:'Corona',emoji:'👑',cost:80},
+    {key:'scarf',label:'Bufanda',emoji:'🧣',cost:50},
+  ],
 };
 
 const lookCategoryField: Record<LookShopCategory, keyof ProfileLook> = {
@@ -121,6 +161,9 @@ const lookCategoryField: Record<LookShopCategory, keyof ProfileLook> = {
   backgrounds: 'background',
   effects: 'effects',
   badges: 'badge',
+  hair: 'hair',
+  outfits: 'outfit',
+  accessories: 'accessory',
 };
 
 const lookCategoryStorage: Record<LookShopCategory, string> = {
@@ -130,11 +173,34 @@ const lookCategoryStorage: Record<LookShopCategory, string> = {
   backgrounds: 'bans',
   effects: 'fx',
   badges: 'bdg',
+  hair: 'hair',
+  outfits: 'outfits',
+  accessories: 'accessories',
 };
 
 type MiniGame = 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami';
 
-const defaultLook: ProfileLook = {frame: 'fuego', background: 'brasa', avatar: '', title: 'chispa', ownedItems: [], flames: 0, effects: 'ember', badge: 'flame'};
+const defaultLook: ProfileLook = {frame: 'fuego', background: 'brasa', avatar: '', title: 'chispa', ownedItems: [], flames: 0, effects: 'ember', badge: 'flame', hair: 'natural', outfit: 'basic', accessory: 'none'};
+
+
+type LookPreset = Pick<ProfileLook, 'frame' | 'background' | 'avatar' | 'title' | 'effects' | 'badge' | 'hair' | 'outfit' | 'accessory'>;
+const lookTemplates: {key:string;label:string;description:string;emoji:string;preset:LookPreset}[] = [
+  {key:'llama',label:'Llama viva',description:'Energía cálida y espíritu valiente.',emoji:'🔥',preset:{frame:'fuego',background:'brasa',avatar:'leon',title:'guerrero',effects:'ember',badge:'flame',hair:'natural',outfit:'basic',accessory:'none'}},
+  {key:'celestial',label:'Cielo abierto',description:'Luz, paz y una identidad luminosa.',emoji:'🕊️',preset:{frame:'cielo',background:'aurora',avatar:'paloma',title:'adorador',effects:'aurora',badge:'star',hair:'waves',outfit:'white',accessory:'halo'}},
+  {key:'guerrero',label:'Guerrero de fe',description:'Un look de fuerza, valor y propósito.',emoji:'🛡️',preset:{frame:'corona',background:'volcan',avatar:'guerrero',title:'valiente',effects:'spark',badge:'shield',hair:'fade',outfit:'warrior',accessory:'wristband'}},
+  {key:'urbano',label:'Luz urbana',description:'Estilo moderno con personalidad propia.',emoji:'🎧',preset:{frame:'neon',background:'noche',avatar:'estrella',title:'chispa',effects:'galaxy',badge:'heart',hair:'curly',outfit:'street',accessory:'headphones'}},
+  {key:'sabiduria',label:'Amante de la Palabra',description:'Una identidad centrada en aprender y crecer.',emoji:'📖',preset:{frame:'oro',background:'ocaso',avatar:'cordero',title:'sabio',effects:'halo',badge:'book',hair:'classic',outfit:'formal',accessory:'book'}},
+];
+
+const weeklyGrowthPlan = [
+  {id:'day-1',day:'Día 1',title:'Una fe firme',reference:'Hebreos 11:1',challenge:'Escribe una situación en la que quieras confiar más en Dios.'},
+  {id:'day-2',day:'Día 2',title:'Valor para avanzar',reference:'Josué 1:9',challenge:'Da hoy un paso que has estado posponiendo por temor.'},
+  {id:'day-3',day:'Día 3',title:'Una vida de oración',reference:'1 Tesalonicenses 5:17',challenge:'Aparta unos minutos para orar por otra persona.'},
+  {id:'day-4',day:'Día 4',title:'Amar al prójimo',reference:'Juan 13:34-35',challenge:'Haz un acto de servicio sin esperar reconocimiento.'},
+  {id:'day-5',day:'Día 5',title:'Palabras que edifican',reference:'Efesios 4:29',challenge:'Anima a alguien con palabras sinceras.'},
+  {id:'day-6',day:'Día 6',title:'Luz en tu entorno',reference:'Mateo 5:14-16',challenge:'Comparte una buena acción y sé ejemplo con respeto.'},
+  {id:'day-7',day:'Día 7',title:'Gratitud',reference:'1 Tesalonicenses 5:18',challenge:'Anota tres motivos por los que estás agradecido.'},
+];
 
 const games: {id: MiniGame; title: string; subtitle: string; icon: typeof Trophy; color: string}[] = [
   {id: 'trivia', title: 'Trivia bíblica', subtitle: 'Preguntas y conocimiento', icon: BookOpen, color: 'orange'},
@@ -175,6 +241,9 @@ function readLook(profile: PublicProfile): ProfileLook {
     flames: profile.flames ?? 0,
     effects: profile.ownedItems?.find((item) => item.startsWith('equipped:fx:'))?.slice('equipped:fx:'.length) || 'ember',
     badge: profile.ownedItems?.find((item) => item.startsWith('equipped:bdg:'))?.slice('equipped:bdg:'.length) || 'flame',
+    hair: profile.ownedItems?.find((item) => item.startsWith('equipped:hair:'))?.slice('equipped:hair:'.length) || 'natural',
+    outfit: profile.ownedItems?.find((item) => item.startsWith('equipped:outfit:'))?.slice('equipped:outfit:'.length) || 'basic',
+    accessory: profile.ownedItems?.find((item) => item.startsWith('equipped:accessory:'))?.slice('equipped:accessory:'.length) || 'none',
   };
   try {
     const raw = window.localStorage.getItem(`jf-youth-look-${profile.id}`);
@@ -193,6 +262,9 @@ function readLook(profile: PublicProfile): ProfileLook {
       flames: local.flames ?? remote.flames,
       effects: local.effects || remote.effects,
       badge: local.badge || remote.badge,
+      hair: local.hair || remote.hair,
+      outfit: local.outfit || remote.outfit,
+      accessory: local.accessory || remote.accessory,
     };
   } catch {
     return remote;
@@ -304,6 +376,9 @@ export default function YouthPortalPage() {
   const [portalExiting, setPortalExiting] = useState(false);
   const [gameExiting, setGameExiting] = useState(false);
   const [activeGame, setActiveGame] = useState<MiniGame | null>(null);
+  const [showAllRanking, setShowAllRanking] = useState(false);
+  const [expandedRankId, setExpandedRankId] = useState<string | null>(null);
+  const [growthDone, setGrowthDone] = useState<string[]>([]);
 
   const [prayerName, setPrayerName] = useState('');
   const [prayerCategory, setPrayerCategory] = useState('General');
@@ -363,6 +438,13 @@ export default function YouthPortalPage() {
     if (selectedProfile) {
       setLook(readLook(selectedProfile));
       setProfileExtras(readProfileExtras(selectedProfile.id));
+      setExpandedRankId(null);
+      try {
+        const savedPlan = JSON.parse(window.localStorage.getItem(`jf-youth-growth-${selectedProfile.id}`) || '[]') as unknown;
+        setGrowthDone(Array.isArray(savedPlan) ? savedPlan.filter((item): item is string => typeof item === 'string' && weeklyGrowthPlan.some((day) => day.id === item)) : []);
+      } catch {
+        setGrowthDone([]);
+      }
       // La selección pública no verifica identidad: no prellenar el nombre
       // evita enviar peticiones en nombre de otra persona.
       setPrayerName('');
@@ -384,6 +466,34 @@ export default function YouthPortalPage() {
     if (!query) return profiles;
     return profiles.filter((profile) => `${profile.name} ${profile.nick}`.toLocaleLowerCase('es').includes(query));
   }, [profiles, search]);
+
+  const communityRanking = useMemo(() => {
+    const sorted = [...profiles].sort((a, b) =>
+      (b.points ?? 0) - (a.points ?? 0) || a.name.localeCompare(b.name, 'es'),
+    );
+    let position = 0;
+    let previousPoints: number | null = null;
+    return sorted.map((profile, index) => {
+      const points = profile.points ?? 0;
+      if (previousPoints === null || points !== previousPoints) position = index + 1;
+      previousPoints = points;
+      return {...profile, position};
+    });
+  }, [profiles]);
+
+  const personalStanding = communityRanking.find((item) => item.id === selectedProfile?.id) ?? null;
+  const personalStandingIndex = personalStanding
+    ? communityRanking.findIndex((item) => item.id === personalStanding.id)
+    : -1;
+  const nextHigherPlayer = personalStandingIndex > 0
+    ? [...communityRanking.slice(0, personalStandingIndex)].reverse().find((item) => (item.points ?? 0) > (personalStanding.points ?? 0)) ?? null
+    : null;
+  const pointsToNextPlayer = nextHigherPlayer
+    ? Math.max(0, (nextHigherPlayer.points ?? 0) - (personalStanding?.points ?? 0))
+    : 0;
+  const rankingLeaderPoints = communityRanking[0]?.points ?? 0;
+  const visibleCommunityRanking = showAllRanking ? communityRanking : communityRanking.slice(0, 5);
+  const growthProgress = Math.round((growthDone.length / weeklyGrowthPlan.length) * 100);
 
   const topPlayersWithPhotos = useMemo(() => topPlayers.map((player) => ({
     ...player,
@@ -413,20 +523,49 @@ export default function YouthPortalPage() {
     return activities.filter((activity) => activity.date >= weekStart && activity.date <= weekEnd);
   }, [activities]);
 
+  async function persistLook(next: ProfileLook, successMessage: string) {
+    if (!selectedProfile) return;
+    setLook(next);
+    setLookSaving(true);
+    setLookNotice('');
+    try {
+      if (firebaseReadOnlyMode) {
+        window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
+        setLookNotice(successMessage + ' Guardado solo en este dispositivo.');
+        return;
+      }
+      await saveYouthProfileAppearance(selectedProfile.id, next);
+      window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
+      setLookNotice(successMessage);
+    } catch (cause) {
+      setLookNotice(cause instanceof Error ? cause.message : 'No se pudo guardar el cambio. Comprueba tu conexión.');
+      setLook(readLook(selectedProfile));
+    } finally {
+      setLookSaving(false);
+    }
+  }
+
   async function equipLookItem(category: LookShopCategory, item: (typeof lookShop)[LookShopCategory][number]) {
     if (!selectedProfile) return;
-    const ownedKey = `${lookCategoryStorage[category]}:${item.key}`;
+    const ownedKey = \`\${lookCategoryStorage[category]}:\${item.key}\`;
     const alreadyOwned = item.cost === 0 || look.ownedItems.includes(ownedKey);
     if (!alreadyOwned && look.flames < item.cost) {
-      setLookNotice(`Te faltan ${item.cost - look.flames} Llamas para desbloquear ${item.label}.`);
+      setLookNotice(\`Te faltan \${item.cost - look.flames} Llamas para desbloquear \${item.label}.\`);
       return;
     }
-    const equippedPrefix = category === 'effects' ? 'equipped:fx:' : category === 'badges' ? 'equipped:bdg:' : '';
-    const retainedItems = equippedPrefix ? look.ownedItems.filter((value) => !value.startsWith(equippedPrefix)) : look.ownedItems;
+    const equippedPrefixes: Partial<Record<LookShopCategory, string>> = {
+      effects:'equipped:fx:',
+      badges:'equipped:bdg:',
+      hair:'equipped:hair:',
+      outfits:'equipped:outfit:',
+      accessories:'equipped:accessory:',
+    };
+    const prefix = equippedPrefixes[category];
+    const retainedItems = prefix ? look.ownedItems.filter((value) => !value.startsWith(prefix)) : look.ownedItems;
     const nextOwnedItems = Array.from(new Set([
       ...retainedItems,
       ...(!alreadyOwned && item.cost > 0 ? [ownedKey] : []),
-      ...(equippedPrefix ? [`${equippedPrefix}${item.key}`] : []),
+      ...(prefix ? [\`\${prefix}\${item.key}\`] : []),
     ]));
     const next: ProfileLook = {
       ...look,
@@ -436,29 +575,69 @@ export default function YouthPortalPage() {
       background: category === 'backgrounds' ? item.key : look.background,
       effects: category === 'effects' ? item.key : look.effects,
       badge: category === 'badges' ? item.key : look.badge,
+      hair: category === 'hair' ? item.key : look.hair,
+      outfit: category === 'outfits' ? item.key : look.outfit,
+      accessory: category === 'accessories' ? item.key : look.accessory,
       ownedItems: nextOwnedItems,
       flames: alreadyOwned ? look.flames : look.flames - item.cost,
     };
-    setLook(next);
-    setLookSaving(true);
-    setLookNotice('');
-    try {
-      if (firebaseReadOnlyMode) {
-        window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
-        setLookNotice(`${item.label} equipado en este dispositivo. La sincronización de la comunidad se habilita en Staging.`);
-        return;
-      }
-      await saveYouthProfileAppearance(selectedProfile.id, next);
-      window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
-      setLookNotice(`${item.label} equipado correctamente.`);
-    } catch (cause) {
-      setLookNotice(cause instanceof Error ? cause.message : 'No se pudo guardar el cambio. Comprueba tu conexión.');
-      setLook(readLook(selectedProfile));
-    } finally {
-      setLookSaving(false);
-    }
+    await persistLook(next, item.label + ' equipado correctamente.');
   }
 
+  async function applyLookTemplate(templateKey: string) {
+    if (!selectedProfile) return;
+    const template = lookTemplates.find((item) => item.key === templateKey);
+    if (!template) return;
+    const mappings: [LookShopCategory, string][] = [
+      ['frames',template.preset.frame],['avatars',template.preset.avatar],['titles',template.preset.title],
+      ['backgrounds',template.preset.background],['effects',template.preset.effects],['badges',template.preset.badge],
+      ['hair',template.preset.hair],['outfits',template.preset.outfit],['accessories',template.preset.accessory],
+    ];
+    let cost = 0;
+    const owned = [...look.ownedItems];
+    const replacements: Record<string,string> = {
+      effects:'equipped:fx:',badges:'equipped:bdg:',hair:'equipped:hair:',
+      outfits:'equipped:outfit:',accessories:'equipped:accessory:',
+    };
+    for (const [category,key] of mappings) {
+      const item = lookShop[category].find((entry) => entry.key === key);
+      if (!item) continue;
+      const ownedKey = \`\${lookCategoryStorage[category]}:\${item.key}\`;
+      const alreadyOwned = item.cost === 0 || owned.includes(ownedKey);
+      if (!alreadyOwned) {
+        cost += item.cost;
+        owned.push(ownedKey);
+      }
+      const prefix = replacements[category];
+      if (prefix) {
+        for (let index = owned.length - 1; index >= 0; index -= 1) {
+          if (owned[index].startsWith(prefix)) owned.splice(index, 1);
+        }
+        owned.push(\`\${prefix}\${key}\`);
+      }
+    }
+    if (look.flames < cost) {
+      setLookNotice(\`Esta plantilla requiere \${cost} Llamas y tienes \${look.flames}.\`);
+      return;
+    }
+    const next: ProfileLook = {...look,...template.preset,ownedItems:Array.from(new Set(owned)),flames:look.flames-cost};
+    await persistLook(next,\`Plantilla \${template.label} aplicada.\`);
+  }
+
+  function toggleGrowthDay(dayId: string) {
+    if (!selectedProfile) return;
+    setGrowthDone((previous) => {
+      const next = previous.includes(dayId)
+        ? previous.filter((item) => item !== dayId)
+        : [...previous, dayId];
+      try {
+        window.localStorage.setItem(\`jf-youth-growth-\${selectedProfile.id}\`, JSON.stringify(next));
+      } catch {
+        setLookNotice('El navegador no permitió guardar el progreso de este plan.');
+      }
+      return next;
+    });
+  }
   function saveProfileExtras() {
     if (!selectedProfile) return;
     const safeExtras = {
@@ -664,7 +843,11 @@ export default function YouthPortalPage() {
             <button type="button" className="youth-customize-trigger" onClick={() => setEditingLook((value) => !value)}>
               <Palette size={17}/> Personalizar perfil
             </button>
-            <YouthAvatar profile={{...selectedProfile, frame: look.frame, avatar: look.avatar}} large/>
+            <ThreeDAvatarStudio
+              profileId={selectedProfile.id}
+              profileName={profileExtras.displayName || selectedProfile.name}
+              fallback={<YouthAvatar profile={{...selectedProfile, frame: look.frame, avatar: look.avatar}} large/>}
+            />
             <span className={`youth-profile-badge badge-${look.badge}`}>
               {({flame:'🔥 Llama viva',book:'📖 Amante de la Palabra',heart:'💛 Corazón de servicio',shield:'🛡️ Fe firme',star:'⭐ Luz del mundo',crown:'👑 Corona de vida'} as Record<string,string>)[look.badge] ?? '🔥 Llama viva'}
             </span>
@@ -673,6 +856,9 @@ export default function YouthPortalPage() {
             <p>Tu espacio para crecer, servir, aprender y compartir.</p>
             {(profileExtras.nickname || selectedProfile.nick) && <span className="youth-profile-nick">@{profileExtras.nickname || selectedProfile.nick}</span>}
             {profileExtras.motto && <p className="youth-profile-motto">“{profileExtras.motto}”</p>}
+            <div className="youth-look-signature">
+              <span>Cabello: {look.hair}</span><span>Ropa: {look.outfit}</span><span>Accesorio: {look.accessory}</span>
+            </div>
             {look.title && <span className="youth-profile-title">{({chispa:'Chispa Encendida',valiente:'Valiente',guerrero:'Guerrero de Fe',intercesor:'Intercesor',adorador:'Adorador',sabio:'Sabio de la Palabra',leyenda:'Leyenda de Fuego'} as Record<string,string>)[look.title] ?? look.title}</span>}
             <div className="youth-profile-quickstats">
               <span><Star size={15}/> {selectedProfile.points > 0 ? `${selectedProfile.points} puntos públicos` : 'Puntos aún no publicados'}</span>
@@ -693,10 +879,21 @@ export default function YouthPortalPage() {
                 <strong className="youth-store-wallet"><Flame size={16}/> {look.flames}</strong>
                 <button type="button" aria-label="Cerrar personalización" onClick={() => setEditingLook(false)}><X size={18}/></button>
               </header>
+              <section className="youth-look-templates">
+                <div className="youth-look-templates-heading"><b>Plantillas de estilo</b><span>Combinaciones listas para transformar tu perfil.</span></div>
+                <div className="youth-look-templates-grid">
+                  {lookTemplates.map((template) => (
+                    <button type="button" key={template.key} onClick={() => void applyLookTemplate(template.key)} disabled={lookSaving}>
+                      <span>{template.emoji}</span><b>{template.label}</b><small>{template.description}</small>
+                    </button>
+                  ))}
+                </div>
+              </section>
               <nav className="youth-store-tabs" aria-label="Personalización">
                 {([
                   ['frames','Marcos'],['avatars','Avatares'],['titles','Títulos'],['backgrounds','Fondos'],
                   ['effects','Efectos'],['badges','Insignias'],
+                  ['hair','Cabello'],['outfits','Ropa'],['accessories','Accesorios'],
                 ] as [LookShopCategory,string][]).map(([key,label]) => (
                   <button type="button" key={key} className={lookCategory === key ? 'active' : ''} onClick={() => setLookCategory(key)}>{label}</button>
                 ))}
@@ -754,6 +951,82 @@ export default function YouthPortalPage() {
  
           <HallOfFame topPlayers={topPlayersWithPhotos} faithful={faithfulWithPhotos} attendanceLimited={attendanceLimited}/>
          </section>
+
+
+          <section className="youth-immersive-ranking">
+            <header className="youth-immersive-ranking-header">
+              <div><span>RANKING DE LA GENERACIÓN</span><h2>La tabla de fuego</h2><p>Tu lugar en la comunidad, actualizado con los puntos públicos del ranking.</p></div>
+              <div className="youth-ranking-live"><i/> CLASIFICACIÓN PÚBLICA</div>
+            </header>
+            <div className="youth-ranking-summary">
+              <article><small>PARTICIPANTES</small><strong>{communityRanking.length}</strong><span>Perfiles publicados</span></article>
+              <article><small>PUNTOS EN JUEGO</small><strong>{communityRanking.reduce((sum,item) => sum + (item.points ?? 0),0).toLocaleString('es-CO')}</strong><span>Total de puntos visibles</span></article>
+              <article><small>LÍDER ACTUAL</small><strong>{communityRanking[0]?.points ?? 0}</strong><span>{communityRanking[0]?.name || 'Sin líder publicado'}</span></article>
+            </div>
+            {personalStanding ? (
+              <div className="youth-my-standing-card">
+                <div className="youth-my-standing-rank"><small>TU PUESTO</small><strong>#{personalStanding.position}</strong></div>
+                <div className="youth-my-standing-copy"><b>{profileExtras.displayName || selectedProfile.name}</b><span>{(personalStanding.points ?? 0).toLocaleString('es-CO')} puntos acumulados</span></div>
+                <div className="youth-my-standing-next">
+                  {personalStanding.position === 1 ? <><b>¡Estás en el primer lugar!</b><span>Continúa participando y creciendo.</span></> : nextHigherPlayer ? <><b>Te faltan {pointsToNextPlayer.toLocaleString('es-CO')} puntos</b><span>Para alcanzar a {nextHigherPlayer.name}</span></> : <><b>Tu próxima meta está cerca</b><span>Participa en los desafíos de la comunidad.</span></>}
+                </div>
+              </div>
+            ) : (
+              <div className="youth-ranking-info-note">Este perfil aún no aparece en el listado público de puntuaciones.</div>
+            )}
+            {communityRanking.length ? (
+              <>
+                <div className="youth-ranking-podium">
+                  {communityRanking.slice(0,3).map((player,index) => (
+                    <article key={player.id} className={'youth-ranking-podium-card place-' + (index + 1)}>
+                      <span className="youth-ranking-podium-place">{index === 0 ? '👑' : index === 1 ? '🥈' : '🥉'} <small>PUESTO {player.position}</small></span>
+                      <div className="youth-ranking-podium-avatar">{player.pic ? <img src={player.pic} alt={'Foto de ' + player.name} loading="lazy"/> : player.name.trim().split(/\s+/).slice(0,2).map((part) => part[0] ?? '').join('').toUpperCase()}</div>
+                      <b>{player.name}</b><strong>{(player.points ?? 0).toLocaleString('es-CO')} <small>PTS</small></strong>
+                      <div className="youth-ranking-meter"><i style={{width: (rankingLeaderPoints > 0 ? Math.max(4,((player.points ?? 0)/rankingLeaderPoints)*100) : 0) + '%' }}/></div>
+                    </article>
+                  ))}
+                </div>
+                <div className="youth-ranking-list-head"><div><b>Clasificación completa</b><span>Ordenada por puntos · Los empates comparten puesto</span></div><button type="button" onClick={() => setShowAllRanking((value) => !value)}>{showAllRanking ? 'Ver top 5' : 'Ver todos'} <ChevronRight size={14}/></button></div>
+                <div className="youth-ranking-list">
+                  {visibleCommunityRanking.map((player,index) => {
+                    const expanded = expandedRankId === player.id;
+                    const before = index > 0 ? visibleCommunityRanking[index - 1] : null;
+                    const gap = before ? Math.max(0,(before.points ?? 0) - (player.points ?? 0)) : 0;
+                    return (
+                      <article key={player.id} className={'youth-ranking-row' + (player.id === selectedProfile.id ? ' is-me' : '')}>
+                        <button type="button" className="youth-ranking-row-main" aria-expanded={expanded} onClick={() => setExpandedRankId(expanded ? null : player.id)}>
+                          <span className="youth-ranking-row-position">#{player.position}</span>
+                          <span className="youth-ranking-row-avatar">{player.pic ? <img src={player.pic} alt="" loading="lazy"/> : player.name.trim().split(/\s+/).slice(0,2).map((part) => part[0] ?? '').join('').toUpperCase()}</span>
+                          <span className="youth-ranking-row-name"><b>{player.name}</b>{player.id === selectedProfile.id && <small>ESTE ERES TÚ</small>}</span>
+                          <span className="youth-ranking-row-points">{(player.points ?? 0).toLocaleString('es-CO')} <small>PTS</small></span>
+                          <span className="youth-ranking-row-chevron"><ChevronRight size={15}/></span>
+                        </button>
+                        {expanded && <div className="youth-ranking-tooltip"><span><b>Puesto:</b> #{player.position}</span><span><b>Puntos:</b> {(player.points ?? 0).toLocaleString('es-CO')}</span><span><b>Diferencia:</b> {index === 0 ? 'Lidera el ranking' : gap + ' puntos respecto al puesto anterior'}</span></div>}
+                      </article>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <div className="youth-ranking-empty">Todavía no hay puntos públicos para mostrar. Los resultados aparecerán aquí cuando el equipo publique la clasificación.</div>
+            )}
+            <p className="youth-ranking-footnote">Esta tabla usa exclusivamente los puntos públicos de Firebase. No muestra estadísticas inventadas ni modifica la puntuación oficial.</p>
+          </section>
+
+          <section className="youth-growth-plan">
+            <header><div><span>CRECIMIENTO PERSONAL</span><h2>Reto de 7 días</h2><p>Un pequeño paso cada día para crecer en la fe y servir a los demás.</p></div><strong>{growthDone.length}/7</strong></header>
+            <div className="youth-growth-progress"><i style={{width:growthProgress + '%'}}/></div>
+            <div className="youth-growth-grid">
+              {weeklyGrowthPlan.map((day) => {
+                const done = growthDone.includes(day.id);
+                return <article key={day.id} className={done ? 'is-done' : ''}>
+                  <div><span>{day.day}</span><b>{day.title}</b><small>{day.reference}</small><p>{day.challenge}</p></div>
+                  <button type="button" aria-pressed={done} onClick={() => toggleGrowthDay(day.id)}>{done ? <CheckCircle2 size={16}/> : <Circle size={16}/>} {done ? 'Completado' : 'Marcar leído'}</button>
+                </article>;
+              })}
+            </div>
+            <small className="youth-growth-local-note">Tu progreso se guarda solo en este dispositivo y puedes retomarlo cuando vuelvas a entrar.</small>
+          </section>
 
           <section className="youth-game-hub">
             <header><div><span>ENTRENA Y APRENDE</span><h2>Zona de juegos bíblicos</h2></div><Gamepad2 size={22}/></header>
