@@ -51,6 +51,7 @@ let authInstance: Auth | null = null;
 let dbInstance: Firestore | null = null;
 let functionsInstance: Functions | null = null;
 let appCheckReady = false;
+let appCheckInitError = '';
 
 app = getApps()[0] ?? initializeApp(config);
 
@@ -68,6 +69,7 @@ if (useStagingEnvironment && appCheckSiteKey) {
     appCheckReady = true;
   } catch (cause) {
     // No se habilita la IA si App Check no pudo inicializarse.
+    appCheckInitError = cause instanceof Error ? cause.message : 'No se pudo inicializar App Check.';
     console.warn('Firebase App Check no se pudo inicializar:', cause);
   }
 }
@@ -82,6 +84,17 @@ functionsInstance = useStagingEnvironment
 
 export const firebaseApp: FirebaseApp = app;
 export const firebaseAiAvailable = useStagingEnvironment && appCheckReady;
+export const firebaseAiSetupMessage = !useStagingEnvironment
+  ? env.VITE_FIREBASE_TARGET !== 'staging'
+    ? 'Fuego AI está protegida y solo funciona conectada a Firebase Staging. La conexión actual no está marcada como Staging.'
+    : env.VITE_FIREBASE_PROJECT_ID !== 'jovenes-de-fuego-staging'
+      ? 'El proyecto configurado no coincide con jovenes-de-fuego-staging. Por seguridad, Fuego AI no se conecta a producción.'
+      : 'Faltan variables públicas de configuración de Firebase Staging en el entorno de Vercel.'
+  : !appCheckSiteKey
+    ? 'Falta VITE_FIREBASE_APP_CHECK_SITE_KEY en las variables de entorno de Vercel para Staging. Registra la aplicación web en Firebase App Check con reCAPTCHA v3 y agrega aquí la clave pública del sitio (no la clave secreta).'
+    : !appCheckReady
+      ? `App Check no pudo inicializarse. Verifica que el dominio de Vercel esté autorizado para la clave reCAPTCHA v3. ${appCheckInitError}`
+      : 'La app está conectada a Staging y App Check está inicializado. Si el envío falla, revisa que Firebase AI Logic esté habilitado en el proyecto Staging.';
 export const firebaseConfigured = Boolean(app && authInstance && dbInstance);
 export const firebaseProjectId = config.projectId;
 export const auth: Auth | null = authInstance;
