@@ -781,3 +781,252 @@ body {
 ) {
   color: #ffffff !important;
 }
+
+
+
+/* Jóvenes de Fuego — experiencia visual 2026: navegación adaptable, cristal y motion. */
+:root {
+  --jf-accent: #ff8249;
+  --jf-purple: #a36bff;
+  --jf-blue: #43b0ff;
+  --jf-green: #39d4a5;
+  --jf-coral: #ff6b63;
+}
+:root[data-theme="dark"] {
+  --jf-glass: rgba(29,26,58,.78);
+  --jf-glass-strong: rgba(29,26,58,.92);
+  --jf-glass-border: rgba(184,151,255,.22);
+}
+:root[data-theme="light"] {
+  --jf-glass: rgba(255,255,255,.78);
+  --jf-glass-strong: rgba(255,255,255,.94);
+  --jf-glass-border: rgba(111,67,191,.18);
+}
+
+/* Desktop: sidebar persistente y contraíble; el contenido recupera el espacio. */
+@media (min-width: 901px) {
+  .sidebar {
+    inset: 0 auto 0 0 !important;
+    width: 300px !important;
+    min-width: 300px !important;
+    max-width: 300px !important;
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transition: width .28s cubic-bezier(.2,.8,.2,1), background .25s ease !important;
+    background: linear-gradient(165deg, rgba(46,25,91,.98), rgba(24,19,58,.98) 58%, rgba(31,20,58,.98)) !important;
+    border-right: 1px solid rgba(183,145,255,.2) !important;
+    box-shadow: 14px 0 44px rgba(17,10,48,.16) !important;
+  }
+  .main {
+    width: calc(100% - 300px) !important;
+    margin-left: 300px !important;
+    transition: width .28s cubic-bezier(.2,.8,.2,1), margin-left .28s cubic-bezier(.2,.8,.2,1) !important;
+  }
+  .layout.sidebar-collapsed .sidebar {
+    width: 88px !important;
+    min-width: 88px !important;
+    max-width: 88px !important;
+    padding-inline: 10px !important;
+  }
+  .layout.sidebar-collapsed .main {
+    width: calc(100% - 88px) !important;
+    margin-left: 88px !important;
+  }
+  .sidebar-collapse-toggle {
+    display: grid !important;
+    place-items: center;
+    align-self: flex-end;
+    width: 36px;
+    height: 36px;
+    margin: -7px 2px 10px;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 11px;
+    background: rgba(255,255,255,.07);
+    color: #f8f5ff;
+    cursor: pointer;
+    transition: background .2s ease, transform .2s ease;
+  }
+  .sidebar-collapse-toggle:hover { background: rgba(255,255,255,.15); transform: scale(1.05); }
+  .sidebar.collapsed .brand { justify-content: center !important; padding-inline: 0 !important; }
+  .sidebar.collapsed .brand > div,
+  .sidebar.collapsed .env-chip,
+  .sidebar.collapsed .module-search,
+  .sidebar.collapsed .jf-nav-group > summary,
+  .sidebar.collapsed .jf-nav-group-items .nav-item > span:last-child,
+  .sidebar.collapsed .safe-note { display: none !important; }
+  .sidebar.collapsed .brand .brand-mark { width: 48px !important; height: 48px !important; flex-basis: 48px !important; }
+  .sidebar.collapsed .jf-module-navigation { padding-inline: 0 !important; gap: 7px !important; }
+  .sidebar.collapsed .jf-nav-group,
+  .sidebar.collapsed .jf-nav-group[open] { border: 0 !important; background: transparent !important; box-shadow: none !important; }
+  .sidebar.collapsed .jf-nav-group-items { padding: 2px 0 7px !important; }
+  .sidebar.collapsed .jf-nav-group-items .nav-item { justify-content: center !important; padding: 7px 4px !important; min-height: 48px !important; }
+  .sidebar.collapsed .jf-nav-group-items .nav-item .nav-item-icon { width: 38px !important; height: 38px !important; flex-basis: 38px !important; }
+  .sidebar.collapsed .sidebar-bottom .theme-toggle { justify-content: center !important; gap: 0 !important; font-size: 0 !important; padding: 8px !important; }
+  .sidebar.collapsed .sidebar-bottom .theme-toggle svg { width: 19px; height: 19px; }
+  .sidebar.collapsed .sidebar-bottom .theme-toggle + .theme-toggle { margin-top: 6px !important; }
+  .sidebar.collapsed .sidebar-bottom { padding-top: 9px !important; }
+  .jf-bottom-nav { display: none !important; }
+  .topline-menu-button { display: none !important; }
+  .scrim { display: none !important; }
+}
+
+/* Mobile: drawer de módulos y barra inferior fija, con área segura del sistema. */
+.sidebar-collapse-toggle { display: none; }
+.jf-bottom-nav { display: none; }
+@media (max-width: 900px) {
+  .sidebar {
+    inset: 58px auto 0 0 !important;
+    width: min(340px, calc(100vw - 28px)) !important;
+    max-width: 340px !important;
+    transform: translateX(-112%) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: transform .28s cubic-bezier(.2,.8,.2,1), opacity .2s ease, visibility .2s ease !important;
+  }
+  .sidebar.open {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+  .sidebar.collapsed .brand > div,
+  .sidebar.collapsed .env-chip,
+  .sidebar.collapsed .module-search,
+  .sidebar.collapsed .jf-nav-group > summary,
+  .sidebar.collapsed .jf-nav-group-items .nav-item > span:last-child,
+  .sidebar.collapsed .safe-note { display: initial !important; }
+  .sidebar-collapse-toggle { display: none !important; }
+  .main { width: 100% !important; margin-left: 0 !important; padding-bottom: calc(104px + env(safe-area-inset-bottom)) !important; }
+  .main > footer { margin-bottom: 12px; }
+  .jf-bottom-nav {
+    position: fixed !important;
+    z-index: 80 !important;
+    inset: auto 12px calc(10px + env(safe-area-inset-bottom)) !important;
+    display: grid !important;
+    grid-auto-columns: minmax(0,1fr);
+    grid-auto-flow: column;
+    align-items: stretch;
+    gap: 4px;
+    min-height: 68px;
+    padding: 7px;
+    border: 1px solid rgba(190,166,255,.24);
+    border-radius: 22px;
+    background: rgba(28,22,57,.84);
+    box-shadow: 0 14px 40px rgba(12,8,36,.28), inset 0 1px rgba(255,255,255,.12);
+    backdrop-filter: blur(22px) saturate(1.4);
+    -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  }
+  :root[data-theme="light"] .jf-bottom-nav {
+    background: rgba(255,255,255,.86);
+    border-color: rgba(111,67,191,.18);
+    box-shadow: 0 12px 36px rgba(59,37,100,.15), inset 0 1px rgba(255,255,255,.9);
+  }
+  .jf-bottom-nav-item {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 5px 2px;
+    border: 1px solid transparent;
+    border-radius: 15px;
+    color: #c9c0e5;
+    text-decoration: none;
+    font-size: 9px;
+    font-weight: 750;
+    line-height: 1.1;
+    transition: color .2s ease, background .2s ease, transform .2s ease;
+  }
+  :root[data-theme="light"] .jf-bottom-nav-item { color: #74658f; }
+  .jf-bottom-nav-icon { display: grid; place-items: center; width: 32px; height: 29px; border-radius: 10px; transition: transform .22s ease, background .22s ease; }
+  .jf-bottom-nav-item.active {
+    color: #fff;
+    background: linear-gradient(135deg, rgba(142,91,232,.92), rgba(226,78,111,.92) 65%, rgba(241,111,55,.92));
+    box-shadow: 0 5px 15px rgba(148,76,190,.25);
+  }
+  .jf-bottom-nav-item.active .jf-bottom-nav-icon { transform: translateY(-2px); }
+  .jf-bottom-nav-item:active { transform: scale(.96); }
+  .jf-route-stage { padding-bottom: 4px; }
+}
+@media (max-width: 390px) {
+  .jf-bottom-nav { inset-inline: 8px !important; min-height: 64px; gap: 2px; padding: 6px; }
+  .jf-bottom-nav-item { font-size: 8px; }
+  .jf-bottom-nav-icon { width: 29px; }
+}
+
+/* Transiciones, feedback táctil y superficies de cristal controladas. */
+.jf-route-stage { animation: jfPageEnter .32s cubic-bezier(.2,.75,.25,1) both; }
+.main :is(.dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
+.ranking-player,.ranking-podium-player,.game-card,.profile-card,.attendance-card,
+.attendance-member,.member-card,.member-row,.followup-card,.visitor-card,.devotional-card,
+.photo-card,.reports-card,.managed-record,.youth-hall-card,.youth-activity-card) {
+  transition: transform .24s cubic-bezier(.2,.8,.2,1), box-shadow .24s ease,
+    border-color .24s ease, background-color .24s ease !important;
+}
+@media (hover:hover) and (pointer:fine) {
+  .main :is(.dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
+  .ranking-player,.ranking-podium-player,.game-card,.profile-card,.attendance-card,
+  .attendance-member,.member-card,.member-row,.followup-card,.visitor-card,.devotional-card,
+  .photo-card,.reports-card,.managed-record,.youth-hall-card,.youth-activity-card):hover {
+    transform: translateY(-3px) scale(1.006) !important;
+    box-shadow: 0 15px 34px rgba(30,18,72,.13) !important;
+    border-color: color-mix(in srgb,var(--jf-accent) 38%,var(--jf-border)) !important;
+  }
+}
+.main :is(.dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
+.ranking-player,.ranking-podium-player,.game-card,.profile-card,.attendance-card,
+.attendance-member,.member-card,.member-row,.followup-card,.visitor-card,.devotional-card,
+.photo-card,.reports-card,.managed-record,.youth-hall-card,.youth-activity-card) {
+  backdrop-filter: blur(12px) saturate(1.12) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(1.12) !important;
+  border-radius: 17px !important;
+}
+.main :is(button,.btn-primary,.primary-button,.ranking-hero-button,.theme-toggle) {
+  transition: transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s ease,
+    filter .2s ease, background-color .2s ease !important;
+}
+.main button:active, .sidebar button:active { transform: scale(.97); }
+.main :is(.hero,.ranking-hero) { isolation: isolate; }
+.main .hero::after, .main .ranking-hero::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(112deg,transparent 20%,rgba(255,255,255,.075) 48%,transparent 72%);
+  transform: translateX(-110%);
+  animation: jfHeroSheen 11s ease-in-out infinite;
+}
+.main :is(.hero,.ranking-hero) > * { position: relative; z-index: 1; }
+.main .heroSeal .sealInner svg { animation: jfFlameFlicker 2.8s ease-in-out infinite; }
+.main :is(.ranking-podium-player,.ranking-player) { animation: jfCardRise .55s cubic-bezier(.2,.8,.2,1) both; }
+.main :is(.ranking-podium-player,.ranking-player):nth-child(2) { animation-delay: .07s; }
+.main :is(.ranking-podium-player,.ranking-player):nth-child(3) { animation-delay: .14s; }
+.main :is(.mbg-result,.verse-results,.trivia-result,.game-result) {
+  animation: jfAchievementPop .55s cubic-bezier(.16,1,.3,1) both, jfAchievementGlow 2.8s ease-in-out .55s infinite;
+}
+.main :is(.ranking-progress-panel,.ranking-progress-bands) [role="progressbar"] > span,
+.main .ranking-bar-track > span { transform-origin: left center; animation: jfProgressFill .9s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes jfPageEnter { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes jfCardRise { from { opacity: 0; transform: translateY(13px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes jfHeroSheen { 0%,72%,100% { transform: translateX(-110%); } 84% { transform: translateX(110%); } }
+@keyframes jfProgressFill { from { transform: scaleX(.02); } to { transform: scaleX(1); } }
+@keyframes jfAchievementPop { 0% { opacity: 0; transform: translateY(12px) scale(.94); } 70% { opacity: 1; transform: translateY(-2px) scale(1.025); } 100% { transform: translateY(0) scale(1); } }
+@keyframes jfAchievementGlow { 0%,100% { box-shadow: 0 8px 25px rgba(255,130,73,.08); } 50% { box-shadow: 0 12px 34px rgba(163,107,255,.2); } }
+@media (prefers-reduced-motion:reduce) {
+  .jf-route-stage,.main .hero::after,.main .ranking-hero::after,
+  .main .heroSeal .sealInner svg,.main :is(.ranking-podium-player,.ranking-player),
+  .main :is(.mbg-result,.verse-results,.trivia-result,.game-result),
+  .main .ranking-bar-track > span { animation: none !important; }
+  .main :is(.dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
+  .ranking-player,.ranking-podium-player,.game-card,.profile-card,.attendance-card,
+  .attendance-member,.member-card,.member-row,.followup-card,.visitor-card,.devotional-card,
+  .photo-card,.reports-card,.managed-record,.youth-hall-card,.youth-activity-card),
+  .jf-bottom-nav-item,.jf-bottom-nav-icon { transition: none !important; }
+  .main :is(button,.btn-primary,.primary-button,.ranking-hero-button,.theme-toggle):active,
+  .sidebar button:active { transform: none !important; }
+}
