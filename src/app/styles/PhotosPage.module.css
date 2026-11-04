@@ -231,3 +231,16 @@
 .scope :global(.photo-card-content) h3{margin:4px 0 0;}
 .scope :global(.photo-card-content) p{line-height:1.55;}
 @media(max-width:600px){.scope :global(.photo-form-preview){max-height:200px;}}
+
+
+/* Refinamiento visual de fotos y aprobaciones */
+.scope :global(.photos-hero){border:1px solid rgba(222,174,111,.23);box-shadow:0 20px 48px rgba(5,4,10,.18),inset 0 1px rgba(255,255,255,.07)}
+.scope :global(.photo-card){background:var(--jf-surface);border:1px solid var(--jf-border);border-radius:19px;overflow:hidden;box-shadow:var(--jf-shadow);transition:transform .2s ease,border-color .2s ease}
+.scope :global(.photo-card):hover{transform:translateY(-3px);border-color:rgba(222,174,111,.42)}
+.scope :global(.photo-preview){background:var(--jf-surface-2);overflow:hidden}
+.scope :global(.photo-preview) img{display:block;width:100%;height:100%;object-fit:cover}
+.scope :global(.photos-tabs){background:var(--jf-surface);border:1px solid var(--jf-border);border-radius:14px;padding:5px}
+.scope :global(.photos-modal){background:var(--jf-surface);color:var(--jf-text);border:1px solid var(--jf-border);border-radius:22px;box-shadow:0 30px 90px rgba(0,0,0,.4)}
+:global(:root[data-theme="light"]) .scope :global(.photo-card),:global(:root[data-theme="light"]) .scope :global(.photos-tabs),:global(:root[data-theme="light"]) .scope :global(.photos-modal){background:#fff;color:#382d40;border-color:#e9e0eb}
+@media(max-width:600px){.scope :global(.photos-hero){padding:20px;border-radius:18px}.scope :global(.photo-card){border-radius:16px}}
+@media(prefers-reduced-motion:reduce){.scope :global(.photo-card){transition:none}.scope :global(.photo-card):hover{transform:none}}
