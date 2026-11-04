@@ -10,7 +10,7 @@ import {
   setDoc,
 } from 'firebase/firestore';
 
-import { auth, db } from '../../services/firebase/client';
+import { auth, db, assertFirebaseWritesAllowed } from '../../services/firebase/client';
 
 import {
   ShieldCheck,
@@ -156,6 +156,7 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
     setMessage('');
 
     try {
+      assertFirebaseWritesAllowed();
       if (kind === 'bonus') {
         const amount = Number(points);
 

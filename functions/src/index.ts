@@ -11,6 +11,16 @@ const app = getApps()[0] ?? initializeApp();
 const db = getFirestore(app);
 const adminAuth = getAdminAuth(app);
 
+function requireStagingProject(): void {
+  const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || "";
+  if (projectId !== "jovenes-de-fuego-staging") {
+    throw new HttpsError(
+      "failed-precondition",
+      "Esta operación está habilitada únicamente en Firebase Staging.",
+    );
+  }
+}
+
 type AuthorizedRole = "admin" | "administrador" | "pastor" | "lider" | "líder";
 
 function text(value: unknown, maxLength: number): string {
@@ -186,6 +196,7 @@ function cleanStringArray(value: unknown, allowed?: string[]): string[] {
 
 export const adminListLeaders = onCall({enforceAppCheck: true}, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  requireStagingProject();
   await requireAdmin(request.auth.uid);
 
   const snapshot = await db.collection("users").limit(400).get();
@@ -219,6 +230,7 @@ export const adminListLeaders = onCall({enforceAppCheck: true}, async (request) 
 
 export const adminCreateLeader = onCall({enforceAppCheck: true}, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  requireStagingProject();
   await requireAdmin(request.auth.uid);
 
   const name = text(request.data?.name, 100);
@@ -288,6 +300,7 @@ export const adminCreateLeader = onCall({enforceAppCheck: true}, async (request)
 
 export const adminUpdateLeader = onCall({enforceAppCheck: true}, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  requireStagingProject();
   await requireAdmin(request.auth.uid);
 
   const uid = text(request.data?.uid, 150);
@@ -391,6 +404,7 @@ export const adminUpdateMember = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
+  requireStagingProject();
   await requireAdminOrPastor(request.auth.uid);
 
   const memberId = text(request.data?.memberId, 150);
@@ -505,6 +519,7 @@ export const adminSaveWeeklyActivity = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
+  requireStagingProject();
   await requireAdminOrPastor(request.auth.uid);
 
   const data = request.data ?? {};
@@ -544,6 +559,7 @@ export const adminSaveWeeklyActivity = onCall(async (request) => {
 });
 
 export const submitPublicPrayerRequest = onCall(async (request) => {
+  requireStagingProject();
   const message = text(request.data?.message, 1200);
   const requester = text(request.data?.requester, 80) || "Anónimo";
   const category = text(request.data?.category, 50) || "General";
@@ -606,6 +622,7 @@ export const adminUpdatePrayerStatus = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
+  requireStagingProject();
   await requireAdminOrPastor(request.auth.uid);
   const id = text(request.data?.id, 150);
   const status = text(request.data?.status, 30);
@@ -708,6 +725,7 @@ export const createAttendanceMeeting = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
+  requireStagingProject();
   await requireModulePermission(request.auth.uid, "attendance");
 
   const meetingName = text(request.data?.name, 100);
@@ -730,6 +748,7 @@ export const saveMeetingAttendance = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
+  requireStagingProject();
   await requireModulePermission(request.auth.uid, "attendance");
 
   const meetingId = text(request.data?.meetingId, 150);

@@ -54,3 +54,8 @@ La gestión avanzada de líderes debe utilizar exclusivamente las Cloud Function
 ### Gestión avanzada de líderes
 
 La administración de líderes se ejecuta mediante las callable Cloud Functions `adminListLeaders`, `adminCreateLeader` y `adminUpdateLeader`. Estas funciones exigen rol `admin` o `administrador`; las cuentas nuevas reciben un enlace de configuración de contraseña y no se guarda una contraseña temporal en el sistema. La suspensión deshabilita Authentication y conserva `users/{uid}`, grupos, permisos y auditoría para permitir una restauración. Los permisos de módulos se leen desde el perfil autenticado. Despliega estas funciones únicamente en el proyecto Firebase Staging y comprueba App Check/reglas antes de probar.
+
+
+### Bloqueo adicional de escrituras en producción
+
+Los formularios antiguos de puntos extra, notas pastorales y ajustes generales pasan por `assertFirebaseWritesAllowed()`. Las Cloud Functions que escriben miembros, actividades, peticiones, reuniones, asistencias y cuentas de líderes verifican además que el proyecto de ejecución sea exactamente `jovenes-de-fuego-staging`. Un despliegue accidental de estas funciones en otro proyecto rechazará las operaciones.
