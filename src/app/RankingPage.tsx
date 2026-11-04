@@ -128,6 +128,9 @@ export default function RankingPage({
   const [error, setError] = useState('');
 
   const [search, setSearch] = useState('');
+  const [rankingSearch, setRankingSearch] = useState('');
+  const [rankingScope, setRankingScope] = useState<'all' | '10' | '25'>('all');
+  const [expandedRankingId, setExpandedRankingId] = useState<string | null>(null);
 
   const [selectedProfile, setSelectedProfile] =
     useState<PublicProfile | null>(null);
@@ -208,6 +211,12 @@ export default function RankingPage({
       return {...profile, position};
     });
   }, [profiles]);
+
+  const visibleRanking = useMemo(() => {
+    const term = rankingSearch.trim().toLocaleLowerCase('es');
+    const matching = ranking.filter((player) => `${player.name ?? ''} ${player.nick ?? ''}`.toLocaleLowerCase('es').includes(term));
+    return rankingScope === 'all' ? matching : matching.slice(0, Number(rankingScope));
+  }, [ranking, rankingSearch, rankingScope]);
 
   const totalPoints = profiles.reduce(
     (total, profile) => total + (profile.points ?? 0),
@@ -299,8 +308,8 @@ export default function RankingPage({
               </p>
             </div>
 
-            <span className="ranking-heading-icon">
-              <Trophy size={25} />
+            <span className="ranking-heading-icon ranking-heading-icon-live">
+              <Trophy size={25} /><i aria-label="Datos públicos" />
             </span>
           </div>
 
@@ -468,59 +477,35 @@ export default function RankingPage({
           {!loading && !error && ranking.length > 0 && (
             <>
               <div className="ranking-list-heading">
-                <div>
-                  <span className="ranking-kicker">CLASIFICACIÓN GENERAL</span>
-                  <h3>Todos los participantes</h3>
-                  <p>Ordenados de mayor a menor puntuación. Los empates comparten puesto.</p>
-                </div>
-                <span className="ranking-list-count">
-                  {ranking.length} {ranking.length === 1 ? 'joven' : 'jóvenes'}
-                </span>
+                <div><span className="ranking-kicker">CLASIFICACIÓN GENERAL</span><h3>Todos los participantes</h3><p>Explora posiciones, compara puntuaciones y descubre cuánto falta para alcanzar el primer lugar.</p></div>
+                <span className="ranking-list-count">{visibleRanking.length} de {ranking.length} jóvenes</span>
               </div>
-
+              <div className="ranking-visual-toolbar">
+                <label className="ranking-search"><Search size={17}/><input value={rankingSearch} onChange={(event) => setRankingSearch(event.target.value)} placeholder="Buscar por nombre o apodo..." aria-label="Buscar en el ranking"/>{rankingSearch && <button type="button" onClick={() => setRankingSearch('')} aria-label="Limpiar búsqueda">×</button>}</label>
+                <div className="ranking-view-filters" aria-label="Filtrar posiciones">
+                  <button type="button" className={rankingScope === 'all' ? 'active' : ''} aria-pressed={rankingScope === 'all'} onClick={() => setRankingScope('all')}>Todos</button>
+                  <button type="button" className={rankingScope === '10' ? 'active' : ''} aria-pressed={rankingScope === '10'} onClick={() => setRankingScope('10')}>Top 10</button>
+                  <button type="button" className={rankingScope === '25' ? 'active' : ''} aria-pressed={rankingScope === '25'} onClick={() => setRankingScope('25')}>Top 25</button>
+                </div>
+              </div>
               <div className="ranking-list" role="list" aria-label="Clasificación general">
-                {ranking.map((profile) => (
-                  <article
-                    className={`ranking-player ${
-                      profile.position === 1 ? 'ranking-first' :
-                      profile.position === 2 ? 'ranking-second' :
-                      profile.position === 3 ? 'ranking-third' : ''
-                    }`}
-                    key={profile.id}
-                    role="listitem"
-                    aria-label={`Puesto ${profile.position}: ${profile.name}, ${profile.points} puntos`}
-                  >
-                    <span className="ranking-position" aria-label={`Puesto ${profile.position}`}>
-                      {profile.position === 1 ? (
-                        <Crown size={21} />
-                      ) : profile.position <= 3 ? (
-                        <Medal size={20} />
-                      ) : (
-                        profile.position
-                      )}
-                    </span>
-
-                    <span className="profile-avatar">
-                      {profile.pic ? (
-                        <img src={profile.pic} alt={`Foto de ${profile.name}`} loading="lazy" />
-                      ) : (
-                        profile.name.trim().split(/\s+/).slice(0, 2)
-                          .map((part) => part[0] ?? '').join('').toUpperCase()
-                      )}
-                    </span>
-
-                    <div className="ranking-player-info">
-                      <strong>{profile.name || 'Joven'}</strong>
-                      {profile.nick && <small>@{profile.nick}</small>}
-                    </div>
-
-                    <div className="ranking-player-points">
-                      <Star size={17} />
-                      <strong>{profile.points ?? 0}</strong>
-                      <span>{profile.points === 1 ? 'punto' : 'puntos'}</span>
-                    </div>
-                  </article>
-                ))}
+                {visibleRanking.map((profile) => {
+                  const expanded = expandedRankingId === profile.id;
+                  const leaderGap = Math.max(0, (ranking[0]?.points ?? 0) - (profile.points ?? 0));
+                  const leaderShare = ranking[0]?.points ? Math.max(0, Math.min(100, ((profile.points ?? 0) / ranking[0].points) * 100)) : 0;
+                  return (
+                    <article className={`ranking-player ${profile.position === 1 ? 'ranking-first' : profile.position === 2 ? 'ranking-second' : profile.position === 3 ? 'ranking-third' : ''}`} key={profile.id} role="listitem" aria-label={`Puesto ${profile.position}: ${profile.name}, ${profile.points} puntos`}>
+                      <span className="ranking-position" aria-label={`Puesto ${profile.position}`}>{profile.position === 1 ? <Crown size={21}/> : profile.position <= 3 ? <Medal size={20}/> : profile.position}</span>
+                      <span className="profile-avatar">{profile.pic ? <img src={profile.pic} alt={`Foto de ${profile.name}`} loading="lazy"/> : profile.name.trim().split(/\s+/).slice(0,2).map((part) => part[0] ?? '').join('').toUpperCase()}</span>
+                      <div className="ranking-player-info"><strong>{profile.name || 'Joven'}</strong>{profile.nick && <small>@{profile.nick}</small>}</div>
+                      <div className="ranking-player-data"><div className="ranking-player-points"><Star size={17}/><strong>{(profile.points ?? 0).toLocaleString('es-CO')}</strong><span>{profile.points === 1 ? 'punto' : 'puntos'}</span></div><div className="ranking-player-track" role="progressbar" aria-label="Porcentaje respecto al líder" aria-valuenow={Math.round(leaderShare)} aria-valuemin={0} aria-valuemax={100}><i style={{width: leaderShare + '%'}}/></div></div>
+                      <span className="ranking-player-gap">{profile.position === 1 ? 'LÍDER' : '-' + leaderGap.toLocaleString('es-CO') + ' pts'}</span>
+                      <button type="button" className="ranking-player-expand" aria-label={expanded ? 'Ocultar detalles' : 'Ver detalles'} aria-expanded={expanded} onClick={() => setExpandedRankingId(expanded ? null : profile.id)}><ChevronRight size={16}/></button>
+                      {expanded && <div className="ranking-player-tooltip"><span><b>Posición:</b> #{profile.position}</span><span><b>Puntuación:</b> {(profile.points ?? 0).toLocaleString('es-CO')} puntos</span><span><b>Brecha al líder:</b> {profile.position === 1 ? 'Está en la cima' : leaderGap.toLocaleString('es-CO') + ' puntos'}</span><span><b>Avance relativo:</b> {Math.round(leaderShare)}%</span></div>}
+                    </article>
+                  );
+                })}
+                {visibleRanking.length === 0 && <div className="ranking-state"><Search size={25}/><strong>No encontramos ese joven</strong><span>Prueba con otro nombre o apodo.</span></div>}
               </div>
             </>
           )}

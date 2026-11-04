@@ -1633,3 +1633,21 @@
   .scope :global(.ranking-player-gap){display:none}
 }
 @media(prefers-reduced-motion:reduce){.scope :global(.ranking-player-expand),.scope :global(.ranking-podium-player){transition:none!important}}
+
+
+/* Ranking inmersivo: filas comparables, búsqueda y detalles expandibles. */
+.scope :global(.ranking-player-data){display:grid;gap:6px;min-width:0}
+.scope :global(.ranking-player-data) :global(.ranking-player-points){justify-content:flex-start}
+.scope :global(.ranking-player-track){width:100%;height:5px;overflow:hidden;border-radius:99px;background:var(--jf-surface-raised)}
+.scope :global(.ranking-player-track)>i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#f36b43,#f4bd68,#a985ff);box-shadow:0 0 12px rgba(241,139,83,.32);transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.scope :global(.ranking-player-gap){color:var(--jf-muted);font-size:8px;font-weight:900;letter-spacing:.04em;text-align:right;white-space:nowrap}
+.scope :global(.ranking-player-expand){display:grid;place-items:center;width:29px;height:29px;border:1px solid var(--jf-border);border-radius:9px;background:var(--jf-surface-raised);color:var(--jf-muted);cursor:pointer;transition:transform .2s ease,color .2s ease,border-color .2s ease}
+.scope :global(.ranking-player-expand)[aria-expanded="true"]{transform:rotate(90deg);color:var(--jf-accent);border-color:var(--jf-accent)}
+.scope :global(.ranking-player-tooltip){grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px 17px;padding:12px 14px;border-top:1px solid var(--jf-border);background:var(--jf-surface-raised);color:var(--jf-muted);font-size:9px;animation:jfDetailDrop .22s ease both}
+.scope :global(.ranking-player-tooltip) b{color:var(--jf-text)}
+.scope :global(.ranking-player){grid-template-columns:38px 46px minmax(0,1fr) minmax(125px,155px) 70px 30px}
+.scope :global(.ranking-player):hover{z-index:2;transform:translateY(-2px);border-color:rgba(255,157,91,.35)}
+.scope :global(.ranking-player):has(.ranking-player-expand[aria-expanded="true"]){border-color:rgba(255,157,91,.45)}
+@media(max-width:760px){.scope :global(.ranking-player){grid-template-columns:31px 40px minmax(0,1fr) minmax(105px,130px) 29px;gap:8px;padding:10px}.scope :global(.ranking-player-gap){display:none}}
+@media(max-width:560px){.scope :global(.ranking-player){grid-template-columns:27px 34px minmax(0,1fr) minmax(85px,105px) 25px;gap:6px;padding:9px 7px}.scope :global(.ranking-player) :global(.profile-avatar){width:33px;height:33px}.scope :global(.ranking-player-data) :global(.ranking-player-points) strong{font-size:12px}.scope :global(.ranking-player-data) :global(.ranking-player-points) span{display:none}}
+@media(prefers-reduced-motion:reduce){.scope :global(.ranking-player-track)>i,.scope :global(.ranking-player-expand){transition:none}}

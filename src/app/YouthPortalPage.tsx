@@ -379,6 +379,8 @@ export default function YouthPortalPage() {
   const [showAllRanking, setShowAllRanking] = useState(false);
   const [expandedRankId, setExpandedRankId] = useState<string | null>(null);
   const [growthDone, setGrowthDone] = useState<string[]>([]);
+  const [journalEntry, setJournalEntry] = useState('');
+  const [journalStatus, setJournalStatus] = useState('');
 
   const [prayerName, setPrayerName] = useState('');
   const [prayerCategory, setPrayerCategory] = useState('General');
@@ -442,6 +444,8 @@ export default function YouthPortalPage() {
       try {
         const savedPlan = JSON.parse(window.localStorage.getItem(`jf-youth-growth-${selectedProfile.id}`) || '[]') as unknown;
         setGrowthDone(Array.isArray(savedPlan) ? savedPlan.filter((item): item is string => typeof item === 'string' && weeklyGrowthPlan.some((day) => day.id === item)) : []);
+        setJournalEntry(window.localStorage.getItem(`jf-youth-journal-${selectedProfile.id}`) || '');
+        setJournalStatus('');
       } catch {
         setGrowthDone([]);
       }
@@ -452,6 +456,8 @@ export default function YouthPortalPage() {
     } else {
       setEditingLook(false);
       setActiveGame(null);
+      setJournalEntry('');
+      setJournalStatus('');
       if (audioRef.current) {
         void audioRef.current.close().catch(() => undefined);
         audioRef.current = null;
@@ -638,6 +644,16 @@ export default function YouthPortalPage() {
       return next;
     });
   }
+  function saveJournalEntry() {
+    if (!selectedProfile) return;
+    try {
+      window.localStorage.setItem(`jf-youth-journal-${selectedProfile.id}`, journalEntry.trim().slice(0,3000));
+      setJournalStatus('Reflexión guardada en este dispositivo.');
+    } catch {
+      setJournalStatus('No se pudo guardar. Revisa el espacio disponible del navegador.');
+    }
+  }
+
   function saveProfileExtras() {
     if (!selectedProfile) return;
     const safeExtras = {
@@ -1026,6 +1042,15 @@ export default function YouthPortalPage() {
               })}
             </div>
             <small className="youth-growth-local-note">Tu progreso se guarda solo en este dispositivo y puedes retomarlo cuando vuelvas a entrar.</small>
+          </section>
+
+          <section className="youth-journal-panel">
+            <header><div><span>UN MOMENTO CON DIOS</span><h2>Mi bitácora personal</h2><p>Escribe una reflexión, algo por lo que agradeces o una oración para recordar.</p></div><BookMarked size={23}/></header>
+            <label htmlFor="youth-journal-entry">Mi reflexión de hoy</label>
+            <textarea id="youth-journal-entry" value={journalEntry} onChange={(event) => {setJournalEntry(event.target.value);setJournalStatus('');}} maxLength={3000} rows={5} placeholder="Hoy aprendí que... / Quiero agradecer por... / Mi oración es..."/>
+            <div className="youth-journal-actions"><small>{journalEntry.length}/3000 · Privado en este dispositivo</small><button type="button" onClick={saveJournalEntry}><CheckCircle2 size={16}/> Guardar reflexión</button></div>
+            {journalStatus && <p className="youth-journal-status" role="status">{journalStatus}</p>}
+            <small className="youth-journal-privacy"><ShieldCheck size={13}/> Esta bitácora no se envía a Firebase ni la puede leer el equipo administrativo.</small>
           </section>
 
           <section className="youth-game-hub">

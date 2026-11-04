@@ -1726,3 +1726,20 @@
   .scope :global(.youth-ranking-podium-card){animation:none!important;transition:none!important}
   .scope :global(.youth-growth-progress)>i{transition:none}
 }
+
+
+/* Bitácora espiritual personal: almacenamiento local, sin sincronización de perfil público. */
+.scope :global(.youth-journal-panel){display:grid;gap:10px;margin-top:17px;padding:clamp(18px,3vw,26px);border:1px solid var(--jf-border);border-radius:19px;background:var(--jf-glass);box-shadow:var(--jf-shadow);backdrop-filter:blur(16px)}
+.scope :global(.youth-journal-panel)>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;color:#ffbd7a}
+.scope :global(.youth-journal-panel)>header>div{display:grid;gap:4px}
+.scope :global(.youth-journal-panel)>header span{color:#83dfff;font-size:9px;font-weight:900;letter-spacing:.14em}
+.scope :global(.youth-journal-panel)>header h2{margin:0;color:var(--jf-text);font-family:var(--jf-display);font-size:clamp(21px,3vw,29px);text-transform:uppercase}
+.scope :global(.youth-journal-panel)>header p{margin:0;color:var(--jf-muted);font-size:11px;line-height:1.55}
+.scope :global(.youth-journal-panel)>label{color:var(--jf-text);font-size:10px;font-weight:850}
+.scope :global(.youth-journal-panel)>textarea{width:100%;box-sizing:border-box;min-height:120px;padding:13px;border:1px solid var(--jf-border);border-radius:13px;background:var(--jf-surface-raised);color:var(--jf-text);font:inherit;font-size:12px;line-height:1.65;resize:vertical}
+.scope :global(.youth-journal-actions){display:flex;align-items:center;justify-content:space-between;gap:12px}
+.scope :global(.youth-journal-actions)>small,.scope :global(.youth-journal-privacy){color:var(--jf-muted);font-size:9px;line-height:1.5}
+.scope :global(.youth-journal-actions)>button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:39px;padding:0 14px;border:1px solid rgba(255,255,255,.2);border-radius:11px;background:linear-gradient(110deg,#e96b43,#a96ce4);color:#fff;font-size:10px;font-weight:900;cursor:pointer}
+.scope :global(.youth-journal-status){margin:0;color:#8fe7c2;font-size:10px}
+.scope :global(.youth-journal-privacy){display:flex;align-items:center;gap:6px;margin:0}
+@media(max-width:540px){.scope :global(.youth-journal-actions){align-items:stretch;flex-direction:column}.scope :global(.youth-journal-actions)>button{width:100%}}
