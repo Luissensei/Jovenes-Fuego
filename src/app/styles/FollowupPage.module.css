@@ -272,3 +272,32 @@
 .scope :global(.followup-actions) select{
     flex: 1;
   }}
+
+
+/* Jóvenes de Fuego · acompañamiento pastoral */
+.scope :global(.followup-header) {
+ position:relative;isolation:isolate;overflow:hidden;
+ border:1px solid rgba(220,174,112,.23);border-radius:24px;
+ background:radial-gradient(ellipse at 90% 0%,rgba(255,129,67,.2),transparent 34%),radial-gradient(ellipse at 0% 100%,rgba(133,83,174,.2),transparent 42%),linear-gradient(120deg,#171321,#292039 58%,#3b272a);
+ box-shadow:0 22px 55px rgba(8,5,14,.19),inset 0 1px rgba(255,255,255,.06);
+}
+.scope :global(.followup-stat),.scope :global(.followup-card),.scope :global(.followup-content) {
+ min-width:0;border:1px solid var(--jf-border,rgba(197,163,107,.17));
+ background:var(--jf-surface,rgba(27,23,35,.9));color:var(--jf-text,#f5efe6);
+ box-shadow:0 13px 34px rgba(5,4,10,.12),inset 0 1px rgba(255,255,255,.025);
+}
+.scope :global(.followup-stat){border-radius:17px}
+.scope :global(.followup-card){border-radius:19px;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.scope :global(.followup-card):hover{transform:translateY(-3px);border-color:rgba(222,171,105,.42);box-shadow:0 20px 44px rgba(5,4,10,.2)}
+.scope :global(.followup-search){min-width:0;background:var(--jf-input,#15111c);border:1px solid var(--jf-border,rgba(197,163,107,.2));border-radius:13px}
+.scope :global(.followup-search) input{min-width:0;color:var(--jf-text,#f5efe6)}
+.scope :global(.followup-modal){border:1px solid rgba(215,177,119,.24);border-radius:22px;background:var(--jf-surface,#1a1622);color:var(--jf-text,#f5efe6);box-shadow:0 30px 100px rgba(0,0,0,.42)}
+.scope :global(.followup-page) :is(button,a,input,select,textarea):focus-visible{outline:3px solid rgba(222,174,111,.78);outline-offset:3px}
+:global(:root[data-theme="light"]) .scope :global(.followup-stat),
+:global(:root[data-theme="light"]) .scope :global(.followup-card),
+:global(:root[data-theme="light"]) .scope :global(.followup-content){background:#fff;color:#382d40;border-color:#e9e0eb;box-shadow:0 12px 30px rgba(48,34,60,.055)}
+:global(:root[data-theme="light"]) .scope :global(.followup-search){background:#faf8fb;border-color:#e8e0eb}
+:global(:root[data-theme="light"]) .scope :global(.followup-search) input{color:#382d40}
+:global(:root[data-theme="light"]) .scope :global(.followup-modal){background:#fff;color:#382d40}
+@media(max-width:600px){.scope :global(.followup-page){gap:16px}.scope :global(.followup-header){padding:20px;border-radius:19px}.scope :global(.followup-stat){padding:14px;border-radius:15px}.scope :global(.followup-card){padding:15px;border-radius:16px}}
+@media(prefers-reduced-motion:reduce){.scope :global(.followup-card){transition:none}.scope :global(.followup-card):hover{transform:none}}
