@@ -605,3 +605,26 @@
     animation: none !important;
     transition: none !important;
   }}
+
+
+/* Entrada escalonada y salida suave de las tarjetas al abrir una ficha. */
+@keyframes adminMemberCardEnter {
+  from { opacity: 0; transform: translateY(14px) scale(.985); filter: blur(3px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+.scope :global(.member-card) {
+  animation: adminMemberCardEnter .44s cubic-bezier(.18,.78,.18,1) both;
+  transition: opacity .22s ease, transform .24s ease, filter .22s ease;
+}
+.scope :global(.member-card.is-opening) {
+  opacity: 0;
+  transform: translateY(-10px) scale(.985);
+  filter: blur(3px);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scope :global(.member-card) {
+    animation: none !important;
+    transition: none !important;
+  }
+}

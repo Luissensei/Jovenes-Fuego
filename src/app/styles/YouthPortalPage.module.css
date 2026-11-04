@@ -1474,3 +1474,29 @@
 @keyframes youthSpin{
   to { transform: rotate(360deg); }
 }
+
+
+/* El selector se retira suavemente antes de mostrar el espacio del joven. */
+@keyframes youthProfileGridExit {
+  from { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  to { opacity: 0; transform: translateY(-14px) scale(.985); filter: blur(4px); }
+}
+.scope :global(.youth-profiles-exit) {
+  pointer-events: none;
+  animation: youthProfileGridExit .26s cubic-bezier(.55,.05,.75,.4) both;
+}
+.scope :global(.youth-profile-card) {
+  transition: transform .24s cubic-bezier(.2,.8,.2,1), box-shadow .24s ease, border-color .24s ease;
+}
+.scope :global(.youth-profile-card.is-opening) {
+  transform: translateY(-5px) scale(.99);
+  filter: brightness(1.12);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scope :global(.youth-profiles-exit) {
+    animation: none !important;
+  }
+  .scope :global(.youth-profile-card) {
+    transition: none !important;
+  }
+}

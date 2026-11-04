@@ -241,6 +241,7 @@ export default function YouthPortalPage() {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [selectedProfile, setSelectedProfile] = useState<PublicProfile | null>(null);
+  const [openingProfileId, setOpeningProfileId] = useState<string | null>(null);
 
   const [activities, setActivities] = useState<WeeklyActivity[]>([]);
   const [topPlayers, setTopPlayers] = useState<HallOfFamePlayer[]>([]);
@@ -402,6 +403,15 @@ export default function YouthPortalPage() {
     } finally {
       setLookSaving(false);
     }
+  }
+
+  function enterProfile(profile: PublicProfile) {
+    if (openingProfileId) return;
+    setOpeningProfileId(profile.id);
+    window.setTimeout(() => {
+      setSelectedProfile(profile);
+      setOpeningProfileId(null);
+    }, 260);
   }
 
   function leaveProfile() {
@@ -719,9 +729,9 @@ export default function YouthPortalPage() {
           )}
           {!loading && !error && filteredProfiles.length > 0 && (
             <>
-              <div className="youth-profiles">
+              <div className={`youth-profiles ${openingProfileId ? "youth-profiles-exit" : ""}`}>
                 {filteredProfiles.map((profile,index) => (
-                  <button type="button" className={`youth-profile-card float-card-${index % 4}`} key={profile.id} onClick={() => setSelectedProfile(profile)} style={{animationDelay: `${Math.min(index,12) * 55}ms`}}>
+                  <button type="button" className={`youth-profile-card float-card-${index % 4} ${openingProfileId === profile.id ? "is-opening" : ""}`} key={profile.id} disabled={Boolean(openingProfileId)} onClick={() => enterProfile(profile)} style={{animationDelay: `${Math.min(index,12) * 55}ms`}}>
                     <span className="youth-card-decoration"><Flame size={15}/></span>
                     <YouthAvatar profile={profile}/>
                     <strong>{profile.name}</strong>

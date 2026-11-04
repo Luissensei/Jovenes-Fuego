@@ -293,7 +293,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
         <div className="members-grid">
           {filtered.map((member, index) => (
             <article
-              className="member-card"
+              className={`member-card ${selectedMember?.id === member.id && !detailMinimized ? "is-opening" : ""}`}
               key={member.id}
               style={{animationDelay: `${Math.min(index, 14) * 45}ms`}}
             >
