@@ -25,6 +25,7 @@ import {
 import TriviaGame from './TriviaGame';
 import VerseGame from './VerseGame';
 import ThreeDAvatarStudio from './ThreeDAvatarStudio';
+import FuegoAssistant from './components/FuegoAssistant';
 import { TrueFalseGame, WhoAmIGame } from './QuickBibleGames';
 import {
   MemoryGame,
@@ -1107,6 +1108,19 @@ export default function YouthPortalPage() {
           <HallOfFame topPlayers={topPlayersWithPhotos} faithful={faithfulWithPhotos} attendanceLimited={attendanceLimited}/>
          </section>
 
+
+          <FuegoAssistant
+            audience="youth"
+            displayName={profileExtras.displayName || selectedProfile.name}
+            pendingItems={weeklyGrowthPlan.filter((day) => !growthDone.includes(day.id)).map((day) => ({title: day.title, reference: day.reference}))}
+            quickPrompts={[
+              'Explícame un versículo de la Biblia de forma sencilla.',
+              'Ayúdame a preparar mi devocional de hoy.',
+              'Hazme tres preguntas para reflexionar sobre mi fe.',
+              '¿Cómo puedo aplicar la Palabra de Dios esta semana?',
+            ]}
+            context={`Actividades visibles de esta semana: ${publishedActivities.map((item) => item.title + ' (' + item.date + ')').join('; ') || 'No hay actividades publicadas'}.`}
+          />
 
           <section className="youth-immersive-ranking">
             <header className="youth-immersive-ranking-header">

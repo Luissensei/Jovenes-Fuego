@@ -23,6 +23,7 @@ import {
   LockKeyhole,
   ShieldAlert,
   Search,
+  Sparkles,
 } from 'lucide-react';
 
 import { modules } from './modules';
@@ -43,6 +44,8 @@ import DevotionalsPage from './DevotionalsPage';
 import VisitorsPage from './VisitorsPage';
 import RankingPage from './RankingPage';
 import YouthPortalPage from './YouthPortalPage';
+import AdminAssistantPage from './pages/AdminAssistantPage';
+import LeadersAdminPage from './pages/LeadersAdminPage';
 
 import PrayersPage from './pages/PrayersPage';
 import EventsPage from './pages/EventsPage';
@@ -55,7 +58,6 @@ import ReportsPage from './pages/ReportsPage';
 import {
   BonusPage,
   PastoralPage,
-  LeadersPage,
   AuditPage,
   SettingsPage,
 } from './pages/ManagementPages';
@@ -100,6 +102,7 @@ function AdminApp() {
   const { theme, nextThemeLabel, toggleTheme } = useThemePreference();
   const [menuOpen, setMenuOpen] = useState(false);
   const [moduleSearch, setModuleSearch] = useState('');
+  useEffect(() => { setMenuOpen(false); }, [location.pathname]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -157,6 +160,8 @@ function AdminApp() {
   const visibleModules = modules.filter((item) => {
     // La conexión al Firebase original no debe ocultar módulos completos.
     // La visibilidad sigue dependiendo del perfil y del rol autenticado.
+    if (item.id === 'assistant') return isAdmin;
+
     if (item.id === 'pastoral') {
       return isPastor || isAdmin;
     }
@@ -221,6 +226,9 @@ function AdminApp() {
       case 'dashboard':
         return <DashboardPage />;
 
+      case 'assistant':
+        return <AdminAssistantPage />;
+
       case 'members':
         return <MembersPage canEdit={isAdmin || isPastor} />;
 
@@ -273,7 +281,7 @@ function AdminApp() {
         return <AuditPage />;
 
       case 'leaders':
-        return <LeadersPage />;
+        return <LeadersAdminPage />;
 
       case 'pastoral':
         return <PastoralPage />;
@@ -344,23 +352,27 @@ function AdminApp() {
           <input type="search" value={moduleSearch} onChange={(event) => setModuleSearch(event.target.value)} placeholder="Buscar módulo..." aria-label="Buscar un módulo" />
           {moduleSearch && <button type="button" onClick={() => setModuleSearch('')} aria-label="Limpiar búsqueda">×</button>}
         </label>
-        <nav aria-label="Módulos">
-          {filteredModules.length === 0 ? <p className="module-search-empty">No se encontraron módulos.</p> : filteredModules.map((item) => (
-            <NavLink
-              key={item.id}
-              to={item.path}
-              end={item.path === '/'}
-              onClick={() => setMenuOpen(false)}
-              className={({ isActive }) =>
-                `nav-item ${isActive ? 'active' : ''}`
-              }
-            >
-              <span className="nav-item-icon" aria-hidden="true">
-                <item.icon size={17} strokeWidth={2.1} />
-              </span>
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
+        <nav className="jf-module-navigation" aria-label="Módulos">
+          {filteredModules.length === 0 ? <p className="module-search-empty">No se encontraron módulos.</p> : [
+            {label:'Inicio', ids:['dashboard','assistant']},
+            {label:'Personas', ids:['members','leaders','visitors','followups']},
+            {label:'Actividades', ids:['attendance','devotionals','events','prayers','checkins','turns']},
+            {label:'Comunidad', ids:['ranking','games','profile','photos']},
+            {label:'Gestión', ids:['bonus','pastoral','inbox','reports','audit','settings']},
+          ].map((group) => {
+            const items = filteredModules.filter((item) => group.ids.includes(item.id));
+            if (!items.length) return null;
+            const activeGroup = items.some((item) => item.path === location.pathname || (item.path !== '/' && location.pathname.startsWith(item.path + '/')));
+            return <details className="jf-nav-group" key={group.label} open={activeGroup || Boolean(moduleSearch.trim()) || group.label === 'Inicio'}>
+              <summary><span>{group.label}</span><span className="jf-nav-count">{items.length}</span></summary>
+              <div className="jf-nav-group-items">{items.map((item) => (
+                <NavLink key={item.id} to={item.path} end={item.path === '/'} onClick={() => setMenuOpen(false)} className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+                  <span className="nav-item-icon" aria-hidden="true"><item.icon size={17} strokeWidth={1.9}/></span>
+                  <span>{item.label}</span>
+                </NavLink>
+              ))}</div>
+            </details>;
+          })}
         </nav>
 
         <div className="sidebar-bottom">
@@ -415,6 +427,9 @@ function AdminApp() {
 
       <div className="main">
         <div className="topline">
+          <button className="topline-menu-button" type="button" onClick={() => setMenuOpen((value) => !value)} aria-expanded={menuOpen} aria-label={menuOpen ? 'Cerrar panel de módulos' : 'Abrir panel de módulos'}>
+            {menuOpen ? <X size={19}/> : <Menu size={19}/>}
+          </button>
           <div className={`topline-status ${environmentTone}`} aria-live="polite">
             <span className="topline-status-environment">
               <span className="dot" aria-hidden="true" />
@@ -428,6 +443,7 @@ function AdminApp() {
             </span>
           </div>
 
+          {isAdmin && <button className="topline-ai-trigger" type="button" onClick={() => navigate('/asistente')}><Sparkles size={16}/> Fuego AI</button>}
           <span className="project-label">
             {user ? (
               <>

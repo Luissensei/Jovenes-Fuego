@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, CalendarCheck, MessageCircle, BookOpen,
   UserPlus, HandHeart, CalendarDays, QrCode, Trophy, Gamepad2,
   UserRound, Images, Star, ShieldCheck, Inbox, ClipboardList,
-  BarChart3, Crown, Settings,
+  BarChart3, Crown, Settings, Sparkles,
 } from 'lucide-react';
 
 export type ModuleDefinition = {
@@ -21,6 +21,13 @@ export const modules: ModuleDefinition[] = [
     label: 'Panel principal',
     path: '/',
     description: 'Resumen de la comunidad y actividad reciente.',
+  },
+  {
+    id: 'assistant',
+    icon: Sparkles,
+    label: 'Fuego AI',
+    path: '/asistente',
+    description: 'Asistente inteligente para planificación y comunicación.',
   },
   {
     id: 'members',

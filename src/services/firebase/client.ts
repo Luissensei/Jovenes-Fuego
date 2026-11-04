@@ -1,7 +1,8 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
-import type { Functions } from 'firebase/functions';
+import { getFunctions, type Functions } from 'firebase/functions';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
 // Firebase original: respaldo de lectura cuando no se proporciona un entorno.
 const originalConfig = {
@@ -49,14 +50,36 @@ let app: FirebaseApp | null = null;
 let authInstance: Auth | null = null;
 let dbInstance: Firestore | null = null;
 let functionsInstance: Functions | null = null;
+let appCheckReady = false;
 
 app = getApps()[0] ?? initializeApp(config);
 authInstance = getAuth(app);
 dbInstance = getFirestore(app);
 
-// Las funciones callable no se inicializan desde este frontend.
-functionsInstance = null;
+const appCheckSiteKey = typeof env.VITE_FIREBASE_APP_CHECK_SITE_KEY === 'string'
+  ? env.VITE_FIREBASE_APP_CHECK_SITE_KEY.trim()
+  : '';
 
+if (useStagingEnvironment && appCheckSiteKey) {
+  try {
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider(appCheckSiteKey),
+      isTokenAutoRefreshEnabled: true,
+    });
+    appCheckReady = true;
+  } catch (cause) {
+    // No se habilita la IA si App Check no pudo inicializarse.
+    console.warn('Firebase App Check no se pudo inicializar:', cause);
+  }
+}
+
+// Las funciones administrativas solo se conectan al proyecto aislado de Staging.
+functionsInstance = useStagingEnvironment
+  ? getFunctions(app, 'us-central1')
+  : null;
+
+export const firebaseApp: FirebaseApp = app;
+export const firebaseAiAvailable = useStagingEnvironment && appCheckReady;
 export const firebaseConfigured = Boolean(app && authInstance && dbInstance);
 export const firebaseProjectId = config.projectId;
 export const auth: Auth | null = authInstance;
