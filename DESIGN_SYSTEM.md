@@ -45,7 +45,7 @@ La implementación vive en `src/styles/professional-ui.css`. Es la última hoja 
 - Texto principal: `#F2EEE8`
 - Texto secundario: `#B9B1A6`
 - Borde: `#39352E`
-- Acción/acento: `#D58A5C`
+- Acción/acento: `#A65B35`
 
 ## Escala de interfaz
 
