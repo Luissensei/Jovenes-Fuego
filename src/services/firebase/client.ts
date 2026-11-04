@@ -1,11 +1,13 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
-import { getFunctions, type Functions } from 'firebase/functions';
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+import { type Functions } from 'firebase/functions';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
-// Firebase original: respaldo de lectura cuando no se proporciona un entorno.
-const originalConfig = {
+// Jóvenes de Fuego utiliza únicamente su proyecto Firebase original.
+// La configuración web es pública; las reglas de Firestore y Authentication
+// siguen siendo la autoridad de acceso.
+const firebaseConfig = {
   apiKey: 'AIzaSyA3jQcyTX6q1D5ior7j3zJUfaQy_31RQ88',
   authDomain: 'jovenes-de-fuego.firebaseapp.com',
   projectId: 'jovenes-de-fuego',
@@ -15,100 +17,62 @@ const originalConfig = {
 };
 
 const env = import.meta.env;
-const hasCompleteEnvironmentConfig = Boolean(
-  env.VITE_FIREBASE_API_KEY?.trim()
-  && env.VITE_FIREBASE_AUTH_DOMAIN?.trim()
-  && env.VITE_FIREBASE_PROJECT_ID?.trim()
-  && env.VITE_FIREBASE_STORAGE_BUCKET?.trim()
-  && env.VITE_FIREBASE_MESSAGING_SENDER_ID?.trim()
-  && env.VITE_FIREBASE_APP_ID?.trim(),
-);
 
-const useStagingEnvironment = env.VITE_FIREBASE_TARGET === 'staging'
-  && env.VITE_FIREBASE_PROJECT_ID === 'jovenes-de-fuego-staging'
-  && hasCompleteEnvironmentConfig;
+// Es una clave pública de sitio, no una clave secreta. Se permite sobrescribirla
+// desde Vercel, pero la app también funciona sin configurar otra variable.
+const appCheckSiteKey = (
+  typeof env.VITE_FIREBASE_APP_CHECK_SITE_KEY === 'string'
+    ? env.VITE_FIREBASE_APP_CHECK_SITE_KEY.trim()
+    : ''
+) || '6LeB0Q8uAAAAAN-rwuAIeKHEkDM5SKKgpueRl8GJ';
 
-const config = useStagingEnvironment
-  ? {
-      apiKey: env.VITE_FIREBASE_API_KEY,
-      authDomain: env.VITE_FIREBASE_AUTH_DOMAIN,
-      projectId: env.VITE_FIREBASE_PROJECT_ID,
-      storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || originalConfig.storageBucket,
-      messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || originalConfig.messagingSenderId,
-      appId: env.VITE_FIREBASE_APP_ID,
-    }
-  : originalConfig;
+const firebaseApp: FirebaseApp = getApps()[0] ?? initializeApp(firebaseConfig);
 
-// El proyecto original nunca acepta escrituras desde esta aplicación.
-// Solo se usa Staging cuando VITE_FIREBASE_TARGET=staging y el projectId coincide.
-const isOriginalProject = config.projectId === originalConfig.projectId;
-export const firebaseReadOnlyMode = isOriginalProject
-  || !useStagingEnvironment
-  || env.VITE_FIREBASE_READ_ONLY_PRODUCTION === 'true';
-
-let app: FirebaseApp | null = null;
-let authInstance: Auth | null = null;
-let dbInstance: Firestore | null = null;
-let functionsInstance: Functions | null = null;
 let appCheckReady = false;
 let appCheckInitError = '';
 
-app = getApps()[0] ?? initializeApp(config);
-
-const appCheckSiteKey = typeof env.VITE_FIREBASE_APP_CHECK_SITE_KEY === 'string'
-  ? env.VITE_FIREBASE_APP_CHECK_SITE_KEY.trim()
-  : '';
-
-if (useStagingEnvironment && appCheckSiteKey) {
-  try {
-    // Initialize App Check before Auth, Firestore, Functions or AI Logic.
-    initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider(appCheckSiteKey),
-      isTokenAutoRefreshEnabled: true,
-    });
-    appCheckReady = true;
-  } catch (cause) {
-    // No se habilita la IA si App Check no pudo inicializarse.
-    appCheckInitError = cause instanceof Error ? cause.message : 'No se pudo inicializar App Check.';
-    console.warn('Firebase App Check no se pudo inicializar:', cause);
-  }
+try {
+  // App Check se inicializa antes de Auth, Firestore y Firebase AI Logic.
+  // El SDK obtiene y renueva los tokens automáticamente; no se necesita
+  // llamar manualmente a grecaptcha.enterprise.execute().
+  initializeAppCheck(firebaseApp, {
+    provider: new ReCaptchaEnterpriseProvider(appCheckSiteKey),
+    isTokenAutoRefreshEnabled: true,
+  });
+  appCheckReady = true;
+} catch (cause) {
+  appCheckInitError = cause instanceof Error
+    ? cause.message
+    : 'No se pudo inicializar Firebase App Check.';
+  console.warn('Firebase App Check no se pudo inicializar:', cause);
 }
 
-authInstance = getAuth(app);
-dbInstance = getFirestore(app);
+const authInstance: Auth = getAuth(firebaseApp);
+const dbInstance: Firestore = getFirestore(firebaseApp);
 
-// Las funciones administrativas solo se conectan al proyecto aislado de Staging.
-functionsInstance = useStagingEnvironment
-  ? getFunctions(app, 'us-central1')
-  : null;
+// No se conectan Cloud Functions desde este cliente: Fuego AI usa Firebase
+// AI Logic con Gemini Developer API. Así evitamos desplegar backend adicional.
+const functionsInstance: Functions | null = null;
 
-export const firebaseApp: FirebaseApp = app;
-export const firebaseAiAvailable = useStagingEnvironment && appCheckReady;
-export const firebaseAiSetupMessage = !useStagingEnvironment
-  ? env.VITE_FIREBASE_TARGET !== 'staging'
-    ? 'Fuego AI está protegida y solo funciona conectada a Firebase Staging. La conexión actual no está marcada como Staging.'
-    : env.VITE_FIREBASE_PROJECT_ID !== 'jovenes-de-fuego-staging'
-      ? 'El proyecto configurado no coincide con jovenes-de-fuego-staging. Por seguridad, Fuego AI no se conecta a producción.'
-      : 'Faltan variables públicas de configuración de Firebase Staging en el entorno de Vercel.'
-  : !appCheckSiteKey
-    ? 'Falta VITE_FIREBASE_APP_CHECK_SITE_KEY en las variables de entorno de Vercel para Staging. Registra la aplicación web en Firebase App Check con reCAPTCHA v3 y agrega aquí la clave pública del sitio (no la clave secreta).'
-    : !appCheckReady
-      ? `App Check no pudo inicializarse. Verifica que el dominio de Vercel esté autorizado para la clave reCAPTCHA v3. ${appCheckInitError}`
-      : 'La app está conectada a Staging y App Check está inicializado. Confirma en Firebase que Firebase AI Logic esté habilitado y que App Check para Firebase AI Logic aparezca como Enforced en el proyecto Staging.';
-export const firebaseConfigured = Boolean(app && authInstance && dbInstance);
-export const firebaseProjectId = config.projectId;
+export { firebaseApp };
+export const firebaseReadOnlyMode = true;
+export const firebaseAiAvailable = appCheckReady;
+export const firebaseAiSetupMessage = appCheckReady
+  ? 'Firebase original conectado. App Check Enterprise está inicializado. Comprueba que Firebase AI Logic esté habilitado y que App Check esté aplicado a Firebase AI Logic en este proyecto.'
+  : `No se pudo inicializar App Check Enterprise. Comprueba que la clave esté registrada para el dominio jovenes-fuego.vercel.app. Detalle: ${appCheckInitError}`;
+export const firebaseConfigured = Boolean(firebaseApp && authInstance && dbInstance);
+export const firebaseProjectId = firebaseConfig.projectId;
 export const auth: Auth | null = authInstance;
 export const db: Firestore | null = dbInstance;
 export const functions: Functions | null = functionsInstance;
 
 /**
- * El cliente impide escrituras en producción. Firestore Rules siguen siendo
- * la autoridad final también cuando se habilita el proyecto de Staging.
+ * La aplicación conserva el Firebase original en solo lectura.
+ * No se permiten escrituras desde el frontend; las reglas de Firestore
+ * siguen siendo la autoridad final para los datos y permisos.
  */
 export function assertFirebaseWritesAllowed(): void {
-  if (firebaseReadOnlyMode) {
-    throw new Error(
-      'La base original está protegida en modo de solo lectura. Conecta Staging y habilita sus escrituras para probar esta función.',
-    );
-  }
+  throw new Error(
+    'La base original está protegida en modo de solo lectura. Esta operación no puede realizarse desde la aplicación.',
+  );
 }
