@@ -25,3 +25,10 @@
 :global(:root[data-theme="light"]) .hero,:global(:root[data-theme="light"]) .areaCard,:global(:root[data-theme="light"]) .security,:global(:root[data-theme="light"]) .advanced{background:#fff;border-color:#e8e1e9}
 :global(:root[data-theme="light"]) .hero h1,:global(:root[data-theme="light"]) .themeCopy b,:global(:root[data-theme="light"]) .sectionTitle h2,:global(:root[data-theme="light"]) .areaCard,:global(:root[data-theme="light"]) .security b,:global(:root[data-theme="light"]) .advanced summary{color:#352b3c}
 @media(max-width:640px){.hero{align-items:flex-start;padding:18px}.themeCard{align-items:flex-start;flex-wrap:wrap;padding:15px}.themeCopy{width:calc(100% - 60px);flex:1}.themeCard button{width:100%}.areaGrid{grid-template-columns:1fr}.areaCard{min-height:145px}.security{align-items:flex-start;flex-direction:column}}
+
+
+/* Refinamiento visual del centro de configuración */
+.scope :global(.settings-hero){border:1px solid rgba(222,174,111,.22);border-radius:21px;background:radial-gradient(ellipse at 92% 0%,rgba(255,129,67,.18),transparent 34%),linear-gradient(115deg,#1b1726,#30223a 65%,#432c30)}
+.scope :global(.settings-card),.scope :global(.settings-group){background:var(--jf-surface);border:1px solid var(--jf-border);border-radius:17px;box-shadow:var(--jf-shadow)}
+:global(:root[data-theme="light"]) .scope :global(.settings-card),:global(:root[data-theme="light"]) .scope :global(.settings-group){background:#fff;color:#382d40;border-color:#e9e0eb}
+@media(max-width:600px){.scope :global(.settings-hero){padding:20px;border-radius:18px}}
