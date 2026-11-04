@@ -72,8 +72,8 @@ export default function FuegoAssistant({
           <div className={styles.devotionalCard}>
             <div className={styles.devotionalIcon}><BookOpen size={19}/></div>
             <div>
-              <strong>{pendingItems.length ? `Tienes ${pendingItems.length} devocional(es) pendiente(s)` : 'Tu plan devocional va al día'}</strong>
-              <span>{pendingItems.length ? 'Puedes pedirle a Fuego AI que te acompañe con el siguiente.' : 'Puedes profundizar en un versículo o iniciar una nueva reflexión.'}</span>
+              <strong>{pendingItems.length ? `Tienes ${pendingItems.length} devocional(es) del plan local pendiente(s)` : 'Tu plan devocional va al día'}</strong>
+              <span>{pendingItems.length ? 'Es el progreso del reto de 7 días de este dispositivo, no un registro oficial de entregas.' : 'Puedes profundizar en un versículo o iniciar una nueva reflexión.'}</span>
             </div>
             <button type="button" onClick={() => void sendMessage(pendingItems.length ? 'Ayúdame a comenzar el siguiente devocional pendiente. Guíame paso a paso con una lectura, una explicación sencilla, preguntas y una oración.' : 'Propón un devocional breve para hoy con una referencia bíblica y preguntas para reflexionar.')}>Empezar</button>
           </div>

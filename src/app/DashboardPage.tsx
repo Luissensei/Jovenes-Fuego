@@ -1,566 +1,112 @@
 import styles from './styles/DashboardPage.module.css';
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect,useMemo,useState} from 'react';
+import {NavLink} from 'react-router-dom';
 import {
-  Activity,
-  ArrowDownRight,
-  ArrowUpRight,
-  BookOpen,
-  CalendarDays,
-  Crosshair,
-  Flame,
-  Gamepad2,
-  ShieldCheck,
-  Swords,
-  Trophy,
-  Users,
-  QrCode,
-  Sparkles,
-  ChartNoAxesColumnIncreasing,
-  Medal,
-  RefreshCw,
-  Download,
+  ArrowUpRight, CalendarDays, Users, Flame, Trophy, BookOpen,
+  ClipboardCheck, Sparkles, ShieldCheck, Clock3, MapPin,
+  ArrowRight, RefreshCw, LayoutDashboard, UserRound,
 } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import {useAuth} from './AuthContext';
+import {getPublicRankingMetrics,type PublicRankingMetric} from '../services/publicProfiles';
+import {getWeeklyActivities,type WeeklyActivity} from '../services/youthPortal';
+import {firebaseProjectId,firebaseReadOnlyMode} from '../services/firebase/client';
 
-import { useAuth } from './AuthContext';
-import { modules } from './modules';
-import {getPublicRankingMetrics, type PublicRankingMetric} from '../services/publicProfiles';
-import {firebaseProjectId, firebaseReadOnlyMode} from '../services/firebase/client';
-
-const quickActions = [
-  {
-    title: 'Ranking',
-    eyebrow: 'COMPETENCIA',
-    description: 'Clasificación, puntos y progreso de la comunidad.',
-    icon: Trophy,
-    path: '/ranking',
-    code: '01',
-    accent: 'amber',
-  },
-  {
-    title: 'Zona de juegos',
-    eyebrow: 'DESAFÍOS',
-    description: 'Nueve experiencias para aprender jugando.',
-    icon: Gamepad2,
-    path: '/juegos',
-    code: '02',
-    accent: 'violet',
-  },
-  {
-    title: 'Jóvenes',
-    eyebrow: 'COMUNIDAD',
-    description: 'Fichas, perfiles y datos de participantes.',
-    icon: Users,
-    path: '/jovenes',
-    code: '03',
-    accent: 'orange',
-  },
-  {
-    title: 'Asistencia',
-    eyebrow: 'CONTROL',
-    description: 'Reuniones, presencia y seguimiento.',
-    icon: CalendarDays,
-    path: '/asistencia',
-    code: '04',
-    accent: 'blue',
-  },
-  {
-    title: 'Check-in QR',
-    eyebrow: 'ACCESO',
-    description: 'Registro de llegada y lectura de códigos.',
-    icon: QrCode,
-    path: '/checkin',
-    code: '05',
-    accent: 'green',
-  },
-  {
-    title: 'Devocionales',
-    eyebrow: 'CRECIMIENTO',
-    description: 'Contenido para fortalecer la vida espiritual.',
-    icon: BookOpen,
-    path: '/devocionales',
-    code: '06',
-    accent: 'rose',
-  },
+const shortcuts=[
+  {label:'Jóvenes',detail:'Directorio y perfiles',path:'/jovenes',icon:Users},
+  {label:'Asistencia',detail:'Registro de servicios',path:'/asistencia',icon:ClipboardCheck},
+  {label:'Agenda',detail:'Actividades y eventos',path:'/eventos',icon:CalendarDays},
+  {label:'Devocionales',detail:'Contenido de crecimiento',path:'/devocionales',icon:BookOpen},
+  {label:'Líderes',detail:'Roles y permisos',path:'/lideres',icon:ShieldCheck,adminOnly:true},
 ];
+function localDateKey(date:Date){return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;}
 
-export default function DashboardPage() {
-  const { profile, user, configured } = useAuth();
-  const firstName = String(profile?.name ?? user?.email?.split('@')[0] ?? 'equipo')
-    .trim()
-    .split(/\s+/)[0];
+export default function DashboardPage(){
+  const {profile,user,configured}=useAuth();
+  const role=String(profile?.role??'').toLowerCase();
+  const isAdmin=['admin','administrador'].includes(role);
+  const firstName=String(profile?.name??user?.email?.split('@')[0]??'equipo').trim().split(/\s+/)[0]||'equipo';
+  const [people,setPeople]=useState<PublicRankingMetric[]>([]);
+  const [activities,setActivities]=useState<WeeklyActivity[]>([]);
+  const [loading,setLoading]=useState(configured);
+  const [error,setError]=useState('');
+  const [refreshKey,setRefreshKey]=useState(0);
 
-  const [publicProfiles, setPublicProfiles] = useState<PublicRankingMetric[]>([]);
-  const [profilesLoading, setProfilesLoading] = useState(configured);
-  const [profilesError, setProfilesError] = useState('');
-  const [refreshKey, setRefreshKey] = useState(0);
+  useEffect(()=>{
+    if(!configured){setPeople([]);setActivities([]);setLoading(false);return;}
+    let active=true;
+    setLoading(true);setError('');
+    Promise.allSettled([getPublicRankingMetrics(),getWeeklyActivities()]).then((results)=>{
+      if(!active)return;
+      if(results[0].status==='fulfilled')setPeople(results[0].value);
+      else setError('No se pudieron consultar los perfiles y puntos públicos.');
+      if(results[1].status==='fulfilled')setActivities(results[1].value);
+      else setError((old)=>old||'No se pudo consultar la agenda publicada.');
+    }).finally(()=>{if(active)setLoading(false);});
+    return()=>{active=false;};
+  },[configured,refreshKey]);
 
-  useEffect(() => {
-    let active = true;
+  const ranked=useMemo(()=>[...people].sort((a,b)=>(b.points??0)-(a.points??0)||a.name.localeCompare(b.name,'es')),[people]);
+  const totalPoints=people.reduce((sum,item)=>sum+(item.points??0),0);
+  const today=localDateKey(new Date());
+  const upcoming=useMemo(()=>activities.filter((item)=>item.date>=today).sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'').localeCompare(b.time||'')).slice(0,4),[activities,today]);
+  const availableShortcuts=shortcuts.filter((item)=>!item.adminOnly||isAdmin);
 
-    if (!configured) {
-      setPublicProfiles([]);
-      setProfilesLoading(false);
-      setProfilesError('');
-      return () => {
-        active = false;
-      };
-    }
-
-    setProfilesLoading(true);
-    setProfilesError('');
-
-    getPublicRankingMetrics()
-      .then((rows) => {
-        if (active) setPublicProfiles(rows);
-      })
-      .catch((cause: unknown) => {
-        if (!active) return;
-        setProfilesError(
-          cause instanceof Error
-            ? cause.message
-            : 'No se pudieron consultar las puntuaciones públicas.',
-        );
-      })
-      .finally(() => {
-        if (active) setProfilesLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [configured, refreshKey]);
-
-  const rankedProfiles = useMemo(
-    () => [...publicProfiles].sort(
-      (a, b) => (b.points ?? 0) - (a.points ?? 0) ||
-        a.name.localeCompare(b.name, 'es'),
-    ),
-    [publicProfiles],
-  );
-
-  const totalPoints = publicProfiles.reduce(
-    (total, item) => total + (item.points ?? 0),
-    0,
-  );
-  const topScore = rankedProfiles[0]?.points ?? 0;
-  const topFive = rankedProfiles.slice(0, 5);
-
-  const scoreBands = useMemo(() => {
-    const ranges = [
-      {label: '0–99 puntos', min: 0, max: 100},
-      {label: '100–249 puntos', min: 100, max: 250},
-      {label: '250–499 puntos', min: 250, max: 500},
-      {label: '500 o más', min: 500, max: Number.POSITIVE_INFINITY},
-    ];
-
-    return ranges.map((range) => ({
-      ...range,
-      count: publicProfiles.filter((item) =>
-        (item.points ?? 0) >= range.min &&
-        (item.points ?? 0) < range.max,
-      ).length,
-    }));
-  }, [publicProfiles]);
-
-  const scoreBandColors = ['#6fc5eb', '#63cbb4', '#a58ce8', '#f19a68'];
-  const scoreBandGradient = useMemo(() => {
-    let position = 0;
-    const segments = scoreBands.map((band, index) => {
-      const start = position;
-      position += publicProfiles.length ? (band.count / publicProfiles.length) * 100 : 0;
-      return `${scoreBandColors[index]} ${start}% ${position}%`;
-    });
-    return `conic-gradient(${segments.join(', ')})`;
-  }, [scoreBands, publicProfiles.length]);
-
-  const leadingScoreBand = scoreBands.reduce(
-    (leading, band) => band.count > leading.count ? band : leading,
-    scoreBands[0],
-  );
-
-  function downloadRankingCsv() {
-    if (!rankedProfiles.length) return;
-    const rows = [
-      ['Puesto', 'Nombre', 'Puntos'],
-      ...rankedProfiles.map((item, index) => [String(index + 1), item.name, String(item.points ?? 0)]),
-    ];
-    const csv = rows.map((row) => row.map((value) =>
-      `"${String(value).replace(/"/g, '""')}"`,
-    ).join(';')).join('\r\n');
-    const file = new Blob([String.fromCharCode(0xfeff), csv], {type: 'text/csv;charset=utf-8'});
-    const url = URL.createObjectURL(file);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `ranking-jovenes-fuego-${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-  }
-
-  return (
-    <div className={`${styles.scope} dashboard-page tactical-dashboard`}>
-      <div className="dashboard-commandline">
-        <div className="dashboard-commandline-left">
-          <span className="dashboard-live-dot" />
-          <span>JDF / CENTRO DE OPERACIONES</span>
-          <span className="dashboard-command-separator">/</span>
-          <span className="dashboard-command-muted">PANEL PRINCIPAL</span>
-        </div>
-        <span className="dashboard-env">
-          <ShieldCheck size={13} />
-          {configured
-            ? firebaseReadOnlyMode
-              ? 'PRODUCCIÓN · SOLO LECTURA'
-              : `STAGING · ${firebaseProjectId}`
-            : 'MODO VISTA PREVIA'}
-        </span>
-      </div>
-
-      <section className="dashboard-hero">
-        <div className="dashboard-hero-copy">
-          <span className="dashboard-kicker">
-            <Flame size={15} />
-            FE · COMUNIDAD · PROPÓSITO
-          </span>
-
-          <p className="dashboard-hero-index">01 / CENTRO DE MANDO</p>
-
-          <h1 className="jf-title-reveal">
-            Mantén la
-            <br />
-            <span>llama encendida.</span>
-          </h1>
-
-          <p className="dashboard-hero-description">
-            Hola, <strong className="jf-name-reveal">{firstName}</strong>. Este es el punto de partida para organizar,
-            acompañar y activar a nuestra generación.
-          </p>
-
-          <div className="dashboard-hero-actions">
-            <NavLink to="/ranking" className="dashboard-primary">
-              <Gamepad2 size={17} />
-              Entrar a desafíos
-              <ArrowUpRight size={16} />
-            </NavLink>
-            <NavLink to="/jovenes" className="dashboard-secondary">
-              Ver comunidad
-              <ArrowDownRight size={16} />
-            </NavLink>
-          </div>
-
-          <div className="dashboard-hero-foot">
-            <span><span className="dashboard-live-dot" /> {configured ? 'FIREBASE CONECTADO' : 'VISTA PREVIA LOCAL'}</span>
-            <span>JÓVENES DE FUEGO / 2026</span>
+  return(
+    <main className={styles.scope}>
+      <header className={styles.hero}>
+        <div className={styles.heroCopy}>
+          <div className={styles.eyebrow}><span className={styles.liveDot}/> CENTRO DE CONTROL <span className={styles.eyebrowDivider}>/</span> JÓVENES DE FUEGO</div>
+          <p className={styles.overline}>FE · COMUNIDAD · PROPÓSITO</p>
+          <h1>Una comunidad que<br/><em>mantiene la llama viva.</em></h1>
+          <p className={styles.intro}>Bienvenido, {firstName}. Aquí tienes lo importante para acompañar, organizar y activar a nuestra generación.</p>
+          <div className={styles.heroActions}>
+            {isAdmin&&<NavLink to="/asistente" className={styles.goldButton}><Sparkles size={17}/> Abrir Fuego AI <ArrowUpRight size={15}/></NavLink>}
+            <NavLink to="/eventos" className={styles.quietButton}>Organizar actividades <ArrowUpRight size={15}/></NavLink>
           </div>
         </div>
+        <div className={styles.heroSeal} aria-hidden="true">
+          <div className={styles.sealOrbit}/><div className={styles.sealInner}><Flame size={76} strokeWidth={1.2}/></div>
+          <span className={styles.sealTop}>ALFA Y OMEGA</span><span className={styles.sealBottom}>BUILT ON FAITH</span>
+        </div>
+        <div className={styles.heroFoot}><span><ShieldCheck size={14}/> {configured?(firebaseReadOnlyMode?'ORIGINAL · SOLO LECTURA':`STAGING · ${firebaseProjectId}`):'VISTA PREVIA'}</span><span>GESTIÓN · CRECIMIENTO · SERVICIO</span></div>
+      </header>
 
-        <div className="dashboard-hero-art" aria-hidden="true">
-          <div className="dashboard-art-grid" />
-          <div className="dashboard-art-orbit orbit-one" />
-          <div className="dashboard-art-orbit orbit-two" />
-          <div className="dashboard-art-core">
-            <Flame size={96} strokeWidth={1.25} />
-          </div>
-          <span className="dashboard-art-tag tag-top">
-            <Crosshair size={13} /> VISIÓN
-          </span>
-          <span className="dashboard-art-tag tag-side">
-            <Sparkles size={13} /> PROPÓSITO
-          </span>
-          <span className="dashboard-art-coordinates">10°23' N / 75°30' W</span>
-          <span className="dashboard-art-vertical">BUILT ON FAITH</span>
+      <section className={styles.section}>
+        <div className={styles.sectionHeading}><div><span className={styles.kicker}>PANORAMA DE LA COMUNIDAD</span><h2>Lo que está pasando</h2><p>Información pública disponible en el sistema.</p></div><button type="button" onClick={()=>setRefreshKey((value)=>value+1)} disabled={!configured||loading}><RefreshCw size={15} className={loading?styles.spinning:''}/> Actualizar</button></div>
+        {error&&<p className={styles.error} role="alert">{error}</p>}
+        <div className={styles.metrics}>
+          <article><span className={styles.metricIcon}><Users size={18}/></span><div><small>PERFILES PUBLICADOS</small><strong>{loading?'…':configured?people.length:'—'}</strong><span>Visibles en la clasificación</span></div></article>
+          <article><span className={styles.metricIcon}><Flame size={18}/></span><div><small>PUNTOS PUBLICADOS</small><strong>{loading?'…':configured?totalPoints.toLocaleString('es-CO'):'—'}</strong><span>Suma del ranking público</span></div></article>
+          <article><span className={styles.metricIcon}><Trophy size={18}/></span><div><small>PRIMER LUGAR</small><strong className={styles.metricName}>{loading?'…':ranked[0]?.name||'—'}</strong><span>{ranked[0]?(`${ranked[0].points??0} puntos`):'Sin datos publicados'}</span></div></article>
         </div>
       </section>
 
-      <section className="dashboard-briefing">
-        <div className="dashboard-section-title">
-          <div>
-            <span className="dashboard-section-kicker">INFORMACIÓN DEL SISTEMA</span>
-            <h2>Estado de la operación</h2>
-          </div>
-          <span className="dashboard-section-note">DATOS DE CONFIGURACIÓN · NO ESTADÍSTICAS</span>
-        </div>
-
-        <div className="dashboard-stats">
-          <article className="dashboard-stat stat-wide">
-            <span className="dashboard-stat-index">01</span>
-            <div className="dashboard-stat-icon"><Activity size={19} /></div>
-            <div className="dashboard-stat-copy">
-              <small>SECCIONES EN EL PANEL</small>
-              <strong>{String(modules.length).padStart(2, '0')}</strong>
-              <span>Módulos disponibles en navegación</span>
-            </div>
-            <span className="dashboard-stat-mark">JDF / CORE</span>
-          </article>
-
-          <article className="dashboard-stat">
-            <span className="dashboard-stat-index">02</span>
-            <div className="dashboard-stat-icon"><Swords size={19} /></div>
-            <div className="dashboard-stat-copy">
-              <small>JUEGOS BÍBLICOS</small>
-              <strong>09</strong>
-              <span>Experiencias disponibles en la zona de retos</span>
-            </div>
-          </article>
-
-          <article className="dashboard-stat">
-            <span className="dashboard-stat-index">03</span>
-            <div className="dashboard-stat-icon"><ShieldCheck size={19} /></div>
-            <div className="dashboard-stat-copy">
-              <small>ENTORNO ACTUAL</small>
-              <strong className="dashboard-stat-word">
-                {configured ? firebaseReadOnlyMode ? 'PROD RO' : 'STAGING' : 'DEMO'}
-              </strong>
-              <span>
-                {configured
-                  ? firebaseReadOnlyMode
-                    ? 'Firebase original protegido'
-                    : `Firebase ${firebaseProjectId}`
-                  : 'Sin conexión a Firebase'}
-              </span>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section className="dashboard-analytics" aria-labelledby="community-pulse-title">
-        <div className="dashboard-section-title">
-          <div>
-            <span className="dashboard-section-kicker">INDICADORES DE COMUNIDAD</span>
-            <h2 id="community-pulse-title">Pulso de la comunidad</h2>
-            <p className="dashboard-analytics-intro">
-              Resumen construido con los perfiles y puntos que el ranking tiene publicados.
-            </p>
-          </div>
-          <div className="dashboard-analytics-actions">
-            <button type="button" onClick={() => setRefreshKey((value) => value + 1)} disabled={!configured || profilesLoading}>
-              <RefreshCw size={14} className={profilesLoading ? 'is-refreshing' : ''}/> Actualizar
-            </button>
-            <button type="button" onClick={downloadRankingCsv} disabled={!rankedProfiles.length || profilesLoading}>
-              <Download size={14}/> Exportar CSV
-            </button>
-            <span className="dashboard-section-note">FUENTE: RANKING PÚBLICO</span>
-          </div>
-        </div>
-
-        <div className="dashboard-community-stats">
-          <article className="dashboard-community-stat">
-            <span className="dashboard-community-stat-icon"><Users size={19}/></span>
-            <div>
-              <small>PARTICIPANTES</small>
-              <strong>{profilesLoading ? '…' : profilesError ? '—' : publicProfiles.length}</strong>
-              <span>Perfiles visibles en el ranking</span>
-            </div>
-          </article>
-          <article className="dashboard-community-stat">
-            <span className="dashboard-community-stat-icon points"><Flame size={19}/></span>
-            <div>
-              <small>PUNTOS ACUMULADOS</small>
-              <strong>{profilesLoading ? '…' : profilesError ? '—' : totalPoints.toLocaleString('es-CO')}</strong>
-              <span>Suma de los puntos publicados</span>
-            </div>
-          </article>
-          <article className="dashboard-community-stat">
-            <span className="dashboard-community-stat-icon leader"><Trophy size={19}/></span>
-            <div>
-              <small>PUNTAJE MÁS ALTO</small>
-              <strong>{profilesLoading ? '…' : profilesError ? '—' : topScore.toLocaleString('es-CO')}</strong>
-              <span>{rankedProfiles[0]?.name ?? 'Sin líder publicado'}</span>
-            </div>
-          </article>
-        </div>
-
-        {profilesError ? (
-          <div className="dashboard-chart-state" role="alert">
-            <ShieldCheck size={20}/>
-            <div>
-              <strong>No se pudieron cargar las gráficas</strong>
-              <p>{profilesError}</p>
-            </div>
-          </div>
-        ) : !configured ? (
-          <div className="dashboard-chart-state">
-            <ChartNoAxesColumnIncreasing size={22}/>
-            <div>
-              <strong>Gráficas pendientes de conexión</strong>
-              <p>Al conectar Firebase se mostrarán aquí las estadísticas reales del ranking público.</p>
-            </div>
-          </div>
-        ) : profilesLoading ? (
-          <div className="dashboard-chart-state" aria-live="polite">
-            <span className="dashboard-chart-spinner"/>
-            <div>
-              <strong>Actualizando indicadores</strong>
-              <p>Consultando perfiles y puntos publicados.</p>
-            </div>
-          </div>
-        ) : publicProfiles.length === 0 ? (
-          <div className="dashboard-chart-state">
-            <Users size={22}/>
-            <div>
-              <strong>El ranking todavía no tiene participantes</strong>
-              <p>Cuando se publiquen perfiles, las gráficas aparecerán automáticamente.</p>
-            </div>
-          </div>
-        ) : (
-          <div className="dashboard-charts-grid">
-            <article className="dashboard-chart-card dashboard-score-chart">
-              <header className="dashboard-chart-header">
-                <div>
-                  <span>01 / TABLA DE RENDIMIENTO</span>
-                  <h3>Top 5 por puntos</h3>
-                  <p>Los participantes con mayor puntuación publicada.</p>
-                </div>
-                <span className="dashboard-chart-header-icon"><Medal size={20}/></span>
-              </header>
-              <div className="dashboard-bar-chart" role="list" aria-label="Cinco participantes con mayor puntuación">
-                {topFive.map((item, index) => {
-                  const points = item.points ?? 0;
-                  const width = topScore > 0 ? Math.max(4, (points / topScore) * 100) : 0;
-                  return (
-                    <div className="dashboard-bar-row" key={item.id} role="listitem">
-                      <span className="dashboard-bar-rank">{String(index + 1).padStart(2, '0')}</span>
-                      <div className="dashboard-bar-main">
-                        <div className="dashboard-bar-label">
-                          <strong title={item.name}>{item.name}</strong>
-                          <span>{points.toLocaleString('es-CO')} pts</span>
-                        </div>
-                        <div
-                          className="dashboard-bar-track"
-                          role="progressbar"
-                          aria-label={`Puntos de ${item.name}`}
-                          aria-valuemin={0}
-                          aria-valuemax={topScore}
-                          aria-valuenow={points}
-                        >
-                          <span style={{width: `${width}%`}}/>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <footer className="dashboard-chart-foot">
-                <span>Mayor puntuación</span>
-                <strong>{topScore.toLocaleString('es-CO')} puntos</strong>
-              </footer>
+      <section className={styles.contentGrid}>
+        <div className={styles.panel}>
+          <div className={styles.panelHeading}><div><span className={styles.kicker}>AGENDA</span><h2>Próximas actividades</h2></div><NavLink to="/eventos">Ver agenda <ArrowRight size={14}/></NavLink></div>
+          {upcoming.length?upcoming.map((item)=>(
+            <article className={styles.eventRow} key={item.id}>
+              <div className={styles.dateTile}><strong>{item.date.slice(8,10)}</strong><span>{new Date(item.date+'T12:00:00').toLocaleDateString('es-CO',{month:'short'}).toUpperCase()}</span></div>
+              <div className={styles.eventInfo}><b>{item.title}</b><p>{item.description||'Actividad de Jóvenes de Fuego'}</p><span>{item.time&&<><Clock3 size={13}/>{item.time}</>}{item.location&&<><MapPin size={13}/>{item.location}</>}</span></div>
             </article>
-
-            <article className="dashboard-chart-card dashboard-distribution-chart">
-              <header className="dashboard-chart-header">
-                <div>
-                  <span>02 / DISTRIBUCIÓN DE PUNTOS</span>
-                  <h3>Rangos de puntuación</h3>
-                  <p>Cómo se distribuyen los perfiles visibles.</p>
-                </div>
-                <span className="dashboard-chart-header-icon distribution"><ChartNoAxesColumnIncreasing size={20}/></span>
-              </header>
-              <div className="dashboard-distribution-list" role="list" aria-label="Participantes por rango de puntos">
-                {scoreBands.map((band) => {
-                  const percent = publicProfiles.length > 0
-                    ? (band.count / publicProfiles.length) * 100
-                    : 0;
-                  return (
-                    <div className="dashboard-distribution-row" key={band.label} role="listitem">
-                      <div className="dashboard-distribution-label">
-                        <strong>{band.label}</strong>
-                        <span>{band.count} {band.count === 1 ? 'perfil' : 'perfiles'}</span>
-                      </div>
-                      <div
-                        className="dashboard-distribution-track"
-                        role="progressbar"
-                        aria-label={band.label}
-                        aria-valuemin={0}
-                        aria-valuemax={publicProfiles.length}
-                        aria-valuenow={band.count}
-                      >
-                        <span style={{width: `${percent}%`}}/>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <footer className="dashboard-chart-foot">
-                <span>Perfiles incluidos</span>
-                <strong>{publicProfiles.length}</strong>
-              </footer>
-            </article>
-
-            <article className="dashboard-chart-card dashboard-tier-chart">
-              <header className="dashboard-chart-header">
-                <div>
-                  <span>03 / VISTA GENERAL</span>
-                  <h3>Mapa de progreso</h3>
-                  <p>Proporción de perfiles en cada rango de puntos.</p>
-                </div>
-                <span className="dashboard-chart-header-icon distribution"><Users size={20}/></span>
-              </header>
-              <div className="dashboard-donut-layout">
-                <div className="dashboard-donut" style={{background: scoreBandGradient}} role="img" aria-label="Distribución de participantes por rango de puntos">
-                  <div><strong>{publicProfiles.length}</strong><span>perfiles</span></div>
-                </div>
-                <div className="dashboard-donut-legend">
-                  {scoreBands.map((band, index) => (
-                    <div className="dashboard-donut-legend-row" key={band.label}>
-                      <i style={{background: scoreBandColors[index]}} />
-                      <span>{band.label}</span>
-                      <strong>{Math.round((band.count / publicProfiles.length) * 100)}%</strong>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <footer className="dashboard-chart-foot"><span>Rango más frecuente</span><strong>{leadingScoreBand.label}</strong></footer>
-            </article>
+          )):<div className={styles.empty}><CalendarDays size={25}/><b>{loading?'Consultando la agenda...':'No hay próximas actividades publicadas'}</b><span>Las actividades aparecerán aquí cuando estén disponibles.</span></div>}
+        </div>
+        <div className={styles.panel}>
+          <div className={styles.panelHeading}><div><span className={styles.kicker}>ACCESOS DIRECTOS</span><h2>Ir a un módulo</h2></div><LayoutDashboard size={19}/></div>
+          <div className={styles.shortcuts}>
+            {availableShortcuts.map((item)=>{const Icon=item.icon;return <NavLink to={item.path} key={item.path}><span><Icon size={17}/></span><div><b>{item.label}</b><small>{item.detail}</small></div><ArrowUpRight size={15}/></NavLink>;})}
           </div>
-        )}
-        <p className="dashboard-analytics-disclaimer">
-          Las gráficas reflejan únicamente los datos públicos disponibles. No representan asistencia ni actividad histórica.
-        </p>
-      </section>
-
-      <section className="dashboard-launch">
-        <div className="dashboard-section-title">
-          <div>
-            <span className="dashboard-section-kicker">ACCESO DIRECTO</span>
-            <h2>Selecciona tu siguiente movimiento</h2>
-          </div>
-          <span className="dashboard-section-note">06 RUTAS RÁPIDAS</span>
-        </div>
-
-        <div className="dashboard-shortcuts">
-          {quickActions.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                to={item.path}
-                className={`dashboard-shortcut shortcut-${item.accent}`}
-                key={item.path}
-              >
-                <span className="dashboard-shortcut-code">{item.code}</span>
-                <span className="dashboard-shortcut-icon"><Icon size={21} /></span>
-                <span className="dashboard-shortcut-copy">
-                  <small>{item.eyebrow}</small>
-                  <strong>{item.title}</strong>
-                  <span>{item.description}</span>
-                </span>
-                <ArrowUpRight className="dashboard-arrow" size={18} />
-              </NavLink>
-            );
-          })}
         </div>
       </section>
 
-      <section className="dashboard-bottom-note">
-        <span className="dashboard-bottom-icon"><Flame size={21} /></span>
-        <div>
-          <span className="dashboard-section-kicker">IDENTIDAD JDF</span>
-          <strong>Una generación que no apaga su fuego.</strong>
-          <p>Un espacio para crecer en la fe, servir con propósito y caminar juntos.</p>
-        </div>
-        <span className="dashboard-bottom-mark">JDF<span>®</span></span>
+      <section className={styles.bottomGrid}>
+        <article className={styles.aiCard}>
+          <div className={styles.aiOrb}><Sparkles size={23}/></div>
+          <div><span className={styles.kicker}>ASISTENTE INTELIGENTE</span><h2>Fuego AI</h2><p>Prepara invitaciones, cronogramas, reuniones e informes con ayuda de inteligencia artificial.</p></div>
+          {isAdmin?<NavLink to="/asistente">Entrar al asistente <ArrowUpRight size={15}/></NavLink>:<span className={styles.restricted}>Disponible para administración</span>}
+        </article>
+        <article className={styles.environmentCard}><span className={styles.kicker}>ENTORNO Y PROTECCIÓN</span><div><ShieldCheck size={19}/><b>{firebaseReadOnlyMode?'Base original protegida':'Entorno de trabajo'}</b></div><p>{configured?(firebaseReadOnlyMode?'Las operaciones de escritura están bloqueadas en producción.':'Los cambios de prueba se limitan a Firebase Staging.'):'Vista previa sin conexión a Firebase.'}</p><small><UserRound size={13}/> Sesión: {String(profile?.name??user?.email??'sin identificar')}</small></article>
       </section>
-    </div>
+    </main>
   );
 }

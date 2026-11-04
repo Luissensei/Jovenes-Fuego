@@ -1,5 +1,5 @@
 import { FireAtmosphere } from './FireAtmosphere';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import {
   NavLink,
   Navigate,
@@ -34,33 +34,35 @@ import {
 import { AuthProvider, useAuth } from './AuthContext';
 import { useThemePreference } from './useThemePreference';
 
-import { LoginPage } from './LoginPage';
-import { MembersPage } from './MembersPage';
+const LoginPage = lazy(() => import('./LoginPage').then((module) => ({default: module.LoginPage})));
+const MembersPage = lazy(() => import('./MembersPage').then((module) => ({default: module.MembersPage})));
 
-import DashboardPage from './DashboardPage';
-import AttendancePage from './AttendancePage';
-import FollowupPage from './FollowupPage';
-import DevotionalsPage from './DevotionalsPage';
-import VisitorsPage from './VisitorsPage';
-import RankingPage from './RankingPage';
-import YouthPortalPage from './YouthPortalPage';
-import AdminAssistantPage from './pages/AdminAssistantPage';
-import LeadersAdminPage from './pages/LeadersAdminPage';
+const DashboardPage = lazy(() => import('./DashboardPage'));
+const AttendancePage = lazy(() => import('./AttendancePage'));
+const FollowupPage = lazy(() => import('./FollowupPage'));
+const DevotionalsPage = lazy(() => import('./DevotionalsPage'));
+const VisitorsPage = lazy(() => import('./VisitorsPage'));
+const RankingPage = lazy(() => import('./RankingPage'));
+const YouthPortalPage = lazy(() => import('./YouthPortalPage'));
+const AdminAssistantPage = lazy(() => import('./pages/AdminAssistantPage'));
+const LeadersAdminPage = lazy(() => import('./pages/LeadersAdminPage'));
 
-import PrayersPage from './pages/PrayersPage';
-import EventsPage from './pages/EventsPage';
-import InboxPage from './pages/InboxPage';
-import TurnsPage from './pages/TurnsPage';
+const PrayersPage = lazy(() => import('./pages/PrayersPage'));
+const EventsPage = lazy(() => import('./pages/EventsPage'));
+const InboxPage = lazy(() => import('./pages/InboxPage'));
+const TurnsPage = lazy(() => import('./pages/TurnsPage'));
 
-import CheckinPage from './pages/CheckinPage';
-import PhotosPage from './pages/PhotosPage';
-import ReportsPage from './pages/ReportsPage';
-import {
-  BonusPage,
-  PastoralPage,
-  AuditPage,
-  SettingsPage,
-} from './pages/ManagementPages';
+const CheckinPage = lazy(() => import('./pages/CheckinPage'));
+const PhotosPage = lazy(() => import('./pages/PhotosPage'));
+const ReportsPage = lazy(() => import('./pages/ReportsPage'));
+const BonusPage = lazy(() => import('./pages/ManagementPages').then((module) => ({default: module.BonusPage})));
+const PastoralPage = lazy(() => import('./pages/ManagementPages').then((module) => ({default: module.PastoralPage})));
+const AuditPage = lazy(() => import('./pages/ManagementPages').then((module) => ({default: module.AuditPage})));
+const SettingsPage = lazy(() => import('./pages/ManagementPages').then((module) => ({default: module.SettingsPage})));
+
+function PageLoading({label = 'Cargando módulo'}: {label?: string}) {
+  return <div className="jf-page-loading" role="status" aria-live="polite"><span/><strong>{label}</strong><small>Preparando esta sección...</small></div>;
+}
 
 function ModulePage({
   label,
@@ -125,7 +127,7 @@ function AdminApp() {
   }
 
   if (configured && !user) {
-    return <LoginPage />;
+    return <Suspense fallback={<PageLoading label="Abriendo acceso"/>}><LoginPage /></Suspense>;
   }
 
   const role = String(profile?.role ?? '').trim().toLowerCase();
@@ -369,7 +371,7 @@ function AdminApp() {
             const items = filteredModules.filter((item) => group.ids.includes(item.id));
             if (!items.length) return null;
             const activeGroup = items.some((item) => item.path === location.pathname || (item.path !== '/' && location.pathname.startsWith(item.path + '/')));
-            return <details className="jf-nav-group" key={group.label} open={activeGroup || Boolean(moduleSearch.trim()) || group.label === 'Inicio'}>
+            return <details className="jf-nav-group" key={group.label} open={activeGroup || Boolean(moduleSearch.trim()) || false}>
               <summary><span>{group.label}</span><span className="jf-nav-count">{items.length}</span></summary>
               <div className="jf-nav-group-items">{items.map((item) => (
                 <NavLink key={item.id} to={item.path} end={item.path === '/'} onClick={() => setMenuOpen(false)} className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
@@ -482,11 +484,11 @@ function AdminApp() {
             <Route
               key={item.id}
               path={item.path}
-              element={renderModule(
+              element={<Suspense fallback={<PageLoading label={item.label}/>}>{renderModule(
                 item.id,
                 item.label,
                 item.description,
-              )}
+              )}</Suspense>}
             />
           ))}
 
@@ -519,7 +521,7 @@ export function App() {
     <Routes>
       <Route
         path="/portal-joven/*"
-        element={<YouthPortalPage />}
+        element={<Suspense fallback={<PageLoading label="Abriendo portal juvenil"/>}><YouthPortalPage /></Suspense>}
       />
 
       <Route

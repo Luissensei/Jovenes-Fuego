@@ -32,3 +32,9 @@ jobs:
 
       - name: Build application
         run: npm run build
+
+      - name: Install Cloud Functions dependencies
+        run: npm ci --prefix functions
+
+      - name: Build Cloud Functions
+        run: npm --prefix functions run build
