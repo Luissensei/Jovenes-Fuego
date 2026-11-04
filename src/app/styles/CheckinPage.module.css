@@ -212,3 +212,16 @@
 @media(max-width:900px){.scope :global(.checkin-grid){grid-template-columns:1fr;}}
 @media(max-width:600px){.scope :global(.checkin-fields){grid-template-columns:1fr;}
 .scope :global(.checkin-list) article{align-items:flex-start;flex-direction:column;gap:5px;}}
+
+
+/* Refinamiento visual del check-in */
+.scope :global(.checkin-hero){border:1px solid rgba(222,174,111,.23);box-shadow:0 20px 48px rgba(5,4,10,.18),inset 0 1px rgba(255,255,255,.07)}
+.scope :global(.checkin-config),.scope :global(.checkin-panel),.scope :global(.checkin-summary){background:var(--jf-surface);border:1px solid var(--jf-border);border-radius:19px;box-shadow:var(--jf-shadow)}
+.scope :global(.checkin-panel-heading){gap:12px}
+.scope :global(.checkin-search){background:var(--jf-input);border:1px solid var(--jf-border);border-radius:12px}
+.scope :global(.checkin-search) input{color:var(--jf-text);min-width:0}
+.scope :global(.checkin-list) article{border-color:var(--jf-border);border-radius:13px}
+:global(:root[data-theme="light"]) .scope :global(.checkin-config),
+:global(:root[data-theme="light"]) .scope :global(.checkin-panel),
+:global(:root[data-theme="light"]) .scope :global(.checkin-summary){background:#fff;color:#382d40;border-color:#e9e0eb}
+@media(max-width:600px){.scope :global(.checkin-hero){padding:20px;border-radius:18px}.scope :global(.checkin-config),.scope :global(.checkin-panel){padding:15px;border-radius:16px}}
