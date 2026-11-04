@@ -66,10 +66,21 @@ export async function askFuegoAI(
     if (!answer) throw new Error('El asistente no generó una respuesta. Inténtalo de nuevo.');
     return answer.slice(0, 9000);
   } catch (cause) {
-    const message = cause instanceof Error ? cause.message : '';
-    if (/app.?check|403|permission|unauthenticated/i.test(message)) {
-      throw new Error('Firebase AI Logic no autorizó la solicitud. Revisa App Check y la configuración de Firebase AI Logic en Staging.');
+    const value = cause && typeof cause === 'object' ? cause as {message?: unknown; code?: unknown; status?: unknown} : {};
+    const detail = typeof value.message === 'string' ? value.message : 'Firebase no devolvió un detalle legible.';
+    const code = [value.code, value.status].filter(Boolean).join(' · ');
+    if (/app.?check|403|permission|unauthenticated|permission-denied/i.test(detail) || /app.?check|permission-denied/i.test(code)) {
+      throw new Error(`Firebase AI Logic rechazó la solicitud (App Check o permisos). Verifica el registro de la app web y el dominio en Firebase Staging. Detalle: ${detail.slice(0, 240)}`);
     }
-    throw new Error('No se pudo consultar Fuego AI. Comprueba la conexión y la configuración de Staging.');
+    if (/429|resource.?exhausted|quota|rate.?limit/i.test(detail) || /resource-exhausted|429/i.test(code)) {
+      throw new Error('Fuego AI alcanzó el límite temporal de solicitudes de Firebase. Espera un momento y vuelve a intentarlo.');
+    }
+    if (/404|not.?found|model|firebase.?ai.?logic/i.test(detail) || /not-found|404/i.test(code)) {
+      throw new Error(`Firebase no encontró el modelo o el servicio de IA. Confirma que Firebase AI Logic esté habilitado en jovenes-de-fuego-staging y que el modelo gemini-3.8-flash esté disponible. Detalle: ${detail.slice(0, 240)}`);
+    }
+    if (/api.?key|invalid.?argument|invalid.?api/i.test(detail) || /invalid-argument/i.test(code)) {
+      throw new Error(`Firebase rechazó la configuración de la solicitud de IA. Revisa la API key y el proveedor Gemini Developer API en Staging. Detalle: ${detail.slice(0, 240)}`);
+    }
+    throw new Error(`No se pudo consultar Fuego AI${code ? ` (${code})` : ''}. Detalle de Firebase: ${detail.slice(0, 320)}`);
   }
 }
