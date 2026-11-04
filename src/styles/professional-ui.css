@@ -22,8 +22,12 @@
   --jf-sidebar-muted: #bfb4df;
   --jf-input: #17142e;
   --jf-icon: #ff9a54;
-  --jf-accent: #ff713b;
-  --jf-accent-strong: #e44c32;
+  --jf-accent: #ff8249;
+  --jf-accent-strong: #bf4723;
+  --jf-action: #bf4723;
+  --jf-action-strong: #a83225;
+  --jf-action: #bf4723;
+  --jf-action-strong: #a83225;
   --jf-accent-2: #ffd45e;
   --jf-purple: #a36bff;
   --jf-blue: #43b0ff;
@@ -54,8 +58,8 @@
   --jf-sidebar-muted: #bfb4df;
   --jf-input: #17142e;
   --jf-icon: #ff9a54;
-  --jf-accent: #ff713b;
-  --jf-accent-strong: #e44c32;
+  --jf-accent: #ff8249;
+  --jf-accent-strong: #bf4723;
   --jf-accent-2: #ffd45e;
   --jf-purple: #a36bff;
   --jf-blue: #43b0ff;
@@ -88,6 +92,8 @@
   --jf-icon: #8b43d2;
   --jf-accent: #8b43d2;
   --jf-accent-strong: #6f2fae;
+  --jf-action: #8b43d2;
+  --jf-action-strong: #6f2fae;
   --jf-accent-2: #6f43bf;
   --jf-purple: #6f43bf;
   --jf-blue: #2368b7;
@@ -119,8 +125,8 @@
   --jf-sidebar-muted: #bfb4df;
   --jf-input: #17142e;
   --jf-icon: #ff9a54;
-  --jf-accent: #ff713b;
-  --jf-accent-strong: #e44c32;
+  --jf-accent: #ff8249;
+  --jf-accent-strong: #bf4723;
   --jf-accent-2: #ffd45e;
   --jf-purple: #a36bff;
   --jf-blue: #43b0ff;
@@ -407,7 +413,7 @@ body {
   padding-inline: 14px;
   border: 1px solid var(--jf-accent-strong) !important;
   border-radius: 8px !important;
-  background: var(--jf-accent) !important;
+  background: var(--jf-action) !important;
   color: #ffffff !important;
   box-shadow: none !important;
   font-weight: 650;
@@ -420,7 +426,7 @@ body {
   .shared-button.primary, .management-submit, .weekly-add-button,
   .youth-prayer-submit-row button, .topline-ai-trigger
 ):hover:not(:disabled) {
-  background: var(--jf-accent-strong) !important;
+  background: var(--jf-action-strong) !important;
   box-shadow: none !important;
   transform: none !important;
 }
@@ -755,7 +761,7 @@ body {
 
 :root[data-theme] .main :is(.btn-primary,.primary-button,.login-submit,.submit-button,.member-detail-save,.attendance-card>button,.ranking-hero-button,.shared-button.primary,.management-submit,.weekly-add-button,.youth-prayer-submit-row button,.topline-ai-trigger) {
   background: var(--jf-accent) !important;
-  border-color: var(--jf-accent-strong) !important;
+  border-color: var(--jf-action-strong) !important;
   color: #ffffff !important;
   box-shadow: none !important;
 }
