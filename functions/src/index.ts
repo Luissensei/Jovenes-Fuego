@@ -255,7 +255,7 @@ export const getMyApplicationProfile = onCall(async (request) => {
 
 
 const defaultLeaderPermissions = [
-  "members", "attendance", "followups", "devotionals", "visitors",
+  "members", "attendance", "reports", "followups", "devotionals", "visitors",
   "prayers", "events", "checkins", "turns", "ranking", "games", "profile",
 ];
 
