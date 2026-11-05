@@ -30,6 +30,7 @@ export type ManagedField = {
   type?: 'text' | 'date' | 'time' | 'tel' | 'textarea' | 'member';
   required?: boolean;
   hidden?: boolean;
+  listHidden?: boolean;
 };
 
 export type ManagedPageConfig = {
