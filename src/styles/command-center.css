@@ -185,3 +185,25 @@ body,#root,.layout,.main,.app-page{background:#050d20!important;color:#f5f8ff!im
 }
 @media(max-width:900px){.main{width:100%!important;margin-left:0!important}}
 @media(prefers-reduced-motion:reduce){:where(.main,.youth-portal) *,:where(.main,.youth-portal) *::before,:where(.main,.youth-portal) *::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+
+/* Page headers, module settings and administration surfaces */
+.main :is([class*="hero"],[class*="Hero"]):not(.welcome){background:linear-gradient(112deg,#0b1b38,#10264a 65%,#111d3d)!important;border:1px solid #28466d!important;border-radius:17px!important;box-shadow:0 14px 32px #0003!important}
+.main :is([class*="hero"],[class*="Hero"]) :is(h1,h2,h3){color:#fff!important}
+.main :is([class*="hero"],[class*="Hero"]) :is(p,small){color:#b5c8e3!important}
+.main :is([class*="hero"],[class*="Hero"]) :is(svg){color:#55c4ff}
+.main :is([class*="themeCard"],[class*="theme-card"],[class*="sectionTitle"],[class*="section-title"],[class*="areaCard"],[class*="security"],[class*="advanced"]){background:#0d1a33!important;border:1px solid #24395d!important;border-radius:14px!important;color:#f5f8ff!important}
+.main :is([class*="areaGrid"],[class*="area-grid"]){gap:13px}
+.main :is([class*="areaCard"],[class*="area-card"]):hover{border-color:#318ee5!important;box-shadow:0 14px 30px #0004!important}
+.main :is([class*="themeIcon"],[class*="heroIcon"],[class*="areaIcon"]){background:linear-gradient(145deg,#087df1,#5937b7)!important;color:#fff!important}
+.main :is([class*="sectionTitle"],[class*="section-title"])>span{color:#55c4ff!important}
+.sidebar :is(.nav-item,.nav-link,[class*="nav-item"]){color:#a9bad4!important}
+.sidebar :is(.nav-item.active,.nav-link.active,[aria-current="page"]){color:#fff!important;background:linear-gradient(105deg,#087df1,#0759d8)!important;border:1px solid #2388f3!important}
+.sidebar :is(.nav-item:hover,.nav-link:hover){color:#fff!important;background:#132a49!important}
+.sidebar :is(.brand strong,.brand small){color:#f5f8ff!important}
+.sidebar :is(.module-search,input){background:#0a1830!important;border-color:#294264!important;color:#f5f8ff!important}
+.sidebar :is(.nav-group-title,.nav-section-title,[class*="group-title"]){color:#7189aa!important}
+.topline :is(button,a){border-color:#294264!important;color:#d9eaff!important}
+.jf-bottom-nav{background:#08162d!important;border:1px solid #294264!important;box-shadow:0 12px 35px #0008!important}
+.jf-bottom-nav :is(a,button){color:#9eacc6!important}
+.jf-bottom-nav :is(.active,[aria-current="page"]){color:#55c4ff!important}
