@@ -562,6 +562,63 @@ export const adminUpdateMember = onCall(async (request) => {
   return {success: true, memberId};
 });
 
+const youthLookItemCosts: Record<string, number> = {
+  "frames:fuego":0,"frames:neon":40,"frames:cielo":40,"frames:hielo":50,"frames:arco":60,
+  "frames:esmeralda":70,"frames:rayo":80,"frames:oro":120,"frames:galaxia":150,"frames:corona":200,
+  "frames:prisma":110,"frames:obsidiana":125,"frames:solar":95,"frames:cristal":145,
+  "frames:emperador":185,"frames:filigrana":155,"frames:bronce":100,"frames:runa":175,
+  "frames:amatista":0,
+  "avs:paloma":0,"avs:leon":0,"avs:aguila":0,"avs:cordero":20,"avs:mariposa":25,"avs:lobo":30,
+  "avs:estrella":40,"avs:guerrero":50,"avs:dragon":60,"avs:cohete":70,"avs:rey":80,"avs:volcan":90,
+  "avs:fenix":95,"avs:delfin":45,"avs:zorro":55,"avs:pantera":75,"avs:tigre":75,"avs:fenix-real":135,
+  "tits:chispa":0,"tits:valiente":25,"tits:guerrero":40,"tits:intercesor":50,"tits:adorador":60,
+  "tits:sabio":80,"tits:leyenda":150,
+  "bans:brasa":0,"bans:ocaso":30,"bans:aurora":50,"bans:noche":50,"bans:volcan":80,"bans:galaxia":100,
+  "bans:oceano":65,"bans:bosque":70,"bans:aurora-boreal":115,"bans:atardecer":55,"bans:cosmos":125,
+  "bans:imperial":145,"bans:amatista":95,"bans:santuario":110,"bans:aurum":130,"bans:seda":120,"bans:nebula-real":155,
+  "fx:ember":0,"fx:aurora":65,"fx:spark":75,"fx:ice":85,"fx:halo":110,"fx:galaxy":140,"fx:sun":90,
+  "fx:lightning":105,"fx:bloom":95,"fx:royal":125,"fx:orbit":135,"fx:runes":150,"fx:golden":165,
+  "fx:comet":145,"fx:crown":175,"fx:vortex":155,
+  "bdg:flame":0,"bdg:book":45,"bdg:heart":55,"bdg:shield":65,"bdg:star":80,"bdg:crown":120,
+  "bdg:hope":70,"bdg:mission":85,"bdg:brave":90,"bdg:joy":55,"bdg:royal":135,"bdg:guardian":110,
+  "bdg:victory":125,"bdg:covenant":100,"bdg:radiance":145,
+  "hair:natural":0,"hair:waves":35,"hair:curly":45,"hair:fade":45,"hair:afro":55,"hair:braids":65,
+  "hair:long":65,"hair:bun":60,"hair:classic":30,"hair:cap":40,
+  "outfits:basic":0,"outfits:hoodie":55,"outfits:white":60,"outfits:sport":45,"outfits:denim":70,
+  "outfits:royal":100,"outfits:worship":65,"outfits:street":75,"outfits:warrior":90,"outfits:formal":70,
+  "outfits:guardian":115,"outfits:champion":120,"outfits:satin":130,
+  "accessories:none":0,"accessories:glasses":25,"accessories:headphones":40,"accessories:cross":45,
+  "accessories:wristband":25,"accessories:halo":70,"accessories:book":35,"accessories:cap":40,
+  "accessories:crown":80,"accessories:scarf":50,"accessories:wings":135,"accessories:sword":125,
+  "accessories:staff":100,"accessories:cape":115,
+};
+
+const youthLookEquippedPrefixes: Record<string, string> = {
+  "equipped:fx:": "fx",
+  "equipped:bdg:": "bdg",
+  "equipped:hair:": "hair",
+  "equipped:outfit:": "outfits",
+  "equipped:accessory:": "accessories",
+};
+
+function validateOwnedLookItems(items: string[]): void {
+  items.forEach((item) => {
+    const equippedPrefix = Object.keys(youthLookEquippedPrefixes)
+      .find((prefix) => item.startsWith(prefix));
+    if (equippedPrefix) {
+      const category = youthLookEquippedPrefixes[equippedPrefix];
+      const key = item.slice(equippedPrefix.length);
+      if (!Object.prototype.hasOwnProperty.call(youthLookItemCosts, `${category}:${key}`)) {
+        throw new HttpsError("invalid-argument", "La apariencia contiene un elemento equipado desconocido.");
+      }
+      return;
+    }
+    if (!Object.prototype.hasOwnProperty.call(youthLookItemCosts, item)) {
+      throw new HttpsError("invalid-argument", "La apariencia contiene un elemento de tienda desconocido.");
+    }
+  });
+}
+
 export const savePublicProfileAppearance = onCall(async (request) => {
   const memberId = text(request.data?.memberId, 150);
   const source = request.data?.appearance && typeof request.data.appearance === "object"
@@ -603,6 +660,7 @@ export const savePublicProfileAppearance = onCall(async (request) => {
       .filter(Boolean))].slice(0, 400)
     : [];
 
+  validateOwnedLookItems(ownedItems);
   const appearance = {
     f: allowedString(source.frame, 50, "fuego"),
     a: allowedString(source.avatar, 80, ""),
@@ -610,6 +668,26 @@ export const savePublicProfileAppearance = onCall(async (request) => {
     t: allowedString(source.title, 80, "chispa"),
     u: ownedItems,
   };
+  const selectedItems: Array<[string, string]> = [
+    ["frames", appearance.f],
+    ["avs", appearance.a],
+    ["tits", appearance.t],
+    ["bans", appearance.b],
+    ["fx", allowedString(source.effects, 50, "ember")],
+    ["bdg", allowedString(source.badge, 50, "flame")],
+    ["hair", allowedString(source.hair, 50, "natural")],
+    ["outfits", allowedString(source.outfit, 50, "basic")],
+    ["accessories", allowedString(source.accessory, 50, "none")],
+  ];
+  selectedItems.forEach(([category, key]) => {
+    if (!Object.prototype.hasOwnProperty.call(youthLookItemCosts, `${category}:${key}`)) {
+      throw new HttpsError("invalid-argument", "La apariencia selecciona un elemento desconocido.");
+    }
+    const cost = youthLookItemCosts[`${category}:${key}`];
+    if (cost > 0 && !ownedItems.includes(`${category}:${key}`)) {
+      throw new HttpsError("failed-precondition", "Debes desbloquear el elemento antes de equiparlo.");
+    }
+  });
 
   const flamesValue = Number(source.flames);
   if (!Number.isFinite(flamesValue) || flamesValue < 0 || flamesValue > 100000) {
@@ -625,15 +703,29 @@ export const savePublicProfileAppearance = onCall(async (request) => {
     if (count >= 60) {
       throw new HttpsError("resource-exhausted", "Se alcanzó el límite diario de cambios para este perfil.");
     }
-    const currentFlames = Number(photoSnapshot.data()?.w ?? 0);
+    const currentData = photoSnapshot.data() ?? {};
+    const currentFlames = Number(currentData.w ?? 0);
     const safeFlames = Number.isFinite(currentFlames) && currentFlames >= 0
       ? Math.min(currentFlames, 100000)
       : 0;
+    const previousOwned = Array.isArray(currentData.u)
+      ? currentData.u.filter((value): value is string => typeof value === "string")
+      : [];
+    const additions = ownedItems.filter((item) => !previousOwned.includes(item));
+    const purchaseCost = additions.reduce((total, item) =>
+      total + (youthLookItemCosts[item] ?? 0), 0,
+    );
+    const expectedFlames = Math.max(0, safeFlames - purchaseCost);
+    if (flamesValue !== expectedFlames) {
+      throw new HttpsError("failed-precondition", "El saldo o el costo de los elementos cambió. Recarga tu perfil e inténtalo de nuevo.");
+    }
+    const permanentOwned = [...new Set([...previousOwned, ...ownedItems])];
+    validateOwnedLookItems(permanentOwned);
 
     transaction.set(photoRef, {
       ...appearance,
-      // The public browser may spend existing flames, but cannot mint them.
-      w: Math.min(flamesValue, safeFlames),
+      u: permanentOwned,
+      w: expectedFlames,
       c: Date.now(),
     }, {merge: true});
     transaction.set(rateRef, {
