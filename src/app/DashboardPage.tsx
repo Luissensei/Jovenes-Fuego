@@ -1,7 +1,7 @@
 import styles from './styles/DashboardPage.module.css';
 import { motion } from 'motion/react';
-import PointsChart from './components/PointsChart';
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+const PointsChart = lazy(() => import('./components/PointsChart'));
 import { NavLink } from 'react-router-dom';
 import {
   ArrowUpRight, CalendarDays, Users, Trophy, BookOpen, ClipboardCheck, Bell,
@@ -177,7 +177,7 @@ export default function DashboardPage() {
           <div className={styles.panelHeading}><div><span className={styles.kicker}>RENDIMIENTO</span><h2>Puntos por participante</h2><p>Comparativo de los seis primeros lugares.</p></div><ChartNoAxesCombined size={20} /></div>
           {chartData.length ? (
             <div className={styles.chart}>
-              <PointsChart data={chartData} ariaLabel="Puntos de los seis primeros participantes del ranking" />
+              <Suspense fallback={<div className={styles.empty} role="status">Preparando gráfico interactivo…</div>}><PointsChart data={chartData} ariaLabel="Puntos de los seis primeros participantes del ranking" /></Suspense>
               <div className={styles.chartFoot}>
                 <span>0 puntos</span>
                 <span>Mayor puntuación: {maxPoints.toLocaleString('es-CO')}</span>
