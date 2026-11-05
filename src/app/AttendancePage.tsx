@@ -49,7 +49,7 @@ export default function AttendancePage() {
     try {
       const [meetingRows, memberRows] = await Promise.all([
         listAttendanceMeetings(),
-        getMembersForAdministration(),
+        getMembersForAdministration('attendance'),
       ]);
       setMeetings(meetingRows);
       setMembers(memberRows);
