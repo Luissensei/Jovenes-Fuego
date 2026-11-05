@@ -1,5 +1,5 @@
 import styles from './styles/AttendancePage.module.css';
-import {useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {FormEvent} from 'react';
 import {RefreshCw} from 'lucide-react';
 
@@ -43,14 +43,21 @@ export default function AttendancePage() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
-  async function loadData(preferredMeetingId?: string) {
-    setLoading(true);
-    setError('');
+  const mountedRef = useRef(false);
+  const loadSequenceRef = useRef(0);
+
+  const loadData = useCallback(async (preferredMeetingId?: string) => {
+    const sequence = ++loadSequenceRef.current;
+    if (mountedRef.current) {
+      setLoading(true);
+      setError('');
+    }
     try {
       const [meetingRows, memberRows] = await Promise.all([
         listAttendanceMeetings(),
         getMembersForAdministration('attendance'),
       ]);
+      if (!mountedRef.current || sequence !== loadSequenceRef.current) return;
       setMeetings(meetingRows);
       setMembers(memberRows);
       setSelectedMeetingId((current) => {
@@ -60,17 +67,22 @@ export default function AttendancePage() {
           : meetingRows[0]?.id ?? '';
       });
     } catch (cause) {
-      setError(cause instanceof Error
-        ? cause.message
-        : 'No se pudo cargar la asistencia.');
+      if (mountedRef.current && sequence === loadSequenceRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo cargar la asistencia.');
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current && sequence === loadSequenceRef.current) setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     void loadData();
-  }, []);
+    return () => {
+      mountedRef.current = false;
+      loadSequenceRef.current += 1;
+    };
+  }, [loadData]);
 
   const selectedMeeting = useMemo(
     () => meetings.find((meeting) => meeting.id === selectedMeetingId),
@@ -100,13 +112,16 @@ export default function AttendancePage() {
         name: meetingName,
         date: meetingDate,
       });
+      if (!mountedRef.current) return;
       setMeetingName('');
       await loadData(result.meetingId);
-      setMessage('Reunión creada correctamente.');
+      if (mountedRef.current) setMessage('Reunión creada correctamente.');
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'No se pudo crear la reunión.');
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo crear la reunión.');
+      }
     } finally {
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   }
 
@@ -131,19 +146,26 @@ export default function AttendancePage() {
       }));
 
       await saveMeetingAttendance(selectedMeeting.id, participants);
+      if (!mountedRef.current) return;
       await loadData(selectedMeeting.id);
-      setMessage('Asistencia guardada correctamente.');
+      if (mountedRef.current) setMessage('Asistencia guardada correctamente.');
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'No se pudo guardar la asistencia.');
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo guardar la asistencia.');
+      }
     } finally {
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   }
 
-  const presentCount = members.filter((member) => attendance[member.id] === 'Presente').length;
-  const lateCount = members.filter((member) => attendance[member.id] === 'Tarde').length;
-  const absentCount = members.filter((member) => ['Ausente', 'Falta'].includes(attendance[member.id] ?? 'Ausente')).length;
-  const justifiedCount = members.filter((member) => attendance[member.id] === 'Justificada').length;
+  const attendanceCounts = useMemo(() => members.reduce((counts, member) => {
+    const status = attendance[member.id] ?? 'Ausente';
+    if (status === 'Presente') counts.present += 1;
+    else if (status === 'Tarde') counts.late += 1;
+    else if (status === 'Justificada') counts.justified += 1;
+    else counts.absent += 1;
+    return counts;
+  }, {present: 0, late: 0, absent: 0, justified: 0}), [members, attendance]);
 
   return (
     <main className={`${styles.scope} attendance-page`}>
@@ -207,10 +229,10 @@ export default function AttendancePage() {
 
       {selectedMeeting && (
         <section className="attendance-summary">
-          <div className="attendance-card"><h3>Presentes</h3><strong>{presentCount}</strong></div>
-          <div className="attendance-card"><h3>Llegadas tarde</h3><strong>{lateCount}</strong></div>
-          <div className="attendance-card"><h3>Ausentes</h3><strong>{absentCount}</strong></div>
-          <div className="attendance-card"><h3>Justificados</h3><strong>{justifiedCount}</strong></div>
+          <div className="attendance-card"><h3>Presentes</h3><strong>{attendanceCounts.present}</strong></div>
+          <div className="attendance-card"><h3>Llegadas tarde</h3><strong>{attendanceCounts.late}</strong></div>
+          <div className="attendance-card"><h3>Ausentes</h3><strong>{attendanceCounts.absent}</strong></div>
+          <div className="attendance-card"><h3>Justificados</h3><strong>{attendanceCounts.justified}</strong></div>
         </section>
       )}
 
