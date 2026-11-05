@@ -102,6 +102,14 @@ export default function ThreeDAvatarStudio({
   const objectUrlRef = useRef('');
   const exportedRef = useRef(false);
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
+  const mountedRef = useRef(false);
+  const profileIdRef = useRef(profileId);
+  profileIdRef.current = profileId;
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   function replacePreview(blob: Blob) {
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
@@ -148,7 +156,8 @@ export default function ThreeDAvatarStudio({
     return () => viewer.remove();
   }, [avatarUrl, viewerReady, profileName]);
 
-  async function saveExport(blob: Blob) {
+  async function saveExport(blob: Blob, targetProfileId = profileId) {
+    if (!mountedRef.current || profileIdRef.current !== targetProfileId) return;
     try {
       if (blob.size < 12 || blob.size > MAX_AVATAR_BYTES) {
         throw new Error('El modelo debe pesar entre unos bytes y 12 MB.');
@@ -157,43 +166,52 @@ export default function ThreeDAvatarStudio({
       if (magic[0] !== 0x67 || magic[1] !== 0x6c || magic[2] !== 0x54 || magic[3] !== 0x46) {
         throw new Error('El archivo no parece ser un modelo GLB válido.');
       }
-      await storeAvatar(profileId, blob);
+      await storeAvatar(targetProfileId, blob);
       await registerViewer();
+      if (!mountedRef.current || profileIdRef.current !== targetProfileId) return;
       replacePreview(blob);
       setViewerReady(true);
       setHasAvatar(true);
       setNotice('¡Tu avatar 3D quedó guardado en este dispositivo!');
     } catch (cause) {
-      setNotice(cause instanceof Error ? cause.message : 'No se pudo guardar el avatar 3D.');
+      if (mountedRef.current && profileIdRef.current === targetProfileId) {
+        setNotice(cause instanceof Error ? cause.message : 'No se pudo guardar el avatar 3D.');
+      }
     } finally {
-      setBusy(false);
+      if (mountedRef.current && profileIdRef.current === targetProfileId) setBusy(false);
     }
   }
 
   async function openCreator() {
+    const targetProfileId = profileId;
     setBusy(true);
     setNotice('Conectando con el estudio 3D…');
     exportedRef.current = false;
     try {
       const sdk = await import(/* @vite-ignore */ CREATOR_SDK_URL) as CreatorModule;
+      if (!mountedRef.current || profileIdRef.current !== targetProfileId) return;
       const creator = new sdk.AvatarCreator({
         studioUrl: STUDIO_URL,
         onExport: (blob) => {
+          if (!mountedRef.current || profileIdRef.current !== targetProfileId) return;
           exportedRef.current = true;
-          void saveExport(blob);
+          void saveExport(blob, targetProfileId);
         },
         onClose: () => {
+          if (!mountedRef.current || profileIdRef.current !== targetProfileId) return;
           setBusy(false);
           if (!exportedRef.current) setNotice('No se realizaron cambios en el avatar.');
         },
       });
       await creator.open();
-      setBusy(false);
+      if (mountedRef.current && profileIdRef.current === targetProfileId) setBusy(false);
     } catch (cause) {
-      setBusy(false);
-      setNotice(cause instanceof Error
-        ? 'No se pudo abrir el creador 3D: ' + cause.message
-        : 'No se pudo abrir el creador 3D. Comprueba tu conexión e inténtalo de nuevo.');
+      if (mountedRef.current && profileIdRef.current === targetProfileId) {
+        setBusy(false);
+        setNotice(cause instanceof Error
+          ? 'No se pudo abrir el creador 3D: ' + cause.message
+          : 'No se pudo abrir el creador 3D. Comprueba tu conexión e inténtalo de nuevo.');
+      }
     }
   }
 
@@ -203,15 +221,22 @@ export default function ThreeDAvatarStudio({
       setNotice('Selecciona un archivo .glb para importar tu personaje 3D.');
       return;
     }
+    if (file.size < 12 || file.size > MAX_AVATAR_BYTES) {
+      setNotice('El modelo debe pesar menos de 12 MB.');
+      return;
+    }
+    const targetProfileId = profileId;
     setBusy(true);
     setNotice('Validando y guardando tu modelo 3D…');
-    await saveExport(file);
+    await saveExport(file, targetProfileId);
   }
 
   async function downloadGlb() {
+    const targetProfileId = profileId;
     try {
-      const blob = await readStoredAvatar(profileId);
+      const blob = await readStoredAvatar(targetProfileId);
       if (!blob) throw new Error('No se encontró un modelo guardado.');
+      if (!mountedRef.current || profileIdRef.current !== targetProfileId) return;
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -221,12 +246,17 @@ export default function ThreeDAvatarStudio({
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 1500);
     } catch (cause) {
-      setNotice(cause instanceof Error ? cause.message : 'No se pudo descargar el avatar.');
+      if (mountedRef.current && profileIdRef.current === targetProfileId) {
+        setNotice(cause instanceof Error ? cause.message : 'No se pudo descargar el avatar.');
+      }
     }
   }
   async function deleteAvatar() {
+    const targetProfileId = profileId;
+    setBusy(true);
     try {
-      await removeStoredAvatar(profileId);
+      await removeStoredAvatar(targetProfileId);
+      if (!mountedRef.current || profileIdRef.current !== targetProfileId) return;
       if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
       objectUrlRef.current = '';
       setAvatarUrl('');
@@ -234,7 +264,11 @@ export default function ThreeDAvatarStudio({
       setHasAvatar(false);
       setNotice('Avatar 3D eliminado de este dispositivo.');
     } catch (cause) {
-      setNotice(cause instanceof Error ? cause.message : 'No se pudo eliminar el avatar.');
+      if (mountedRef.current && profileIdRef.current === targetProfileId) {
+        setNotice(cause instanceof Error ? cause.message : 'No se pudo eliminar el avatar.');
+      }
+    } finally {
+      if (mountedRef.current && profileIdRef.current === targetProfileId) setBusy(false);
     }
   }
 
