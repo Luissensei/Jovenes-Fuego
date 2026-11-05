@@ -497,3 +497,16 @@
 :global(:root[data-theme="light"]) .scope :global(.managed-modal){background:#fff;color:#382d40;border-color:#e9e0eb}
 @media(max-width:600px){.scope :global(.managed-hero){padding:20px;border-radius:18px}.scope :global(.managed-record){padding:14px;border-radius:15px}}
 @media(prefers-reduced-motion:reduce){.scope :global(.managed-record){transition:none}.scope :global(.managed-record):hover{transform:none}}
+
+/* Follow-ups and visitors: shared records workspace. */
+.scope :global(.managed-page){gap:18px}
+.scope :global(.managed-hero){background:linear-gradient(115deg,#172943,#203b60);border:1px solid #354d6c;border-radius:17px;box-shadow:0 12px 28px #0003}
+.scope :global(.managed-eyebrow){color:#a9c4f3}
+.scope :global(.managed-stat),.scope :global(.managed-record){background:#121f32;border:1px solid #2a3d56;border-radius:13px;box-shadow:0 7px 22px #0002}
+.scope :global(.managed-toolbar),.scope :global(.managed-search){background:#101e31;border-color:#30445e;color:#edf3fb}
+.scope :global(.managed-record-heading),.scope :global(.managed-record-main){color:#edf3fb}
+.scope :global(.managed-record-description),.scope :global(.managed-record-details),.scope :global(.managed-created){color:#a9bad0}
+.scope :global(.managed-modal){background:#121f32;border:1px solid #30445e;color:#edf3fb;border-radius:15px}
+.scope :global(.managed-form-field) input,.scope :global(.managed-form-field) select,.scope :global(.managed-form-field) textarea{background:#0d192a;border:1px solid #30445e;color:#edf3fb}
+.scope :global(.managed-primary){background:#426fce;border:1px solid #5d88e0;color:#fff;border-radius:9px}
+.scope :global(.managed-secondary){background:#1b304a;border:1px solid #48617f;color:#e5eefb;border-radius:9px}
