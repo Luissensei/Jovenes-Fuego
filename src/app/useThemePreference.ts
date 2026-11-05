@@ -7,16 +7,14 @@ const THEME_STORAGE_KEY = 'jf-theme';
 function readThemePreference(): ThemePreference {
   try {
     const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
-    return saved === 'light' || saved === 'royal' ? saved : 'dark';
+    return saved === 'dark' || saved === 'royal' ? saved : 'light';
   } catch {
-    return 'dark';
+    return 'light';
   }
 }
 
 function nextTheme(theme: ThemePreference): ThemePreference {
-  if (theme === 'dark') return 'light';
-  if (theme === 'light') return 'royal';
-  return 'dark';
+  return theme === 'light' ? 'dark' : 'light';
 }
 
 export function useThemePreference() {
@@ -24,7 +22,7 @@ export function useThemePreference() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    const color = theme === 'royal' ? '#120e20' : theme === 'light' ? '#f3f5fa' : '#0b1020';
+    const color = theme === 'light' ? '#f4f6f9' : '#101820';
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
     try {
       window.localStorage.setItem(THEME_STORAGE_KEY, theme);
@@ -37,13 +35,13 @@ export function useThemePreference() {
     setTheme((current) => nextTheme(current));
   }, []);
 
-  const nextThemeLabel = theme === 'dark' ? 'modo claro' : theme === 'light' ? 'tema Imperial' : 'modo oscuro';
+  const nextThemeLabel = theme === 'light' ? 'modo oscuro' : 'modo claro';
 
   return {
     theme,
-    isDark: theme === 'dark',
+    isDark: theme !== 'light',
     isLight: theme === 'light',
-    isRoyal: theme === 'royal',
+    isRoyal: false,
     nextThemeLabel,
     toggleTheme,
   };
