@@ -246,3 +246,19 @@
  .scope :global(.ranking-content){padding:15px!important;border-radius:15px!important}
  .scope :global(.ranking-hero){padding:20px!important;border-radius:16px!important}
 }
+
+/* Ranking: podium, member cards and filters use the same solid-surface system. */
+.scope :global(.ranking-hub){color:#edf3fb}
+.scope :global(.ranking-hero){background:linear-gradient(115deg,#172943,#203b60);border:1px solid #354d6c;border-radius:17px}
+.scope :global(.ranking-eyebrow){color:#a9c4f3}
+.scope :global(.ranking-tabs),.scope :global(.ranking-content),.scope :global(.ranking-progress-panel){background:#121f32;border:1px solid #2a3d56;border-radius:14px}
+.scope :global(.ranking-tabs) button{color:#a9bad0}
+.scope :global(.ranking-tabs) button.active{background:#294b7a;color:#fff;border-radius:9px}
+.scope :global(.ranking-card-grid){gap:14px}
+.scope :global(.ranking-player-card){background:#121f32;border:1px solid #2a3d56;border-radius:14px;box-shadow:0 7px 22px #0002}
+.scope :global(.ranking-player-card):hover{border-color:#668cff;transform:translateY(-2px)}
+.scope :global(.ranking-card-name),.scope :global(.ranking-card-points){color:#edf3fb}
+.scope :global(.ranking-card-meta),.scope :global(.ranking-card-progress-label){color:#9aabc0}
+.scope :global(.ranking-player-track){background:#263951}
+.scope :global(.ranking-player-track)>span{background:#668cff}
+@media(max-width:650px){.scope :global(.ranking-hero){border-radius:15px;padding:19px}.scope :global(.ranking-card-grid){grid-template-columns:1fr}}
