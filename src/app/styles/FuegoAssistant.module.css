@@ -70,3 +70,42 @@
 .compactPanel .footer{flex:0 0 auto;align-items:flex-start;padding:8px 14px 12px;font-size:9px;}
 .compactPanel .footer button{color:#DA7B93;}
 @media(max-width:560px){.compactPanel{border-radius:20px;}.compactPanel .header{padding:12px;}.compactPanel .chat{padding:12px;}.compactPanel .footer{padding:7px 12px 10px;}}
+
+
+/* Fuego AI — solid blue surfaces and legible conversation states. */
+.scope{color:#edf3fb}
+.panel{background:#121f32;border:1px solid #2a3d56;border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,.2)}
+.header{border-color:#2a3d56;background:#172943}
+.emblem{background:linear-gradient(145deg,#426fce,#294b7a);color:#fff;box-shadow:none}
+.heading>span{color:#9bb9ff}.heading h2{color:#f3f6fc}.heading p{color:#a9bad0}
+.status{background:#203a5b;color:#cfe0ff;border:1px solid #456184}
+.devotionalCard{background:#14243a;border-color:#304864}.devotionalIcon{background:#203a5b;color:#cfe0ff}
+.devotionalCard strong{color:#edf3fb}.devotionalCard span{color:#a9bad0}
+.devotionalCard button,.composer button{background:#426fce;color:#fff}
+.chat{background:#101c2d}
+.welcome>span{background:#203a5b;color:#cfe0ff}.welcome strong{color:#f3f6fc}.welcome p{color:#a9bad0}
+.prompts button{background:#17283e;border:1px solid #304761;color:#e1eaf5}
+.prompts button:hover{border-color:#668cff}
+.messageAvatar{background:#203a5b;color:#cfe0ff}
+.messageContent{background:#17283e;color:#edf3fb}
+.userMessage .messageContent{background:#294b7a;color:#fff}
+.typing{color:#a9bad0}.error{background:#4a2633;color:#ffe8ed}
+.setupNotice{background:#14243a;color:#bdcadd}
+.composer{background:#0d192a;border:1px solid #30445e}.composer textarea{color:#edf3fb}
+.footer{color:#9aabc0}.footer button{color:#9bb9ff}
+.compactPanel{background:#121f32;border-color:#344c70;border-radius:18px}
+.compactPanel .header{background:#172943;border-color:#2a3d56}
+.compactPanel .emblem{background:linear-gradient(145deg,#426fce,#294b7a);color:#fff}
+.compactPanel .heading>span{color:#9bb9ff}
+.compactPanel .status{background:#203a5b;color:#cfe0ff}
+.compactPanel .chat{background:#101c2d}
+.compactPanel .welcome>span{background:#203a5b;color:#cfe0ff}
+.compactPanel .prompts button{background:#17283e;border-color:#304761;color:#e1eaf5}
+.compactPanel .messageContent{background:#17283e;color:#edf3fb}
+.compactPanel .userMessage .messageContent{background:#294b7a;color:#fff}
+.compactPanel .messageAvatar{background:#203a5b;color:#cfe0ff}
+.compactPanel .composer{background:#0d192a;border-color:#30445e}
+.compactPanel .composer button{background:#426fce;color:#fff}
+.compactPanel .footer button{color:#9bb9ff}
+.closeButton{background:#1b304a;border-color:#48617f;color:#e5eefb}
+@media(prefers-reduced-motion:reduce){.prompts button,.composer button{transition:none}}
