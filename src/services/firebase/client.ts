@@ -1,7 +1,7 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
-import { type Functions } from 'firebase/functions';
+import { getFunctions, type Functions } from 'firebase/functions';
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
 // Jóvenes de Fuego utiliza únicamente su proyecto Firebase original.
@@ -50,9 +50,10 @@ try {
 const authInstance: Auth = getAuth(firebaseApp);
 const dbInstance: Firestore = getFirestore(firebaseApp);
 
-// No se conectan Cloud Functions desde este cliente: Fuego AI usa Firebase
-// AI Logic con Gemini Developer API. Así evitamos desplegar backend adicional.
-const functionsInstance: Functions | null = null;
+// Las operaciones privilegiadas se ejecutan mediante Cloud Functions,
+// que validan identidad, rol y permisos en el servidor. La región coincide
+// con la configuración predeterminada de Functions v2.
+const functionsInstance: Functions = getFunctions(firebaseApp, 'us-central1');
 
 export { firebaseApp };
 export const firebaseReadOnlyMode = false;
@@ -64,7 +65,7 @@ export const firebaseConfigured = Boolean(firebaseApp && authInstance && dbInsta
 export const firebaseProjectId = firebaseConfig.projectId;
 export const auth: Auth | null = authInstance;
 export const db: Firestore | null = dbInstance;
-export const functions: Functions | null = functionsInstance;
+export const functions: Functions = functionsInstance;
 
 /**
  * La aplicación puede solicitar escrituras en el proyecto Firebase original.
