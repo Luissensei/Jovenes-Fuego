@@ -7,17 +7,13 @@ import './styles/layout.css';
 import './styles/theme-system.css';
 import './styles/professional-ui.css';
 import './styles/premium-motion.css';
-
-
-
-
-
+import './styles/ember-command.css';
 
 try {
   const savedTheme = window.localStorage.getItem('jf-theme');
-  document.documentElement.dataset.theme = savedTheme === 'light' || savedTheme === 'royal' ? savedTheme : 'dark';
+  document.documentElement.dataset.theme = savedTheme === 'dark' || savedTheme === 'royal' ? 'dark' : 'light';
 } catch {
-  document.documentElement.dataset.theme = 'dark';
+  document.documentElement.dataset.theme = 'light';
 }
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
@@ -35,4 +31,3 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </BrowserRouter>
   </React.StrictMode>,
 );
-import './styles/ember-command.css';
