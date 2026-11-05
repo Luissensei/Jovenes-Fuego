@@ -71,3 +71,15 @@ body{font-family:Inter,"DM Sans",system-ui,sans-serif!important;-webkit-font-smo
 @media(max-width:900px){.sidebar{width:280px!important;min-width:280px!important;transform:translateX(-105%)!important;transition:transform .22s ease!important}.sidebar.open{transform:translateX(0)!important}.main{width:100%!important;margin-left:0!important;padding:0 16px 90px!important}.topline{margin:0 -16px 18px!important;padding:10px 16px!important}.topline-status-module{display:none!important}}
 @media(max-width:600px){.main{padding-left:12px!important;padding-right:12px!important}.topline{margin-left:-12px!important;margin-right:-12px!important}.project-label{max-width:44%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.main :is(.page-card,.panel,.card,.stat-card,.attendance-card,.management-form,.management-records){border-radius:13px!important}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* Normalización transversal de componentes CSS Modules: todas las pantallas comparten superficies y contraste. */
+.main :is([class*="card"],[class*="Card"],[class*="panel"],[class*="Panel"],[class*="stat"],[class*="Stat"],[class*="summary"],[class*="Summary"],[class*="toolbar"],[class*="Toolbar"],[class*="controls"],[class*="Controls"]){border-color:#263b5c!important;box-shadow:0 10px 28px #0002!important}
+.main :is([class*="card"],[class*="Card"],[class*="panel"],[class*="Panel"],[class*="stat"],[class*="Stat"],[class*="summary"],[class*="Summary"]){background-color:#101f39!important;color:#edf4ff!important}
+.main :is([class*="hero"],[class*="Hero"],[class*="header"],[class*="Header"]){border-color:#29466b!important}
+.main :is([class*="hero"],[class*="Hero"]){background-image:radial-gradient(ellipse at 90% 0%,#087be944,transparent 42%),linear-gradient(115deg,#0b1b35,#122c4d)!important;color:#f4f7ff!important}
+.main :is([class*="eyebrow"],[class*="kicker"],[class*="overline"],[class*="label"]){color:#69c8ff}
+.main :is([class*="empty"],[class*="Empty"],[class*="placeholder"],[class*="Placeholder"]){background:#0c1b32!important;border-color:#2a4264!important;color:#9eacc6!important}
+.main :is([class*="primary"],[class*="Primary"],[class*="submit"],[class*="Submit"]){background:linear-gradient(105deg,#087be9,#0759db)!important;border-color:#2388f3!important;color:#fff!important}
+.main :is([class*="avatar"],[class*="Avatar"]){border-color:#2877bd!important}
+.main :is([class*="error"],[class*="Error"]){background:#411d31!important;border-color:#80354e!important;color:#ffc2ce!important}
+.main :is([class*="muted"],[class*="Muted"],[class*="description"],[class*="Description"],[class*="subtitle"],[class*="Subtitle"]){color:#9eacc6}
