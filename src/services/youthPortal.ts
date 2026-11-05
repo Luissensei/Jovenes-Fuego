@@ -1,7 +1,5 @@
-import {doc, getDoc} from 'firebase/firestore';
-
 import {httpsCallable} from 'firebase/functions';
-import {assertFirebaseWritesAllowed, db, functions} from './firebase/client';
+import {assertFirebaseWritesAllowed, functions} from './firebase/client';
 
 export type WeeklyActivity = {
   id: string;
@@ -78,26 +76,7 @@ export type AdminPrayerRequest = {
   createdAt: string;
 };
 
-type LegacyPublicRanking = {
-  off?: boolean;
-  ev?: Array<Record<string, unknown>>;
-  top?: Array<Record<string, unknown>>;
-  fiel?: Array<Record<string, unknown>>;
-};
 
-async function getLegacyPublicRanking(): Promise<LegacyPublicRanking | null> {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
-  const snapshot = await getDoc(doc(db, 'public', 'ranking'));
-  if (!snapshot.exists()) return null;
-
-  const data = snapshot.data();
-  if (data.off === true) return null;
-
-  return data as LegacyPublicRanking;
-}
 
 /**
  * Reads upcoming activities already published by the original app.
@@ -125,45 +104,21 @@ export async function getHallOfFame(): Promise<{
   faithful: FaithfulPlayer[];
   attendanceLimited: boolean;
 }> {
-  const ranking = await getLegacyPublicRanking();
-
-  const topPlayers = (Array.isArray(ranking?.top) ? ranking.top : [])
-    .flatMap((item, index) => {
-      const name = typeof item.n === 'string' ? item.n.trim() : '';
-      if (!name) return [];
-
-      const points = Number(item.t ?? 0);
-      return [{
-        id: `legacy-top-${index}-${name}`,
-        name,
-        nick: '',
-        pic: '',
-        points: Number.isFinite(points) && points >= 0 ? points : 0,
-      }];
-    })
-    .sort((a, b) => b.points - a.points)
-    .slice(0, 3);
-
-  const faithful = (Array.isArray(ranking?.fiel) ? ranking.fiel : [])
-    .flatMap((item, index) => {
-      const name = typeof item.n === 'string' ? item.n.trim() : '';
-      if (!name) return [];
-
-      const streak = Number(item.s ?? 0);
-      return [{
-        id: `legacy-faithful-${index}-${name}`,
-        name,
-        nick: '',
-        pic: '',
-        attendances: Number.isFinite(streak) && streak >= 0
-          ? streak
-          : 0,
-      }];
-    })
-    .sort((a, b) => b.attendances - a.attendances)
-    .slice(0, 10);
-
-  return {topPlayers, faithful, attendanceLimited: false};
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const loadHallOfFame = httpsCallable<
+    Record<string, never>,
+    {
+      topPlayers: HallOfFamePlayer[];
+      faithful: FaithfulPlayer[];
+      attendanceLimited: boolean;
+    }
+  >(functions, 'getPublicHallOfFame');
+  const response = await loadHallOfFame({});
+  return {
+    topPlayers: Array.isArray(response.data.topPlayers) ? response.data.topPlayers : [],
+    faithful: Array.isArray(response.data.faithful) ? response.data.faithful : [],
+    attendanceLimited: response.data.attendanceLimited === true,
+  };
 }
 
 export async function getAdminWeeklyActivities(): Promise<WeeklyActivity[]> {
