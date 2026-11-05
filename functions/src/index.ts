@@ -769,7 +769,7 @@ export const adminUpdateManagedRecord = onCall(async (request) => {
   if (definition.required.some((field) => !payload[field]?.trim())) {
     throw new HttpsError("invalid-argument", "Completa todos los campos obligatorios.");
   }
-  if (!isValidDate(payload.date)) {
+  if (module !== "inbox" && !isValidDate(payload.date)) {
     throw new HttpsError("invalid-argument", "Indica una fecha válida.");
   }
   if (module === "turns" && (!isValidTime(payload.startTime) || !isValidTime(payload.endTime))) {
