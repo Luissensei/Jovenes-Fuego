@@ -1,48 +1,26 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
-export type ThemePreference = 'light' | 'dark' | 'royal';
-
-const THEME_STORAGE_KEY = 'jf-theme';
-
-function readThemePreference(): ThemePreference {
-  try {
-    const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
-    return saved === 'dark' || saved === 'royal' ? saved : 'light';
-  } catch {
-    return 'light';
-  }
-}
-
-function nextTheme(theme: ThemePreference): ThemePreference {
-  return theme === 'light' ? 'dark' : 'light';
-}
+/** La aplicación utiliza un único tema visual: Command Center oscuro. */
+export type ThemePreference = 'dark';
 
 export function useThemePreference() {
-  const [theme, setTheme] = useState<ThemePreference>(readThemePreference);
-
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    const color = theme === 'light' ? '#f4f6f9' : '#101820';
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
+    document.documentElement.dataset.theme = 'dark';
+    document.documentElement.style.colorScheme = 'dark';
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#071326');
     try {
-      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+      window.localStorage.removeItem('jf-theme');
     } catch {
-      // El tema sigue cambiando aunque el navegador bloquee localStorage.
+      // El diseño único no depende del almacenamiento local.
     }
-  }, [theme]);
-
-  const toggleTheme = useCallback(() => {
-    setTheme((current) => nextTheme(current));
   }, []);
 
-  const nextThemeLabel = theme === 'light' ? 'modo oscuro' : 'modo claro';
-
   return {
-    theme,
-    isDark: theme !== 'light',
-    isLight: theme === 'light',
+    theme: 'dark' as const,
+    isDark: true,
+    isLight: false,
     isRoyal: false,
-    nextThemeLabel,
-    toggleTheme,
+    nextThemeLabel: '',
+    toggleTheme: () => undefined,
   };
 }
