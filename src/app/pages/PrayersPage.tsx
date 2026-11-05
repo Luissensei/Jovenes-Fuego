@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {HeartHandshake, RefreshCw, ShieldCheck, Clock3, MessageCircle} from 'lucide-react';
 import {
   getPrayerRequestsForAdministration,
@@ -9,20 +9,30 @@ export default function PrayersPage() {
   const [items,setItems] = useState<AdminPrayerRequest[]>([]);
   const [loading,setLoading] = useState(true);
   const [error,setError] = useState('');
+  const mountedRef = useRef(false);
 
   async function load() {
-    setLoading(true);
-    setError('');
+    if (mountedRef.current) {
+      setLoading(true);
+      setError('');
+    }
     try {
-      setItems(await getPrayerRequestsForAdministration());
+      const requests = await getPrayerRequestsForAdministration();
+      if (mountedRef.current) setItems(requests);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'No se pudieron consultar las peticiones.');
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudieron consultar las peticiones.');
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }
 
-  useEffect(() => {void load();}, []);
+  useEffect(() => {
+    mountedRef.current = true;
+    void load();
+    return () => { mountedRef.current = false; };
+  }, []);
 
 
 
