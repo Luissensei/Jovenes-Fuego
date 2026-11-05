@@ -1,6 +1,6 @@
 import styles from './styles/RankingPage.module.css';
 
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   Trophy,
@@ -139,23 +139,24 @@ export default function RankingPage({
   const [faithfulLoading, setFaithfulLoading] = useState(true);
   const [attendanceLimited, setAttendanceLimited] = useState(false);
 
-  async function loadProfiles() {
+  const profileRequestRef = useRef(0);
+
+  const loadProfiles = useCallback(async () => {
+    const requestId = ++profileRequestRef.current;
     setLoading(true);
     setError('');
-
     try {
       const result = await getPublicProfiles();
-      setProfiles(result);
-    } catch (err) {
-      console.error('Error cargando perfiles públicos:', err);
-
-      setError(
-        'No se pudieron cargar los perfiles. Verifica Firebase Staging y sus permisos.',
-      );
+      if (requestId === profileRequestRef.current) setProfiles(result);
+    } catch (cause) {
+      if (requestId === profileRequestRef.current) {
+        console.error('Error cargando perfiles públicos:', cause);
+        setError('No se pudieron cargar los perfiles públicos del proyecto Firebase original. Comprueba la conexión e inténtalo de nuevo.');
+      }
     } finally {
-      setLoading(false);
+      if (requestId === profileRequestRef.current) setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -167,15 +168,16 @@ export default function RankingPage({
         setAttendanceLimited(result.attendanceLimited === true);
       })
       .catch((cause) => {
-        console.warn('No se pudo consultar el cuadro de honor:', cause);
+        if (active) console.warn('No se pudo consultar el cuadro de honor:', cause);
       })
       .finally(() => {
         if (active) setFaithfulLoading(false);
       });
     return () => {
       active = false;
+      profileRequestRef.current += 1;
     };
-  }, []);
+  }, [loadProfiles]);
 
   // Búsqueda independiente para la sección de perfiles.
   const filteredProfiles = useMemo(() => {
@@ -234,9 +236,9 @@ export default function RankingPage({
   }, [ranking]);
 
 
-  const totalPoints = profiles.reduce(
-    (total, profile) => total + (profile.points ?? 0),
-    0,
+  const totalPoints = useMemo(
+    () => profiles.reduce((total, profile) => total + (profile.points ?? 0), 0),
+    [profiles],
   );
 
   // El podio se presenta visualmente en orden plata, oro y bronce.
