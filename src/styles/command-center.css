@@ -1,0 +1,73 @@
+/* COMMAND CENTER — sistema visual único para todas las pantallas */
+:root{
+ color-scheme:dark;
+ --jf-bg:#071326;--jf-bg-2:#0a1930;--jf-surface:#101f39;--jf-surface-2:#142744;
+ --jf-surface-raised:#192e4d;--jf-text:#f4f7ff;--jf-muted:#9eacc6;--jf-border:#263b5c;
+ --jf-sidebar:#08152a;--jf-sidebar-text:#edf4ff;--jf-sidebar-muted:#9aaac5;
+ --jf-input:#0b1a31;--jf-accent:#168cff;--jf-accent-strong:#0869e8;--jf-accent-2:#28c7ee;
+ --jf-purple:#a34cf4;--jf-blue:#168cff;--jf-cyan:#20c8e8;--jf-green:#08c98b;--jf-danger:#ff647c;
+ --jf-shadow:0 14px 36px rgba(0,0,0,.22);--jf-radius:17px;
+}
+:root[data-theme="light"],:root[data-theme="royal"]{color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html,body,#root{min-height:100%;background:var(--jf-bg)!important;color:var(--jf-text)!important}
+body{font-family:Inter,"DM Sans",system-ui,sans-serif!important;-webkit-font-smoothing:antialiased}
+.layout,.main,.youth-portal{background:var(--jf-bg)!important;color:var(--jf-text)!important}
+.layout{min-height:100vh}
+.sidebar{width:270px!important;min-width:270px!important;padding:20px 14px 16px!important;background:linear-gradient(180deg,#0a1930 0%,#071326 100%)!important;border-right:1px solid #1e3454!important;box-shadow:12px 0 34px #0003!important}
+.sidebar .brand{padding:4px 9px 22px!important;gap:12px!important}
+.sidebar .brand strong{color:#f6f8ff!important;font-size:15px!important;font-weight:850!important}
+.sidebar .brand small{color:#8fa2c1!important;font-size:9px!important}
+.brand-mark.church-brand-mark{border:1px solid #29466e!important;border-radius:14px!important;background:#102a4c!important;box-shadow:0 5px 18px #0003!important}
+.sidebar .env-chip{margin:0 2px 14px!important;padding:9px 11px!important;border:1px solid #23436a!important;border-radius:10px!important;background:#0d2340!important;color:#9fc3e9!important;font-size:9px!important}
+.sidebar .module-search{min-height:42px!important;margin:0 2px 13px!important;border:1px solid #29415f!important;border-radius:11px!important;background:#0b1b32!important;color:#9db2d0!important}
+.sidebar .module-search input{color:#eef5ff!important}
+.jf-nav-group{margin:0 0 9px!important;border:0!important;background:transparent!important}
+.jf-nav-group summary{padding:8px 10px!important;color:#7188a9!important;font-size:9px!important;font-weight:850!important;letter-spacing:.13em!important;text-transform:uppercase}
+.jf-nav-count{color:#7891b5!important}
+.sidebar .nav-item{min-height:42px!important;margin:2px 0!important;padding:10px 12px!important;border:1px solid transparent!important;border-radius:11px!important;color:#b6c4dc!important;font-size:12px!important;font-weight:650!important}
+.sidebar .nav-item:hover{background:#122b4b!important;color:#fff!important}
+.sidebar .nav-item.active,.sidebar .nav-item[aria-current="page"]{background:linear-gradient(105deg,#087be9,#0753d8)!important;border-color:#278fff!important;color:#fff!important;box-shadow:0 7px 18px #006fff40!important}
+.sidebar .nav-item-icon{color:inherit!important}
+.sidebar .sidebar-bottom{border-top:1px solid #1d3454!important;padding-top:13px!important}
+.sidebar .safe-note{border:1px solid #1d3d5b!important;border-radius:12px!important;background:#0d2038!important;color:#b8c9e2!important}
+.sidebar .theme-toggle{display:none!important}
+.main{width:calc(100% - 270px)!important;margin-left:270px!important;padding:0 26px 36px!important;min-width:0!important}
+.topline{position:sticky!important;top:0!important;z-index:30!important;min-height:76px!important;margin:0 -26px 24px!important;padding:12px 26px!important;background:rgba(7,19,38,.96)!important;border-bottom:1px solid #1c3150!important;box-shadow:0 8px 24px #0002!important}
+.topline-status{color:#c0cce0!important}
+.topline-status-environment{color:#75dcb8!important}
+.topline-status-module{color:#dce8fa!important}
+.project-label{color:#9eacc6!important}
+.mobile-header{background:#08172d!important;border-bottom:1px solid #203653!important;color:#f5f8ff!important}
+.mobile-header .icon-button{color:#dceaff!important}
+.scrim{background:#020817bb!important}
+.jf-route-stage{width:100%;max-width:1600px;margin:0 auto}
+.main h1,.main h2,.main h3,.main h4{color:#f5f8ff}
+.main p{color:#aab8d0}
+.main button,.main input,.main select,.main textarea{font:inherit}
+.main input,.main select,.main textarea{background:#0b1a31!important;border:1px solid #2a4264!important;border-radius:10px!important;color:#edf4ff!important}
+.main input::placeholder,.main textarea::placeholder{color:#7185a5!important}
+.main button:not(.nav-item):not(.icon-button):not(.theme-toggle){transition:background .18s,border-color .18s,transform .18s}
+.main button:focus-visible,.main a:focus-visible,.sidebar button:focus-visible,.sidebar a:focus-visible{outline:2px solid #36b9ff!important;outline-offset:3px}
+.main :is(.page-card,.panel,.card,.stat-card,.members-total-card,.members-controls,.member-row,.attendance-card,.attendance-member,.followup-stat,.followup-content,.followup-card,.visitors-stat,.visitors-content,.visitor-card,.devotionals-feature,.devotionals-controls,.devotional-card,.reports-card,.reports-stats article,.checkin-config,.checkin-panel,.checkin-summary article,.management-summary,.management-form,.management-records,.management-record,.managed-stat,.managed-record,.youth-hall-card,.youth-activity-card,.youth-store-item,.youth-profile-card,.weekly-admin-item,.photos-stats article,.photo-card,.settings-card,.settings-section,.inbox-panel,.prayer-card,.event-card){background:#101f39!important;border:1px solid #263b5c!important;border-radius:16px!important;color:#edf4ff!important;box-shadow:0 10px 28px #0002!important}
+.main :is(.member-row,.attendance-card,.attendance-member,.followup-card,.visitor-card,.devotional-card,.photo-card,.management-record,.managed-record,.weekly-admin-item,.event-card,.prayer-card){transition:transform .18s,border-color .18s,box-shadow .18s}
+@media(hover:hover){.main :is(.member-row,.attendance-card,.attendance-member,.followup-card,.visitor-card,.devotional-card,.photo-card,.management-record,.managed-record,.weekly-admin-item,.event-card,.prayer-card):hover{transform:translateY(-2px);border-color:#3977b8!important;box-shadow:0 14px 32px #0003!important}}
+.main :is(.page-header,.members-heading,.attendance-header,.visitors-header,.devotionals-header,.reports-header,.section-header){color:#f5f8ff!important}
+.main :is(.members-toolbar,.attendance-toolbar,.visitors-toolbar,.ranking-toolbar,.reports-toolbar){gap:12px}
+.main :is(.member-avatar,.attendance-avatar,.visitor-avatar){background:linear-gradient(145deg,#087be9,#7347dc)!important;color:white!important}
+.main :is(.members-error,.attendance-error,.visitors-error,.form-error){background:#451d32!important;color:#ffc0cc!important;border-color:#85334d!important}
+.main :is(.empty-state,.members-empty,.attendance-empty,.visitors-empty,.empty){background:#0c1b32!important;border:1px dashed #2b4568!important;border-radius:14px!important;color:#9eacc6!important}
+.main :is(.empty-state,.members-empty,.attendance-empty,.visitors-empty,.empty) strong{color:#eaf2ff!important}
+.main :is(.primary-button,.btn-primary,.submit-button,.attendance-card button,.members-toolbar button,.visitor-actions button){background:linear-gradient(105deg,#087be9,#0759db)!important;color:#fff!important;border:1px solid #2388f3!important;border-radius:10px!important}
+.main a{color:#55b8ff}
+.main table{border-collapse:separate;border-spacing:0;width:100%;color:#e8f0ff}
+.main th{background:#142946;color:#9db4d5;text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+.main td,.main th{border-bottom:1px solid #263b5c;padding:12px}
+.main tr:hover td{background:#132744}
+.jf-page-loading{color:#dceaff!important}
+.jf-page-loading span{background:#159cff!important}
+.loading-shell{background:#071326!important;color:#f4f7ff!important}
+.access-denied-card{background:#101f39!important;border:1px solid #263b5c!important;color:#f4f7ff!important}
+@media(max-width:900px){.sidebar{width:280px!important;min-width:280px!important;transform:translateX(-105%)!important;transition:transform .22s ease!important}.sidebar.open{transform:translateX(0)!important}.main{width:100%!important;margin-left:0!important;padding:0 16px 90px!important}.topline{margin:0 -16px 18px!important;padding:10px 16px!important}.topline-status-module{display:none!important}}
+@media(max-width:600px){.main{padding-left:12px!important;padding-right:12px!important}.topline{margin-left:-12px!important;margin-right:-12px!important}.project-label{max-width:44%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.main :is(.page-card,.panel,.card,.stat-card,.attendance-card,.management-form,.management-records){border-radius:13px!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
