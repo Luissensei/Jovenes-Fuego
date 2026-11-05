@@ -36,50 +36,6 @@ const validStatuses = new Set<AttendanceStatus>([
   'Justificada',
 ]);
 
-function parseParticipants(value: unknown): AttendanceParticipant[] {
-  if (!Array.isArray(value)) return [];
-
-  return value.flatMap((item): AttendanceParticipant[] => {
-    if (!item || typeof item !== 'object') return [];
-
-    const row = item as Record<string, unknown>;
-    const memberId = typeof row.memberId === 'string'
-      ? row.memberId.trim()
-      : '';
-    const name = typeof row.name === 'string' ? row.name.trim() : '';
-    const status = row.status;
-
-    if (
-      !memberId ||
-      !name ||
-      typeof status !== 'string' ||
-      !validStatuses.has(status as AttendanceStatus)
-    ) {
-      return [];
-    }
-
-    return [{
-      memberId,
-      name,
-      status: status as AttendanceStatus,
-    }];
-  });
-}
-
-function parseCreatedAt(value: unknown): string {
-  if (typeof value === 'string') return value;
-
-  if (value instanceof Timestamp) {
-    return value.toDate().toISOString();
-  }
-
-  if (value instanceof Date) {
-    return value.toISOString();
-  }
-
-  return '';
-}
-
 async function call<T>(name: string, payload: unknown = {}): Promise<T> {
   if (!functions) {
     throw new Error('Firebase Functions no está configurado en este entorno.');
