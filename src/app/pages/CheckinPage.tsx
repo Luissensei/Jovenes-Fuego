@@ -1,6 +1,6 @@
 import styles from '../styles/CheckinPage.module.css';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   QrCode,
@@ -40,8 +40,9 @@ export default function CheckinPage() {
   const [message, setMessage] = useState('');
   const scannerCallback = useRef<(value: string) => void>(() => {});
 
-  const selectedMember = members.find(
-    (member) => member.id === selectedMemberId,
+  const selectedMember = useMemo(
+    () => members.find((member) => member.id === selectedMemberId),
+    [members, selectedMemberId],
   );
 
   useEffect(() => {
@@ -181,17 +182,18 @@ export default function CheckinPage() {
     };
   }, [scanning]);
 
-  const filteredMembers = members.filter((member) =>
-    String(member.name ?? '')
-      .toLowerCase()
-      .includes(search.toLowerCase()),
-  );
+  const normalizedSearch = search.trim().toLocaleLowerCase('es');
+  const normalizedMeetingName = meetingName.trim();
 
-  const todayCheckins = checkins.filter(
-    (item) =>
-      item.date === date &&
-      item.meetingName === meetingName.trim(),
-  );
+  const filteredMembers = useMemo(() => members.filter((member) =>
+    String(member.name ?? '')
+      .toLocaleLowerCase('es')
+      .includes(normalizedSearch),
+  ), [members, normalizedSearch]);
+
+  const todayCheckins = useMemo(() => checkins.filter(
+    (item) => item.date === date && item.meetingName === normalizedMeetingName,
+  ), [checkins, date, normalizedMeetingName]);
 
   async function registerSelectedMember() {
     if (!selectedMember) {
