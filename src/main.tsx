@@ -4,10 +4,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { App } from './app/App';
 import './styles/app.css';
 import './styles/layout.css';
-import './styles/theme-system.css';
-import './styles/professional-ui.css';
-import './styles/premium-motion.css';
-import './styles/ember-command.css';
 import './styles/command-center.css';
 
 document.documentElement.dataset.theme = 'dark';
