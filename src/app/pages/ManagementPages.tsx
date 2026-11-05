@@ -178,7 +178,8 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
           createdBy: auth.currentUser.uid,
         });
 
-        setSelectedMemberId('');\n        setMemberSearch('');
+        setSelectedMemberId('');
+        setMemberSearch('');
         setReason('');
         setPoints('10');
         setMessage('Los puntos extra fueron registrados.');
@@ -197,7 +198,8 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
           createdBy: auth.currentUser.uid,
         });
 
-        setSelectedMemberId('');\n        setMemberSearch('');
+        setSelectedMemberId('');
+        setMemberSearch('');
         setNoteTitle('');
         setNote('');
         setMessage('La nota pastoral fue guardada.');
