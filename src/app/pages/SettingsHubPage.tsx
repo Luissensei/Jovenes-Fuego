@@ -24,7 +24,7 @@ export default function SettingsHubPage(){
       </header>
       <section className={styles.themeCard}>
         <div className={styles.themeIcon}><Palette size={22}/></div>
-        <div className={styles.themeCopy}><span>IDENTIDAD VISUAL</span><b>Command Center · Tema único</b><small>Una interfaz oscura, clara y consistente en administración y portal juvenil. La personalización de perfiles no cambia el tema general de la aplicación.</small></div>
+        <div className={styles.themeCopy}><span>IDENTIDAD VISUAL</span><b>Command Center · Tema único</b><small>Una interfaz oscura, consistente y optimizada en administración y portal juvenil. La personalización de perfiles no cambia el tema general de la aplicación.</small></div>
       </section>
       <section className={styles.section}>
         <div className={styles.sectionTitle}><span>HERRAMIENTAS DE ADMINISTRACIÓN</span><h2>Áreas de configuración</h2><p>Entra directamente en la función que necesitas.</p></div>
