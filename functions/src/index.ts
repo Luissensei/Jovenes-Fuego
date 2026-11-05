@@ -361,7 +361,11 @@ export const getPrivateMembers = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  const role = await requireModulePermission(request.auth.uid, "members");
+  const requestedModule = text(request.data?.module, 30);
+  const moduleId = ["members", "attendance", "checkins"].includes(requestedModule)
+    ? requestedModule
+    : "members";
+  const role = await requireModulePermission(request.auth.uid, moduleId);
 
   try {
     const snapshot = await db.collection("members").limit(500).get();
@@ -662,6 +666,63 @@ export const getPublicHallOfFame = onCall(async () => {
   }
 });
 
+export const listCheckins = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireModulePermission(request.auth.uid, "checkins");
+  const snapshot = await db.collection("checkins").orderBy("createdAt", "desc").limit(500).get();
+  return {checkins: snapshot.docs.map((document) => {
+    const data = document.data();
+    const createdAt = data.createdAt && typeof data.createdAt.toDate === "function"
+      ? data.createdAt.toDate().toISOString()
+      : data.createdAt instanceof Date ? data.createdAt.toISOString() : "";
+    return {
+      id: document.id,
+      memberId: text(data.memberId, 150),
+      memberName: text(data.memberName, 120),
+      meetingName: text(data.meetingName, 100),
+      date: text(data.date, 10),
+      createdAt,
+    };
+  })};
+});
+
+export const createCheckin = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireModulePermission(request.auth.uid, "checkins");
+  const memberId = text(request.data?.memberId, 150);
+  const meetingName = text(request.data?.meetingName, 100);
+  const date = text(request.data?.date, 10);
+  if (!memberId || !meetingName || !isValidDate(date)) {
+    throw new HttpsError("invalid-argument", "Los datos del registro QR no son válidos.");
+  }
+  const memberSnapshot = await db.collection("members").doc(memberId).get();
+  if (!memberSnapshot.exists) throw new HttpsError("not-found", "El joven seleccionado ya no existe.");
+  const memberName = text(memberSnapshot.data()?.name, 120);
+  if (!memberName) throw new HttpsError("failed-precondition", "El perfil del joven no tiene nombre.");
+  const duplicates = await db.collection("checkins")
+    .where("memberId", "==", memberId).where("date", "==", date)
+    .where("meetingName", "==", meetingName).limit(1).get();
+  if (!duplicates.empty) {
+    throw new HttpsError("already-exists", `${memberName} ya tiene un registro para este servicio.`);
+  }
+  const id = createHash("sha256")
+    .update(`${memberId}|${date}|${meetingName.toLocaleLowerCase("es")}`)
+    .digest("hex").slice(0, 40);
+  const checkinRef = db.collection("checkins").doc(id);
+  await db.runTransaction(async (transaction) => {
+    const existing = await transaction.get(checkinRef);
+    if (existing.exists) {
+      throw new HttpsError("already-exists", `${memberName} ya tiene un registro para este servicio.`);
+    }
+    transaction.create(checkinRef, {
+      memberId, memberName, meetingName, date,
+      createdAt: FieldValue.serverTimestamp(),
+      createdBy: request.auth!.uid,
+    });
+  });
+  return {success: true, id, memberName};
+});
+
 export const getAttendanceMeetings = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
@@ -682,13 +743,13 @@ export const getAttendanceMeetings = onCall(async (request) => {
           const row = item as Record<string, unknown>;
           if (typeof row.memberId !== "string" ||
             typeof row.name !== "string" ||
-            !["Presente", "Ausente", "Justificado"].includes(String(row.status))) {
+            !["Presente", "Ausente", "Tarde", "Falta", "Justificada", "Justificado"].includes(String(row.status))) {
             return [];
           }
           return [{
             memberId: row.memberId,
             name: row.name,
-            status: row.status as "Presente" | "Ausente" | "Justificado",
+            status: (row.status === "Justificado" ? "Justificada" : row.status) as "Presente" | "Ausente" | "Tarde" | "Falta" | "Justificada",
           }];
         })
         : [];
