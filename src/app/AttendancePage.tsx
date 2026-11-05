@@ -1,7 +1,7 @@
 import styles from './styles/AttendancePage.module.css';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {FormEvent} from 'react';
-import {RefreshCw} from 'lucide-react';
+import {RefreshCw, Search, CheckCheck, XCircle} from 'lucide-react';
 
 import {
   createAttendanceMeeting,
@@ -37,6 +37,7 @@ export default function AttendancePage() {
 
   const [selectedMeetingId, setSelectedMeetingId] = useState('');
   const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>({});
+  const [memberSearch, setMemberSearch] = useState('');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -158,6 +159,21 @@ export default function AttendancePage() {
     }
   }
 
+  const visibleMembers = useMemo(() => {
+    const term = memberSearch.trim().toLocaleLowerCase('es');
+    if (!term) return members;
+    return members.filter((member) =>
+      `${member.name ?? ''} ${member.nick ?? ''}`.toLocaleLowerCase('es').includes(term),
+    );
+  }, [members, memberSearch]);
+
+  function setAllAttendance(status: AttendanceStatus) {
+    setAttendance((current) => ({
+      ...current,
+      ...Object.fromEntries(members.map((member) => [member.id, status])),
+    }));
+  }
+
   const attendanceCounts = useMemo(() => members.reduce((counts, member) => {
     const status = attendance[member.id] ?? 'Ausente';
     if (status === 'Presente') counts.present += 1;
@@ -247,33 +263,62 @@ export default function AttendancePage() {
         ) : (
           <>
             <p>Reunión: <strong>{selectedMeeting.name}</strong> · {selectedMeeting.date}</p>
-            <div className="attendance-list">
-              {members.map((member) => {
-                const currentStatus = attendance[member.id] ?? 'Ausente';
-                return (
-                  <article key={member.id} className="attendance-member">
-                    <div className="attendance-member-info">
-                      <strong>{member.name || 'Joven sin nombre'}</strong>
-                      <span>Marca el estado de asistencia</span>
-                    </div>
-                    <div className="attendance-status-options" role="group" aria-label={`Estado de asistencia de ${member.name || 'joven'}`}>
-                      {attendanceOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          className={`attendance-status-button tone-${option.tone}`}
-                          aria-pressed={currentStatus === option.value}
-                          onClick={() => handleStatusChange(member.id, option.value)}
-                          disabled={saving}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  </article>
-                );
-              })}
+            <div className="attendance-tools">
+              <label className="attendance-member-search">
+                <Search size={16} aria-hidden="true"/>
+                <input
+                  type="search"
+                  value={memberSearch}
+                  onChange={(event) => setMemberSearch(event.target.value)}
+                  placeholder="Buscar por nombre o apodo..."
+                  aria-label="Buscar joven en la asistencia"
+                />
+                {memberSearch && (
+                  <button type="button" onClick={() => setMemberSearch('')} aria-label="Limpiar búsqueda">×</button>
+                )}
+              </label>
+              <div className="attendance-bulk-actions" aria-label="Acciones rápidas de asistencia">
+                <button type="button" onClick={() => setAllAttendance('Presente')} disabled={saving || members.length === 0}>
+                  <CheckCheck size={15}/> Todos presentes
+                </button>
+                <button type="button" onClick={() => setAllAttendance('Ausente')} disabled={saving || members.length === 0}>
+                  <XCircle size={15}/> Todos ausentes
+                </button>
+              </div>
             </div>
+            {visibleMembers.length === 0 ? (
+              <p className="attendance-no-results">
+                {members.length === 0 ? 'No hay jóvenes registrados para esta cuenta.' : 'No encontramos jóvenes con ese nombre o apodo.'}
+              </p>
+            ) : (
+              <div className="attendance-list">
+                {visibleMembers.map((member) => {
+                  const currentStatus = attendance[member.id] ?? 'Ausente';
+                  return (
+                    <article key={member.id} className="attendance-member">
+                      <div className="attendance-member-info">
+                        <strong>{member.name || 'Joven sin nombre'}</strong>
+                        {member.nick && <span>@{member.nick}</span>}
+                      </div>
+                      <div className="attendance-status-options" role="group" aria-label={`Estado de asistencia de ${member.name || 'joven'}`}>
+                        {attendanceOptions.map((option) => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            className={`attendance-status-button tone-${option.tone}`}
+                            aria-pressed={currentStatus === option.value}
+                            onClick={() => handleStatusChange(member.id, option.value)}
+                            disabled={saving}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
             <button type="button" onClick={() => void handleSaveAttendance()} disabled={saving || loading || members.length === 0}>
               {saving ? 'Guardando asistencia...' : 'Guardar asistencia'}
             </button>
