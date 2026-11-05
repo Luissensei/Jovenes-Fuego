@@ -32,7 +32,9 @@ html,body,#root{min-height:100%;width:100%;max-width:100%}html{scroll-behavior:s
  .sidebar.collapsed .brand{justify-content:center;padding-inline:0!important}
  .sidebar.collapsed .brand>div,.sidebar.collapsed .env-chip,.sidebar.collapsed .module-search,
  .sidebar.collapsed .jf-nav-group>summary,.sidebar.collapsed .jf-nav-group-items .nav-item>span:last-child,
- .sidebar.collapsed .safe-note,.sidebar.collapsed .sidebar-bottom .theme-toggle:not([aria-label]){display:none!important}
+ .sidebar.collapsed .safe-note{display:none!important}
+ .sidebar.collapsed .sidebar-bottom .theme-toggle{justify-content:center!important;gap:0!important;padding:9px!important;font-size:0!important}
+ .sidebar.collapsed .sidebar-bottom .theme-toggle svg{flex:none!important}
  .sidebar.collapsed .jf-nav-group-items{padding-inline:0!important}
  .sidebar.collapsed .nav-item{justify-content:center!important;padding:6px!important}
  .sidebar.collapsed .nav-item-icon{margin:0!important}
