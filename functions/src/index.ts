@@ -1145,6 +1145,102 @@ export const adminCreatePastoralNote = onCall(async (request) => {
   return {success: true, id: ref.id};
 });
 
+
+type AdminNotification = {
+  id: string;
+  kind: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  path: string;
+  priority: "high" | "normal";
+};
+
+/** Agrega en una sola vista los pendientes que ya existen en los módulos administrativos. */
+export const adminGetNotifications = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdminOrPastor(request.auth.uid);
+
+  const [followups, visitors, prayers, inbox, photos] = await Promise.all([
+    db.collection("followups").limit(200).get(),
+    db.collection("visitors").limit(200).get(),
+    db.collection("publicPrayerRequests").limit(200).get(),
+    db.collection("inbox").limit(300).get(),
+    db.collection("photos").limit(200).get(),
+  ]);
+
+  const notifications: AdminNotification[] = [];
+  const add = (item: AdminNotification) => notifications.push(item);
+
+  followups.docs.forEach((document) => {
+    const data = document.data();
+    const status = text(data.status, 40) || "Pendiente";
+    if (!["Pendiente", "En proceso"].includes(status)) return;
+    add({
+      id: `followup:${document.id}`, kind: "Seguimiento",
+      title: text(data.name, 120) || "Joven sin nombre",
+      description: `${text(data.reason, 180) || "Seguimiento pendiente"} · ${status}`,
+      createdAt: photoDate(data.updatedAt ?? data.createdAt),
+      path: "/seguimiento", priority: status === "Pendiente" ? "high" : "normal",
+    });
+  });
+
+  visitors.docs.forEach((document) => {
+    const data = document.data();
+    const status = text(data.status, 40) || "Nuevo";
+    if (!["Nuevo", "Contactado"].includes(status)) return;
+    add({
+      id: `visitor:${document.id}`, kind: "Visitante",
+      title: text(data.name, 120) || "Visitante sin nombre",
+      description: `${text(data.phone, 60) || "Sin teléfono"} · ${status}`,
+      createdAt: photoDate(data.updatedAt ?? data.createdAt),
+      path: "/visitantes", priority: status === "Nuevo" ? "high" : "normal",
+    });
+  });
+
+  prayers.docs.forEach((document) => {
+    const data = document.data();
+    const status = text(data.status, 30) || "Pendiente";
+    if (!["Pendiente", "En oración"].includes(status)) return;
+    add({
+      id: `prayer:${document.id}`, kind: "Petición",
+      title: text(data.requester, 80) || "Anónimo",
+      description: `${text(data.category, 50) || "General"} · ${status}`,
+      createdAt: photoDate(data.createdAt),
+      path: "/peticiones", priority: status === "Pendiente" ? "high" : "normal",
+    });
+  });
+
+  inbox.docs.forEach((document) => {
+    const data = document.data();
+    if (data.k === "p") return;
+    const status = text(data.status, 40) || "Nuevo";
+    if (!["Nuevo", "En revisión"].includes(status)) return;
+    add({
+      id: `inbox:${document.id}`, kind: "Mensaje",
+      title: text(data.senderName ?? data.name ?? data.n, 120) || "Nuevo mensaje",
+      description: `${text(data.subject ?? data.title, 140) || "Mensaje recibido"} · ${status}`,
+      createdAt: photoDate(data.createdAt ?? data.c ?? data.d),
+      path: "/bandeja", priority: status === "Nuevo" ? "high" : "normal",
+    });
+  });
+
+  photos.docs.forEach((document) => {
+    const data = document.data();
+    if (text(data.status, 30).toLowerCase() !== "pendiente") return;
+    add({
+      id: `photo:${document.id}`, kind: "Fotografía",
+      title: text(data.title, 120) || "Fotografía por revisar",
+      description: `Enviada por ${text(data.authorName, 100) || "un joven"}`,
+      createdAt: photoDate(data.createdAt),
+      path: "/fotos", priority: "normal",
+    });
+  });
+
+  notifications.sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+  return {notifications: notifications.slice(0, 150)};
+});
+
 export const adminListAuditRecords = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireAdmin(request.auth.uid);
