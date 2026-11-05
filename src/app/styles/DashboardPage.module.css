@@ -18,7 +18,7 @@
 .visualHalo:after{transform:rotate(-30deg) scaleX(.68)}
 .visualCore{display:grid;place-items:center;width:95px;height:95px;border:1px solid #56c6ff70;border-radius:27px;background:linear-gradient(145deg,#087be955,#142d52);box-shadow:inset 0 1px #fff2,0 18px 40px #0005}
 .welcomeVisual>span{position:absolute;bottom:-1px;text-align:center;color:#83bce8;font-size:8px;font-weight:850;letter-spacing:.15em;line-height:1.6}
-.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:14px}
 .metricCard{--tone:#168cff;position:relative;isolation:isolate;overflow:hidden;min-width:0;padding:17px 18px 16px;border:1px solid color-mix(in srgb,var(--tone) 34%,#203a5d);border-radius:15px;background:linear-gradient(145deg,color-mix(in srgb,var(--tone) 16%,#0e1e38),#0c1b33 75%);box-shadow:0 9px 24px #0002}
 .metricCard[data-tone="green"]{--tone:#08ca91}.metricCard[data-tone="purple"]{--tone:#a64cff}.metricCard[data-tone="orange"]{--tone:#ff9d27}
 .metricTop{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#b6c7df;font-size:9px;font-weight:850;letter-spacing:.07em}
