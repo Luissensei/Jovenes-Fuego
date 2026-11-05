@@ -1216,6 +1216,7 @@ export const adminGetNotifications = onCall(async (request) => {
 
   followups.docs.forEach((document) => {
     const data = document.data();
+    if (!("name" in data) && ("m" in data || "t" in data)) return;
     const status = text(data.status, 40) || "Pendiente";
     if (!["Pendiente", "En proceso"].includes(status)) return;
     add({
@@ -1229,7 +1230,9 @@ export const adminGetNotifications = onCall(async (request) => {
 
   visitors.docs.forEach((document) => {
     const data = document.data();
-    const status = text(data.status, 40) || "Nuevo";
+    const legacyVisits = Array.isArray(data.vs) ? data.vs.length : 0;
+    const legacyStatus = text(data.st, 40) === "miembro" ? "Integrado" : legacyVisits > 1 ? "Contactado" : "Nuevo";
+    const status = text(data.status, 40) || legacyStatus;
     if (!["Nuevo", "Contactado"].includes(status)) return;
     add({
       id: `visitor:${document.id}`, kind: "Visitante",
