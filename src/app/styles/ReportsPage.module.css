@@ -206,3 +206,21 @@
 :global(:root[data-theme="light"]) .scope :global(.reports-table-wrapper),
 :global(:root[data-theme="light"]) .scope :global(.reports-filter){background:#fff;color:#382d40;border-color:#e9e0eb}
 @media(max-width:600px){.scope :global(.reports-hero){padding:20px;border-radius:18px}.scope :global(.reports-filter){align-items:stretch;padding:12px}.scope :global(.reports-export){width:100%}}
+
+/* Reports: analytics cards and readable tables. */
+.scope :global(.reports-hero){background:linear-gradient(115deg,#172943,#203b60);border:1px solid #354d6c;border-radius:17px}
+.scope :global(.reports-eyebrow){color:#a9c4f3}
+.scope :global(.reports-filter){background:#121f32;border:1px solid #2a3d56;border-radius:13px}
+.scope :global(.reports-filter) label{color:#bdcadd}
+.scope :global(.reports-filter) input{background:#0d192a;border:1px solid #30445e;color:#edf3fb}
+.scope :global(.reports-export){background:#426fce;border:1px solid #5d88e0;color:#fff;border-radius:9px}
+.scope :global(.reports-stats) article,.scope :global(.reports-card){background:#121f32;border:1px solid #2a3d56;border-radius:14px;box-shadow:0 7px 22px #0002}
+.scope :global(.reports-stats) span,.scope :global(.reports-section-heading) span,.scope :global(.reports-rate) span{color:#9aabc0}
+.scope :global(.reports-stats) strong,.scope :global(.reports-section-heading) h2,.scope :global(.reports-rate) strong{color:#edf3fb}
+.scope :global(.reports-icon){background:#203a5b!important;color:#b9d0fa!important}
+.scope :global(.reports-progress){background:#263951}
+.scope :global(.reports-progress)>div{background:#668cff}
+.scope :global(.reports-table-wrapper){border:1px solid #2a3d56;border-radius:12px}
+.scope :global(.reports-table) th{background:#17283e;color:#b8c9df}
+.scope :global(.reports-table) td{color:#e1eaf5;border-color:#293d55}
+@media(max-width:650px){.scope :global(.reports-hero){padding:19px;border-radius:15px}.scope :global(.reports-stats){grid-template-columns:repeat(2,minmax(0,1fr))}}
