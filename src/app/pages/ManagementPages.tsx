@@ -11,6 +11,7 @@ import {
 } from 'firebase/firestore';
 
 import { auth, db, assertFirebaseWritesAllowed } from '../../services/firebase/client';
+import { getMembersForAdministration, type MemberAdminRecord } from '../../services/youthPortal';
 
 import {
   ShieldCheck,
@@ -96,7 +97,12 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
-  const [memberName, setMemberName] = useState('');
+  const [members, setMembers] = useState<MemberAdminRecord[]>([]);
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [memberSearch, setMemberSearch] = useState('');
+  const [selectedMemberId, setSelectedMemberId] = useState('');
+  const selectedMember = members.find((member) => member.id === selectedMemberId);
+  const memberName = selectedMember ? String(selectedMember.name ?? selectedMember.nick ?? '') : '';
   const [reason, setReason] = useState('');
   const [points, setPoints] = useState('10');
 
@@ -133,7 +139,7 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
         console.error(`Error leyendo ${config.collection}:`, err);
         setError(
           err.code === 'permission-denied'
-            ? 'No tienes permisos para consultar esta información. Revisa las reglas de Firebase Staging.'
+            ? 'No tienes permisos para consultar esta información. Revisa las reglas del proyecto Firebase original.'
             : 'No se pudo cargar la información. Comprueba tu conexión.',
         );
         setLoading(false);
@@ -160,7 +166,7 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
       if (kind === 'bonus') {
         const amount = Number(points);
 
-        if (!memberName.trim() || !reason.trim() || !Number.isFinite(amount) || amount <= 0) {
+        if (!selectedMember || !memberName.trim() || !reason.trim() || !Number.isFinite(amount) || amount <= 0) {
           throw new Error('Completa el nombre, el motivo y una cantidad válida de puntos.');
         }
 
@@ -172,14 +178,14 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
           createdBy: auth.currentUser.uid,
         });
 
-        setMemberName('');
+        setSelectedMemberId('');\n        setMemberSearch('');
         setReason('');
         setPoints('10');
         setMessage('Los puntos extra fueron registrados.');
       }
 
       if (kind === 'pastoral') {
-        if (!memberName.trim() || !noteTitle.trim() || !note.trim()) {
+        if (!selectedMember || !memberName.trim() || !noteTitle.trim() || !note.trim()) {
           throw new Error('Completa el nombre, el título y la nota.');
         }
 
@@ -191,7 +197,7 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
           createdBy: auth.currentUser.uid,
         });
 
-        setMemberName('');
+        setSelectedMemberId('');\n        setMemberSearch('');
         setNoteTitle('');
         setNote('');
         setMessage('La nota pastoral fue guardada.');
@@ -284,15 +290,17 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
 
           {kind === 'bonus' && (
             <>
-              <label>
-                Nombre del joven
-                <input
-                  value={memberName}
-                  onChange={(e) => setMemberName(e.target.value)}
-                  placeholder="Nombre del participante"
-                  required
-                />
-              </label>
+              <div className="management-member-picker">
+                <label htmlFor="bonus-member-search">Buscar joven</label>
+                <input id="bonus-member-search" type="search" value={memberSearch} onChange={(event) => setMemberSearch(event.target.value)} placeholder="Escribe nombre, apodo o teléfono..." autoComplete="off" />
+                <label htmlFor="bonus-member-select">Seleccionar joven</label>
+                <select id="bonus-member-select" value={selectedMemberId} onChange={(event) => setSelectedMemberId(event.target.value)} required disabled={membersLoading || members.length === 0}>
+                  <option value="">{membersLoading ? 'Cargando jóvenes...' : members.length === 0 ? 'No hay jóvenes disponibles' : 'Selecciona un joven'}</option>
+                  {filteredMembers.map((member) => <option key={member.id} value={member.id}>{String(member.name ?? 'Sin nombre')}{member.nick ? ` · @${member.nick}` : ''}</option>)}
+                </select>
+                {selectedMember && <small>Seleccionado: {memberName} · ID vinculado correctamente</small>}
+                {!membersLoading && members.length > 0 && filteredMembers.length === 0 && <small>No hay coincidencias. Prueba otro nombre o apodo.</small>}
+              </div>
 
               <label>
                 Motivo de los puntos
@@ -320,15 +328,17 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
 
           {kind === 'pastoral' && (
             <>
-              <label>
-                Nombre de la persona
-                <input
-                  value={memberName}
-                  onChange={(e) => setMemberName(e.target.value)}
-                  placeholder="Nombre del joven"
-                  required
-                />
-              </label>
+              <div className="management-member-picker">
+                <label htmlFor="pastoral-member-search">Buscar joven</label>
+                <input id="pastoral-member-search" type="search" value={memberSearch} onChange={(event) => setMemberSearch(event.target.value)} placeholder="Escribe nombre, apodo o teléfono..." autoComplete="off" />
+                <label htmlFor="pastoral-member-select">Seleccionar joven</label>
+                <select id="pastoral-member-select" value={selectedMemberId} onChange={(event) => setSelectedMemberId(event.target.value)} required disabled={membersLoading || members.length === 0}>
+                  <option value="">{membersLoading ? 'Cargando jóvenes...' : members.length === 0 ? 'No hay jóvenes disponibles' : 'Selecciona un joven'}</option>
+                  {filteredMembers.map((member) => <option key={member.id} value={member.id}>{String(member.name ?? 'Sin nombre')}{member.nick ? ` · @${member.nick}` : ''}</option>)}
+                </select>
+                {selectedMember && <small>Seleccionado: {memberName} · ID vinculado correctamente</small>}
+                {!membersLoading && members.length > 0 && filteredMembers.length === 0 && <small>No hay coincidencias. Prueba otro nombre o apodo.</small>}
+              </div>
 
               <label>
                 Título de la nota
@@ -491,7 +501,7 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
 
       <footer className="management-footer">
         <ShieldCheck size={15} />
-        Información protegida · Firebase Staging.
+        Información protegida · Firebase original.
       </footer>
     </section>
   );
