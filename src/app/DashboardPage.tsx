@@ -148,7 +148,7 @@ export default function DashboardPage() {
 
         <article className={styles.assistantCard}><div className={styles.assistantIcon}><Sparkles size={22} /></div><div><span className={styles.kicker}>ASISTENTE</span><h2>Fuego AI</h2><p>Apoyo para preparar actividades, comunicaciones e informes.</p></div>{isAdmin ? <NavLink to="/asistente">Abrir asistente <ArrowUpRight size={14} /></NavLink> : <small>Acceso administrativo</small>}</article>
 
-        <article className={styles.systemCard}><span className={styles.kicker}>ESTADO DEL SISTEMA</span><div><ShieldCheck size={18} /><b>{firebaseReadOnlyMode ? 'Base original protegida' : 'Conexión de trabajo'}</b></div><p>{configured ? (firebaseReadOnlyMode ? 'Las operaciones de escritura están bloqueadas.' : `Proyecto conectado: ${firebaseProjectId}`) : 'Vista previa sin conexión a Firebase.'}</p><small><UserRound size={13} /> Sesión: {String(profile?.name ?? user?.email ?? 'sin identificar')}</small></article>
+        <article className={styles.systemCard}><span className={styles.kicker}>ESTADO DEL SISTEMA</span><div><ShieldCheck size={18} /><b>{firebaseReadOnlyMode ? 'Base original protegida' : 'Firebase original conectado'}</b></div><p>{configured ? (firebaseReadOnlyMode ? 'Las operaciones de escritura están bloqueadas.' : `Proyecto conectado: ${firebaseProjectId}`) : 'Vista previa sin conexión a Firebase.'}</p><small><UserRound size={13} /> Sesión: {String(profile?.name ?? user?.email ?? 'sin identificar')}</small></article>
       </section>
     </main>
   );
