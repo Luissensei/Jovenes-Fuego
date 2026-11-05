@@ -807,7 +807,7 @@ export const adminListManagedRecords = onCall(async (request) => {
     ]),
   );
 
-  const records = snapshot.docs.flatMap((document) => {
+  const records: Array<{id: string; createdAt: string; updatedAt: string; editable: boolean; [key: string]: unknown}> = snapshot.docs.flatMap((document) => {
     const data = document.data();
     if (module === "inbox" && data.k === "p") return [];
 
@@ -822,6 +822,7 @@ export const adminListManagedRecords = onCall(async (request) => {
         message,
         status: "Nuevo",
         createdAt: photoDate(data.createdAt ?? data.c) || photoDate(data.d),
+        updatedAt: "",
         editable: false,
       }];
     }
