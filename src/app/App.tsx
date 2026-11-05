@@ -47,6 +47,7 @@ const LeadersAdminPage = lazy(() => import('./pages/LeadersAdminPage'));
 const PrayersPage = lazy(() => import('./pages/PrayersPage'));
 const EventsPage = lazy(() => import('./pages/EventsPage'));
 const InboxPage = lazy(() => import('./pages/InboxPage'));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const TurnsPage = lazy(() => import('./pages/TurnsPage'));
 
 const CheckinPage = lazy(() => import('./pages/CheckinPage'));
@@ -175,6 +176,7 @@ function AdminApp() {
     // La conexión al Firebase original no debe ocultar módulos completos.
     // La visibilidad sigue dependiendo del perfil y del rol autenticado.
     if (item.id === 'assistant') return isAdmin;
+    if (item.id === 'notifications') return isAdmin || isPastor;
 
     if (isLeader) {
       // Las peticiones contienen información privada; su bandeja queda reservada
@@ -280,6 +282,9 @@ function AdminApp() {
 
       case 'inbox':
         return <InboxPage />;
+
+      case 'notifications':
+        return <NotificationsPage />;
 
       case 'turns':
         return <TurnsPage />;
@@ -388,7 +393,7 @@ function AdminApp() {
             {label:'Personas', ids:['members','leaders','visitors','followups']},
             {label:'Actividades', ids:['attendance','devotionals','events','prayers','checkins','turns']},
             {label:'Comunidad', ids:['ranking','games','profile','photos']},
-            {label:'Gestión', ids:['bonus','pastoral','inbox','reports','audit','settings']},
+            {label:'Gestión', ids:['notifications','bonus','pastoral','inbox','reports','audit','settings']},
           ].map((group) => {
             const items = filteredModules.filter((item) => group.ids.includes(item.id));
             if (!items.length) return null;
