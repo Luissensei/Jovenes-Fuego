@@ -296,3 +296,55 @@ body .youth-portal :is(.youth-ranking-tabs,.youth-tabs) button.active{
 .youth-portal :is(.youth-profile-card,.youth-activity-card,.youth-hall-card,.youth-store-item){
  content-visibility:auto;contain-intrinsic-size:auto 190px;
 }
+
+
+/* Shared action colors for leaders, settings, agenda and prayer screens. */
+body .layout .main :is(
+ [class*="leaders"] [class*="hero"]>button,
+ [class*="inviteLink"]>button,
+ [class*="themeCard"] button,
+ [class*="weekly-add-button"],[class*="weekly-save"],
+ [class*="weekly-admin-empty"] button,
+ [class*="modal"] footer button:last-child
+){
+ border:1px solid #318be0!important;border-radius:10px!important;
+ background:linear-gradient(110deg,#1686ec,#075ec2)!important;color:#fff!important;
+ box-shadow:0 8px 20px #006bd326!important;
+}
+body .layout .main :is(
+ [class*="heroIcon"],[class*="themeIcon"],[class*="areaIcon"],
+ .prayers-admin-icon,.weekly-admin-item-icon
+){
+ border-color:#315779!important;background:linear-gradient(145deg,#176eb7,#1b3c65)!important;color:#7dd8f2!important;
+}
+body .layout .main :is([class*="areaGo"],[class*="sectionTitle"]>span,[class*="hero"] .eyebrow){
+ color:#63c8ef!important;
+}
+body .layout .main :is(.weekly-publish-status.published,.prayer-status-chip){
+ border:1px solid #286c61!important;background:#103c39!important;color:#80e5c0!important;
+}
+body .layout .main .weekly-publish-status.draft{
+ border:1px solid #66512b!important;background:#362b1c!important;color:#f4ca7d!important;
+}
+body .layout .main :is(.weekly-form-modal,.access-denied-card){
+ background:#101f38!important;border:1px solid #315174!important;border-radius:18px!important;
+ color:#edf4fc!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ box-shadow:0 28px 80px #0008!important;
+}
+body .layout .main .weekly-form-modal>header{
+ position:sticky;background:#0d1c32!important;border-bottom:1px solid #294563!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+body .layout .main .weekly-form-modal>header h3{color:#fff!important}
+body .layout .main .weekly-form-modal>header span{color:#63c8ef!important}
+body .layout .main .weekly-form-modal form>label{color:#c3d2e4!important}
+body .layout .main .weekly-publish-check{
+ border-color:#286c61!important;background:#10342f!important;
+}
+body .layout .main .weekly-publish-check b{color:#8ae3c4!important}
+body .layout .main .weekly-publish-check small{color:#a2c8be!important}
+body .layout .main .prayers-admin-icon{background:#183955!important;border-color:#315779!important;color:#73d2ed!important}
+body .layout .main .prayer-admin-card header span{color:#63c8ef!important}
+@media(max-width:680px){
+ body .layout .main :is([class*="leaders"] [class*="hero"]>button,[class*="inviteLink"]>button,[class*="themeCard"] button){width:100%;justify-content:center}
+}
