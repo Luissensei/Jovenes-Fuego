@@ -19,12 +19,15 @@ import {
 import {getMembersForAdministration} from '../../services/youthPortal';
 import type {MemberAdminRecord} from '../../services/youthPortal';
 
+function currentLocalMonth() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
 export default function ReportsPage() {
   const [members, setMembers] = useState<MemberAdminRecord[]>([]);
   const [meetings, setMeetings] = useState<AttendanceMeeting[]>([]);
-  const [month, setMonth] = useState(
-    new Date().toISOString().slice(0, 7),
-  );
+  const [month, setMonth] = useState(currentLocalMonth);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -142,9 +145,11 @@ export default function ReportsPage() {
 
     link.href = url;
     link.download = `informe-asistencia-${month}.csv`;
+    link.hidden = true;
+    document.body.appendChild(link);
     link.click();
-
-    URL.revokeObjectURL(url);
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   if (loading) {
