@@ -18,7 +18,9 @@ export type ManagedCollection =
   | 'prayers'
   | 'events'
   | 'inbox'
-  | 'turns';
+  | 'turns'
+  | 'followups'
+  | 'visitors';
 
 export type ManagedRecord = {
   id: string;
