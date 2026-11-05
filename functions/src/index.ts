@@ -1837,6 +1837,17 @@ export const createCheckin = onCall(async (request) => {
   if (!memberSnapshot.exists) throw new HttpsError("not-found", "El joven seleccionado ya no existe.");
   const memberName = text(memberSnapshot.data()?.name, 120);
   if (!memberName) throw new HttpsError("failed-precondition", "El perfil del joven no tiene nombre.");
+  // Consultar solo el historial de este joven evita recorrer toda la colección.
+  const memberCheckins = await db.collection("checkins")
+    .where("memberId", "==", memberId).limit(500).get();
+  const duplicateExists = memberCheckins.docs.some((document) => {
+    const record = document.data();
+    return record.date === date &&
+      String(record.meetingName ?? "").trim().toLocaleLowerCase("es") === meetingName.toLocaleLowerCase("es");
+  });
+  if (duplicateExists) {
+    throw new HttpsError("already-exists", `${memberName} ya tiene un registro para este servicio.`);
+  }
   const id = createHash("sha256")
     .update(`${memberId}|${date}|${meetingName.toLocaleLowerCase("es")}`)
     .digest("hex").slice(0, 40);
