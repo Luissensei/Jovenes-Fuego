@@ -667,8 +667,17 @@ export const submitPublicPrayerRequest = onCall(async (request) => {
   const message = text(request.data?.message, 1200);
   const requester = text(request.data?.requester, 80) || "Anónimo";
   const category = text(request.data?.category, 50) || "General";
+  const memberId = text(request.data?.memberId, 150);
+
   if (message.length < 8) {
     throw new HttpsError("invalid-argument", "Escribe una petición de al menos 8 caracteres.");
+  }
+  if (!memberId || memberId.length >= 40 || memberId.startsWith("public-profile-")) {
+    throw new HttpsError("invalid-argument", "Selecciona un perfil válido para enviar la petición.");
+  }
+  const memberSnapshot = await db.collection("members").doc(memberId).get();
+  if (!memberSnapshot.exists || memberSnapshot.data()?.nopub === true) {
+    throw new HttpsError("failed-precondition", "El perfil seleccionado ya no está disponible.");
   }
 
   const ip = String(request.rawRequest.ip ?? "unknown").slice(0, 100);
@@ -691,6 +700,7 @@ export const submitPublicPrayerRequest = onCall(async (request) => {
 
   const ref = db.collection("publicPrayerRequests").doc();
   await ref.set({
+    memberId,
     requester,
     category,
     message,
@@ -707,18 +717,43 @@ export const adminGetPrayerRequests = onCall(async (request) => {
   }
   await requireAdminOrPastor(request.auth.uid);
 
-  const snapshot = await db.collection("publicPrayerRequests").limit(200).get();
-  const petitions = snapshot.docs.map((document) => {
+  const [modernSnapshot, legacySnapshot] = await Promise.all([
+    db.collection("publicPrayerRequests").limit(300).get(),
+    db.collection("inbox").limit(500).get(),
+  ]);
+
+  const modern = modernSnapshot.docs.map((document) => {
     const data = document.data();
     return {
-      id: document.id,
-      requester: text(data.requester, 80),
-      category: text(data.category, 50),
+      id: `request:${document.id}`,
+      requester: text(data.requester, 80) || "Anónimo",
+      category: text(data.category, 50) || "General",
       message: text(data.message, 1200),
-      status: text(data.status, 30),
+      status: text(data.status, 30) || "Pendiente",
       createdAt: text(data.createdAt, 40),
     };
-  }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  });
+
+  const legacy = legacySnapshot.docs.flatMap((document) => {
+    const data = document.data();
+    if (data.k !== "p") return [];
+    const raw = text(data.t, 700);
+    const categoryMatch = raw.match(/^\[([^\]]{1,50})\]\s*/);
+    const createdAt = typeof data.c === "number" && Number.isFinite(data.c)
+      ? new Date(data.c).toISOString()
+      : text(data.d, 40);
+    return [{
+      id: `legacy:${document.id}`,
+      requester: text(data.n, 80) || "Anónimo",
+      category: categoryMatch?.[1] ?? "General",
+      message: categoryMatch ? raw.slice(categoryMatch[0].length) : raw,
+      status: text(data.status, 30) || "Pendiente",
+      createdAt,
+    }];
+  });
+
+  const petitions = [...modern, ...legacy]
+    .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
   return {petitions};
 });
 
@@ -727,16 +762,31 @@ export const adminUpdatePrayerStatus = onCall(async (request) => {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
   await requireAdminOrPastor(request.auth.uid);
-  const id = text(request.data?.id, 150);
+  const id = text(request.data?.id, 180);
   const status = text(request.data?.status, 30);
   if (!id || !["Pendiente", "En oración", "Atendida"].includes(status)) {
     throw new HttpsError("invalid-argument", "El estado de la petición no es válido.");
   }
-  await db.collection("publicPrayerRequests").doc(id).update({
+
+  const update = {
     status,
-    updatedAt: new Date().toISOString(),
-    updatedBy: request.auth.uid,
-  });
+    statusUpdatedAt: new Date().toISOString(),
+    statusUpdatedBy: request.auth.uid,
+  };
+  if (id.startsWith("request:")) {
+    const documentId = id.slice("request:".length);
+    await db.collection("publicPrayerRequests").doc(documentId).update(update);
+  } else if (id.startsWith("legacy:")) {
+    const documentId = id.slice("legacy:".length);
+    const ref = db.collection("inbox").doc(documentId);
+    const snapshot = await ref.get();
+    if (!snapshot.exists || snapshot.data()?.k !== "p") {
+      throw new HttpsError("not-found", "No se encontró la petición histórica.");
+    }
+    await ref.update(update);
+  } else {
+    throw new HttpsError("invalid-argument", "El identificador de la petición no es válido.");
+  }
   return {success: true};
 });
 
