@@ -568,7 +568,7 @@ const youthLookItemCosts: Record<string, number> = {
   "frames:prisma":110,"frames:obsidiana":125,"frames:solar":95,"frames:cristal":145,
   "frames:emperador":185,"frames:filigrana":155,"frames:bronce":100,"frames:runa":175,
   "frames:amatista":0,
-  "avs:paloma":0,"avs:leon":0,"avs:aguila":0,"avs:cordero":20,"avs:mariposa":25,"avs:lobo":30,
+  "avs:":0,"avs:paloma":0,"avs:leon":0,"avs:aguila":0,"avs:cordero":20,"avs:mariposa":25,"avs:lobo":30,
   "avs:estrella":40,"avs:guerrero":50,"avs:dragon":60,"avs:cohete":70,"avs:rey":80,"avs:volcan":90,
   "avs:fenix":95,"avs:delfin":45,"avs:zorro":55,"avs:pantera":75,"avs:tigre":75,"avs:fenix-real":135,
   "tits:chispa":0,"tits:valiente":25,"tits:guerrero":40,"tits:intercesor":50,"tits:adorador":60,
@@ -660,7 +660,6 @@ export const savePublicProfileAppearance = onCall(async (request) => {
       .filter(Boolean))].slice(0, 400)
     : [];
 
-  validateOwnedLookItems(ownedItems);
   const appearance = {
     f: allowedString(source.frame, 50, "fuego"),
     a: allowedString(source.avatar, 80, ""),
@@ -712,6 +711,7 @@ export const savePublicProfileAppearance = onCall(async (request) => {
       ? currentData.u.filter((value): value is string => typeof value === "string")
       : [];
     const additions = ownedItems.filter((item) => !previousOwned.includes(item));
+    validateOwnedLookItems(additions);
     const purchaseCost = additions.reduce((total, item) =>
       total + (youthLookItemCosts[item] ?? 0), 0,
     );
