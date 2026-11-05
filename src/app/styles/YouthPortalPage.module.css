@@ -2031,7 +2031,7 @@
 }
 .scope :global(.youth-profile-card):hover,
 .scope :global(.youth-profile-card):focus-visible {
-  transform: translateY(-5px) scale(1.025) !important;
+  transform: translateY(-4px) !important;
   border-color: rgba(245,158,11,.58) !important;
   box-shadow: 0 20px 44px rgba(0,0,0,.28), 0 0 0 1px rgba(245,158,11,.10) !important;
   filter: none !important;
@@ -2041,7 +2041,7 @@
 /* ── JF PORTAL 2026 · experiencia juvenil unificada ── */
 .scope:global(.youth-portal){
   --portal-ink:#f7f9ff;--portal-muted:#a6b5ce;--portal-line:#263d61;
-  position:relative;isolation:isolate;min-height:100svh;overflow-x:clip;
+  position:relative;isolation:isolate;min-height:100svh;overflow-x:clip;overflow-y:visible;
   padding:clamp(18px,3vw,42px) clamp(12px,3vw,38px) 42px!important;
   color:var(--portal-ink)!important;
   background:
