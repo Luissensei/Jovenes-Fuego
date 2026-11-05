@@ -1216,6 +1216,165 @@ export const adminDeleteDevotional = onCall(async (request) => {
   return {success: true};
 });
 
+export const adminListBonusRecords = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdmin(request.auth.uid);
+  const snapshot = await db.collection("bonus").limit(500).get();
+  const records = snapshot.docs.map((document) => {
+    const data = document.data();
+    return {
+      id: document.id,
+      memberId: text(data.memberId, 150),
+      memberName: text(data.memberName, 120),
+      reason: text(data.reason, 1000),
+      points: Math.max(0, Math.min(10000, Number(data.points) || 0)),
+      createdAt: photoDate(data.createdAt),
+    };
+  }).sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+  return {records};
+});
+
+export const adminCreateBonusRecord = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdmin(request.auth.uid);
+  const memberId = text(request.data?.memberId, 150);
+  const reason = text(request.data?.reason, 1000);
+  const points = Number(request.data?.points);
+  if (!memberId || !reason || !Number.isInteger(points) || points < 1 || points > 10000) {
+    throw new HttpsError("invalid-argument", "Selecciona un joven, indica el motivo y un valor entero entre 1 y 10000 puntos.");
+  }
+  const member = await db.collection("members").doc(memberId).get();
+  if (!member.exists) throw new HttpsError("not-found", "El joven seleccionado ya no existe.");
+  const memberName = text(member.data()?.name, 120);
+  if (!memberName) throw new HttpsError("failed-precondition", "El perfil no contiene un nombre válido.");
+
+  const ref = await db.collection("bonus").add({
+    memberId,
+    memberName,
+    reason,
+    points,
+    createdAt: new Date().toISOString(),
+    createdBy: request.auth.uid,
+  });
+  await db.collection("audit").add({
+    action: "bonus.created",
+    actorUid: request.auth.uid,
+    targetUid: memberId,
+    createdAt: new Date().toISOString(),
+    metadata: {points, bonusId: ref.id},
+  });
+  return {success: true, id: ref.id};
+});
+
+export const adminListPastoralNotes = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdminOrPastor(request.auth.uid);
+  const snapshot = await db.collection("pastoral").limit(300).get();
+  const records = snapshot.docs.map((document) => {
+    const data = document.data();
+    return {
+      id: document.id,
+      memberId: text(data.memberId, 150),
+      memberName: text(data.memberName, 120),
+      title: text(data.title, 160),
+      note: text(data.note, 5000),
+      createdAt: photoDate(data.createdAt),
+      createdBy: text(data.createdBy, 150),
+    };
+  }).sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+  return {records};
+});
+
+export const adminCreatePastoralNote = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdminOrPastor(request.auth.uid);
+  const memberId = text(request.data?.memberId, 150);
+  const title = text(request.data?.title, 160);
+  const note = text(request.data?.note, 5000);
+  if (!memberId || title.length < 2 || note.length < 3) {
+    throw new HttpsError("invalid-argument", "Selecciona un joven y completa el título y la nota.");
+  }
+  const member = await db.collection("members").doc(memberId).get();
+  if (!member.exists) throw new HttpsError("not-found", "El joven seleccionado ya no existe.");
+  const memberName = text(member.data()?.name, 120);
+  if (!memberName) throw new HttpsError("failed-precondition", "El perfil no contiene un nombre válido.");
+
+  const ref = await db.collection("pastoral").add({
+    memberId,
+    memberName,
+    title,
+    note,
+    createdAt: new Date().toISOString(),
+    createdBy: request.auth.uid,
+  });
+  await db.collection("audit").add({
+    action: "pastoral-note.created",
+    actorUid: request.auth.uid,
+    targetUid: memberId,
+    createdAt: new Date().toISOString(),
+    metadata: {noteId: ref.id},
+  });
+  return {success: true, id: ref.id};
+});
+
+export const adminListAuditRecords = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdmin(request.auth.uid);
+  const snapshot = await db.collection("audit").limit(500).get();
+  const records = snapshot.docs.map((document) => {
+    const data = document.data();
+    return {
+      id: document.id,
+      action: text(data.action, 120),
+      actorUid: text(data.actorUid ?? data.userId, 150),
+      userName: text(data.userName, 120),
+      targetUid: text(data.targetUid, 150),
+      description: text(data.description ?? data.action, 500),
+      createdAt: photoDate(data.createdAt),
+      metadata: data.metadata && typeof data.metadata === "object" ? data.metadata : {},
+    };
+  }).sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+  return {records};
+});
+
+export const adminListSettings = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdmin(request.auth.uid);
+  const snapshot = await db.collection("settings").limit(200).get();
+  const records = snapshot.docs.map((document) => {
+    const data = document.data();
+    return {
+      id: document.id,
+      key: text(data.key, 120) || document.id,
+      value: text(data.value, 3000),
+      updatedAt: photoDate(data.updatedAt),
+      updatedBy: text(data.updatedBy, 150),
+    };
+  }).sort((left, right) => left.key.localeCompare(right.key, "es"));
+  return {records};
+});
+
+export const adminSaveSetting = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdmin(request.auth.uid);
+  const key = text(request.data?.key, 120).toLowerCase().replace(/[^a-z0-9_-]/g, "-");
+  const value = text(request.data?.value, 3000);
+  if (!key || !value) throw new HttpsError("invalid-argument", "Indica una clave y un valor válidos.");
+  await db.collection("settings").doc(key).set({
+    key,
+    value,
+    updatedAt: new Date().toISOString(),
+    updatedBy: request.auth.uid,
+  }, {merge: true});
+  await db.collection("audit").add({
+    action: "setting.updated",
+    actorUid: request.auth.uid,
+    createdAt: new Date().toISOString(),
+    metadata: {key},
+  });
+  return {success: true, key};
+});
+
 export const adminListPhotos = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireAdminOrPastor(request.auth.uid);
