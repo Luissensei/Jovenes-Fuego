@@ -184,7 +184,7 @@ const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: str
     {key:'warrior',label:'Guerrero de fe',emoji:'🛡️',cost:90},
     {key:'formal',label:'Formal',emoji:'🤵',cost:70},
     {key:'guardian',label:'Armadura noble',emoji:'🛡️',cost:115},
-    {key:'royal',label:'Manto imperial',emoji:'👑',cost:145},
+    {key:'imperial',label:'Manto imperial',emoji:'👑',cost:145},
     {key:'champion',label:'Campeón',emoji:'🏅',cost:120},
     {key:'satin',label:'Satén dorado',emoji:'✨',cost:130},
   ],
