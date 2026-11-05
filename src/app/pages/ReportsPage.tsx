@@ -130,7 +130,10 @@ export default function ReportsPage() {
     const csv = rows
       .map((row) =>
         row
-          .map((value) => `"${value.replace(/"/g, '""')}"`)
+          .map((value) => {
+            const safeValue = /^[\\t\\r ]*[=+\\-@]/.test(value) ? `'${value}` : value;
+            return `"${safeValue.replace(/"/g, '""')}"`;
+          })
           .join(','),
       )
       .join('\n');
@@ -155,7 +158,11 @@ export default function ReportsPage() {
   if (loading) {
     return (
       <main className={`${styles.scope} reports-page`}>
-        <p>Cargando informes...</p>
+        <div className="jf-page-loading" role="status" aria-live="polite">
+          <span />
+          <strong>Preparando informes</strong>
+          <small>Consultando asistencia y registros del periodo…</small>
+        </div>
       </main>
     );
   }
