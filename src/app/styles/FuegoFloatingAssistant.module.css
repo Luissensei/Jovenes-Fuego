@@ -13,3 +13,38 @@
 @keyframes fuegoWindowIn{from{opacity:0;transform:translateY(22px) scale(.94) rotate(1deg);filter:blur(5px)}to{opacity:1;transform:translateY(0) scale(1) rotate(0);filter:blur(0)}}
 @media(max-width:600px){.dock{right:16px;bottom:calc(16px + env(safe-area-inset-bottom))}.launcher{width:64px;height:64px}.launcherIcon{width:43px;height:43px}.window{position:fixed;right:12px;bottom:calc(90px + env(safe-area-inset-bottom));width:calc(100vw - 24px);height:min(680px,calc(100dvh - 112px));min-height:300px;border-radius:22px}}
 @media(prefers-reduced-motion:reduce){.launcherAura,.window{animation:none!important}.launcher{transition:none}}
+
+
+/* Floating assistant — solid surfaces, no glass blur, consistent command-center palette. */
+.dock{right:24px;bottom:24px;gap:12px}
+.launcher{
+ border:1px solid #91adf7;
+ background:linear-gradient(145deg,#668cff 0%,#4771e8 72%,#35bd91 100%);
+ box-shadow:0 14px 34px rgba(30,58,120,.34),inset 0 1px 0 rgba(255,255,255,.35);
+}
+.launcher:hover{
+ transform:translateY(-3px);
+ box-shadow:0 18px 38px rgba(30,58,120,.38);
+ filter:none;
+}
+.launcherAura{
+ border-color:#789cff;
+ box-shadow:0 0 0 5px rgba(102,140,255,.12),0 0 22px rgba(102,140,255,.2);
+}
+.launcherIcon{background:rgba(255,255,255,.16);filter:none}
+.window{
+ border:1px solid #344c70;
+ border-radius:18px;
+ background:#121f32;
+ box-shadow:0 24px 72px rgba(2,8,18,.5);
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+@keyframes fuegoWindowIn{
+ from{opacity:0;transform:translateY(14px) scale(.98)}
+ to{opacity:1;transform:translateY(0) scale(1)}
+}
+@media(max-width:600px){
+ .dock{right:14px;bottom:calc(14px + env(safe-area-inset-bottom))}
+ .window{right:10px;bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw - 20px);border-radius:16px}
+}
+@media(prefers-reduced-motion:reduce){.launcherAura{animation:none!important}}
