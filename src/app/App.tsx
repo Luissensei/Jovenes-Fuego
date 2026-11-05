@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
+import { AnimatePresence, MotionConfig, motion } from 'motion/react';
 import {
   NavLink,
   Navigate,
@@ -333,6 +334,7 @@ function AdminApp() {
   }
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className={`layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <header className="mobile-header">
         <button
@@ -496,31 +498,39 @@ function AdminApp() {
           </div>
         )}
 
-        <div className="jf-route-stage" key={location.pathname}>
-        <Routes>
-          {visibleModules.map((item) => (
-            <Route
-              key={item.id}
-              path={item.path}
-              element={<Suspense fallback={<PageLoading label={item.label}/>}>{renderModule(
-                item.id,
-                item.label,
-                item.description,
-              )}</Suspense>}
-            />
-          ))}
-
-          <Route
-            path="*"
-            element={
-              <Navigate
-                to={firebaseReadOnlyMode ? '/ranking' : '/'}
-                replace
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            className="jf-route-stage"
+            key={location.pathname}
+            initial={{ opacity: 0, y: 7 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+          >
+            <Routes>
+              {visibleModules.map((item) => (
+                <Route
+                  key={item.id}
+                  path={item.path}
+                  element={<Suspense fallback={<PageLoading label={item.label}/>}>{renderModule(
+                    item.id,
+                    item.label,
+                    item.description,
+                  )}</Suspense>}
+                />
+              ))}
+              <Route
+                path="*"
+                element={
+                  <Navigate
+                    to={firebaseReadOnlyMode ? '/ranking' : '/'}
+                    replace
+                  />
+                }
               />
-            }
-          />
-        </Routes>
-        </div>
+            </Routes>
+          </motion.div>
+        </AnimatePresence>
 
         <footer>
           Jóvenes de Fuego · reconstrucción independiente ·{' '}
@@ -565,6 +575,7 @@ function AdminApp() {
         </Suspense>
       )}
     </div>
+    </MotionConfig>
   );
 }
 
