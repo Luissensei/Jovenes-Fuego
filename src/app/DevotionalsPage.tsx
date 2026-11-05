@@ -272,7 +272,7 @@ export default function DevotionalsPage() {
               </button>
             </div>
 
-            <h2>{selected.title}</h2>
+            <h2 id="devotional-detail-title">{selected.title}</h2>
             <blockquote>“{selected.verse}”</blockquote>
             <strong>{selected.reference}</strong>
             <p className="devotional-full-content">{selected.content}</p>
@@ -298,7 +298,7 @@ export default function DevotionalsPage() {
           <form className="devotionals-modal" onSubmit={handleCreate}>
             <div className="devotionals-modal-header">
               <div>
-                <h2>Nuevo devocional</h2>
+                <h2 id="devotional-form-title">Nuevo devocional</h2>
                 <p>Comparte una enseñanza bíblica.</p>
               </div>
               <button type="button" onClick={() => setShowForm(false)}>
