@@ -1,5 +1,5 @@
 import styles from './styles/MembersPage.module.css';
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import type {FormEvent} from 'react';
 import {createPortal} from 'react-dom';
 import {
@@ -126,6 +126,19 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
   const [saving, setSaving] = useState(false);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [message, setMessage] = useState('');
+  const mountedRef = useRef(false);
+  const closeTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
+    };
+  }, []);
 
   const detailIsOpen = Boolean(selectedMember && !detailMinimized);
 
@@ -139,17 +152,21 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
   }, [detailIsOpen]);
 
   async function loadMembers() {
-    setLoading(true);
-    setError('');
+    if (mountedRef.current) {
+      setLoading(true);
+      setError('');
+    }
     try {
       const records = await getMembersForAdministration();
-      setMembers(records);
+      if (mountedRef.current) setMembers(records);
     } catch (cause) {
-      setError(cause instanceof Error
-        ? cause.message
-        : 'No se pudieron consultar las fichas de los jóvenes.');
+      if (mountedRef.current) {
+        setError(cause instanceof Error
+          ? cause.message
+          : 'No se pudieron consultar las fichas de los jóvenes.');
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }
 
@@ -179,11 +196,15 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
   function closeMember() {
     if (saving || detailClosing) return;
     setDetailClosing(true);
-    window.setTimeout(() => {
-      setSelectedMember(null);
-      setDetailMinimized(false);
-      setDetailClosing(false);
-      setDraft({});
+    if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = window.setTimeout(() => {
+      if (mountedRef.current) {
+        setSelectedMember(null);
+        setDetailMinimized(false);
+        setDetailClosing(false);
+        setDraft({});
+      }
+      closeTimerRef.current = null;
     }, 220);
   }
 
@@ -209,12 +230,15 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
     setError('');
     try {
       const imageData = await compressMemberPhoto(file);
+      if (!mountedRef.current) return;
       setDraft((current) => ({...current, pic: imageData}));
       setMessage('Fotografía preparada. Guarda los cambios para publicarla en el perfil.');
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'No se pudo procesar la fotografía.');
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo procesar la fotografía.');
+      }
     } finally {
-      setPhotoBusy(false);
+      if (mountedRef.current) setPhotoBusy(false);
     }
   }
 
@@ -231,7 +255,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
       return;
     }
     if (firebaseReadOnlyMode) {
-      setError('La base original está protegida. Conecta Staging para guardar cambios sin modificar producción.');
+      setError('El proyecto Firebase original está en modo de solo lectura. No se pueden guardar cambios desde esta sesión.');
       return;
     }
     setSaving(true);
@@ -239,6 +263,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
     setError('');
     try {
       await updateMemberForAdministration(selectedMember.id, draft);
+      if (!mountedRef.current) return;
       const updated = {...selectedMember, ...draft};
       setMembers((current) => current.map((member) =>
         member.id === selectedMember.id ? updated : member,
@@ -247,9 +272,11 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
       setDraft(toDraft(updated));
       setMessage('Ficha actualizada correctamente.');
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'No se pudo guardar la ficha.');
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo guardar la ficha.');
+      }
     } finally {
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   }
 
@@ -269,7 +296,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
 
       {!firebaseConfigured && (
         <div className="members-notice">
-          <AlertCircle size={20}/><div><strong>Firebase Staging no está conectado</strong><p>Estás viendo la vista previa. No se muestran datos inventados ni se realizan cambios.</p></div>
+          <AlertCircle size={20}/><div><strong>Firebase original no está configurado</strong><p>Estás viendo la vista previa. No se muestran datos inventados ni se realizan operaciones de escritura.</p></div>
         </div>
       )}
 
