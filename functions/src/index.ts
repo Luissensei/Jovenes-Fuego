@@ -503,15 +503,13 @@ export const getPrivateMembers = onCall(async (request) => {
     const snapshot = await db.collection("members").limit(500).get();
     const members = snapshot.docs.map((document) => {
       const data = document.data();
-      if (role === "lider" || role === "líder") {
-        // Los líderes solo necesitan datos mínimos para identificar y pasar lista.
+      if (moduleId !== "members" || role === "lider" || role === "líder") {
+        // Attendance, check-in and reports only need identifiers and display names.
+        // Never send full member records to operational lists.
         return {
           id: document.id,
           name: text(data.name, 120),
           nick: text(data.nick, 60),
-          pic: text(data.pic, 1500).startsWith("https://")
-            ? text(data.pic, 1500)
-            : "",
         };
       }
       return {id: document.id, ...data};
