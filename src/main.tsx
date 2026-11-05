@@ -6,6 +6,7 @@ import './styles/app.css';
 import './styles/layout.css';
 import './styles/command-center.css';
 import './styles/quality-overhaul.css';
+import './styles/glass-blue-system.css';
 
 document.documentElement.dataset.theme = 'dark';
 document.documentElement.style.colorScheme = 'dark';
