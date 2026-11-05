@@ -487,7 +487,7 @@ export const getPrivateMembers = onCall(async (request) => {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
   const requestedModule = text(request.data?.module, 30);
-  const moduleId = ["members", "attendance", "checkins"].includes(requestedModule)
+  const moduleId = ["members", "attendance", "checkins", "reports"].includes(requestedModule)
     ? requestedModule
     : "members";
   const role = await requireModulePermission(request.auth.uid, moduleId);
@@ -1696,7 +1696,9 @@ export const getAttendanceMeetings = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  await requireModulePermission(request.auth.uid, "attendance");
+  const requestedModule = text(request.data?.module, 30);
+  const moduleId = requestedModule === "reports" ? "reports" : "attendance";
+  await requireModulePermission(request.auth.uid, moduleId);
 
   const [modernSnapshot, legacySnapshot, membersSnapshot] = await Promise.all([
     db.collection("attendanceMeetings").orderBy("date", "desc").limit(300).get(),
