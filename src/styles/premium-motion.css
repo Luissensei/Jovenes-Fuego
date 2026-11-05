@@ -500,3 +500,146 @@ html, body {
   --jf-accent:#d0ad68;--jf-accent-2:#e7ce92;--jf-purple:#a58ac9;--jf-cyan:#c8b7de;--jf-green:#9ab99e;
   --jf-glass:rgba(27,21,42,.84);--jf-glass-border:rgba(211,181,116,.23)
 }
+
+/* ─────────────────────────────────────────────────────────────
+   MOTION SYSTEM v2 — sólido, 2D, accesible y orientado a contenido.
+   Sustituye blur/tilt global por zoom y expansión controlados.
+───────────────────────────────────────────────────────────── */
+:root {
+  --jf-motion-fast: 180ms;
+  --jf-motion-base: 300ms;
+  --jf-motion-ease: cubic-bezier(.2,.75,.25,1);
+  --jf-panel-solid: #111827;
+  --jf-panel-border: rgba(255,255,255,.10);
+}
+
+/* No glass blur anywhere: surfaces remain crisp and GPU-friendly. */
+*, *::before, *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.jf-fire-atmosphere::before { filter: none !important; }
+
+/* Remove perspective and 3D transforms from every application surface. */
+.layout, .main, .sidebar, .main *, .sidebar *, .youth-portal, .youth-portal * {
+  perspective: none !important;
+  transform-style: flat !important;
+}
+.login-card {
+  animation: jfLoginEnter2D .72s var(--jf-motion-ease) both !important;
+  transform: none !important;
+}
+.login-logo-orbit { transform: none !important; animation: jfOrbitFlat 12s linear infinite !important; }
+.jf-auth-loader-emblem, .jf-auth-loader-emblem::before, .jf-auth-loader-emblem::after {
+  transform: none !important;
+  animation-name: jfLoaderPulseFlat !important;
+}
+@keyframes jfLoginEnter2D {
+  from { opacity: 0; transform: translateY(18px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes jfOrbitFlat { to { rotate: 360deg; } }
+@keyframes jfLoaderPulseFlat { 0%,100% { opacity:.55; } 50% { opacity:1; } }
+
+/* Hover is crisp: no blur, tilt, spin or perspective. */
+.main :is(.member-card,.dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
+.management-record,.managed-record,.devotional-card,.attendance-member,.followup-card,.visitor-card,
+.photo-card,.reports-card,.youth-hall-card,.youth-activity-card):hover,
+.youth-portal :is(.youth-profile-card,.youth-hall-card,.youth-activity-card,.youth-game-tile,.youth-store-item):hover {
+  z-index: 8;
+  transform: translateY(-5px) scale(1.025) !important;
+  filter: none !important;
+  border-color: rgba(245,158,11,.58) !important;
+  box-shadow: 0 20px 44px rgba(0,0,0,.28), 0 0 0 1px rgba(245,158,11,.10) !important;
+}
+.main :is(.member-card,.dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
+.management-record,.managed-record,.devotional-card,.attendance-member,.followup-card,.visitor-card,
+.photo-card,.reports-card,.youth-hall-card,.youth-activity-card),
+.youth-portal :is(.youth-profile-card,.youth-hall-card,.youth-activity-card,.youth-game-tile,.youth-store-item) {
+  transform-style: flat !important;
+  transition: transform var(--jf-motion-base) var(--jf-motion-ease),
+              border-color var(--jf-motion-base) ease,
+              box-shadow var(--jf-motion-base) ease !important;
+  will-change: transform;
+}
+
+/* Solid, consistent panel language across admin and youth portal. */
+.main :is(.dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
+.member-card,.management-record,.managed-record,.devotional-card,.attendance-member,.followup-card,.visitor-card),
+.youth-portal :is(.youth-profile-card,.youth-hall-card,.youth-activity-card,.youth-game-tile,.youth-store-item) {
+  background-color: #111827;
+  border-color: var(--jf-panel-border);
+}
+
+/* Youth arrival: cards enter one by one, without blur or 3D. */
+.youth-portal .youth-activities,
+.youth-portal .youth-hall-grid,
+.youth-portal .youth-immersive-ranking { animation: jfSectionArrive .5s var(--jf-motion-ease) both; }
+.youth-portal :is(.youth-activity-card,.youth-hall-card,.youth-profile-card,.youth-game-tile,.youth-store-item) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  animation: jfCardArrive .58s var(--jf-motion-ease) both;
+}
+.youth-portal :is(.youth-activity-card,.youth-hall-card,.youth-profile-card,.youth-game-tile,.youth-store-item)::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: 2px;
+  opacity: .8;
+  background: linear-gradient(90deg, transparent, #f59e0b 34%, #ea580c 58%, #9333ea 78%, transparent);
+  background-size: 200% 100%;
+  animation: jfFireLine 3.8s ease-in-out infinite;
+  pointer-events: none;
+}
+.youth-portal :is(.youth-activity-card,.youth-hall-card,.youth-profile-card,.youth-game-tile,.youth-store-item)::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 8%;
+  right: 8%;
+  bottom: -24px;
+  height: 58px;
+  opacity: .26;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 18% 100%, rgba(234,88,12,.9), transparent 58%),
+    radial-gradient(ellipse at 52% 100%, rgba(245,158,11,.72), transparent 55%),
+    radial-gradient(ellipse at 82% 100%, rgba(220,65,28,.8), transparent 58%);
+  filter: none;
+  animation: jfCardFlame 2.1s ease-in-out infinite alternate;
+}
+.youth-portal .youth-activity-card:nth-child(6n+2),
+.youth-portal .youth-hall-card:nth-child(6n+2),
+.youth-portal .youth-profile-card:nth-child(6n+2),
+.youth-portal .youth-game-tile:nth-child(6n+2),
+.youth-portal .youth-store-item:nth-child(6n+2) { animation-delay: 70ms; }
+.youth-portal .youth-activity-card:nth-child(6n+3),
+.youth-portal .youth-profile-card:nth-child(6n+3),
+.youth-portal .youth-game-tile:nth-child(6n+3),
+.youth-portal .youth-store-item:nth-child(6n+3) { animation-delay: 140ms; }
+.youth-portal .youth-activity-card:nth-child(6n+4),
+.youth-portal .youth-profile-card:nth-child(6n+4),
+.youth-portal .youth-game-tile:nth-child(6n+4),
+.youth-portal .youth-store-item:nth-child(6n+4) { animation-delay: 210ms; }
+.youth-portal .youth-activity-card:nth-child(6n+5),
+.youth-portal .youth-profile-card:nth-child(6n+5),
+.youth-portal .youth-game-tile:nth-child(6n+5),
+.youth-portal .youth-store-item:nth-child(6n+5) { animation-delay: 280ms; }
+.youth-portal .youth-activity-card:nth-child(6n),
+.youth-portal .youth-profile-card:nth-child(6n),
+.youth-portal .youth-game-tile:nth-child(6n),
+.youth-portal .youth-store-item:nth-child(6n) { animation-delay: 350ms; }
+
+@keyframes jfSectionArrive { from { opacity:0; translate:0 12px; } to { opacity:1; translate:0 0; } }
+@keyframes jfCardArrive { from { opacity:0; translate:0 18px; scale:.975; } to { opacity:1; translate:0 0; scale:1; } }
+@keyframes jfFireLine { 0%,100% { background-position:0% 50%; opacity:.55; } 50% { background-position:100% 50%; opacity:1; } }
+@keyframes jfCardFlame { from { opacity:.16; transform:scaleX(.92) translateY(3px); } to { opacity:.34; transform:scaleX(1.04) translateY(-2px); } }
+
+/* Reduced-motion users receive the same layout without animated movement. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+  .main :is(.member-card,.dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card):hover,
+  .youth-portal :is(.youth-profile-card,.youth-hall-card,.youth-activity-card,.youth-game-tile,.youth-store-item):hover { transform:none !important; }
+}
