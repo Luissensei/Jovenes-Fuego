@@ -464,22 +464,46 @@ export const adminUpdateMember = onCall(async (request) => {
 
 export const getPublicWeeklyActivities = onCall(async () => {
   try {
-    const snapshot = await db.collection("weeklyActivities").limit(80).get();
-    const activities = snapshot.docs.map((document) => {
-      const data = document.data();
-      return {
-        id: document.id,
-        title: text(data.title, 120),
-        description: text(data.description, 1200),
-        date: text(data.date, 20),
-        time: text(data.time, 20),
-        location: text(data.location, 120),
-        published: data.published === true,
-      };
-    }).filter((item) => item.published)
-      .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+    const [modernSnapshot, legacyEventsSnapshot, rankingSnapshot] = await Promise.all([
+      db.collection("weeklyActivities").limit(100).get(),
+      db.collection("events").limit(100).get(),
+      db.collection("public").doc("ranking").get(),
+    ]);
+
+    const ranking = rankingSnapshot.data() ?? {};
+    const legacyRankingActivities = ranking.off === true || !Array.isArray(ranking.ev)
+      ? []
+      : (ranking.ev as unknown[]).flatMap((entry, index) => {
+        if (!entry || typeof entry !== "object") return [];
+        const mapped = mapLegacyWeeklyActivity(
+          `legacy-public-${index}`,
+          entry as Record<string, unknown>,
+        );
+        return mapped ? [mapped] : [];
+      });
+
+    const legacyEventActivities = legacyEventsSnapshot.docs.flatMap((document) => {
+      const mapped = mapLegacyWeeklyActivity(
+        `legacy-event-${document.id}`,
+        document.data(),
+      );
+      return mapped ? [mapped] : [];
+    });
+
+    const modernActivities = modernSnapshot.docs.flatMap((document) => {
+      const mapped = mapModernWeeklyActivity(document.id, document.data());
+      return mapped ? [mapped] : [];
+    });
+
+    const activities = mergeWeeklyActivityRecords([
+      legacyRankingActivities.filter((item) => item.published),
+      legacyEventActivities.filter((item) => item.published),
+      modernActivities.filter((item) => item.published),
+    ]).map(({editable: _editable, ...activity}) => activity);
+
     return {activities};
-  } catch {
+  } catch (error) {
+    console.error("Error leyendo la agenda pública:", error);
     throw new HttpsError("internal", "No se pudieron consultar las actividades.");
   }
 });
@@ -489,20 +513,45 @@ export const adminListWeeklyActivities = onCall(async (request) => {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
   await requireAdminOrPastor(request.auth.uid);
-  const snapshot = await db.collection("weeklyActivities").limit(100).get();
-  const activities = snapshot.docs.map((document) => {
-    const data = document.data();
-    return {
-      id: document.id,
-      title: text(data.title, 120),
-      description: text(data.description, 1200),
-      date: text(data.date, 20),
-      time: text(data.time, 20),
-      location: text(data.location, 120),
-      published: data.published === true,
-    };
-  }).sort((a, b) => a.date.localeCompare(b.date));
-  return {activities};
+
+  const [modernSnapshot, legacyEventsSnapshot, rankingSnapshot] = await Promise.all([
+    db.collection("weeklyActivities").limit(100).get(),
+    db.collection("events").limit(100).get(),
+    db.collection("public").doc("ranking").get(),
+  ]);
+
+  const ranking = rankingSnapshot.data() ?? {};
+  const legacyRankingActivities = ranking.off === true || !Array.isArray(ranking.ev)
+    ? []
+    : (ranking.ev as unknown[]).flatMap((entry, index) => {
+      if (!entry || typeof entry !== "object") return [];
+      const mapped = mapLegacyWeeklyActivity(
+        `legacy-public-${index}`,
+        entry as Record<string, unknown>,
+      );
+      return mapped ? [mapped] : [];
+    });
+
+  const legacyEventActivities = legacyEventsSnapshot.docs.flatMap((document) => {
+    const mapped = mapLegacyWeeklyActivity(
+      `legacy-event-${document.id}`,
+      document.data(),
+    );
+    return mapped ? [mapped] : [];
+  });
+
+  const modernActivities = modernSnapshot.docs.flatMap((document) => {
+    const mapped = mapModernWeeklyActivity(document.id, document.data());
+    return mapped ? [mapped] : [];
+  });
+
+  return {
+    activities: mergeWeeklyActivityRecords([
+      legacyRankingActivities,
+      legacyEventActivities,
+      modernActivities,
+    ]),
+  };
 });
 
 export const adminSaveWeeklyActivity = onCall(async (request) => {
@@ -514,7 +563,7 @@ export const adminSaveWeeklyActivity = onCall(async (request) => {
   const data = request.data ?? {};
   const title = text(data.title, 120);
   const description = text(data.description, 1200);
-  const date = text(data.date, 20);
+  const date = text(data.date, 10);
   const time = text(data.time, 10);
   const location = text(data.location, 120);
   const published = data.published === true;
