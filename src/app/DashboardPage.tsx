@@ -12,11 +12,11 @@ import { getWeeklyActivities, type WeeklyActivity } from '../services/youthPorta
 import { firebaseProjectId, firebaseReadOnlyMode } from '../services/firebase/client';
 
 const shortcuts = [
-  { label: 'Jóvenes', detail: 'Directorio y perfiles', path: '/jovenes', icon: Users, tone: 'blue' },
-  { label: 'Asistencia', detail: 'Registro de servicios', path: '/asistencia', icon: ClipboardCheck, tone: 'green' },
-  { label: 'Agenda', detail: 'Actividades y eventos', path: '/eventos', icon: CalendarDays, tone: 'purple' },
-  { label: 'Devocionales', detail: 'Contenido de crecimiento', path: '/devocionales', icon: BookOpen, tone: 'orange' },
-  { label: 'Líderes', detail: 'Roles y permisos', path: '/lideres', icon: ShieldCheck, tone: 'cyan', adminOnly: true },
+  { label: 'Jóvenes', detail: 'Directorio y perfiles', path: '/jovenes', moduleId: 'members', icon: Users, tone: 'blue' },
+  { label: 'Asistencia', detail: 'Registro de servicios', path: '/asistencia', moduleId: 'attendance', icon: ClipboardCheck, tone: 'green' },
+  { label: 'Agenda', detail: 'Actividades y eventos', path: '/eventos', moduleId: 'events', icon: CalendarDays, tone: 'purple' },
+  { label: 'Devocionales', detail: 'Contenido de crecimiento', path: '/devocionales', moduleId: 'devotionals', icon: BookOpen, tone: 'orange' },
+  { label: 'Líderes', detail: 'Roles y permisos', path: '/lideres', moduleId: 'leaders', icon: ShieldCheck, tone: 'cyan', adminOnly: true },
 ];
 function localDateKey(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -29,6 +29,11 @@ export default function DashboardPage() {
   const { profile, user, configured } = useAuth();
   const role = String(profile?.role ?? '').toLowerCase();
   const isAdmin = ['admin', 'administrador'].includes(role);
+  const isPastor = role === 'pastor';
+  const isLeader = ['lider', 'líder'].includes(role);
+  const leaderPermissions = Array.isArray(profile?.permissions)
+    ? profile.permissions.filter((item): item is string => typeof item === 'string')
+    : ['attendance', 'ranking', 'games', 'profile'];
   const firstName = String(profile?.name ?? user?.email?.split('@')[0] ?? 'equipo').trim().split(/\s+/)[0] || 'equipo';
   const [people, setPeople] = useState<PublicRankingMetric[]>([]);
   const [activities, setActivities] = useState<WeeklyActivity[]>([]);
@@ -51,10 +56,17 @@ export default function DashboardPage() {
   }, [configured]);
 
   const ranked = useMemo(() => [...people].sort((a, b) => (b.points ?? 0) - (a.points ?? 0) || a.name.localeCompare(b.name, 'es')), [people]);
-  const totalPoints = people.reduce((sum, item) => sum + (item.points ?? 0), 0);
+  const totalPoints = useMemo(
+    () => people.reduce((sum, item) => sum + (item.points ?? 0), 0),
+    [people],
+  );
   const today = localDateKey(new Date());
   const upcoming = useMemo(() => activities.filter((item) => item.date >= today).sort((a, b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || '')).slice(0, 4), [activities, today]);
-  const availableShortcuts = shortcuts.filter((item) => !item.adminOnly || isAdmin);
+  const availableShortcuts = shortcuts.filter((item) => {
+    if (item.adminOnly) return isAdmin;
+    if (isAdmin || isPastor) return true;
+    return isLeader && leaderPermissions.includes(item.moduleId);
+  });
   const topThree = ranked.slice(0, 3);
   const chartPeople = ranked.slice(0, 6);
   const maxPoints = Math.max(1, ...chartPeople.map((person) => person.points ?? 0));
