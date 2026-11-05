@@ -9,8 +9,10 @@ import {
 import {firebaseConfigured, firebaseReadOnlyMode} from '../services/firebase/client';
 import {
   getMembersForAdministration,
+  getMemberHistory,
   updateMemberForAdministration,
   type MemberAdminRecord,
+  type MemberHistoryItem,
   type AdminMemberPatch,
 } from '../services/youthPortal';
 
@@ -126,6 +128,9 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
   const [saving, setSaving] = useState(false);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [message, setMessage] = useState('');
+  const [memberHistory, setMemberHistory] = useState<MemberHistoryItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState('');
   const mountedRef = useRef(false);
   const closeTimerRef = useRef<number | null>(null);
 
@@ -139,6 +144,24 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!selectedMember?.id) {
+      setMemberHistory([]);
+      setHistoryError('');
+      return;
+    }
+    let active = true;
+    setHistoryLoading(true);
+    setHistoryError('');
+    getMemberHistory(selectedMember.id)
+      .then((items) => { if (active) setMemberHistory(items); })
+      .catch((cause) => {
+        if (active) setHistoryError(cause instanceof Error ? cause.message : 'No se pudo cargar el historial.');
+      })
+      .finally(() => { if (active) setHistoryLoading(false); });
+    return () => { active = false; };
+  }, [selectedMember?.id]);
 
   const detailIsOpen = Boolean(selectedMember && !detailMinimized);
 
@@ -395,6 +418,21 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
               {message && <p className="member-detail-success" role="status">{message}</p>}
               <footer><button type="button" className="member-detail-cancel" onClick={closeMember} disabled={saving}>Cerrar</button>{canEdit && <button type="submit" className="member-detail-save" disabled={saving || firebaseReadOnlyMode}><Save size={17}/>{saving ? 'Guardando...' : firebaseReadOnlyMode ? 'Solo lectura · Staging' : 'Guardar cambios'}</button>}</footer>
             </form>
+            <section className={styles.historyPanel} aria-labelledby="member-history-title">
+              <header><div><span>ACTIVIDAD REGISTRADA</span><h3 id="member-history-title">Historial del joven</h3></div><small>{memberHistory.length} registros</small></header>
+              {historyLoading ? <p className={styles.historyState}>Consultando asistencia y seguimientos...</p> :
+                historyError ? <p className={styles.historyError} role="alert">{historyError}</p> :
+                memberHistory.length === 0 ? <p className={styles.historyState}>Todavía no hay asistencias o seguimientos disponibles para este perfil, o tu rol no tiene permiso para consultarlos.</p> :
+                <ol className={styles.historyList}>
+                  {memberHistory.map((item) => (
+                    <li key={item.id}>
+                      <span className={styles.historyDot} aria-hidden="true"/>
+                      <div><div className={styles.historyMeta}><b>{item.kind}</b><time>{item.date || 'Fecha no disponible'}</time></div><strong>{item.title}</strong><p>{item.detail}</p><small>{item.status}</small></div>
+                    </li>
+                  ))}
+                </ol>
+              }
+            </section>
           </section>
         </div>
       ), document.body)}
