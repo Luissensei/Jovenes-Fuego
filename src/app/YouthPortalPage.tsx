@@ -608,9 +608,7 @@ export default function YouthPortalPage() {
 
   const faithfulWithPhotos = useMemo(() => faithful.map((player) => ({
     ...player,
-    pic: player.pic || profiles.find((profile) =>
-      profile.name === player.name || (profile.nick && profile.nick === player.name),
-    )?.pic || '',
+    pic: player.pic || profiles.find((profile) => profile.id === player.id)?.pic || '',
   })), [faithful, profiles]);
 
 
