@@ -1,61 +1,92 @@
-# Jóvenes de Fuego — frontend React (staging)
+# Jóvenes de Fuego
 
-Este repositorio es el **andamiaje técnico inicial**, no una reconstrucción funcional terminada. Incluye React + TypeScript + Vite, navegación para los módulos detectados y una barrera que impide inicializar Firebase si el `projectId` es exactamente `jovenes-de-fuego`.
+Aplicación web para la gestión de la comunidad juvenil de la Iglesia Cristiana Cuadrangular Alfa y Omega. El frontend utiliza React, TypeScript y Vite; los módulos administrativos y el portal juvenil comparten un sistema visual oscuro, adaptable a escritorio y móvil.
 
-## Requisitos
-- Node.js 20 o posterior recomendado
-- Proyecto Firebase separado para staging
+## Proyecto y entorno
 
-## Preparar
-1. Copia `.env.example` a `.env.local`.
-2. Rellena solo los valores de la aplicación web Firebase de **staging**.
-3. Comprueba que `VITE_FIREBASE_PROJECT_ID` sea el ID de staging, nunca `jovenes-de-fuego`.
-4. Instala dependencias: `npm install`.
-5. Ejecuta `npm run dev`.
-6. Comprueba compilación con `npm run build`.
+Este repositorio está conectado al proyecto Firebase original:
 
-## Seguridad
-- No pegues contraseñas, claves privadas ni JSON de cuentas de servicio.
-- La configuración web Firebase no es una credencial administrativa, pero el acceso debe estar protegido por Authentication y reglas.
-- No conectes este frontend a producción.
-- No se incluyen reglas de Firestore para desplegar; las reglas originales requieren una revisión separada.
-- Se añadió el flujo inicial de autenticación con Firebase Auth y verificación del documento `users/<uid>`. El módulo Jóvenes ya consulta `members` en tiempo real y permite buscar por nombre, apodo o teléfono; es de solo lectura. El resto de los módulos siguen en reconstrucción.
-- La PWA incluye manifest; el service worker y las políticas de caché se agregarán después de definir explícitamente qué recursos pueden almacenarse. No cachear respuestas privadas.
+- Firebase Project ID: `jovenes-de-fuego`
+- Alias predeterminado de Firebase CLI: `jovenes-de-fuego`
+- Aplicación web: `jovenes-fuego.vercel.app`
+- Rama de trabajo: `main`
 
-## Próximas fases
-1. Completar el esquema real de cada colección/campo y matriz de permisos (ver `DATA-CONTRACTS.md`).
-2. Configurar staging y Firebase Emulator Suite.
-3. Implementar autenticación y repositorios tipados.
-4. Implementar cada módulo y pruebas de contrato.
-5. Pruebas por rol y pruebas responsive/PWA.
-6. Publicación solo con autorización explícita y plan de reversión.
+No configures este repositorio para `jovenes-de-fuego-staging`. El archivo `.firebaserc` ya selecciona el proyecto original. La configuración web pública está enlazada en `src/services/firebase/client.ts`; no es una credencial administrativa. Las claves privadas y cuentas de servicio nunca deben guardarse en el frontend ni subirse al repositorio.
 
-## Configuración de Firebase staging
+## Desarrollo local
 
-El archivo `.env.local` de este paquete está preparado para el proyecto `jovenes-de-fuego-staging` que se indicó al registrar la app web. No contiene credenciales de cuenta de servicio. Antes de iniciar sesión, en Firebase Console debes habilitar **Authentication → Sign-in method → Email/Password** y crear la base de **Firestore Database** en este proyecto de staging. Después crea un usuario de prueba en Authentication y su documento `users/{UID}` con campos `name`, `user` y `role` (por ejemplo `admin`). Las reglas de staging deben permitir los accesos requeridos; no publiques las reglas originales sin revisión. No copies datos personales reales de producción.
+Requisitos: Node.js 22 o una versión compatible con Vite 6.
 
-Para iniciar en un computador: `npm install`, luego `npm run dev`. Para compilar: `npm run build`. El archivo `.env.local` se excluye de Git mediante `.gitignore`; para Netlify debes configurar las mismas variables `VITE_FIREBASE_*` en el contexto de deploy de prueba, nunca en el sitio de producción por accidente.
+```bash
+npm ci
+npm run dev
+```
 
+Validaciones locales:
 
-## Fuego AI y nueva administración
+```bash
+npm run build
+npm run lint
+```
 
-La nueva interfaz incorpora dos experiencias de Fuego AI: acompañamiento devocional para el portal juvenil y asistencia de planificación/redacción para administración. La conexión utiliza Firebase AI Logic con Gemini y solo se habilita en el proyecto Firebase Staging.
+Para el backend:
 
-Para habilitarla en Staging:
-1. En Firebase Console del proyecto `jovenes-de-fuego-staging`, completa el asistente **AI Logic** y habilita Gemini Developer API.
-2. Registra/activa una clave de sitio de reCAPTCHA v3 para la app web y configura App Check para Firebase AI Logic.
-3. Añade `VITE_FIREBASE_APP_CHECK_SITE_KEY` al entorno Preview/Staging de Vercel. No la configures en Production.
-4. Despliega los cambios de frontend en Preview/Staging y prueba con cuentas y perfiles ficticios.
-5. La interfaz mantiene la conversación solo en memoria del navegador; no se almacenan chats devocionales ni se comparten con líderes.
+```bash
+cd functions
+npm ci
+npm run lint
+npm run build
+```
 
-La gestión avanzada de líderes debe utilizar exclusivamente las Cloud Functions administrativas protegidas. No otorgues permisos de lectura directa de `users` al navegador ni despliegues estas funciones en producción como parte de la prueba.
+Copia `.env.example` a `.env.local` solo si necesitas definir una clave pública de sitio para Firebase App Check. El cliente usa el proyecto original y no lee variables de entorno para cambiar de proyecto.
 
+## Módulos incluidos
 
-### Gestión avanzada de líderes
+- Panel administrativo y directorio de jóvenes.
+- Asistencia, historial e informes.
+- Check-in por código QR y búsqueda manual.
+- Seguimientos, visitantes, devocionales y agenda.
+- Peticiones y bandeja de entrada.
+- Ranking, juegos bíblicos y perfiles juveniles.
+- Fotografías, puntos extra, notas pastorales, turnos y auditoría.
+- Administración de líderes, permisos y Fuego AI.
+- Portal juvenil con actividades, personalización de perfil y avatar 3D.
 
-La administración de líderes se ejecuta mediante las callable Cloud Functions `adminListLeaders`, `adminCreateLeader` y `adminUpdateLeader`. Estas funciones exigen rol `admin` o `administrador`; las cuentas nuevas reciben un enlace de configuración de contraseña y no se guarda una contraseña temporal en el sistema. La suspensión deshabilita Authentication y conserva `users/{uid}`, grupos, permisos y auditoría para permitir una restauración. Los permisos de módulos se leen desde el perfil autenticado. Despliega estas funciones únicamente en el proyecto Firebase Staging y comprueba App Check/reglas antes de probar.
+Las rutas administrativas se cargan bajo demanda. Los juegos y el lector QR se descargan cuando se abren, para reducir el peso de la primera carga.
 
+## Firebase, permisos y reglas
 
-### Bloqueo adicional de escrituras en producción
+Las operaciones privilegiadas deben ejecutarse mediante Cloud Functions autenticadas y con validación de rol y permiso en el servidor. No abras colecciones privadas mediante reglas genéricas como `allow read, write: if request.auth != null`.
 
-Los formularios antiguos de puntos extra, notas pastorales y ajustes generales pasan por `assertFirebaseWritesAllowed()`. Las Cloud Functions que escriben miembros, actividades, peticiones, reuniones, asistencias y cuentas de líderes verifican además que el proyecto de ejecución sea exactamente `jovenes-de-fuego-staging`. Un despliegue accidental de estas funciones en otro proyecto rechazará las operaciones.
+**Importante sobre Firestore Rules:** el archivo `firestore.rules` incluido actualmente es una configuración de cierre seguro que deniega todas las lecturas y escrituras desde clientes. No lo despliegues como solución definitiva ni lo reemplaces por reglas abiertas. Antes de habilitar operaciones directas desde el navegador hay que definir reglas granulares por colección, rol y propiedad del registro, y probarlas con las cuentas autorizadas.
+
+La compilación del frontend no confirma que las reglas remotas ni las Cloud Functions estén desplegadas. Comprueba el estado del proyecto original en Firebase Console antes de habilitar operaciones administrativas en producción.
+
+## Despliegue de Cloud Functions
+
+El repositorio contiene el flujo manual `.github/workflows/deploy-firebase-original.yml`. Utiliza el entorno de GitHub `firebase-production` y el secreto:
+
+```text
+FIREBASE_SERVICE_ACCOUNT_JOVENES_DE_FUEGO
+```
+
+El flujo despliega solamente Functions en `jovenes-de-fuego`, después de ejecutar lint y build. No despliega Firestore Rules ni Hosting. Ejecuta ese flujo únicamente cuando la cuenta de servicio y el código de Functions hayan sido revisados.
+
+## Calidad y validación continua
+
+El workflow `.github/workflows/validate-app.yml` ejecuta:
+
+1. Instalación limpia de dependencias.
+2. Build de TypeScript y Vite.
+3. ESLint para el frontend.
+4. Build de Firebase Cloud Functions.
+
+Estas comprobaciones detectan errores de compilación y estilo, pero no sustituyen pruebas funcionales de inicio de sesión, permisos, lectura/escritura en Firestore, cámara QR ni validación visual en dispositivos reales.
+
+## Notas de seguridad
+
+- No subas archivos `.env.local`, credenciales privadas ni JSON de cuentas de servicio.
+- No uses reglas globales que permitan acceso a cualquier usuario autenticado.
+- No copies datos personales reales a cuentas de prueba.
+- Revisa permisos de líderes y usuarios en el servidor, no solamente la visibilidad de botones.
+- Verifica manualmente el diseño responsive y los flujos de cada módulo antes de publicar cambios.
