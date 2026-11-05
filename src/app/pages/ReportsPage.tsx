@@ -93,10 +93,10 @@ export default function ReportsPage() {
 
     const total = present + absent + justified;
 
-    const ranking = Array.from(memberStats.entries())
+    const allRanking = Array.from(memberStats.entries())
       .map(([id, stats]) => ({ id, ...stats }))
-      .sort((a, b) => b.present - a.present)
-      .slice(0, 10);
+      .sort((a, b) => b.present - a.present || a.name.localeCompare(b.name, 'es'));
+    const ranking = allRanking.slice(0, 10);
 
     return {
       meetings: filteredMeetings,
@@ -106,6 +106,7 @@ export default function ReportsPage() {
       total,
       rate: total > 0 ? Math.round((present / total) * 100) : 0,
       ranking,
+      allRanking,
     };
   }, [meetings, month]);
 
@@ -118,7 +119,7 @@ export default function ReportsPage() {
         'Justificados',
         'Total',
       ],
-      ...report.ranking.map((item) => [
+      ...report.allRanking.map((item) => [
         item.name,
         String(item.present),
         String(item.absent),
@@ -201,7 +202,7 @@ export default function ReportsPage() {
           type="button"
           className="reports-export"
           onClick={downloadCsv}
-          disabled={report.ranking.length === 0}
+          disabled={report.allRanking.length === 0}
         >
           <FileSpreadsheet size={17} />
           Exportar CSV
