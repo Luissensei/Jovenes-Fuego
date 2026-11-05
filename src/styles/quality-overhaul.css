@@ -113,3 +113,111 @@ html,body,#root{min-height:100%;width:100%;max-width:100%}html{scroll-behavior:s
  .main .shared-stat-card{padding:13px!important}
 }
 @media(prefers-reduced-motion:reduce){.main .jf-page-loading>span,.jf-loading-spinner{animation:none}}
+
+
+/* Administration screens: converge legacy page families on the same command-center palette. */
+body .layout .main :is(
+ .management-header,.managed-hero,.checkin-hero,.photos-hero,.reports-hero,
+ .attendance-header,.followup-header,.visitors-header,.devotionals-hero,
+ .prayers-admin-page>header,[class*="leaders"] [class*="hero"],[class*="settings"] [class*="hero"],
+ [class*="scope"]>[class*="hero"],[class*="scope"]>[class*="Hero"]
+){
+ background:linear-gradient(112deg,#102746 0%,#142b4b 64%,#282640 100%)!important;
+ border:1px solid #315174!important;border-radius:18px!important;
+ box-shadow:0 16px 36px #0003!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ color:#f4f7fc!important;
+}
+body .layout .main :is(
+ .management-header,.managed-hero,.checkin-hero,.photos-hero,.reports-hero,
+ .attendance-header,.followup-header,.visitors-header,.devotionals-hero,
+ .prayers-admin-page>header
+) :is(h1,h2,h3,strong){color:#fff!important}
+body .layout .main :is(
+ .management-header,.managed-hero,.checkin-hero,.photos-hero,.reports-hero,
+ .attendance-header,.followup-header,.visitors-header,.devotionals-hero,
+ .prayers-admin-page>header
+) :is(p,small){color:#b9c9dd!important}
+body .layout .main :is(
+ .management-summary,.management-form,.management-records,.management-record,
+ .managed-record,.managed-stat,.prayers-admin-summary,.prayer-admin-card,
+ .weekly-admin-panel,.weekly-admin-item,.prayers-admin-empty,.photos-tabs,
+ .photos-modal,.devotionals-controls,.devotional-card,.attendance-card,
+ .attendance-member,.reports-card,.checkin-panel,.checkin-config,
+ .settings-card,.settings-group,.leaders-card,.leaders-stat,.leaders-table-wrapper,
+ [class*="listPanel"],[class*="summary"],[class*="areaCard"],[class*="themeCard"],
+ [class*="security"],[class*="advanced"],[class*="table-wrapper"],[class*="TableWrapper"]
+){
+ background:#101f38!important;border-color:#294563!important;color:#edf4fc!important;
+ box-shadow:0 10px 26px #0003!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+body .layout .main :is(
+ .management-summary,.management-form,.management-records,.management-record,
+ .managed-record,.managed-stat,.prayers-admin-summary,.prayer-admin-card,
+ .weekly-admin-panel,.weekly-admin-item,.prayers-admin-empty,.photos-tabs,
+ .photos-modal,.devotionals-controls,.devotional-card,.attendance-card,
+ .attendance-member,.reports-card,.checkin-panel,.checkin-config,
+ .settings-card,.settings-group,.leaders-card,.leaders-stat,.leaders-table-wrapper,
+ [class*="listPanel"],[class*="summary"],[class*="areaCard"],[class*="themeCard"],
+ [class*="security"],[class*="advanced"]
+) :is(h1,h2,h3,h4,strong,b){color:#f5f8ff!important}
+body .layout .main :is(
+ .management-summary,.management-form,.management-records,.management-record,
+ .managed-record,.managed-stat,.prayers-admin-summary,.prayer-admin-card,
+ .weekly-admin-panel,.weekly-admin-item,.prayers-admin-empty,.photos-tabs,
+ .photos-modal,.devotionals-controls,.devotional-card,.attendance-card,
+ .attendance-member,.reports-card,.checkin-panel,.checkin-config,
+ .settings-card,.settings-group,.leaders-card,.leaders-stat,.leaders-table-wrapper,
+ [class*="listPanel"],[class*="summary"],[class*="areaCard"],[class*="themeCard"],
+ [class*="security"],[class*="advanced"]
+) :is(p,small,label,span){color:#a7b8ce}
+body .layout .main :is(
+ .management-header,.managed-hero,.checkin-hero,.photos-hero,.reports-hero,
+ .attendance-header,.followup-header,.visitors-header,.devotionals-hero
+) :is(svg){color:#63c8ef!important}
+body .layout .main :is(
+ .prayers-admin-summary button,.photos-tabs button,.managed-action-buttons button,
+ .management-submit,.managed-primary,.managed-primary-button,.checkin-primary,
+ .photos-primary,.visitors-primary,.followup-primary,.devotionals-primary,
+ .areaCard button,.themeCard button,.hero button
+){
+ border-radius:10px!important;box-shadow:none!important;
+}
+body .layout .main :is(
+ .management-form,.managed-form,.managed-modal,.photos-modal,.devotionals-modal,
+ .followup-modal,.visitors-modal,.prayers-modal,[role="dialog"]
+) :is(input,select,textarea){
+ min-height:42px;border:1px solid #304b69!important;border-radius:10px!important;
+ background:#091a30!important;color:#f4f7fc!important;
+}
+body .layout .main :is(
+ .management-form,.managed-form,.managed-modal,.photos-modal,.devotionals-modal,
+ .followup-modal,.visitors-modal,.prayers-modal,[role="dialog"]
+) :is(input,select,textarea)::placeholder{color:#758ba8!important}
+body .layout .main :is(
+ .management-form,.managed-form,.managed-modal,.photos-modal,.devotionals-modal,
+ .followup-modal,.visitors-modal,.prayers-modal,[role="dialog"]
+) :is(input,select,textarea):focus{
+ border-color:#258cf0!important;box-shadow:0 0 0 3px #258cf02b!important;
+}
+body .layout .main :is(.prayers-admin-summary,.photos-tabs,.managed-toolbar,.devotionals-controls,.reports-filter){
+ display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+body .layout .main :is(.photos-tabs,.managed-tabs) button[aria-selected="true"],
+body .layout .main :is(.photos-tabs,.managed-tabs) button.active{
+ background:#145da4!important;border-color:#318be0!important;color:#fff!important;
+}
+body .layout .main :is(.prayers-admin-page,.events-page,.management-page,.managed-page){min-width:0;width:100%;max-width:1600px;margin-inline:auto}
+@media(max-width:680px){
+ body .layout .main :is(
+  .management-header,.managed-hero,.checkin-hero,.photos-hero,.reports-hero,
+  .attendance-header,.followup-header,.visitors-header,.devotionals-hero,
+  .prayers-admin-page>header
+ ){padding:18px!important;gap:12px!important;border-radius:15px!important}
+ body .layout .main :is(.prayers-admin-summary,.managed-toolbar,.devotionals-controls,.reports-filter){align-items:stretch;flex-direction:column}
+ body .layout .main :is(.prayers-admin-summary,.managed-toolbar,.devotionals-controls,.reports-filter) button{width:100%;justify-content:center}
+ body .layout .main :is(.prayer-admin-card,.managed-record,.management-record,.attendance-member){min-width:0;overflow-wrap:anywhere}
+ body .layout .main :is(.prayers-admin-list,.managed-record-list,.management-list){grid-template-columns:minmax(0,1fr)!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body .layout .main :is(.management-record,.managed-record,.devotional-card,.attendance-card,.attendance-member,.prayer-admin-card,.weekly-admin-item){transition:none!important;transform:none!important}
+}
