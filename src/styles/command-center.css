@@ -83,3 +83,49 @@ body{font-family:Inter,"DM Sans",system-ui,sans-serif!important;-webkit-font-smo
 .main :is([class*="avatar"],[class*="Avatar"]){border-color:#2877bd!important}
 .main :is([class*="error"],[class*="Error"]){background:#411d31!important;border-color:#80354e!important;color:#ffc2ce!important}
 .main :is([class*="muted"],[class*="Muted"],[class*="description"],[class*="Description"],[class*="subtitle"],[class*="Subtitle"]){color:#9eacc6}
+
+
+/* DESIGN MASTER: un solo lenguaje visual en todos los módulos */
+:root{--jf-bg:#050d20;--jf-bg-2:#09152c;--jf-surface:#0d1a33;--jf-surface-2:#122342;--jf-surface-raised:#172b4d;--jf-text:#f5f8ff;--jf-muted:#9eacc6;--jf-border:#24395d;--jf-sidebar:#071329;--jf-sidebar-text:#eef5ff;--jf-sidebar-muted:#9aaac5;--jf-input:#0a1830;--jf-accent:#087df1;--jf-accent-strong:#0759d8;--jf-accent-2:#20c7ed;--jf-purple:#a34cf4;--jf-blue:#168cff;--jf-cyan:#20c8e8;--jf-green:#08c98b;--jf-orange:#ff9d27;--jf-danger:#ff647c;--jf-shadow:0 14px 36px rgba(0,0,0,.24);--jf-radius:16px;color-scheme:dark}
+:root[data-theme="light"],:root[data-theme="royal"]{color-scheme:dark}
+html,body,#root{background:#050d20!important;color:#f5f8ff!important}
+body{font-family:Inter,"DM Sans",system-ui,-apple-system,sans-serif!important}
+.sidebar{position:fixed!important;inset:0 auto 0 0!important;width:270px!important;min-width:270px!important;max-width:270px!important;padding:22px 14px 16px!important;background:#071329!important;border-right:1px solid #1d3152!important;box-shadow:8px 0 28px #0002!important}
+.sidebar .brand{padding:4px 9px 24px!important}
+.sidebar .brand strong{font-size:15px!important;font-weight:850!important;letter-spacing:-.025em!important}
+.sidebar .module-search{height:40px!important;border:1px solid #263c60!important;border-radius:10px!important;background:#0b1a33!important}
+.sidebar .nav-item{min-height:42px!important;border-radius:10px!important;padding:9px 11px!important;font-size:12px!important;font-weight:650!important}
+.sidebar .nav-item.active,.sidebar .nav-item[aria-current="page"]{background:linear-gradient(105deg,#087df1,#0757d9)!important;border-color:#278fff!important;box-shadow:0 8px 20px #006fff35!important}
+.sidebar .nav-item:hover:not(.active){background:#122747!important;border-color:#203c61!important}
+.sidebar .nav-item-icon{width:29px!important;height:29px!important;border-radius:8px!important}
+.sidebar .jf-nav-group>summary{font-size:9px!important;letter-spacing:.14em!important}
+.main{width:calc(100% - 270px)!important;margin-left:270px!important;padding:0 clamp(18px,2vw,30px) 36px!important}
+.topline{min-height:72px!important;margin:0 calc(clamp(18px,2vw,30px)*-1) 22px!important;padding:12px clamp(18px,2vw,30px)!important;background:#071329!important;border-bottom:1px solid #1c3152!important;box-shadow:0 8px 22px #0002!important}
+.topline-status-module{font-weight:750!important;color:#e8f2ff!important}
+.main h1,.main h2,.main h3,.main h4{color:#f5f8ff!important;letter-spacing:-.035em}
+.main :is(button,input,select,textarea){font-family:inherit}
+.main :is(input,select,textarea){background:#0a1830!important;border:1px solid #2a4264!important;color:#eff6ff!important;border-radius:9px!important}
+.main :is(input,select,textarea):focus{border-color:#168cff!important;box-shadow:0 0 0 3px #168cff24!important;outline:0!important}
+.main :is(.page-card,.panel,.card,.stat-card,.members-total-card,.members-controls,.member-row,.attendance-card,.attendance-member,.followup-stat,.followup-content,.followup-card,.visitors-stat,.visitors-content,.visitor-card,.devotionals-feature,.devotionals-controls,.devotional-card,.reports-card,.reports-stats article,.checkin-config,.checkin-panel,.checkin-summary article,.management-summary,.management-form,.management-records,.management-record,.managed-stat,.managed-record,.youth-hall-card,.youth-activity-card,.youth-store-item,.youth-profile-card,.weekly-admin-item,.photos-stats article,.photo-card,.settings-card,.settings-section,.inbox-panel,.prayer-card,.event-card){background:#0d1a33!important;border:1px solid #24395d!important;border-radius:15px!important;color:#edf4ff!important;box-shadow:0 10px 26px #0002!important}
+.main :is([class*="card"],[class*="Card"],[class*="panel"],[class*="Panel"],[class*="stat"],[class*="Stat"],[class*="summary"],[class*="Summary"]){background-color:#0d1a33!important;border-color:#24395d!important;color:#edf4ff!important;box-shadow:0 10px 26px #0002!important}
+.main :is([class*="hero"],[class*="Hero"]){background-color:#0b1b38!important;border-color:#28466d!important;color:#f5f8ff!important}
+.main :is([class*="eyebrow"],[class*="kicker"],[class*="overline"]){color:#55c4ff!important}
+.main :is([class*="empty"],[class*="Empty"],[class*="placeholder"],[class*="Placeholder"]){background:#0a1830!important;border-color:#2a4264!important;color:#9eacc6!important}
+.main :is([class*="primary"],[class*="Primary"],[class*="submit"],[class*="Submit"]){background:linear-gradient(105deg,#087df1,#0759d8)!important;border-color:#2388f3!important;color:#fff!important}
+.main :is([class*="error"],[class*="Error"]){background:#411d31!important;border-color:#80354e!important;color:#ffc2ce!important}
+.main a{color:#55baff}
+.main :is(table,thead,tbody,tr,th,td){border-color:#24395d!important}
+.main th{background:#132746!important;color:#9db4d5!important}
+.main td{color:#e8f0ff!important}
+.main tr:hover td{background:#132744!important}
+.jf-bottom-nav{background:#08162d!important;border:1px solid #294264!important}
+.jf-bottom-nav-item{color:#9eacc6!important}
+.jf-bottom-nav-item.active{color:#55c4ff!important}
+.mobile-header{background:#071329!important;border-color:#203653!important;color:#f5f8ff!important}
+.loading-shell{background:#050d20!important}
+.fire-atmosphere,.jf-fire-atmosphere,.ambient-glow,.fire-particles,.neon-flame-background{display:none!important}
+*,*::before,*::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+@media(hover:hover) and (pointer:fine){.main :is(.member-row,.attendance-card,.attendance-member,.followup-card,.visitor-card,.devotional-card,.photo-card,.management-record,.managed-record,.weekly-admin-item,.event-card,.prayer-card){transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important}.main :is(.member-row,.attendance-card,.attendance-member,.followup-card,.visitor-card,.devotional-card,.photo-card,.management-record,.managed-record,.weekly-admin-item,.event-card,.prayer-card):hover{transform:translateY(-2px)!important;border-color:#318ee5!important;box-shadow:0 14px 32px #0004!important}}
+@media(max-width:900px){.sidebar{width:min(300px,88vw)!important;min-width:0!important;max-width:300px!important;transform:translateX(-105%)!important}.sidebar.open{transform:translateX(0)!important}.main{width:100%!important;margin-left:0!important;padding:0 16px 92px!important}.topline{margin:0 -16px 18px!important;padding:10px 16px!important}.topline-status-module{display:none!important}}
+@media(max-width:600px){.main{padding-left:12px!important;padding-right:12px!important}.topline{margin-left:-12px!important;margin-right:-12px!important}.main :is(.page-card,.panel,.card,.stat-card){border-radius:13px!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
