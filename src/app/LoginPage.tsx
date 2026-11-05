@@ -30,14 +30,14 @@ export function LoginPage() {
         <span className="login-logo church-login-logo">
           <img src="/church-logo.webp" alt="Logo de la Iglesia Cristiana Cuadrangular Alfa y Omega" />
         </span>
-        <p className="eyebrow">ENTORNO SEGURO DE PRUEBAS</p>
+        <p className="eyebrow">ACCESO SEGURO</p>
         <h1>Jóvenes de Fuego</h1>
         <p className="login-church-name">Iglesia Cristiana Cuadrangular Alfa y Omega</p>
         <p className="login-intro">Inicia sesión con tu usuario o correo de la aplicación original.</p>
         {!configured && (
           <div className="setup-warning">
             <ShieldCheck size={18} />
-            <span><strong>Firebase todavía no está configurado.</strong><br />La interfaz puede revisarse, pero el inicio de sesión requiere completar .env.local con la configuración del proyecto de pruebas.</span>
+            <span><strong>Firebase todavía no está configurado.</strong><br />La interfaz puede revisarse, pero el inicio de sesión requiere completar .env.local con la configuración del proyecto original.</span>
           </div>
         )}
         {(error || authError) && <p className="form-error" role="alert">{error || authError}</p>}
