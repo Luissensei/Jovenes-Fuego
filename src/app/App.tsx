@@ -1,4 +1,3 @@
-import { FireAtmosphere } from './FireAtmosphere';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import {
   NavLink,
@@ -118,7 +117,6 @@ function AdminApp() {
   if (loading) {
     return (
       <main className="loading-shell jf-auth-loading" role="status" aria-live="polite">
-        <FireAtmosphere />
         <div className="jf-auth-loader">
           <span className="jf-auth-loader-emblem">
             <Flame size={31}/>
