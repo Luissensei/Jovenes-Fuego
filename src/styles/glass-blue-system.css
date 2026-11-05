@@ -442,7 +442,7 @@ body{
  animation:none!important;
 }
 .members-page .member-card:hover{
- transform:translateY(-3px)!important;border-color:rgba(66,156,232,.5)!important;
+ border-color:rgba(66,156,232,.5)!important;
  box-shadow:0 15px 30px rgba(12,54,94,.12)!important;
 }
 .members-page .member-card-top{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:9px!important}
