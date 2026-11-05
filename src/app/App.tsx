@@ -322,7 +322,6 @@ function AdminApp() {
 
   return (
     <div className={`layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-      <FireAtmosphere />
       <header className="mobile-header">
         <button
           className="icon-button"
