@@ -76,9 +76,9 @@ function safePublicPhoto(value: unknown): string {
   return image.startsWith("https://") ? image.slice(0, 2000) : "";
 }
 
-async function loadVisiblePublicProfiles() {
+async function loadVisiblePublicProfiles(includeAppearance = true) {
   const [modernSnapshot, rankingSnapshot] = await Promise.all([
-    db.collection("publicProfiles").limit(250).get(),
+    db.collection("publicProfiles").limit(100).get(),
     db.collection("public").doc("ranking").get(),
   ]);
 
@@ -95,7 +95,7 @@ async function loadVisiblePublicProfiles() {
   const byId = new Map<string, Candidate>();
 
   if (Array.isArray(rankingData.all)) {
-    (rankingData.all as unknown[]).forEach((entry, index) => {
+    (rankingData.all as unknown[]).slice(0, 100).forEach((entry, index) => {
       if (!entry || typeof entry !== "object") return;
       const data = entry as Record<string, unknown>;
       const name = text(data.n, 120);
@@ -135,7 +135,7 @@ async function loadVisiblePublicProfiles() {
   const memberSnapshots = memberIds.length
     ? await db.getAll(...memberIds.map((id) => db.collection("members").doc(id)))
     : [];
-  const photoSnapshots = memberIds.length
+  const photoSnapshots = includeAppearance && memberIds.length
     ? await db.getAll(...memberIds.map((id) => db.collection("photos").doc(id)))
     : [];
 
@@ -161,14 +161,14 @@ async function loadVisiblePublicProfiles() {
       id: candidate.id,
       name: candidate.name,
       nick: candidate.nick || text(member?.nick, 60),
-      pic: safePublicPhoto(photo.p) || safePublicPhoto(modern.pic),
+      pic: includeAppearance ? safePublicPhoto(photo.p) || safePublicPhoto(modern.pic) : "",
       points: candidate.points,
-      frame: text(photo.f ?? modern.frame, 50),
-      avatar: text(photo.a ?? modern.avatar, 80),
-      background: text(photo.b ?? modern.background, 50),
-      title: text(photo.t ?? modern.title, 80),
-      flames: Number.isFinite(flames) && flames >= 0 ? Math.min(flames, 100000) : 0,
-      ownedItems,
+      frame: includeAppearance ? text(photo.f ?? modern.frame, 50) : "",
+      avatar: includeAppearance ? text(photo.a ?? modern.avatar, 80) : "",
+      background: includeAppearance ? text(photo.b ?? modern.background, 50) : "",
+      title: includeAppearance ? text(photo.t ?? modern.title, 80) : "",
+      flames: includeAppearance && Number.isFinite(flames) && flames >= 0 ? Math.min(flames, 100000) : 0,
+      ownedItems: includeAppearance ? ownedItems : [],
     }];
   });
 }
@@ -434,7 +434,7 @@ export const getPublicProfiles = onCall(async () => {
 
 export const getPublicRankingMetrics = onCall(async () => {
   try {
-    const profiles = await loadVisiblePublicProfiles();
+    const profiles = await loadVisiblePublicProfiles(false);
     return {metrics: profiles.map((profile) => ({
       id: profile.id,
       name: profile.name,
