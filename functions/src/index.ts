@@ -407,7 +407,7 @@ export const adminUpdateMember = onCall(async (request) => {
   const patch: Record<string, unknown> = {};
   const limits: Record<string, number> = {
     name: 120, nick: 60, phone: 40, from: 120, bd: 20, ap: 120,
-    br: 120, mn: 120, nt: 1000, bau: 20, con: 20, dis: 20, pic: 60000, ac: 120, bd: 20,
+    br: 120, mn: 120, nt: 1000, bau: 20, con: 20, dis: 20, pic: 60000, ac: 120,
   };
 
   for (const [field, max] of Object.entries(limits)) {
