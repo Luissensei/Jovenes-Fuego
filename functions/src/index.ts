@@ -515,7 +515,7 @@ export const getPrivateMembers = onCall(async (request) => {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
   const requestedModule = text(request.data?.module, 30);
-  const moduleId = ["members", "attendance", "checkins", "reports"].includes(requestedModule)
+  const moduleId = ["members", "attendance", "checkins", "reports", "followups"].includes(requestedModule)
     ? requestedModule
     : "members";
   const role = await requireModulePermission(request.auth.uid, moduleId);
@@ -744,9 +744,9 @@ const managedDefinitions: Record<ManagedModule, ManagedDefinition> = {
   followups: {
     collection: "followups",
     permission: "followups",
-    fields: ["name", "date", "reason", "notes"],
+    fields: ["name", "date", "reason", "notes", "memberId"],
     statuses: ["Pendiente", "En proceso", "Completado"],
-    required: ["name", "date", "reason"],
+    required: ["name", "date", "reason", "memberId"],
   },
   visitors: {
     collection: "visitors",
@@ -907,6 +907,13 @@ export const adminCreateManagedRecord = onCall(async (request) => {
   else await requireModulePermission(request.auth.uid, definition.permission);
 
   const payload = managedPayload(definition, request.data?.record);
+  if (module === "followups") {
+    const memberSnapshot = await db.collection("members").doc(payload.memberId).get();
+    if (!payload.memberId || !memberSnapshot.exists) {
+      throw new HttpsError("not-found", "Selecciona un joven registrado para el seguimiento.");
+    }
+    payload.name = text(memberSnapshot.data()?.name, 120) || text(memberSnapshot.data()?.nick, 60);
+  }
   if (definition.required.some((field) => !payload[field]?.trim())) {
     throw new HttpsError("invalid-argument", "Completa todos los campos obligatorios.");
   }
@@ -947,6 +954,13 @@ export const adminUpdateManagedRecord = onCall(async (request) => {
     throw new HttpsError("failed-precondition", "Los registros históricos se conservan en solo lectura.");
   }
   const payload = managedPayload(definition, request.data?.record);
+  if (module === "followups") {
+    const memberSnapshot = await db.collection("members").doc(payload.memberId).get();
+    if (!payload.memberId || !memberSnapshot.exists) {
+      throw new HttpsError("not-found", "Selecciona un joven registrado para el seguimiento.");
+    }
+    payload.name = text(memberSnapshot.data()?.name, 120) || text(memberSnapshot.data()?.nick, 60);
+  }
   if (definition.required.some((field) => !payload[field]?.trim())) {
     throw new HttpsError("invalid-argument", "Completa todos los campos obligatorios.");
   }
