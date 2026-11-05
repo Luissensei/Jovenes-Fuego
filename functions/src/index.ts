@@ -1253,7 +1253,7 @@ export const adminGetNotifications = onCall(async (request) => {
 
   photos.docs.forEach((document) => {
     const data = document.data();
-    if (text(data.status, 30).toLowerCase() !== "pendiente") return;
+    if (data.status && text(data.status, 30).toLowerCase() !== "pendiente") return;
     add({
       id: `photo:${document.id}`, kind: "Fotografía",
       title: text(data.title, 120) || "Fotografía por revisar",
