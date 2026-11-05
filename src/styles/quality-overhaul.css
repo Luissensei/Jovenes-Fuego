@@ -449,3 +449,30 @@ body .layout .main .management-records-heading h2{min-width:0}
  body .layout .main .management-record-search input{font-size:16px!important}
  body .layout .main .management-records-heading{align-items:center}
 }
+
+
+/* QR check-in search, selection and empty states. */
+body .layout .main .checkin-search input{
+ min-width:0;width:100%;background:transparent!important;color:#f4f7fc!important;
+}
+body .layout .main .checkin-search input::placeholder{color:#7188a5!important}
+body .layout .main .checkin-search:focus-within{
+ border-color:#258cf0!important;box-shadow:0 0 0 3px #258cf02b!important;
+}
+body .layout .main .checkin-panel select:disabled,
+body .layout .main .checkin-panel button:disabled{opacity:.55;cursor:not-allowed}
+body .layout .main .checkin-no-results{
+ margin:8px 0;padding:11px 12px;border:1px dashed #34506e;border-radius:10px;
+ background:#0b1c32;color:#9fb2ca;font-size:11px;line-height:1.5;
+}
+body .layout .main .checkin-qr-result{
+ display:grid;justify-items:center;gap:8px;margin:16px auto;padding:18px;
+ border:1px solid #315174;border-radius:14px;background:#0b1c32;
+}
+body .layout .main .checkin-qr-result svg{
+ width:min(185px,100%);height:auto;max-width:100%;padding:8px;border-radius:10px;background:#fff;
+}
+@media(max-width:600px){
+ body .layout .main .checkin-qr-result{padding:12px}
+ body .layout .main .checkin-qr-result svg{width:min(172px,100%)}
+}
