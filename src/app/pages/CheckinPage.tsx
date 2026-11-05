@@ -337,7 +337,7 @@ export default function CheckinPage() {
                   setError('');
                   setScanning(true);
                 }}
-                disabled={saving || !meetingName.trim()}
+                disabled={loading || saving || members.length === 0 || !meetingName.trim()}
               >
                 <Camera size={17} /> Activar escáner
               </button>
@@ -359,23 +359,30 @@ export default function CheckinPage() {
           <div className="checkin-search">
             <Search size={17} />
             <input
+              type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar joven..."
+              placeholder="Buscar por nombre, apodo o ID..."
+              aria-label="Buscar joven para generar el código QR"
             />
           </div>
 
           <select
             value={selectedMemberId}
             onChange={(event) => setSelectedMemberId(event.target.value)}
+            disabled={loading || members.length === 0}
+            aria-label="Seleccionar joven para generar el código QR"
           >
-            <option value="">Seleccionar joven</option>
+            <option value="">{loading ? 'Cargando jóvenes...' : members.length === 0 ? 'No hay jóvenes disponibles' : 'Seleccionar joven'}</option>
             {filteredMembers.map((member) => (
               <option key={member.id} value={member.id}>
-                {member.name || 'Joven sin nombre'}
+                {member.name || 'Joven sin nombre'}{member.nick ? ` · @${member.nick}` : ''}
               </option>
             ))}
           </select>
+          {!loading && members.length > 0 && filteredMembers.length === 0 && (
+            <p className="checkin-no-results">No encontramos jóvenes con ese nombre, apodo o identificador.</p>
+          )}
 
           {selectedMember && (
             <div className="checkin-qr-result">
@@ -393,7 +400,7 @@ export default function CheckinPage() {
           <button
             className="checkin-primary"
             onClick={() => void registerSelectedMember()}
-            disabled={!selectedMember || saving}
+            disabled={!selectedMember || saving || loading}
           >
             <CheckCircle2 size={17} />
             {saving ? 'Registrando...' : 'Registrar manualmente'}
