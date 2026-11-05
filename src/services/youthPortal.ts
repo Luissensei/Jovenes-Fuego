@@ -11,6 +11,7 @@ export type WeeklyActivity = {
   time: string;
   location: string;
   published: boolean;
+  editable?: boolean;
 };
 
 export type HallOfFamePlayer = {
@@ -102,25 +103,18 @@ async function getLegacyPublicRanking(): Promise<LegacyPublicRanking | null> {
  * Reads upcoming activities already published by the original app.
  */
 export async function getWeeklyActivities(): Promise<WeeklyActivity[]> {
-  const ranking = await getLegacyPublicRanking();
-  const events = Array.isArray(ranking?.ev) ? ranking.ev : [];
-
-  return events.flatMap((event, index) => {
-    const title = typeof event.t === 'string' ? event.t.trim() : '';
-    const date = typeof event.d === 'string' ? event.d : '';
-
-    if (!title || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return [];
-
-    return [{
-      id: `legacy-event-${index}-${date}`,
-      title,
-      description: typeof event.n === 'string' ? event.n : '',
-      date,
-      time: typeof event.h === 'string' ? event.h : '',
-      location: typeof event.p === 'string' ? event.p : '',
-      published: true,
-    }];
-  });
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const loadActivities = httpsCallable<
+    Record<string, never>,
+    {activities: WeeklyActivity[]}
+  >(functions, 'getPublicWeeklyActivities');
+  const response = await loadActivities({});
+  return Array.isArray(response.data.activities)
+    ? response.data.activities.map((item) => ({
+      ...item,
+      editable: item.editable === true,
+    }))
+    : [];
 }
 
 /**
@@ -173,81 +167,52 @@ export async function getHallOfFame(): Promise<{
 }
 
 export async function getAdminWeeklyActivities(): Promise<WeeklyActivity[]> {
-  if (!db) throw new Error('Firebase Firestore no está configurado.');
-  const snapshot = await getDocs(collection(db, 'events'));
-  const storedItems = snapshot.docs.flatMap((item) => {
-    const data = item.data();
-    const title = typeof data.t === 'string' ? data.t.trim() : '';
-    const date = typeof data.d === 'string' ? data.d : '';
-    if (!title || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return [];
-    return [{
-      id: item.id,
-      title,
-      description: typeof data.n === 'string' ? data.n : '',
-      date,
-      time: typeof data.h === 'string' ? data.h : '',
-      location: typeof data.p === 'string' ? data.p : '',
-      published: data.published !== false,
-    }];
-  });
-  const publicItems = await getWeeklyActivities();
-  const merged = new Map<string, WeeklyActivity>();
-  publicItems.forEach((item) => merged.set(`${item.title}| ${item.date}`, item));
-  storedItems.forEach((item) => merged.set(`${item.title}| ${item.date}`, item));
-  return Array.from(merged.values()).sort((a, b) => a.date.localeCompare(b.date));
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const loadActivities = httpsCallable<
+    Record<string, never>,
+    {activities: WeeklyActivity[]}
+  >(functions, 'adminListWeeklyActivities');
+  const response = await loadActivities({});
+  return Array.isArray(response.data.activities)
+    ? response.data.activities.map((item) => ({
+      ...item,
+      editable: item.editable === true,
+    }))
+    : [];
 }
 
 export async function saveWeeklyActivity(
   activity: Omit<WeeklyActivity, 'id'> & {id?: string},
 ): Promise<void> {
   assertFirebaseWritesAllowed();
-  if (!db) throw new Error('Firebase Firestore no está configurado.');
-  const payload = {
-    t: activity.title.trim(),
-    d: activity.date,
-    h: activity.time.trim(),
-    p: activity.location.trim(),
-    n: activity.description.trim(),
-    published: activity.published,
-  };
-  const isNewEvent = !activity.id || activity.id.startsWith('legacy-event-');
-  const eventRef = !isNewEvent
-    ? doc(db, 'events', activity.id as string)
-    : doc(collection(db, 'events'));
-  const rankingRef = doc(db, 'public', 'ranking');
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
 
-  // Guardamos el evento y su publicación pública en una sola transacción,
-  // sin reemplazar el resto del documento de ranking.
-  await runTransaction(db, async (transaction) => {
-    const previousEvent = isNewEvent ? null : await transaction.get(eventRef);
-    const oldData = previousEvent?.exists() ? previousEvent.data() : null;
-    const rankingSnapshot = await transaction.get(rankingRef);
-    if (!rankingSnapshot.exists()) {
-      throw new Error('No existe public/ranking para publicar actividades.');
-    }
-    const current = rankingSnapshot.data();
-    const currentEvents = Array.isArray(current.ev)
-      ? current.ev.filter((entry): entry is Record<string, unknown> =>
-          Boolean(entry) && typeof entry === 'object')
-      : [];
-    const nextEvents = currentEvents.filter((entry) => {
-      const matchesPrevious = oldData
-        && entry.t === oldData.t && entry.d === oldData.d;
-      const matchesCurrent = entry.t === payload.t && entry.d === payload.d;
-      return !matchesPrevious && !matchesCurrent;
-    });
-    if (activity.published) {
-      nextEvents.push({
-        t: payload.t,
-        d: payload.d,
-        h: payload.h,
-        p: payload.p,
-        n: payload.n,
-      });
-    }
-    transaction.set(eventRef, isNewEvent ? {...payload, cf: {}, pg: {}, q: 0} : payload, {merge: true});
-    transaction.update(rankingRef, {ev: nextEvents, u: Date.now()});
-  });
+  const saveActivity = httpsCallable<
+    {
+      id?: string;
+      title: string;
+      description: string;
+      date: string;
+      time: string;
+      location: string;
+      published: boolean;
+    },
+    {success: boolean; id: string}
+  >(functions, 'adminSaveWeeklyActivity');
+
+  const payload = {
+    title: activity.title.trim(),
+    description: activity.description.trim(),
+    date: activity.date,
+    time: activity.time.trim(),
+    location: activity.location.trim(),
+    published: activity.published,
+    ...(activity.id && activity.editable === true ? {id: activity.id} : {}),
+  };
+  const response = await saveActivity(payload);
+  if (!response.data.success || !response.data.id) {
+    throw new Error('No se pudo confirmar el guardado de la actividad.');
+  }
 }
 
 export async function sendPrayerRequest(input: PrayerRequestInput): Promise<void> {
