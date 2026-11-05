@@ -216,29 +216,27 @@ export async function saveWeeklyActivity(
 }
 
 export async function sendPrayerRequest(input: PrayerRequestInput): Promise<void> {
-  assertFirebaseWritesAllowed();
-  if (!db) throw new Error('Firebase Firestore no está configurado.');
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
   const memberId = input.memberId.trim();
   const requester = input.requester.trim().slice(0, 59) || 'Anónimo';
   const message = input.message.trim();
   const category = input.category.trim().slice(0, 40) || 'General';
+
   if (!memberId || memberId.length >= 40 || memberId.startsWith('public-profile-')) {
     throw new Error('Este perfil no está vinculado a un registro de joven válido.');
   }
-  if (message.length < 3 || message.length > 500) {
-    throw new Error('La petición debe tener entre 3 y 500 caracteres.');
+  if (message.length < 8 || message.length > 1200) {
+    throw new Error('La petición debe tener entre 8 y 1200 caracteres.');
   }
-  const now = new Date();
-  const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  const id = `i${Date.now()}${Math.random().toString(36).slice(2, 6)}`;
-  await setDoc(doc(db, 'inbox', id), {
-    k: 'p',
-    i: memberId,
-    n: requester,
-    t: `[${category}] ${message}`.slice(0, 600),
-    d: date,
-    c: Date.now(),
-  });
+
+  const submitRequest = httpsCallable<
+    {memberId: string; requester: string; category: string; message: string},
+    {success: boolean; id: string}
+  >(functions, 'submitPublicPrayerRequest');
+  const response = await submitRequest({memberId, requester, category, message});
+  if (!response.data.success || !response.data.id) {
+    throw new Error('No se pudo confirmar el envío de la petición.');
+  }
 }
 
 export async function getMembersForAdministration(
@@ -297,33 +295,38 @@ export async function updateMemberForAdministration(
 }
 
 export async function getPrayerRequestsForAdministration(): Promise<AdminPrayerRequest[]> {
-  if (!db) throw new Error('Firebase Firestore no está configurado.');
-  const snapshot = await getDocs(collection(db, 'inbox'));
-  return snapshot.docs.flatMap((item) => {
-    const data = item.data();
-    if (data.k !== 'p') return [];
-    const raw = typeof data.t === 'string' ? data.t : '';
-    const categoryMatch = raw.match(/^\[([^\]]{1,40})\]\s*/);
-      const timestamp = typeof data.c === 'number' && Number.isFinite(data.c)
-      ? new Date(data.c).toISOString()
-      : typeof data.d === 'string' ? data.d : '';
-    return [{
-      id: item.id,
-      requester: typeof data.n === 'string' ? data.n : 'Anónimo',
-      category: categoryMatch?.[1] ?? 'General',
-      message: categoryMatch ? raw.slice(categoryMatch[0].length) : raw,
-      status: 'Pendiente',
-      createdAt: timestamp,
-    }];
-  }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const loadRequests = httpsCallable<
+    Record<string, never>,
+    {petitions: AdminPrayerRequest[]}
+  >(functions, 'adminGetPrayerRequests');
+  const response = await loadRequests({});
+  return Array.isArray(response.data.petitions)
+    ? response.data.petitions.map((item) => ({
+      ...item,
+      id: String(item.id ?? ''),
+      requester: String(item.requester ?? 'Anónimo'),
+      category: String(item.category ?? 'General'),
+      message: String(item.message ?? ''),
+      status: String(item.status ?? 'Pendiente'),
+      createdAt: String(item.createdAt ?? ''),
+    })).filter((item) => item.id)
+    : [];
 }
 
 export async function updatePrayerRequestStatus(
   id: string,
   status: string,
 ): Promise<void> {
-  void id; void status;
-  throw new Error('La bandeja de entrada original permite recibir y consultar peticiones, pero sus reglas no permiten cambiarles el estado.');
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const updateRequest = httpsCallable<
+    {id: string; status: string},
+    {success: boolean}
+  >(functions, 'adminUpdatePrayerStatus');
+  const response = await updateRequest({id, status});
+  if (!response.data.success) {
+    throw new Error('No se pudo confirmar la actualización del estado.');
+  }
 }
 
 /** Guarda la personalización en photos/{memberId}, siguiendo el esquema y las reglas históricas. */
