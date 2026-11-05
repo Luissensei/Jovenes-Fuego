@@ -34,8 +34,8 @@ export default function ReportsPage() {
   useEffect(() => {
     let active = true;
     Promise.all([
-      getMembersForAdministration('attendance'),
-      listAttendanceMeetings(),
+      getMembersForAdministration('reports'),
+      listAttendanceMeetings('reports'),
     ])
       .then(([memberRows, meetingRows]) => {
         if (!active) return;
