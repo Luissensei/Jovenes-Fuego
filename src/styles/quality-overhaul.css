@@ -80,3 +80,36 @@ html,body,#root{min-height:100%;width:100%;max-width:100%}html{scroll-behavior:s
 .form-error{background:#3a1d2b!important;border-color:#793b50!important;color:#ffc3cf!important}
 .loading-shell,.access-denied-shell{min-height:100dvh;background:var(--jf-bg)!important;color:var(--jf-text)!important}
 @media(max-width:480px){.login-card{padding:22px!important;border-radius:17px!important}.login-card h1{font-size:28px!important}.login-logo{width:48px;height:48px}}
+
+
+/* Shared components used by operational screens: same hierarchy and contrast. */
+.main .shared-page-header{
+ display:flex;align-items:center;justify-content:space-between;gap:18px;
+ padding:clamp(18px,2.5vw,27px)!important;border:1px solid #294766!important;
+ border-radius:17px!important;background:linear-gradient(112deg,#102746,#142747 68%,#24243d)!important;
+ box-shadow:var(--jf-shadow-soft)!important;color:var(--jf-text)!important;
+}
+.main .shared-page-header h1{color:#fff!important;font-size:clamp(25px,3vw,35px)!important;letter-spacing:-.04em!important}
+.main .shared-page-header p{color:#aebed2!important;max-width:70ch}
+.main .shared-eyebrow{color:#63c9ef!important;font-size:10px!important;letter-spacing:.12em!important}
+.main .shared-page-header-action{max-width:100%}
+.main .shared-stat-card{min-width:0;border:1px solid #29415f!important;border-radius:14px!important;background:#10213a!important;box-shadow:var(--jf-shadow-soft)!important;color:var(--jf-text)!important}
+.main .shared-stat-top,.main .shared-stat-detail{color:#a4b5cb!important}
+.main .shared-stat-value{color:#f5f8ff!important;font-variant-numeric:tabular-nums}
+.main .shared-stat-icon{background:#173a5b!important;color:#6bc8f0!important}
+.main .shared-table-wrapper,.main .reports-table-wrapper,.main .management-table-wrapper,.main .data-table-wrapper{border:1px solid #29415f!important;border-radius:13px!important;background:#0d1c32!important}
+.main :is(.shared-table,.reports-table,.management-table){min-width:620px}
+.main :is(.shared-table,.reports-table,.management-table) th{background:#142a46!important;color:#a9bfd9!important}
+.main :is(.shared-table,.reports-table,.management-table) td{color:#e3edf9!important}
+.main :is(.shared-table,.reports-table,.management-table) tr:hover td{background:#142a46!important}
+.main .jf-page-loading{display:flex;min-height:180px;flex-direction:column;align-items:center;justify-content:center;gap:9px;color:#c8d8ea}
+.main .jf-page-loading>span,.jf-loading-spinner{width:24px;height:24px;border:2px solid #28496b;border-top-color:#47c6ee;border-radius:50%;animation:jfQualitySpin .8s linear infinite}
+.main .jf-page-loading small{color:#8fa6c2}
+@keyframes jfQualitySpin{to{transform:rotate(360deg)}}
+@media(max-width:680px){
+ .main .shared-page-header{align-items:stretch;flex-direction:column;gap:13px;padding:17px!important}
+ .main .shared-page-header-action{width:100%}
+ .main .shared-page-header-action :is(button,a){width:100%;justify-content:center}
+ .main .shared-stat-card{padding:13px!important}
+}
+@media(prefers-reduced-motion:reduce){.main .jf-page-loading>span,.jf-loading-spinner{animation:none}}
