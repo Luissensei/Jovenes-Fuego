@@ -557,3 +557,26 @@ body{background:var(--jf-bg)!important;color:var(--jf-text)!important}
  .main :is(.members-grid,.reports-stats,.attendance-summary){grid-template-columns:minmax(0,1fr)!important}
  .main :is(.members-hero,.attendance-header,.reports-hero,.checkin-hero,.welcome,.dashboard-hero,.dashboard-welcome){padding:17px!important}
 }
+
+
+/* Shared management screens: events, inbox, turns and pastoral requests. */
+.main :is(.management-header,.prayers-admin-page .management-header){
+ background:linear-gradient(115deg,#172943,#203b60)!important;border:1px solid #354d6c!important;
+ border-radius:17px!important;box-shadow:0 12px 28px #0003!important
+}
+.main .management-kicker{color:#a9c4f3!important}
+.main :is(.prayers-admin-summary,.prayer-admin-card,.prayers-admin-empty){
+ background:#121f32!important;border:1px solid #2a3d56!important;border-radius:13px!important;color:#edf3fb!important
+}
+.main .prayer-admin-card :is(h2,h3,strong){color:#edf3fb!important}
+.main .prayer-admin-card :is(p,small,span){color:#a9bad0!important}
+.main .prayer-status-control{background:#17283e!important;border:1px solid #30445e!important;color:#dce7f5!important;border-radius:9px!important}
+.main :is(.photos-tabs,.prayers-admin-list,.events-page,.turns-page,.inbox-page){min-width:0}
+.main :is(.photos-hero,.photos-tabs,.photos-stats,.photos-grid){min-width:0}
+.main :is(.photos-tabs button,.prayers-admin-page button,.management-header button){border-radius:9px}
+.main :is(.management-header h1,.prayers-admin-page h1){color:#f3f6fc!important}
+.main :is(.management-header p,.prayers-admin-page p){color:#bdcadd!important}
+@media(max-width:650px){
+ .main :is(.management-header,.prayers-admin-page .management-header){padding:19px!important;border-radius:15px!important;align-items:flex-start!important;flex-direction:column!important}
+ .main .prayers-admin-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
