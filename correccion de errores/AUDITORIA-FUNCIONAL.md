@@ -44,6 +44,8 @@ Esta revisión inspecciona el registro de módulos, el enrutamiento, las pantall
 4. El panel añade porcentaje mensual de asistencia a partir de los registros existentes, solo para roles que tienen permiso de asistencia o informes.
 5. Se amplió el historial de auditoría para acciones administrativas importantes sin guardar notas privadas ni contenido sensible en los metadatos.
 6. La cuadrícula de indicadores del panel se adapta a la cantidad de tarjetas que vea cada rol.
+7. Corregí bloques CSS mal cerrados en el portal juvenil y el asistente flotante, y reubiqué las importaciones de fuentes para que PostCSS pueda compilar.
+8. El check-in ya no recorre una muestra general de toda la colección para comprobar duplicados; consulta el historial del joven seleccionado y conserva la transacción con ID determinista.
 
 ## Pendientes antes de declarar la aplicación terminada
 
@@ -55,9 +57,10 @@ Esta revisión inspecciona el registro de módulos, el enrutamiento, las pantall
 - Ampliar auditoría a las acciones que aún no generan evento y definir retención/consulta paginada.
 - Añadir paginación real a listados que actualmente usan límites fijos de consulta.
 - Revisar reglas Firestore y mantenerlas cerradas hasta confirmar que todos los accesos del cliente pasan por Functions o por reglas precisas.
-- Ejecutar compilación completa, lint, pruebas automatizadas y verificación visual en escritorio/móvil.
+- Revisar las 26 alertas que reportó `npm audit` al instalar dependencias (22 moderadas y 4 altas); actualizar paquetes de forma selectiva, sin aplicar `--force` a ciegas.
+- Ejecutar pruebas de interacción en navegador y verificación visual en escritorio/móvil.
 - Confirmar despliegue de Functions y frontend en el proyecto correcto; no se ha ejecutado un despliegue de Firebase ni de Vercel en esta fase.
 
 ## Seguridad y compatibilidad
 
-No se modificaron reglas de Firestore ni se desplegaron Functions. Las funciones nuevas deben desplegarse en el proyecto original antes de que el centro de notificaciones y los nuevos campos de seguimiento funcionen en producción. Los registros legados se mantienen consultables y de solo lectura cuando no pueden vincularse de forma fiable.
+La compilación, lint y compilación de Cloud Functions terminaron correctamente en GitHub Actions para el commit `943849614585faa3f49ccfa2c6e8583e65c37ac2`. No se modificaron reglas de Firestore ni se desplegaron Functions. Las funciones nuevas deben desplegarse en el proyecto original antes de que el centro de notificaciones y los nuevos campos de seguimiento funcionen en producción. Los registros legados se mantienen consultables y de solo lectura cuando no pueden vincularse de forma fiable.
