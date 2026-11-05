@@ -1,6 +1,6 @@
 import styles from './styles/YouthPortalPage.module.css';
 import dashboardStyles from './styles/YouthPortalDashboard.module.css';
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {FormEvent} from 'react';
 
 import {
@@ -480,23 +480,28 @@ export default function YouthPortalPage() {
   const audioRef = useRef<AudioContext | null>(null);
   const audioMasterRef = useRef<GainNode | null>(null);
 
-  async function loadProfiles() {
+  const profileRequestRef = useRef(0);
+
+  const loadProfiles = useCallback(async () => {
+    const requestId = ++profileRequestRef.current;
     setLoading(true);
     setError('');
     try {
       const result = await getPublicProfiles();
-      setProfiles(result);
+      if (requestId === profileRequestRef.current) setProfiles(result);
     } catch (cause) {
-      console.error('Error cargando perfiles públicos:', cause);
-      setError(cause instanceof Error ? cause.message : 'No se pudieron cargar los perfiles.');
+      if (requestId === profileRequestRef.current) {
+        console.error('Error cargando perfiles públicos:', cause);
+        setError(cause instanceof Error ? cause.message : 'No se pudieron cargar los perfiles.');
+      }
     } finally {
-      setLoading(false);
+      if (requestId === profileRequestRef.current) setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
-    void loadProfiles();
     let active = true;
+    void loadProfiles();
     Promise.allSettled([getWeeklyActivities(), getHallOfFame()]).then((results) => {
       if (!active) return;
       if (results[0].status === 'fulfilled') {
@@ -514,13 +519,14 @@ export default function YouthPortalPage() {
     });
     return () => {
       active = false;
+      profileRequestRef.current += 1;
       if (audioRef.current) {
         void audioRef.current.close().catch(() => undefined);
         audioRef.current = null;
         audioMasterRef.current = null;
       }
     };
-  }, []);
+  }, [loadProfiles]);
 
   useEffect(() => {
     if (selectedProfile) {
@@ -597,9 +603,7 @@ export default function YouthPortalPage() {
 
   const topPlayersWithPhotos = useMemo(() => topPlayers.map((player) => ({
     ...player,
-    pic: player.pic || profiles.find((profile) =>
-      profile.name === player.name || (profile.nick && profile.nick === player.name),
-    )?.pic || '',
+    pic: player.pic || profiles.find((profile) => profile.id === player.id)?.pic || '',
   })), [topPlayers, profiles]);
 
   const faithfulWithPhotos = useMemo(() => faithful.map((player) => ({
