@@ -145,77 +145,8 @@ async function call<T>(name: string, payload: unknown = {}): Promise<T> {
 }
 
 export async function listAttendanceMeetings(): Promise<AttendanceMeeting[]> {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
-  // La aplicación original guarda la asistencia por fecha y servicio en
-  // attendance/{YYYY-MM-DD}_{service}; las reuniones nuevas viven en
-  // attendanceMeetings. Se consultan ambas para no ocultar datos históricos
-  // ni perder las reuniones recién creadas.
-  const [attendanceSnapshot, membersSnapshot, meetingsResponse] = await Promise.all([
-    getDocs(collection(db, 'attendance')),
-    getDocs(collection(db, 'members')),
-    call<{meetings: AttendanceMeeting[]}>('getAttendanceMeetings'),
-  ]);
-
-  const memberNames = new Map(
-    membersSnapshot.docs.map((item) => [
-      item.id,
-      String(item.data().name ?? item.id),
-    ]),
-  );
-
-  const serviceNames: Record<string, string> = {
-    dis: 'Discipulado',
-    mie: 'Servicio de miércoles',
-    vie: 'Servicio de viernes',
-    ayj: 'Ayuno y servicio de jóvenes',
-    ayc: 'Ayuno de la congregación',
-    esc: 'Escuela dominical',
-    otr: 'Otro servicio o actividad',
-    gen: 'Servicio',
-  };
-
-  const legacyMeetings = attendanceSnapshot.docs.map((item) => {
-    const data = item.data();
-    const [date = '', service = 'gen'] = item.id.split('_');
-    const records = data.r && typeof data.r === 'object'
-      ? data.r as Record<string, unknown>
-      : {};
-
-    const participants = Object.entries(records).flatMap(([memberId, value]) => {
-      if (!value || typeof value !== 'object') return [];
-      const statusCode = String((value as Record<string, unknown>).s ?? '');
-      const statusMap: Record<string, AttendanceStatus> = {
-        P: 'Presente',
-        T: 'Tarde',
-        J: 'Justificada',
-        F: 'Falta',
-      };
-      const status = statusMap[statusCode];
-      if (!status) return [];
-
-      return [{
-        memberId,
-        name: memberNames.get(memberId) ?? memberId,
-        status,
-      }];
-    });
-
-    return {
-      id: item.id,
-      name: serviceNames[service] ?? serviceNames.gen,
-      date,
-      createdAt: '',
-      participants,
-    };
-  });
-
-  const currentMeetings = meetingsResponse.meetings;
-
-  return [...currentMeetings, ...legacyMeetings]
-    .sort((a, b) => b.date.localeCompare(a.date));
+  const response = await call<{meetings: AttendanceMeeting[]}>('getAttendanceMeetings');
+  return Array.isArray(response.meetings) ? response.meetings : [];
 }
 
 export async function createAttendanceMeeting(
