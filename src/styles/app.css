@@ -1,5 +1,6 @@
 /* Shared Jóvenes de Fuego design foundation. Screen-specific rules are in app/styles/*.module.css. */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&display=swap');
 :root{font-family:'DM Sans',system-ui,sans-serif;color:#241f2b;background:#f6f5f8;font-synthesis:none;text-rendering:optimizeLegibility}
 :root[data-theme="dark"]{color:#f2edf6;background:black}
 *{box-sizing:border-box}
@@ -1577,7 +1578,6 @@ button:disabled{
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }}
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&display=swap');
 :root{
   --jf-bg: #f1f0ed;
   --jf-surface: rgba(255,255,255,.78);
