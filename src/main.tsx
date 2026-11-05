@@ -35,3 +35,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </BrowserRouter>
   </React.StrictMode>,
 );
+import './styles/ember-command.css';
