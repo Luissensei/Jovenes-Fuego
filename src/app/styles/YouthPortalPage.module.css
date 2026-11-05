@@ -2018,3 +2018,21 @@
     radial-gradient(ellipse at 8% 72%, rgba(145,92,190,.08), transparent 34%),
     var(--jf-bg, #f5f2f7);
 }
+
+
+/* Portal profile cards: reveal with fire, not blur or 3D tilt. */
+.scope :global(.youth-profile-card) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: #111827 !important;
+  border-color: rgba(255,255,255,.10) !important;
+  transition: transform 300ms cubic-bezier(.2,.75,.25,1), border-color 300ms ease, box-shadow 300ms ease !important;
+}
+.scope :global(.youth-profile-card):hover,
+.scope :global(.youth-profile-card):focus-visible {
+  transform: translateY(-5px) scale(1.025) !important;
+  border-color: rgba(245,158,11,.58) !important;
+  box-shadow: 0 20px 44px rgba(0,0,0,.28), 0 0 0 1px rgba(245,158,11,.10) !important;
+  filter: none !important;
+}
