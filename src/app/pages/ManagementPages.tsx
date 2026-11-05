@@ -91,6 +91,7 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [recordSearch, setRecordSearch] = useState('');
 
   const [members, setMembers] = useState<MemberAdminRecord[]>([]);
   const [membersLoading, setMembersLoading] = useState(false);
@@ -115,6 +116,19 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
   const [settingKey, setSettingKey] = useState('');
   const [settingValue, setSettingValue] = useState('');
   const mountedRef = useRef(false);
+  const filteredRecords = useMemo(() => {
+    const query = recordSearch.trim().toLocaleLowerCase('es');
+    if (!query) return records;
+    return records.filter((record) => Object.values(record).some((value) => {
+      if (typeof value === 'string' || typeof value === 'number') {
+        return String(value).toLocaleLowerCase('es').includes(query);
+      }
+      if (Array.isArray(value)) {
+        return value.join(' ').toLocaleLowerCase('es').includes(query);
+      }
+      return false;
+    }));
+  }, [records, recordSearch]);
 
   const loadRecords = useCallback(async () => {
     if (mountedRef.current) {
@@ -411,6 +425,20 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
           </button>
         </div>
 
+        <label className="management-record-search">
+          <span>Buscar en los registros</span>
+          <input
+            type="search"
+            value={recordSearch}
+            onChange={(event) => setRecordSearch(event.target.value)}
+            placeholder="Buscar por nombre, fecha, estado o contenido..."
+            aria-label="Buscar en los registros de este módulo"
+          />
+        </label>
+        <div className="management-record-count" aria-live="polite">
+          {filteredRecords.length} de {records.length} registros
+        </div>
+
         {loading && (
           <div className="management-empty">Cargando información...</div>
         )}
@@ -421,9 +449,15 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
           </div>
         )}
 
-        {!loading && records.length > 0 && (
+        {!loading && records.length > 0 && filteredRecords.length === 0 && (
+          <div className="management-empty">
+            No hay registros que coincidan con esa búsqueda.
+          </div>
+        )}
+
+        {!loading && filteredRecords.length > 0 && (
           <div className="management-list">
-            {records.map((row) => (
+            {filteredRecords.map((row) => (
               <article className="management-record" key={row.id}>
                 <div className="management-record-top">
                   <strong>{displayName(row)}</strong>
