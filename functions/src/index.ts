@@ -45,6 +45,27 @@ async function requireAdminOrPastor(uid: string): Promise<AuthorizedRole> {
   return role;
 }
 
+
+async function recordAudit(
+  action: string,
+  actorUid: string,
+  targetUid = "",
+  metadata: Record<string, unknown> = {},
+): Promise<void> {
+  try {
+    await db.collection("audit").add({
+      action,
+      actorUid,
+      ...(targetUid ? {targetUid} : {}),
+      createdAt: new Date().toISOString(),
+      metadata,
+    });
+  } catch (error) {
+    // No se revierte una operación principal por una falla secundaria del historial.
+    console.error("No se pudo registrar la auditoría:", error);
+  }
+}
+
 function isValidDate(value: string): boolean {
   if (value.length !== 10 || value[4] !== "-" || value[7] !== "-") {
     return false;
@@ -601,6 +622,7 @@ export const adminUpdateMember = onCall(async (request) => {
   }
 
   await batch.commit();
+  await recordAudit("member.updated", request.auth.uid, memberId, {fields: Object.keys(patch)});
   return {success: true, memberId};
 });
 
@@ -910,6 +932,7 @@ export const adminCreateManagedRecord = onCall(async (request) => {
     createdBy: request.auth.uid,
     updatedBy: request.auth.uid,
   });
+  await recordAudit(`managed.${module}.created`, request.auth.uid, ref.id, {module});
   return {success: true, id: ref.id};
 });
 
@@ -942,6 +965,7 @@ export const adminUpdateManagedRecord = onCall(async (request) => {
     updatedAt: new Date().toISOString(),
     updatedBy: request.auth.uid,
   });
+  await recordAudit(`managed.${module}.updated`, request.auth.uid, id, {module});
   return {success: true};
 });
 
@@ -964,6 +988,7 @@ export const adminUpdateManagedRecordStatus = onCall(async (request) => {
     updatedAt: new Date().toISOString(),
     updatedBy: request.auth.uid,
   });
+  await recordAudit(`managed.${module}.status`, request.auth.uid, id, {module, status});
   return {success: true};
 });
 
@@ -981,6 +1006,7 @@ export const adminDeleteManagedRecord = onCall(async (request) => {
   const existing = await ref.get();
   if (!existing.exists) throw new HttpsError("not-found", "No se encontró el registro solicitado.");
   await ref.delete();
+  await recordAudit(`managed.${module}.deleted`, request.auth.uid, id, {module});
   return {success: true};
 });
 
@@ -1166,7 +1192,7 @@ export const adminGetNotifications = onCall(async (request) => {
     db.collection("visitors").limit(200).get(),
     db.collection("publicPrayerRequests").limit(200).get(),
     db.collection("inbox").limit(300).get(),
-    db.collection("photos").limit(200).get(),
+    db.collection("fotoPend").limit(200).get(),
   ]);
 
   const notifications: AdminNotification[] = [];
@@ -1927,6 +1953,7 @@ export const createAttendanceMeeting = onCall(async (request) => {
     createdAt: new Date().toISOString(),
     participants: [],
   });
+  await recordAudit("attendance.meeting.created", request.auth.uid, meeting.id, {date: meetingDate});
   return {success: true, meetingId: meeting.id};
 });
 
@@ -1983,5 +2010,6 @@ export const saveMeetingAttendance = onCall(async (request) => {
     updatedAt: new Date().toISOString(),
     updatedBy: request.auth.uid,
   });
+  await recordAudit("attendance.saved", request.auth.uid, meetingId, {participants: participants.length});
   return {success: true};
 });
