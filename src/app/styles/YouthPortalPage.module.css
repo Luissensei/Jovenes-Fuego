@@ -2036,3 +2036,133 @@
   box-shadow: 0 20px 44px rgba(0,0,0,.28), 0 0 0 1px rgba(245,158,11,.10) !important;
   filter: none !important;
 }
+
+
+/* ── JF PORTAL 2026 · experiencia juvenil unificada ── */
+.scope:global(.youth-portal){
+  --portal-ink:#f7f9ff;--portal-muted:#a6b5ce;--portal-line:#263d61;
+  position:relative;isolation:isolate;min-height:100svh;overflow-x:clip;
+  padding:clamp(18px,3vw,42px) clamp(12px,3vw,38px) 42px!important;
+  color:var(--portal-ink)!important;
+  background:
+    radial-gradient(ellipse at 8% 0%,rgba(255,117,48,.15),transparent 31%),
+    radial-gradient(ellipse at 94% 9%,rgba(35,137,255,.16),transparent 32%),
+    #050d20!important;
+}
+.scope:global(.youth-portal)::before{
+  position:fixed;inset:0;z-index:-1;opacity:.22;pointer-events:none;
+  background-image:linear-gradient(rgba(160,190,230,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(160,190,230,.07) 1px,transparent 1px);
+  background-size:46px 46px;mask-image:linear-gradient(to bottom,#000,transparent 82%);
+  animation:none!important;
+}
+.scope :global(.youth-container){width:min(100%,1240px)!important;margin-inline:auto!important}
+.scope :global(.youth-header){max-width:900px!important;margin:4px auto 26px!important;text-align:center!important}
+.scope :global(.youth-brand-icon){width:58px!important;height:58px!important;border-radius:17px!important;background:linear-gradient(145deg,#ff9c35,#ed542e)!important;border:1px solid #ffb56b!important;box-shadow:0 12px 30px #f45b2838!important}
+.scope :global(.youth-brand-label){color:#ffb66d!important;letter-spacing:.19em!important}
+.scope :global(.youth-header) h1{font-size:clamp(34px,5.2vw,62px)!important;line-height:1!important;letter-spacing:-.055em!important;background:linear-gradient(100deg,#fff,#ffd18c 44%,#ff8756 78%,#75d7ff)!important;background-clip:text!important;-webkit-background-clip:text!important;color:transparent!important;filter:none!important}
+.scope :global(.youth-header) h2{font-size:clamp(22px,3vw,32px)!important;letter-spacing:-.035em!important;text-transform:none!important}
+.scope :global(.youth-header)>p{max-width:620px;margin:12px auto 0!important;color:#a8b8d2!important;line-height:1.7}
+.scope :global(.youth-selector),
+.scope :global(.youth-welcome),
+.scope :global(.youth-customizer),
+.scope :global(.youth-activities),
+.scope :global(.youth-game-hub),
+.scope :global(.youth-prayer-panel){
+  background:#0c1a32!important;border:1px solid #263d60!important;border-radius:20px!important;
+  box-shadow:0 18px 42px rgba(0,0,0,.23),inset 0 1px rgba(255,255,255,.035)!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+.scope :global(.youth-selector){padding:clamp(17px,2.4vw,27px)!important}
+.scope :global(.youth-selector-heading){border-color:#263d60!important}
+.scope :global(.youth-selector-heading) h3{font-size:clamp(20px,2.5vw,27px)!important;letter-spacing:-.035em!important;text-transform:none!important}
+.scope :global(.youth-selector-heading)>div:first-child>span,
+.scope :global(.youth-activities)>header span,
+.scope :global(.youth-game-hub)>header span,
+.scope :global(.youth-prayer-panel)>header span{color:#62caff!important}
+.scope :global(.youth-total){background:#132846!important;border:1px solid #2a466b!important;color:#c9dcf7!important}
+.scope :global(.youth-search){background:#08162c!important;border:1px solid #2a4264!important;border-radius:11px!important}
+.scope :global(.youth-search) input{color:#f5f8ff!important}
+.scope :global(.youth-profile-card){
+  position:relative;isolation:isolate;overflow:hidden;min-height:205px!important;
+  border:1px solid #2a4264!important;border-radius:17px!important;
+  background:linear-gradient(150deg,#142b4c,#0d1a32 78%)!important;
+  box-shadow:0 10px 24px #0003!important;
+  animation:jfYouthCardIn .55s cubic-bezier(.2,.75,.25,1) both;
+  animation-delay:calc(var(--youth-card-index,0)*45ms);
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+.scope :global(.youth-profiles) :global(.youth-profile-card):nth-child(4n+2){background:linear-gradient(150deg,#20234a,#0d1a32 78%)!important}
+.scope :global(.youth-profiles) :global(.youth-profile-card):nth-child(4n+3){background:linear-gradient(150deg,#10374a,#0d1a32 78%)!important}
+.scope :global(.youth-profiles) :global(.youth-profile-card):nth-child(4n+4){background:linear-gradient(150deg,#3a2541,#0d1a32 78%)!important}
+.scope :global(.youth-profile-card)::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.7;
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,133,59,.18),transparent 58%);
+}
+.scope :global(.youth-profile-card):hover,
+.scope :global(.youth-profile-card):focus-within{
+  transform:translateY(-4px)!important;border-color:#e79a4b!important;
+  box-shadow:0 18px 34px #0005,0 0 0 1px #e79a4b22!important;
+}
+.scope :global(.youth-avatar){border:2px solid #ffb35f!important;background:linear-gradient(145deg,#f28b35,#a94442 58%,#493a8b)!important;box-shadow:0 0 0 5px #ff9b3b16,0 9px 22px #0005!important}
+.scope :global(.youth-card-decoration){color:#ffb45f!important;filter:drop-shadow(0 0 7px #ff963c66)!important}
+.scope :global(.youth-card-action){width:calc(100% + 26px)!important;border-top:1px solid #294261!important;background:#0b1a31!important;color:#78d7ff!important;letter-spacing:.035em!important}
+.scope :global(.youth-welcome){background:linear-gradient(115deg,#10284a,#172447 58%,#2c2039)!important;border-radius:22px!important}
+.scope :global(.youth-welcome)::after{opacity:.3!important}
+.scope :global(.youth-welcome) h1{font-size:clamp(28px,4vw,44px)!important;letter-spacing:-.05em!important;text-transform:none!important}
+.scope :global(.youth-welcome) p{color:#c0cce0!important}
+.scope :global(.youth-options) article{
+  background:#10213d!important;border:1px solid #294363!important;border-radius:16px!important;
+  box-shadow:0 10px 24px #0002!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease!important;
+}
+.scope :global(.youth-options) article:hover{transform:translateY(-3px)!important;border-color:#398bd1!important;box-shadow:0 16px 30px #0004!important;background:#142a4a!important}
+.scope :global(.youth-options) article svg{color:#ffad5b!important}
+.scope :global(.youth-options) article h2{font-size:15px!important;letter-spacing:-.02em!important;text-transform:none!important}
+.scope :global(.youth-options) article p{color:#a9bad3!important}
+.scope :global(.youth-home){background:linear-gradient(135deg,#10294b,#171f40 62%,#32223c)!important;border:1px solid #38557b!important;border-radius:24px!important;box-shadow:0 24px 54px #0005!important}
+.scope :global(.youth-home)::before{animation:none!important;background:radial-gradient(ellipse at 50% 0%,#ffad5b18,transparent 55%)!important}
+.scope :global(.youth-home)::after{display:none!important}
+.scope :global(.youth-home) :global(.youth-avatar):global(.large){animation:none!important}
+.scope :global(.youth-sound-toggle),.scope :global(.youth-customize-trigger){background:#132746!important;border:1px solid #355276!important;color:#e8f2ff!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.scope :global(.youth-profile-quickstats) span{background:#102543!important;border-color:#355071!important;color:#dce9fb!important}
+.scope :global(.youth-activities),
+.scope :global(.youth-game-hub),
+.scope :global(.youth-prayer-panel){padding:clamp(16px,2.4vw,25px)!important}
+.scope :global(.youth-activities)>header,
+.scope :global(.youth-game-hub)>header{border-bottom:1px solid #263d60;padding-bottom:13px}
+.scope :global(.youth-activity-card),
+.scope :global(.youth-hall-card),
+.scope :global(.youth-store-item),
+.scope :global(.youth-faithful-list) li{
+  background:#10213c!important;border:1px solid #2a4264!important;border-radius:14px!important;
+  box-shadow:0 8px 20px #0002!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+.scope :global(.youth-activity-card):hover,
+.scope :global(.youth-hall-card):hover{transform:translateY(-3px)!important;border-color:#318ee5!important}
+.scope :global(.youth-security-note){color:#8196b5!important;border-color:#263d60!important}
+.scope :global(.youth-portal) :global(button),
+.scope :global(.youth-portal) :global(a){outline-offset:3px}
+.scope :global(.youth-portal) :global(button:focus-visible),
+.scope :global(.youth-portal) :global(a:focus-visible){outline:2px solid #55c4ff!important}
+@keyframes jfYouthCardIn{from{opacity:0;transform:translateY(13px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:680px){
+ .scope:global(.youth-portal){padding:15px 10px 30px!important}
+ .scope :global(.youth-header){margin:0 auto 18px!important}
+ .scope :global(.youth-selector){padding:14px!important;border-radius:16px!important}
+ .scope :global(.youth-profiles){grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ .scope :global(.youth-profile-card){min-height:180px!important;padding:14px 8px 0!important}
+ .scope :global(.youth-avatar){width:64px!important;height:64px!important}
+ .scope :global(.youth-options){grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ .scope :global(.youth-home){min-height:300px!important;padding:54px 15px 25px!important}
+ .scope :global(.youth-home) :global(.youth-avatar):global(.large){width:100px!important;height:100px!important}
+ .scope :global(.youth-customize-trigger){top:10px!important;right:10px!important}
+}
+@media(max-width:390px){
+ .scope :global(.youth-profiles){grid-template-columns:1fr 1fr!important}
+ .scope :global(.youth-profile-card){min-height:168px!important}
+ .scope :global(.youth-options){grid-template-columns:1fr!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .scope :global(.youth-profile-card),.scope :global(.youth-options) article{animation:none!important;transition:none!important}
+ .scope :global(.youth-profile-card):hover,.scope :global(.youth-options) article:hover{transform:none!important}
+}
