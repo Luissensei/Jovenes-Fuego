@@ -1,18 +1,6 @@
+import {httpsCallable} from 'firebase/functions';
 
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  orderBy,
-  query,
-  Timestamp,
-  type Unsubscribe,
-} from 'firebase/firestore';
-
-import { assertFirebaseWritesAllowed, db } from '../firebase/client';
-import { COLLECTIONS } from './collections';
+import {assertFirebaseWritesAllowed, functions} from '../firebase/client';
 
 export type DevotionalRecord = {
   id: string;
@@ -26,48 +14,52 @@ export type DevotionalRecord = {
   createdAt: string;
 };
 
-export type CreateDevotionalInput = Omit<
-  DevotionalRecord,
-  'id' | 'createdAt'
->;
+export type CreateDevotionalInput = Omit<DevotionalRecord, 'id' | 'createdAt'>;
+
+async function call<TRequest, TResponse>(
+  name: string,
+  payload: TRequest,
+): Promise<TResponse> {
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const callable = httpsCallable<TRequest, TResponse>(functions, name);
+  const response = await callable(payload);
+  return response.data;
+}
 
 function validateDevotional(data: CreateDevotionalInput) {
   const fields = [
-    data.title,
-    data.verse,
-    data.reference,
-    data.author,
-    data.category,
-    data.date,
-    data.content,
+    data.title, data.verse, data.reference, data.author,
+    data.category, data.date, data.content,
   ];
-
   if (fields.some((value) => typeof value !== 'string' || !value.trim())) {
     throw new Error('Completa todos los campos del devocional.');
   }
-
-  if (data.title.length > 120) {
-    throw new Error('El título no puede superar 120 caracteres.');
+  if (data.title.trim().length > 120 || data.verse.trim().length > 2000 ||
+    data.content.trim().length > 10000 || data.reference.trim().length > 120 ||
+    data.author.trim().length > 100 || data.category.trim().length > 50) {
+    throw new Error('Uno de los campos supera el tamaño permitido.');
   }
-
-  if (data.verse.length > 2000 || data.content.length > 10000) {
-    throw new Error('El versículo o la reflexión son demasiado largos.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data.date) ||
+    Number.isNaN(new Date(`${data.date}T12:00:00`).getTime())) {
+    throw new Error('Indica una fecha válida.');
   }
+}
+
+export async function listDevotionals(): Promise<DevotionalRecord[]> {
+  const response = await call<Record<string, never>, {devotionals: DevotionalRecord[]}>(
+    'adminListDevotionals',
+    {},
+  );
+  return Array.isArray(response.devotionals) ? response.devotionals : [];
 }
 
 export async function createDevotional(
   input: CreateDevotionalInput,
 ): Promise<string> {
   assertFirebaseWritesAllowed();
-
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
   validateDevotional(input);
-
-  const result = await addDoc(
-    collection(db, COLLECTIONS.devotionals),
+  const response = await call<CreateDevotionalInput, {success: boolean; id: string}>(
+    'adminCreateDevotional',
     {
       title: input.title.trim(),
       verse: input.verse.trim(),
@@ -76,70 +68,20 @@ export async function createDevotional(
       category: input.category.trim(),
       date: input.date,
       content: input.content.trim(),
-      createdAt: Timestamp.now(),
     },
   );
-
-  return result.id;
-}
-
-export function subscribeDevotionals(
-  callback: (items: DevotionalRecord[]) => void,
-  onError: (error: Error) => void,
-): Unsubscribe {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
+  if (!response.success || !response.id) {
+    throw new Error('No se pudo confirmar la publicación del devocional.');
   }
-
-  const devotionalQuery = query(
-    collection(db, COLLECTIONS.devotionals),
-    orderBy('createdAt', 'desc'),
-  );
-
-  return onSnapshot(
-    devotionalQuery,
-    (snapshot) => {
-      const items: DevotionalRecord[] = snapshot.docs.map((item) => {
-        const data = item.data();
-
-        return {
-          id: item.id,
-          title: String(data.title ?? ''),
-          verse: String(data.verse ?? ''),
-          reference: String(data.reference ?? ''),
-          author: String(data.author ?? ''),
-          category: String(data.category ?? ''),
-          date: String(data.date ?? ''),
-          content: String(data.content ?? ''),
-          createdAt:
-            data.createdAt instanceof Timestamp
-              ? data.createdAt.toDate().toISOString()
-              : '',
-        };
-      });
-
-      callback(items);
-    },
-    (cause) => {
-      onError(
-        cause instanceof Error
-          ? cause
-          : new Error('No se pudieron cargar los devocionales.'),
-      );
-    },
-  );
+  return response.id;
 }
 
 export async function deleteDevotional(id: string): Promise<void> {
   assertFirebaseWritesAllowed();
-
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
-  if (!id.trim()) {
-    throw new Error('Selecciona un devocional válido.');
-  }
-
-  await deleteDoc(doc(db, COLLECTIONS.devotionals, id));
+  if (!id.trim()) throw new Error('Selecciona un devocional válido.');
+  const response = await call<{id: string}, {success: boolean}>(
+    'adminDeleteDevotional',
+    {id: id.trim()},
+  );
+  if (!response.success) throw new Error('No se pudo confirmar la eliminación del devocional.');
 }
