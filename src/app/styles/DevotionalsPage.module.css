@@ -325,3 +325,15 @@
 :global(:root[data-theme="light"]) .scope :global(.devotionals-modal){background:#fff;color:#382d40}
 @media(max-width:600px){.scope :global(.devotionals-page){gap:16px}.scope :global(.devotionals-hero){padding:20px;border-radius:19px}.scope :global(.devotionals-feature){min-height:140px;border-radius:18px}.scope :global(.devotionals-controls){padding:14px;border-radius:16px}.scope :global(.devotional-card){border-radius:16px}}
 @media(prefers-reduced-motion:reduce){.scope :global(.devotional-card){transition:none}.scope :global(.devotional-card):hover{transform:none}}
+
+/* Devotionals: editorial reading surface, accessible controls and calmer cards. */
+.scope :global(.devotionals-hero){background:linear-gradient(115deg,#172943,#203b60);border:1px solid #354d6c;border-radius:17px}
+.scope :global(.devotionals-eyebrow){color:#a9c4f3}
+.scope :global(.devotional-card){background:#121f32;border:1px solid #2a3d56;border-radius:14px;box-shadow:0 7px 22px #0002}
+.scope :global(.devotional-card) h2,.scope :global(.devotional-card) h3{color:#edf3fb}
+.scope :global(.devotional-preview),.scope :global(.devotional-reference){color:#a9bad0}
+.scope :global(.devotionals-search){background:#0d192a;border:1px solid #30445e;border-radius:10px;color:#edf3fb}
+.scope :global(.devotionals-categories) button{background:#17283e;border:1px solid #30445e;color:#cbd8e8;border-radius:9px}
+.scope :global(.devotionals-categories) button.active{background:#294b7a;border-color:#668cff;color:#fff}
+.scope :global(.devotionals-modal){background:#121f32;border:1px solid #30445e;color:#edf3fb;border-radius:16px}
+@media(max-width:650px){.scope :global(.devotionals-hero){padding:19px;border-radius:15px}}
