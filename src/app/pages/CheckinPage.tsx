@@ -1,7 +1,6 @@
 import styles from '../styles/CheckinPage.module.css';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   QrCode,
@@ -144,27 +143,41 @@ export default function CheckinPage() {
   useEffect(() => {
     if (!scanning) return;
 
-    const scanner = new Html5QrcodeScanner(
-      'checkin-qr-reader',
-      {
-        fps: 10,
-        qrbox: { width: 230, height: 230 },
-        rememberLastUsedCamera: true,
-      },
-      false,
-    );
+    let active = true;
+    let scanner: import('html5-qrcode').Html5QrcodeScanner | null = null;
 
-    scanner.render(
-      (decodedText) => {
-        scannerCallback.current(decodedText);
-      },
-      () => {},
-    );
+    void import('html5-qrcode')
+      .then(({Html5QrcodeScanner}) => {
+        if (!active) return;
+        scanner = new Html5QrcodeScanner(
+          'checkin-qr-reader',
+          {
+            fps: 10,
+            qrbox: {width: 230, height: 230},
+            rememberLastUsedCamera: true,
+          },
+          false,
+        );
+        scanner.render(
+          (decodedText) => scannerCallback.current(decodedText),
+          () => {},
+        );
+      })
+      .catch((cause: unknown) => {
+        if (!active) return;
+        setError(cause instanceof Error
+          ? cause.message
+          : 'No se pudo iniciar el lector QR.');
+        setScanning(false);
+      });
 
     return () => {
-      void scanner.clear().catch((cause) => {
-        console.warn('No se pudo cerrar el escáner QR:', cause);
-      });
+      active = false;
+      if (scanner) {
+        void scanner.clear().catch((cause) => {
+          console.warn('No se pudo cerrar el escáner QR:', cause);
+        });
+      }
     };
   }, [scanning]);
 
