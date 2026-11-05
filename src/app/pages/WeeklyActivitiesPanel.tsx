@@ -114,7 +114,7 @@ export default function WeeklyActivitiesPanel() {
       {message && <p className="weekly-admin-alert success" role="status">{message}</p>}
 
       {loading ? <div className="weekly-admin-loading"><RefreshCw size={21}/> Cargando agenda...</div> : items.length === 0 ? (
-        <div className="weekly-admin-empty"><CalendarDays size={30}/><strong>Sin actividades todavía</strong><span>Publica reuniones, encuentros, retos y actividades para esta semana.</span><button type="button" onClick={openCreate}><Plus size={16}/> Crear primera actividad</button></div>
+        <div className="weekly-admin-empty"><CalendarDays size={30}/><strong>Sin actividades todavía</strong><span>Publica reuniones, encuentros, retos y actividades para esta semana.</span><button type="button" onClick={openCreate} disabled={firebaseReadOnlyMode}><Plus size={16}/> Crear primera actividad</button></div>
       ) : (
         <div className="weekly-admin-list">
           {items.map((item) => (
