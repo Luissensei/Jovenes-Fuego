@@ -335,3 +335,21 @@ body{
   transform:none!important;
  }
 }
+
+/* Keyboard navigation: visible, high-contrast focus without relying on color alone. */
+:where(.layout,.youth-portal) :is(a,button,input,select,textarea,[role="button"],summary):focus-visible{
+ outline:3px solid rgba(91,183,255,.88)!important;
+ outline-offset:3px!important;
+ box-shadow:0 0 0 5px rgba(42,135,218,.18)!important;
+}
+:where(.layout,.youth-portal) :is(button,a):disabled,
+:where(.layout,.youth-portal) :is(button,a)[aria-disabled="true"]{
+ cursor:not-allowed!important;
+}
+:where(.layout,.youth-portal) :is(input,select,textarea)::placeholder{
+ color:#829bb9!important;opacity:1!important;
+}
+@media(max-width:760px){
+ .jf-bottom-nav{padding-bottom:max(8px,env(safe-area-inset-bottom))!important}
+ .main>.topline{padding-top:max(8px,env(safe-area-inset-top))}
+}
