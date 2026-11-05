@@ -573,8 +573,19 @@ export const savePublicProfileAppearance = onCall(async (request) => {
 
   const memberRef = db.collection("members").doc(memberId);
   const photoRef = db.collection("photos").doc(memberId);
-  const memberSnapshot = await memberRef.get();
-  if (!memberSnapshot.exists || memberSnapshot.data()?.nopub === true) {
+  const [memberSnapshot, modernPublicSnapshot, rankingSnapshot] = await Promise.all([
+    memberRef.get(),
+    db.collection("publicProfiles").doc(memberId).get(),
+    db.collection("public").doc("ranking").get(),
+  ]);
+  const rankingData = rankingSnapshot.data() ?? {};
+  const rankingEntries = Array.isArray(rankingData.all) ? rankingData.all as unknown[] : [];
+  const publishedInLegacyRanking = rankingData.off !== true && rankingEntries.some((entry) =>
+    Boolean(entry && typeof entry === "object" &&
+      text((entry as Record<string, unknown>).i, 150) === memberId),
+  );
+  if (!memberSnapshot.exists || memberSnapshot.data()?.nopub === true ||
+    (!modernPublicSnapshot.exists && !publishedInLegacyRanking)) {
     throw new HttpsError("not-found", "El perfil ya no está disponible para personalización.");
   }
 
