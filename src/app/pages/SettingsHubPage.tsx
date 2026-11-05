@@ -1,11 +1,10 @@
 import styles from '../styles/SettingsHubPage.module.css';
 import {NavLink} from 'react-router-dom';
-import {useThemePreference} from '../useThemePreference';
 import {firebaseProjectId,firebaseReadOnlyMode} from '../../services/firebase/client';
 import ManagementPage from './ManagementPages';
 import {
   Users, ShieldCheck, CalendarDays, BookOpen, ClipboardList,
-  Sparkles, Palette, ChevronRight, Sun, Moon, Crown, LockKeyhole,
+  Sparkles, Palette, ChevronRight, LockKeyhole,
 } from 'lucide-react';
 
 const areas=[
@@ -17,9 +16,6 @@ const areas=[
 ];
 
 export default function SettingsHubPage(){
-  const {theme,nextThemeLabel,toggleTheme}=useThemePreference();
-  const ThemeIcon=theme==='dark'?Moon:theme==='light'?Sun:Crown;
-  const themeName=theme==='dark'?'Oscuro':theme==='light'?'Claro':'Imperial';
   return(
     <main className={styles.scope}>
       <header className={styles.hero}>
@@ -27,9 +23,8 @@ export default function SettingsHubPage(){
         <div><span>CONTROL DE LA PLATAFORMA</span><h1>Configuración</h1><p>Administra accesos, contenido y preferencias de Jóvenes de Fuego desde un solo lugar.</p></div>
       </header>
       <section className={styles.themeCard}>
-        <div className={styles.themeIcon}><ThemeIcon size={22}/></div>
-        <div className={styles.themeCopy}><span>APARIENCIA</span><b>Tema actual: {themeName}</b><small>Tu preferencia se guarda en este dispositivo y no modifica los perfiles de los jóvenes.</small></div>
-        <button type="button" onClick={toggleTheme}>Cambiar a {nextThemeLabel}</button>
+        <div className={styles.themeIcon}><Palette size={22}/></div>
+        <div className={styles.themeCopy}><span>IDENTIDAD VISUAL</span><b>Command Center · Tema único</b><small>Una interfaz oscura, clara y consistente en administración y portal juvenil. La personalización de perfiles no cambia el tema general de la aplicación.</small></div>
       </section>
       <section className={styles.section}>
         <div className={styles.sectionTitle}><span>HERRAMIENTAS DE ADMINISTRACIÓN</span><h2>Áreas de configuración</h2><p>Entra directamente en la función que necesitas.</p></div>
@@ -38,7 +33,7 @@ export default function SettingsHubPage(){
         </div>
       </section>
       <section className={styles.security}>
-        <div><LockKeyhole size={19}/><div><b>{firebaseReadOnlyMode?'Base original en solo lectura':'Entorno de prueba conectado'}</b><small>{firebaseReadOnlyMode?'Las escrituras administrativas están bloqueadas para proteger producción.':'Los cambios de pruebas deben realizarse únicamente en Firebase Staging.'}</small></div></div>
+        <div><LockKeyhole size={19}/><div><b>{firebaseReadOnlyMode?'Firebase original · solo lectura':'Firebase original conectado'}</b><small>{firebaseReadOnlyMode?'Las operaciones de escritura permanecen bloqueadas mientras se revisan los permisos y las reglas.':'Proyecto vinculado: las operaciones siguen sujetas a los permisos de Firebase.'}</small></div></div>
         <code>{firebaseProjectId}</code>
       </section>
       <details className={styles.advanced}>
