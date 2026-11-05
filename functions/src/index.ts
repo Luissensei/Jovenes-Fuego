@@ -420,8 +420,15 @@ export const adminUpdateLeader = onCall({enforceAppCheck: true}, async (request)
   if (!existing.exists) throw new HttpsError("not-found", "No se encontró el usuario.");
 
   const previousRole = String(existing.data()?.role ?? "").trim().toLowerCase();
-  const demotingAdmin = ["admin", "administrador"].includes(previousRole) &&
-    (!["admin", "administrador"].includes(role) || !active);
+  const previousIsAdmin = ["admin", "administrador"].includes(previousRole);
+  const nextIsAdmin = ["admin", "administrador"].includes(role);
+  if (nextIsAdmin && !previousIsAdmin) {
+    throw new HttpsError(
+      "permission-denied",
+      "No se puede elevar una cuenta a administrador desde la gestión de líderes.",
+    );
+  }
+  const demotingAdmin = previousIsAdmin && (!nextIsAdmin || !active);
   if (demotingAdmin) {
     const admins = await db.collection("users")
       .where("role", "in", ["admin", "administrador"]).limit(20).get();
