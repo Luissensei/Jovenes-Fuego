@@ -14,7 +14,7 @@ export type LeaderRecord = {
 
 function callable<TInput, TOutput>(name: string) {
   if (!functions) {
-    throw new Error('La gestión de líderes solo está disponible en Firebase Staging con Cloud Functions desplegadas.');
+    throw new Error('No se pudo conectar con Firebase Functions. Comprueba que las funciones estén desplegadas en el proyecto original y que tu sesión tenga permisos de administración.');
   }
   return httpsCallable<TInput, TOutput>(functions, name);
 }
