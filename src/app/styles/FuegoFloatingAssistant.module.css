@@ -43,8 +43,20 @@
  from{opacity:0;transform:translateY(14px) scale(.98)}
  to{opacity:1;transform:translateY(0) scale(1)}
 }
+@media(max-width:900px){
+ .dock{right:14px;bottom:calc(102px + env(safe-area-inset-bottom))}
+ .window{
+  right:10px;bottom:calc(178px + env(safe-area-inset-bottom));
+  width:calc(100vw - 20px);height:min(620px,calc(100dvh - 196px - env(safe-area-inset-bottom)));
+  min-height:230px;border-radius:16px;
+ }
+}
 @media(max-width:600px){
- .dock{right:14px;bottom:calc(14px + env(safe-area-inset-bottom))}
- .window{right:10px;bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100vw - 20px);border-radius:16px}
+ .dock{right:12px}
+ .window{right:10px;width:calc(100vw - 20px)}
+}
+@media(max-height:500px) and (max-width:900px){
+ .dock{bottom:calc(90px + env(safe-area-inset-bottom))}
+ .window{bottom:calc(156px + env(safe-area-inset-bottom));height:calc(100dvh - 174px - env(safe-area-inset-bottom));min-height:190px}
 }
 @media(prefers-reduced-motion:reduce){.launcherAura{animation:none!important}}
