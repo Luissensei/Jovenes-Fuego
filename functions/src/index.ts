@@ -256,7 +256,7 @@ export const getMyApplicationProfile = onCall(async (request) => {
 
 const defaultLeaderPermissions = [
   "members", "attendance", "reports", "followups", "devotionals", "visitors",
-  "prayers", "events", "checkins", "turns", "ranking", "games", "profile",
+  "events", "checkins", "turns", "ranking", "games", "profile",
 ];
 
 async function requireModulePermission(uid: string, moduleId: string): Promise<AuthorizedRole> {
@@ -1372,7 +1372,7 @@ export const adminListWeeklyActivities = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  await requireAdminOrPastor(request.auth.uid);
+  await requireModulePermission(request.auth.uid, "events");
 
   const [modernSnapshot, legacyEventsSnapshot, rankingSnapshot] = await Promise.all([
     db.collection("weeklyActivities").limit(100).get(),
@@ -1418,7 +1418,7 @@ export const adminSaveWeeklyActivity = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  await requireAdminOrPastor(request.auth.uid);
+  await requireModulePermission(request.auth.uid, "events");
 
   const data = request.data ?? {};
   const title = text(data.title, 120);
