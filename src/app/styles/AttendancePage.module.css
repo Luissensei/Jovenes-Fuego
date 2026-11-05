@@ -598,3 +598,22 @@
  .scope :global(.attendance-summary) :global(.attendance-card):hover,
  .scope :global(.attendance-member) :global(.attendance-status-button):hover{transform:none}
 }
+
+/* Attendance: status is selected with deliberate action buttons, not oversized form rows. */
+.scope :global(.attendance-page){gap:18px}
+.scope :global(.attendance-header){padding:27px 30px;border-radius:17px;background:linear-gradient(115deg,#172943,#203b60);border:1px solid #354d6c;box-shadow:0 12px 28px #0003}
+.scope :global(.attendance-header) h1{color:#f3f6fc;letter-spacing:-.035em}
+.scope :global(.attendance-header) p{color:#bdcadd}
+.scope :global(.attendance-refresh){background:#1b304a;border:1px solid #48617f;color:#e5eefb;border-radius:10px}
+.scope :global(.attendance-card){background:#121f32;border:1px solid #2a3d56;border-radius:14px;box-shadow:0 7px 22px #0002}
+.scope :global(.attendance-card) h2,.scope :global(.attendance-card) label,.scope :global(.attendance-member) strong{color:#edf3fb}
+.scope :global(.attendance-card) h3,.scope :global(.attendance-card)>p{color:#9aabc0}
+.scope :global(.attendance-card) input,.scope :global(.attendance-card) select{background:#0d192a;border:1px solid #30445e;color:#edf3fb;border-radius:9px}
+.scope :global(.attendance-card) button{background:#426fce;border:1px solid #5d88e0;border-radius:9px;box-shadow:none}
+.scope :global(.attendance-card) button:hover:not(:disabled){background:#527fdf;transform:translateY(-1px)}
+.scope :global(.attendance-member){background:#142238;border:1px solid #2b405b;border-radius:11px}
+.scope :global(.attendance-member):hover{border-color:#5276aa}
+.scope :global(.attendance-status-button){border:1px solid #354b68!important;border-radius:9px!important;background:#1a2b42!important;color:#cbd8e8!important}
+.scope :global(.attendance-status-button.active){background:#294b7a!important;border-color:#668cff!important;color:#fff!important}
+.scope :global(.attendance-summary) :global(.attendance-card){background:#14243a;border-color:#304864}
+@media(max-width:600px){.scope :global(.attendance-header){padding:19px;align-items:flex-start;flex-direction:column}.scope :global(.attendance-summary){grid-template-columns:repeat(2,minmax(0,1fr))}}
