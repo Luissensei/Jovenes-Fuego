@@ -811,6 +811,21 @@ export const adminListManagedRecords = onCall(async (request) => {
     const data = document.data();
     if (module === "inbox" && data.k === "p") return [];
 
+    if (module === "inbox" && "k" in data) {
+      const message = text(data.message ?? data.t ?? data.text ?? data.body, 3000);
+      if (!message) return [];
+      return [{
+        id: `legacy:${document.id}`,
+        senderName: text(data.senderName ?? data.name ?? data.n, 120) || "Anónimo",
+        subject: text(data.subject ?? data.title, 160) || "Mensaje recibido",
+        senderContact: text(data.senderContact ?? data.contact ?? data.email ?? data.phone, 200),
+        message,
+        status: "Nuevo",
+        createdAt: photoDate(data.createdAt ?? data.c) || photoDate(data.d),
+        editable: false,
+      }];
+    }
+
     if (module === "followups" && !("name" in data) && ("m" in data || "t" in data)) {
       const memberId = text(data.m, 150);
       return [{
