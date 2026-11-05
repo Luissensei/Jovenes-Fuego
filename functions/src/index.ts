@@ -462,6 +462,73 @@ export const adminUpdateMember = onCall(async (request) => {
   return {success: true, memberId};
 });
 
+type WeeklyActivityRecord = {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  published: boolean;
+  editable?: boolean;
+};
+
+function mapLegacyWeeklyActivity(
+  id: string,
+  data: Record<string, unknown>,
+  editable = false,
+): WeeklyActivityRecord | null {
+  const title = text(data.t ?? data.title, 120);
+  const date = text(data.d ?? data.date, 10);
+  if (!title || !isValidDate(date)) return null;
+  return {
+    id,
+    title,
+    description: text(data.n ?? data.description, 1200),
+    date,
+    time: text(data.h ?? data.time, 10),
+    location: text(data.p ?? data.location, 120),
+    published: data.published !== false,
+    editable,
+  };
+}
+
+function mapModernWeeklyActivity(
+  id: string,
+  data: Record<string, unknown>,
+): WeeklyActivityRecord | null {
+  const title = text(data.title, 120);
+  const date = text(data.date, 10);
+  if (!title || !isValidDate(date)) return null;
+  return {
+    id,
+    title,
+    description: text(data.description, 1200),
+    date,
+    time: text(data.time, 10),
+    location: text(data.location, 120),
+    published: data.published === true,
+    editable: true,
+  };
+}
+
+function mergeWeeklyActivityRecords(
+  groups: WeeklyActivityRecord[][],
+): WeeklyActivityRecord[] {
+  const merged = new Map<string, WeeklyActivityRecord>();
+  groups.forEach((items) => {
+    items.forEach((item) => {
+      const key = `${item.title.trim().toLocaleLowerCase("es")}|${item.date}`;
+      merged.set(key, item);
+    });
+  });
+  return [...merged.values()].sort((left, right) =>
+    left.date.localeCompare(right.date) ||
+    left.time.localeCompare(right.time) ||
+    left.title.localeCompare(right.title, "es"),
+  );
+}
+
 export const getPublicWeeklyActivities = onCall(async () => {
   try {
     const [modernSnapshot, legacyEventsSnapshot, rankingSnapshot] = await Promise.all([
