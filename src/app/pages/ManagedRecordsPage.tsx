@@ -1,5 +1,5 @@
 import styles from '../styles/ManagedRecordsPage.module.css';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Plus,
   Search,
@@ -14,7 +14,7 @@ import {
 import {
   createManagedRecord,
   deleteManagedRecord,
-  subscribeManagedRecords,
+  listManagedRecords,
   updateManagedRecord,
   updateManagedRecordStatus,
   type ManagedCollection,
@@ -83,34 +83,29 @@ export default function ManagedRecordsPage({ config }: Props) {
     () => initialForm(config.fields),
   );
 
-  useEffect(() => {
-    setLoading(true);
-    setError('');
+  const mountedRef = useRef(false);
 
-    let unsubscribe: (() => void) | undefined;
-
-    try {
-      unsubscribe = subscribeManagedRecords(
-        config.collection,
-        (items) => {
-          setRecords(items);
-          setLoading(false);
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
-    } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'No se pudieron cargar los registros.',
-      );
-      setLoading(false);
+  async function loadRecords(showLoading = true) {
+    if (mountedRef.current) {
+      if (showLoading) setLoading(true);
+      setError('');
     }
+    try {
+      const items = await listManagedRecords(config.collection);
+      if (mountedRef.current) setRecords(items);
+    } catch (cause) {
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudieron cargar los registros.');
+      }
+    } finally {
+      if (mountedRef.current) setLoading(false);
+    }
+  }
 
-    return () => unsubscribe?.();
+  useEffect(() => {
+    mountedRef.current = true;
+    void loadRecords();
+    return () => { mountedRef.current = false; };
   }, [config.collection]);
 
   const filtered = useMemo(() => {
@@ -202,17 +197,17 @@ export default function ManagedRecordsPage({ config }: Props) {
         setMessage('Registro creado correctamente.');
       }
 
+      if (!mountedRef.current) return;
       setShowForm(false);
       setEditingId(null);
       setForm(initialForm(config.fields));
+      await loadRecords(false);
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'No se pudo guardar el registro.',
-      );
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo guardar el registro.');
+      }
     } finally {
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   }
 
@@ -230,15 +225,15 @@ export default function ManagedRecordsPage({ config }: Props) {
         record.id,
         status,
       );
+      if (!mountedRef.current) return;
       setMessage('Estado actualizado correctamente.');
+      await loadRecords(false);
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'No se pudo cambiar el estado.',
-      );
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo cambiar el estado.');
+      }
     } finally {
-      setProcessingId(null);
+      if (mountedRef.current) setProcessingId(null);
     }
   }
 
@@ -255,15 +250,15 @@ export default function ManagedRecordsPage({ config }: Props) {
 
     try {
       await deleteManagedRecord(config.collection, record.id);
+      if (!mountedRef.current) return;
       setMessage('Registro eliminado correctamente.');
+      await loadRecords(false);
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'No se pudo eliminar el registro.',
-      );
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo eliminar el registro.');
+      }
     } finally {
-      setProcessingId(null);
+      if (mountedRef.current) setProcessingId(null);
     }
   }
 
@@ -408,6 +403,9 @@ export default function ManagedRecordsPage({ config }: Props) {
                       Registrado: {new Date(record.createdAt).toLocaleString('es-CO')}
                     </small>
                   )}
+                  {record.editable === false && (
+                    <small className="managed-created">Registro histórico · solo consulta</small>
+                  )}
                 </div>
 
                 <div className="managed-record-actions">
@@ -415,7 +413,7 @@ export default function ManagedRecordsPage({ config }: Props) {
                     <span>Cambiar estado</span>
                     <select
                       value={record.status}
-                      disabled={processingId === record.id}
+                      disabled={processingId === record.id || record.editable === false}
                       onChange={(event) =>
                         void handleStatusChange(record, event.target.value)
                       }
@@ -440,7 +438,7 @@ export default function ManagedRecordsPage({ config }: Props) {
                       aria-label="Editar registro"
                       title="Editar"
                       onClick={() => openEdit(record)}
-                      disabled={processingId === record.id}
+                      disabled={processingId === record.id || record.editable === false}
                     >
                       <Pencil size={16} />
                     </button>
@@ -451,7 +449,7 @@ export default function ManagedRecordsPage({ config }: Props) {
                       title="Eliminar"
                       className="managed-delete"
                       onClick={() => void handleDelete(record)}
-                      disabled={processingId === record.id}
+                      disabled={processingId === record.id || record.editable === false}
                     >
                       <Trash2 size={16} />
                     </button>
