@@ -580,3 +580,53 @@ body{background:var(--jf-bg)!important;color:var(--jf-text)!important}
  .main :is(.management-header,.prayers-admin-page .management-header){padding:19px!important;border-radius:15px!important;align-items:flex-start!important;flex-direction:column!important}
  .main .prayers-admin-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+
+/* Youth portal + learning games: align the signed-in experience with the new visual language. */
+.main .youth-portal{
+ --jf-bg:#0b1220;--jf-surface:#121f32;--jf-surface-raised:#1d3048;--jf-border:#2a3d56;
+ --jf-text:#edf3fb;--jf-muted:#9aabc0;--jf-accent:#668cff;--jf-shadow-soft:0 7px 22px rgba(0,0,0,.16);
+ background:#0b1220!important;color:#edf3fb!important
+}
+.main .youth-portal :is(.youth-selector,.youth-welcome,.youth-profile-card,.youth-customizer,.youth-activity-card,.youth-game-tile,.youth-prayer-panel,.youth-immersive-ranking,.youth-my-standing-card,.youth-hall-card,.youth-3d-avatar-card){
+ background:#121f32!important;border:1px solid #2a3d56!important;color:#edf3fb!important;
+ box-shadow:0 7px 22px rgba(0,0,0,.16)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important
+}
+.main .youth-portal :is(.youth-welcome,.youth-activities,.youth-game-hub,.youth-immersive-ranking-header){
+ background:linear-gradient(115deg,#172943,#203b60)!important;border-color:#354d6c!important
+}
+.main .youth-portal :is(.youth-welcome h1,.youth-welcome h2,.youth-profile-title,.youth-podium-name,.youth-hall-caption,.youth-activity-card h3,.youth-game-tile h3){color:#f3f6fc!important}
+.main .youth-portal :is(.youth-welcome p,.youth-profile-motto,.youth-activity-meta,.youth-activity-date,.youth-hall-faithful,.youth-faithful-name,.youth-profile-quickstats,.youth-security-note){color:#a9bad0!important}
+.main .youth-portal :is(.youth-brand-icon,.youth-avatar,.youth-podium-medal,.youth-profile-badge){background:#203a5b!important;color:#cfe0ff!important}
+.main .youth-portal :is(.youth-customize-trigger,.youth-card-action,.youth-sound-toggle){background:#1b304a!important;border:1px solid #48617f!important;color:#e5eefb!important}
+.main .youth-portal :is(.youth-activity-card,.youth-game-tile,.youth-profile-card){border-radius:14px!important}
+.main .youth-portal :is(.youth-activity-card:hover,.youth-game-tile:hover,.youth-profile-card:hover){border-color:#668cff!important;transform:translateY(-2px)}
+.main :is(.qbg-shell,.mbg-game,.verse-game,.trivia-shell){
+ background:#121f32!important;border:1px solid #2a3d56!important;border-radius:16px!important;color:#edf3fb!important;box-shadow:0 12px 28px rgba(0,0,0,.2)!important
+}
+.main :is(.qbg-header h2,.mbg-header h2,.verse-game-header h2,.trivia-intro h2,.trivia-result h2){color:#f3f6fc!important}
+.main :is(.qbg-header p,.mbg-header p,.verse-game-header p,.trivia-intro p){color:#a9bad0!important}
+.main :is(.qbg-eyebrow,.mbg-eyebrow,.verse-game-label,.trivia-eyebrow){color:#9bb9ff!important}
+.main :is(.qbg-question,.mbg-question,.verse-question-card,.trivia-question-card,.trivia-intro,.trivia-result,.qbg-result,.mbg-result){
+ background:#17283e!important;border:1px solid #304761!important;color:#edf3fb!important;border-radius:13px!important
+}
+.main :is(.qbg-choice-row,.qbg-character-options button,.mbg-options button,.mbg-word-options button,.verse-option,.trivia-option){
+ background:#1a2b42!important;border:1px solid #354b68!important;color:#e1eaf5!important;border-radius:10px!important
+}
+.main :is(.qbg-choice-row:hover,.qbg-character-options button:hover,.mbg-options button:hover,.mbg-word-options button:hover,.verse-option:hover,.trivia-option:hover){border-color:#668cff!important}
+.main :is(.qbg-choice-row.correct,.mbg-options .correct,.verse-option.correct,.trivia-option.correct){background:#174538!important;border-color:#35bd91!important;color:#e4fff5!important}
+.main :is(.qbg-choice-row.incorrect,.mbg-options .incorrect,.verse-option.incorrect,.trivia-option.incorrect){background:#4a2633!important;border-color:#ef7180!important;color:#ffe8ed!important}
+.main :is(.qbg-next,.mbg-primary-button,.verse-next-button,.trivia-primary,.trivia-next){background:#426fce!important;border:1px solid #668cff!important;color:#fff!important;border-radius:9px!important}
+.main :is(.qbg-back,.mbg-back,.verse-back-button,.trivia-back){color:#b7c8df!important}
+.main :is(.qbg-stats,.mbg-stats,.verse-game-stats,.trivia-game-top){background:#14243a!important;border:1px solid #304864!important;color:#a9bad0!important;border-radius:11px!important}
+.main .fuego-assistant :is(.panel,.welcome,.messages,.composer){background:#121f32!important;border-color:#2a3d56!important;color:#edf3fb!important;backdrop-filter:none!important}
+.main .fuego-assistant .emblem{background:#203a5b!important;color:#cfe0ff!important}
+.main .fuego-assistant .heading>span{color:#9bb9ff!important}
+.main .fuego-assistant .aiMessage{background:#17283e!important;border-color:#304761!important;color:#edf3fb!important}
+.main .fuego-assistant .userMessage{background:#294b7a!important;color:#fff!important}
+.main .fuego-assistant .composer textarea{background:#0d192a!important;border-color:#30445e!important;color:#edf3fb!important}
+@media(max-width:650px){
+ .main .youth-portal{padding:14px!important}
+ .main :is(.qbg-shell,.mbg-game,.verse-game,.trivia-shell){padding:14px!important;border-radius:13px!important}
+ .main :is(.qbg-stats,.mbg-stats,.verse-game-stats){flex-wrap:wrap;gap:8px}
+}
