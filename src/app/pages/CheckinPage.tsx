@@ -39,6 +39,7 @@ export default function CheckinPage() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const scannerCallback = useRef<(value: string) => void>(() => {});
+  const mountedRef = useRef(false);
 
   const selectedMember = useMemo(
     () => members.find((member) => member.id === selectedMemberId),
@@ -47,6 +48,7 @@ export default function CheckinPage() {
 
   useEffect(() => {
     let active = true;
+    mountedRef.current = true;
     async function loadCheckinData() {
       setLoading(true);
       setError('');
@@ -66,7 +68,10 @@ export default function CheckinPage() {
       }
     }
     void loadCheckinData();
-    return () => { active = false; };
+    return () => {
+      active = false;
+      mountedRef.current = false;
+    };
   }, []);
 
   const processQr = useCallback(async (value: string) => {
@@ -116,7 +121,8 @@ export default function CheckinPage() {
     setSaving(true);
 
     try {
-      await createCheckin({memberId, memberName, meetingName, date});
+      await createCheckin({memberId, memberName, meetingName: meetingName.trim(), date});
+      if (!mountedRef.current) return;
       setCheckins((items) => [{
         id: `${memberId}-${date}-${meetingName.trim()}`,
         memberId, memberName, meetingName: meetingName.trim(), date,
@@ -124,14 +130,14 @@ export default function CheckinPage() {
       }, ...items]);
       setMessage(`Asistencia registrada para ${memberName}.`);
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'No se pudo registrar la asistencia.',
-      );
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo registrar la asistencia.');
+      }
     } finally {
-      setSaving(false);
-      setScanning(false);
+      if (mountedRef.current) {
+        setSaving(false);
+        setScanning(false);
+      }
     }
   }, [saving, members, checkins, date, meetingName]);
 
@@ -186,7 +192,7 @@ export default function CheckinPage() {
   const normalizedMeetingName = meetingName.trim();
 
   const filteredMembers = useMemo(() => members.filter((member) =>
-    String(member.name ?? '')
+    `${member.name ?? ''} ${member.nick ?? ''} ${member.id}`
       .toLocaleLowerCase('es')
       .includes(normalizedSearch),
   ), [members, normalizedSearch]);
@@ -223,7 +229,8 @@ export default function CheckinPage() {
     setSaving(true);
 
     try {
-      await createCheckin({memberId: selectedMember.id, memberName, meetingName, date});
+      await createCheckin({memberId: selectedMember.id, memberName, meetingName: meetingName.trim(), date});
+      if (!mountedRef.current) return;
       setCheckins((items) => [{
         id: `${selectedMember.id}-${date}-${meetingName.trim()}`,
         memberId: selectedMember.id, memberName,
@@ -232,13 +239,11 @@ export default function CheckinPage() {
       }, ...items]);
       setMessage(`Asistencia registrada para ${memberName}.`);
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'No se pudo registrar la asistencia.',
-      );
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo registrar la asistencia.');
+      }
     } finally {
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   }
 
