@@ -537,6 +537,10 @@ function photoDate(value: unknown): string {
     return Number.isNaN(date.getTime()) ? "" : date.toISOString();
   }
   if (value instanceof Date && !Number.isNaN(value.getTime())) return value.toISOString();
+  if (typeof value === "number" && Number.isFinite(value)) {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? "" : date.toISOString();
+  }
   return "";
 }
 
@@ -726,7 +730,7 @@ export const adminCreateManagedRecord = onCall(async (request) => {
   if (definition.required.some((field) => !payload[field]?.trim())) {
     throw new HttpsError("invalid-argument", "Completa todos los campos obligatorios.");
   }
-  if (!isValidDate(payload.date)) {
+  if (module !== "inbox" && !isValidDate(payload.date)) {
     throw new HttpsError("invalid-argument", "Indica una fecha válida.");
   }
   if (module === "turns" && (!isValidTime(payload.startTime) || !isValidTime(payload.endTime))) {
