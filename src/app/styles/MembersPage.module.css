@@ -800,3 +800,22 @@
  .scope :global(.member-card){transition:none}
  .scope :global(.member-card):hover{transform:none}
 }
+
+/* Members: clean directory cards and an uncluttered profile editor. */
+.scope :global(.members-page){gap:20px}
+.scope :global(.members-hero){padding:28px 30px;border-radius:17px;background:linear-gradient(115deg,#172943,#203b60);border:1px solid #354d6c;box-shadow:0 12px 28px #0003}
+.scope :global(.members-kicker){color:#a9c4f3}
+.scope :global(.members-hero-copy p){color:#bdcadd}
+.scope :global(.members-total-card){background:#203a5b;border:1px solid #456184;backdrop-filter:none;-webkit-backdrop-filter:none;border-radius:13px}
+.scope :global(.members-total-icon),.scope :global(.member-avatar){background:#29476c;color:#dce9ff}
+.scope :global(.members-controls),.scope :global(.members-search){border-color:#30445e}
+.scope :global(.members-search){background:#101e31;border-radius:11px}
+.scope :global(.members-search input){color:#edf3fb}
+.scope :global(.members-results){color:#a9bad0}
+.scope :global(.member-card){background:#121f32;border:1px solid #2a3d56;border-radius:14px;box-shadow:0 7px 22px #0002}
+.scope :global(.member-card):hover{transform:translateY(-2px);border-color:#668cff;box-shadow:0 13px 30px #0003}
+.scope :global(.member-card-info h2){color:#edf3fb}
+.scope :global(.member-nick){color:#a9c4f3}
+.scope :global(.member-card-details),.scope :global(.member-meta){color:#a9bad0}
+.scope :global(.member-detail-modal){background:#121f32;border:1px solid #30445e;color:#edf3fb}
+@media(max-width:650px){.scope :global(.members-hero){padding:19px;border-radius:15px;align-items:flex-start;flex-direction:column}.scope :global(.members-grid){grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:12px}}
