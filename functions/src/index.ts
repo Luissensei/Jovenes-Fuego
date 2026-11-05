@@ -678,15 +678,6 @@ export const savePublicProfileAppearance = onCall(async (request) => {
     ["outfits", allowedString(source.outfit, 50, "basic")],
     ["accessories", allowedString(source.accessory, 50, "none")],
   ];
-  selectedItems.forEach(([category, key]) => {
-    if (!Object.prototype.hasOwnProperty.call(youthLookItemCosts, `${category}:${key}`)) {
-      throw new HttpsError("invalid-argument", "La apariencia selecciona un elemento desconocido.");
-    }
-    const cost = youthLookItemCosts[`${category}:${key}`];
-    if (cost > 0 && !ownedItems.includes(`${category}:${key}`)) {
-      throw new HttpsError("failed-precondition", "Debes desbloquear el elemento antes de equiparlo.");
-    }
-  });
 
   const flamesValue = Number(source.flames);
   if (!Number.isFinite(flamesValue) || flamesValue < 0 || flamesValue > 100000) {
@@ -721,6 +712,25 @@ export const savePublicProfileAppearance = onCall(async (request) => {
     }
     const permanentOwned = [...new Set([...previousOwned, ...ownedItems])];
     validateOwnedLookItems(permanentOwned);
+    selectedItems.forEach(([category, key]) => {
+      if (!Object.prototype.hasOwnProperty.call(youthLookItemCosts, `${category}:${key}`)) {
+        throw new HttpsError("invalid-argument", "La apariencia selecciona un elemento desconocido.");
+      }
+      const cost = youthLookItemCosts[`${category}:${key}`];
+      if (cost > 0 && !permanentOwned.includes(`${category}:${key}`)) {
+        throw new HttpsError("failed-precondition", "Debes desbloquear el elemento antes de equiparlo.");
+      }
+    });
+    permanentOwned.forEach((item) => {
+      const prefix = Object.keys(youthLookEquippedPrefixes).find((value) => item.startsWith(value));
+      if (!prefix) return;
+      const category = youthLookEquippedPrefixes[prefix];
+      const key = item.slice(prefix.length);
+      const cost = youthLookItemCosts[`${category}:${key}`];
+      if (cost > 0 && !permanentOwned.includes(`${category}:${key}`)) {
+        throw new HttpsError("failed-precondition", "El inventario no contiene el elemento equipado.");
+      }
+    });
 
     transaction.set(photoRef, {
       ...appearance,
