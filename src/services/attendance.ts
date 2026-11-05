@@ -45,8 +45,13 @@ async function call<T>(name: string, payload: unknown = {}): Promise<T> {
   return response.data;
 }
 
-export async function listAttendanceMeetings(): Promise<AttendanceMeeting[]> {
-  const response = await call<{meetings: AttendanceMeeting[]}>('getAttendanceMeetings');
+export async function listAttendanceMeetings(
+  module: 'attendance' | 'reports' = 'attendance',
+): Promise<AttendanceMeeting[]> {
+  const response = await call<{meetings: AttendanceMeeting[]}>(
+    'getAttendanceMeetings',
+    {module},
+  );
   return Array.isArray(response.meetings) ? response.meetings : [];
 }
 
