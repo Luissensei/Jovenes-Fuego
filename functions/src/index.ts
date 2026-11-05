@@ -699,10 +699,14 @@ export const createCheckin = onCall(async (request) => {
   if (!memberSnapshot.exists) throw new HttpsError("not-found", "El joven seleccionado ya no existe.");
   const memberName = text(memberSnapshot.data()?.name, 120);
   if (!memberName) throw new HttpsError("failed-precondition", "El perfil del joven no tiene nombre.");
-  const duplicates = await db.collection("checkins")
-    .where("memberId", "==", memberId).where("date", "==", date)
-    .where("meetingName", "==", meetingName).limit(1).get();
-  if (!duplicates.empty) {
+  const existingCheckins = await db.collection("checkins").limit(2000).get();
+  const duplicateExists = existingCheckins.docs.some((document) => {
+    const record = document.data();
+    return record.memberId === memberId &&
+      record.date === date &&
+      String(record.meetingName ?? "").trim().toLocaleLowerCase("es") === meetingName.toLocaleLowerCase("es");
+  });
+  if (duplicateExists) {
     throw new HttpsError("already-exists", `${memberName} ya tiene un registro para este servicio.`);
   }
   const id = createHash("sha256")
