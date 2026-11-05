@@ -79,3 +79,24 @@
 @media(max-width:1100px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.welcomeVisual{width:130px;height:130px;flex-basis:130px}.featureGrid{grid-template-columns:1fr}}
 @media(max-width:700px){.scope{gap:15px}.welcome{min-height:0;padding:22px 18px}.welcomeVisual{display:none}.welcome h1{margin-top:18px;font-size:29px}.welcomeCopy>p{font-size:11px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.metricCard{padding:13px}.metricTop{font-size:7px}.metricTop i{width:30px;height:30px}.metricCard>strong{font-size:22px}.metricSpark{display:none}.featureGrid,.lowerGrid{grid-template-columns:1fr;gap:12px}.panel{padding:15px}.panelHeading h2{font-size:17px}.podium{min-height:218px;gap:6px;padding-inline:0}.avatar{width:55px;height:55px;font-size:15px}.podiumPerson[data-place="1"] .avatar{width:68px;height:68px}.podiumPerson>b{font-size:9px}.podiumPerson>small{font-size:8px}.podiumBase{height:55px}.podiumPerson[data-place="1"] .podiumBase{height:82px}.podiumPerson[data-place="3"] .podiumBase{height:44px}.chartRow{grid-template-columns:82px minmax(40px,1fr) 45px;gap:7px}.shortcuts{grid-template-columns:1fr}.assistantCard{flex-wrap:wrap;align-items:flex-start}.assistantCard>a{margin-left:57px}}
 @media(prefers-reduced-motion:reduce){.shortcuts>a{transition:none}}
+
+/* Dashboard: information-first layout with restrained contrast and clear hierarchy. */
+.scope{gap:20px;color:#edf3fb}
+.welcome{min-height:205px;padding:30px 34px;border:1px solid #354d6c;border-radius:17px;background:linear-gradient(115deg,#172943,#203b60);box-shadow:0 12px 28px #0003}
+.welcomeCopy{max-width:760px}.eyebrow{color:#a9c4f3;letter-spacing:.12em}
+.welcome h1{color:#f3f6fc;letter-spacing:-.04em}.welcome h1 em{color:#9bb9ff;font-style:normal}
+.welcome p{color:#bdcadd;max-width:650px;line-height:1.7}
+.primaryAction{background:#668cff;border:1px solid #8ba8ff;color:#fff;border-radius:10px;box-shadow:none}
+.secondaryAction{background:#1b304a;border:1px solid #48617f;color:#e5eefb;border-radius:10px}
+.metricCard,.panel,.assistantCard,.systemCard{background:#121f32;border:1px solid #2a3d56;border-radius:14px;box-shadow:0 7px 22px #0002}
+.metricCard strong,.panel h2,.panelHeading h2{color:#edf3fb}
+.metricCard span,.panel p,.chartFoot{color:#9aabc0}
+.metricTop{color:#a9c4f3}
+.featureGrid,.lowerGrid{gap:16px}
+.podiumPerson{background:#17283e;border:1px solid #304761;border-radius:12px}
+.podiumBase{background:#263d59}
+.chartRow{border-color:#2a3d56}
+.eventRow{background:#14243a;border:1px solid #2d435e;border-radius:11px}
+.dateTile{background:#1b3554;color:#cfe0ff}
+.shortcuts a{background:#14243a;border:1px solid #2d435e;border-radius:11px}
+@media(max-width:700px){.welcome{padding:21px;border-radius:15px;min-height:0}.scope{gap:15px}}
