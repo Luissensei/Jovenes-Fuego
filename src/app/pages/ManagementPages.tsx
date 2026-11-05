@@ -1,5 +1,5 @@
 import styles from '../styles/ManagementPages.module.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import {
   addDoc,
@@ -103,6 +103,13 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
   const [selectedMemberId, setSelectedMemberId] = useState('');
   const selectedMember = members.find((member) => member.id === selectedMemberId);
   const memberName = selectedMember ? String(selectedMember.name ?? selectedMember.nick ?? '') : '';
+  const filteredMembers = useMemo(() => {
+    const query = memberSearch.trim().toLocaleLowerCase('es');
+    if (!query) return members;
+    return members.filter((member) => [
+      member.name, member.nick, member.phone, member.id,
+    ].some((value) => String(value ?? '').toLocaleLowerCase('es').includes(query)));
+  }, [members, memberSearch]);
   const [reason, setReason] = useState('');
   const [points, setPoints] = useState('10');
 
@@ -149,6 +156,27 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
     return unsubscribe;
   }, [config.collection]);
 
+  useEffect(() => {
+    if (kind !== 'bonus' && kind !== 'pastoral') return;
+    let active = true;
+    setMembersLoading(true);
+    getMembersForAdministration()
+      .then((result) => {
+        if (active) setMembers(result);
+      })
+      .catch((cause) => {
+        console.error('Error cargando jóvenes para el selector:', cause);
+        if (active) {
+          setMembers([]);
+          setError(cause instanceof Error ? cause.message : 'No se pudieron cargar los jóvenes.');
+        }
+      })
+      .finally(() => {
+        if (active) setMembersLoading(false);
+      });
+    return () => { active = false; };
+  }, [kind]);
+
   async function saveRecord(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -171,6 +199,7 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
         }
 
         await addDoc(collection(db, 'bonus'), {
+          memberId: selectedMember.id,
           memberName: memberName.trim(),
           reason: reason.trim(),
           points: amount,
@@ -191,6 +220,7 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
         }
 
         await addDoc(collection(db, 'pastoral'), {
+          memberId: selectedMember.id,
           memberName: memberName.trim(),
           title: noteTitle.trim(),
           note: note.trim(),
