@@ -224,3 +224,23 @@
 .scope :global(.reports-table) th{background:#17283e;color:#b8c9df}
 .scope :global(.reports-table) td{color:#e1eaf5;border-color:#293d55}
 @media(max-width:650px){.scope :global(.reports-hero){padding:19px;border-radius:15px}.scope :global(.reports-stats){grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Glass-blue reports polish: stable light/dark contrast, keyboard access */
+.scope :global(.reports-hero){background:linear-gradient(118deg,#10233e 0%,#183c68 58%,#17658a 100%);border:1px solid rgba(115,165,224,.3);box-shadow:0 18px 42px rgba(8,25,48,.2)}
+.scope :global(.reports-filter) :is(input,select):focus-visible,.scope :global(.reports-page) :is(button,input,select):focus-visible{outline:3px solid rgba(72,143,226,.6);outline-offset:2px}
+.scope :global(.reports-table) tbody tr:hover{background:rgba(62,125,201,.08)}
+.scope :global(.reports-table) th{position:sticky;top:0;z-index:1}
+.scope :global(.reports-table) td:first-child{font-weight:650}
+:global(:root[data-theme="light"]) .scope :global(.reports-filter){background:#fff;border-color:#dce5f1}
+:global(:root[data-theme="light"]) .scope :global(.reports-filter) label{color:#344861}
+:global(:root[data-theme="light"]) .scope :global(.reports-filter) input{background:#f7faff;border-color:#dce5f1;color:#172b45}
+:global(:root[data-theme="light"]) .scope :global(.reports-stats) article,:global(:root[data-theme="light"]) .scope :global(.reports-card){background:#fff;border-color:#dce5f1;box-shadow:0 8px 24px rgba(20,45,80,.06)}
+:global(:root[data-theme="light"]) .scope :global(.reports-stats) span,:global(:root[data-theme="light"]) .scope :global(.reports-section-heading) span,:global(:root[data-theme="light"]) .scope :global(.reports-rate) span{color:#64758b}
+:global(:root[data-theme="light"]) .scope :global(.reports-stats) strong,:global(:root[data-theme="light"]) .scope :global(.reports-section-heading) h2,:global(:root[data-theme="light"]) .scope :global(.reports-rate) strong{color:#172b45}
+:global(:root[data-theme="light"]) .scope :global(.reports-table-wrapper){background:#fff;border-color:#dce5f1}
+:global(:root[data-theme="light"]) .scope :global(.reports-table) th{background:#eef4fb;color:#526781}
+:global(:root[data-theme="light"]) .scope :global(.reports-table) td{color:#243b56;border-color:#e4ebf4}
+:global(:root[data-theme="light"]) .scope :global(.reports-meeting-list) article{border-color:#dce5f1}
+:global(:root[data-theme="light"]) .scope :global(.reports-meeting-list) strong{color:#172b45}
+:global(:root[data-theme="dark"]) .scope :global(.reports-hero){background:linear-gradient(118deg,#10233e 0%,#183c68 58%,#17658a 100%)}
+@media(prefers-reduced-motion:reduce){.scope :global(.reports-table) tbody tr{transition:none}}
