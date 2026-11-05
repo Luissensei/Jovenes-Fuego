@@ -208,6 +208,27 @@ export async function getMembersForAdministration(
     : [];
 }
 
+
+export type MemberHistoryItem = {
+  id: string;
+  kind: string;
+  date: string;
+  title: string;
+  detail: string;
+  status: string;
+};
+
+export async function getMemberHistory(memberId: string): Promise<MemberHistoryItem[]> {
+  if (!functions) throw new Error("Firebase Functions no está configurado.");
+  if (!memberId.trim()) throw new Error("Selecciona un joven válido.");
+  const loadHistory = httpsCallable<
+    {memberId: string},
+    {history: MemberHistoryItem[]}
+  >(functions, "adminGetMemberHistory");
+  const response = await loadHistory({memberId: memberId.trim()});
+  return Array.isArray(response.data.history) ? response.data.history : [];
+}
+
 export async function updateMemberForAdministration(
   memberId: string,
   patch: AdminMemberPatch,
