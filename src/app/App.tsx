@@ -12,8 +12,6 @@ import {
 import {
   Flame,
   Menu,
-  Moon,
-  Sun,
   ShieldCheck,
   X,
   LogOut,
@@ -102,7 +100,7 @@ function AdminApp() {
     logout,
   } = useAuth();
 
-  const { theme, nextThemeLabel, toggleTheme } = useThemePreference();
+  useThemePreference();
   const [menuOpen, setMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [moduleSearch, setModuleSearch] = useState('');
@@ -341,14 +339,6 @@ function AdminApp() {
 
         <strong>Jóvenes de Fuego</strong>
 
-        <button
-          className="icon-button"
-          aria-label={`Cambiar a ${nextThemeLabel}`}
-          title={`Cambiar a ${nextThemeLabel}`}
-          onClick={toggleTheme}
-        >
-          {theme === 'dark' ? <Sun size={19} /> : <Moon size={19} />}
-        </button>
       </header>
 
       <aside className={`sidebar ${menuOpen ? 'open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
@@ -427,15 +417,6 @@ function AdminApp() {
             </span>
           </div>
 
-          <button
-            className="theme-toggle"
-            onClick={toggleTheme}
-            aria-label={`Cambiar a ${nextThemeLabel}`}
-            title={`Cambiar a ${nextThemeLabel}`}
-          >
-            {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
-            Cambiar a {nextThemeLabel}
-          </button>
 
           {user && (
             <button
