@@ -826,6 +826,66 @@ export const adminDeleteManagedRecord = onCall(async (request) => {
   return {success: true};
 });
 
+export const adminListDevotionals = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireModulePermission(request.auth.uid, "devotionals");
+  const snapshot = await db.collection("devotionals").limit(300).get();
+  const devotionals = snapshot.docs.map((document) => {
+    const data = document.data();
+    return {
+      id: document.id,
+      title: text(data.title, 120),
+      verse: text(data.verse, 2000),
+      reference: text(data.reference, 120),
+      author: text(data.author, 100),
+      category: text(data.category, 50),
+      date: text(data.date, 10),
+      content: text(data.content, 10000),
+      createdAt: photoDate(data.createdAt),
+    };
+  }).sort((left, right) =>
+    right.date.localeCompare(left.date) || right.createdAt.localeCompare(left.createdAt),
+  );
+  return {devotionals};
+});
+
+export const adminCreateDevotional = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireModulePermission(request.auth.uid, "devotionals");
+
+  const data = request.data ?? {};
+  const title = text(data.title, 120);
+  const verse = text(data.verse, 2000);
+  const reference = text(data.reference, 120);
+  const author = text(data.author, 100);
+  const category = text(data.category, 50);
+  const date = text(data.date, 10);
+  const content = text(data.content, 10000);
+
+  if (!title || !verse || !reference || !author || !category || !content || !isValidDate(date)) {
+    throw new HttpsError("invalid-argument", "Completa los campos y verifica la fecha del devocional.");
+  }
+
+  const result = await db.collection("devotionals").add({
+    title, verse, reference, author, category, date, content,
+    createdAt: new Date().toISOString(),
+    createdBy: request.auth.uid,
+  });
+  return {success: true, id: result.id};
+});
+
+export const adminDeleteDevotional = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireModulePermission(request.auth.uid, "devotionals");
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona un devocional válido.");
+  const ref = db.collection("devotionals").doc(id);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "No se encontró el devocional solicitado.");
+  await ref.delete();
+  return {success: true};
+});
+
 export const adminListPhotos = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireAdminOrPastor(request.auth.uid);
