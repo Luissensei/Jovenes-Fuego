@@ -285,7 +285,7 @@ async function requireAdmin(uid: string): Promise<AuthorizedRole> {
 const leaderRoles = ["lider", "líder", "pastor", "admin", "administrador"];
 const manageablePermissions = [
   "members", "attendance", "followups", "devotionals", "visitors",
-  "prayers", "events", "checkins", "turns", "reports", "ranking", "games", "profile",
+  "events", "checkins", "turns", "reports", "ranking", "games", "profile",
 ];
 
 function cleanStringArray(value: unknown, allowed?: string[]): string[] {
