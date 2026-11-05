@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { getPublicRankingMetrics, type PublicRankingMetric } from '../services/publicProfiles';
+import {listAttendanceMeetings, type AttendanceMeeting} from '../services/attendance';
 import { getWeeklyActivities, type WeeklyActivity } from '../services/youthPortal';
 import { firebaseProjectId, firebaseReadOnlyMode } from '../services/firebase/client';
 
@@ -35,9 +36,11 @@ export default function DashboardPage() {
   const leaderPermissions = Array.isArray(profile?.permissions)
     ? profile.permissions.filter((item): item is string => typeof item === 'string')
     : ['attendance', 'reports', 'ranking', 'games', 'profile'];
+  const canReadAttendance = isAdmin || isPastor || (isLeader && (leaderPermissions.includes('attendance') || leaderPermissions.includes('reports')));
   const firstName = String(profile?.name ?? user?.email?.split('@')[0] ?? 'equipo').trim().split(/\s+/)[0] || 'equipo';
   const [people, setPeople] = useState<PublicRankingMetric[]>([]);
   const [activities, setActivities] = useState<WeeklyActivity[]>([]);
+  const [attendanceMeetings, setAttendanceMeetings] = useState<AttendanceMeeting[]>([]);
   const [loading, setLoading] = useState(configured);
   const [error, setError] = useState('');
 
@@ -46,7 +49,13 @@ export default function DashboardPage() {
     let active = true;
     setLoading(true);
     setError('');
-    Promise.allSettled([getPublicRankingMetrics(), getWeeklyActivities()]).then((results) => {
+    Promise.allSettled([
+      getPublicRankingMetrics(),
+      getWeeklyActivities(),
+      canReadAttendance
+        ? listAttendanceMeetings(isLeader && !leaderPermissions.includes('reports') ? 'attendance' : 'reports')
+        : Promise.resolve([] as AttendanceMeeting[]),
+    ]).then((results) => {
       if (!active) return;
       if (results[0].status === 'fulfilled') setPeople(results[0].value);
       else setError('No se pudieron consultar los perfiles y puntos públicos.');
@@ -54,7 +63,7 @@ export default function DashboardPage() {
       else setError((old) => old || 'No se pudo consultar la agenda publicada.');
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [configured]);
+  }, [configured, canReadAttendance, isLeader, leaderPermissions]);
 
   const ranked = useMemo(() => [...people].sort((a, b) => (b.points ?? 0) - (a.points ?? 0) || a.name.localeCompare(b.name, 'es')), [people]);
   const totalPoints = useMemo(
@@ -70,6 +79,18 @@ export default function DashboardPage() {
   const availableShortcuts = shortcuts.filter((item) =>
     item.adminOnly ? isAdmin : canOpenModule(item.moduleId),
   );
+  const currentMonth = localDateKey(new Date()).slice(0, 7);
+  const attendanceMetric = useMemo(() => {
+    const participants = attendanceMeetings
+      .filter((meeting) => meeting.date.startsWith(currentMonth))
+      .flatMap((meeting) => meeting.participants);
+    if (!participants.length) return {value: '—', note: 'Sin registros este mes'};
+    const present = participants.filter((item) => item.status === 'Presente' || item.status === 'Tarde').length;
+    return {
+      value: `${Math.round((present / participants.length) * 100)}%`,
+      note: `${present} de ${participants.length} registros del mes`,
+    };
+  }, [attendanceMeetings, currentMonth]);
   const topThree = ranked.slice(0, 3);
   const chartPeople = ranked.slice(0, 6);
   const maxPoints = Math.max(1, ...chartPeople.map((person) => person.points ?? 0));
@@ -78,6 +99,7 @@ export default function DashboardPage() {
     { label: 'ACTIVIDADES PRÓXIMAS', value: loading ? '…' : configured ? String(upcoming.length) : '—', note: 'Eventos publicados desde hoy', icon: CalendarDays, tone: 'green' },
     { label: 'PUNTOS ACUMULADOS', value: loading ? '…' : configured ? totalPoints.toLocaleString('es-CO') : '—', note: 'Total del ranking público', icon: Star, tone: 'purple' },
     { label: 'LÍDER DEL RANKING', value: loading ? '…' : ranked[0]?.name || '—', note: ranked[0] ? `${(ranked[0].points ?? 0).toLocaleString('es-CO')} puntos` : 'Sin datos publicados', icon: Trophy, tone: 'orange' },
+    ...(canReadAttendance ? [{label: 'ASISTENCIA DEL MES', value: loading ? '…' : attendanceMetric.value, note: attendanceMetric.note, icon: ClipboardCheck, tone: 'green'}] : []),
   ];
 
   return (
