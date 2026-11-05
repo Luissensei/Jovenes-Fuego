@@ -9,7 +9,6 @@ const permissionOptions = [
   {id:'followups',label:'Seguimiento'},
   {id:'devotionals',label:'Devocionales'},
   {id:'visitors',label:'Visitantes'},
-  {id:'prayers',label:'Peticiones'},
   {id:'events',label:'Agenda y eventos'},
   {id:'checkins',label:'Check-in QR'},
   {id:'turns',label:'Turnos'},
