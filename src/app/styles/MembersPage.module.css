@@ -87,7 +87,7 @@
   border: 1px solid rgba(255,255,255,.2);
   border-radius: 16px;
   background: rgba(255,255,255,.12);
-  backdrop-filter: blur(8px);
+  backdrop-filter:none;
 }
 .scope :global(.members-total-icon){
   display: grid;
@@ -396,7 +396,7 @@
   border-radius: 16px;
   background: var(--jf-glass);
   color: var(--jf-text);
-  backdrop-filter: blur(20px);
+  backdrop-filter:none;
 }
 .scope :global(.members-search) input,
 .scope :global(.member-search) input{
@@ -411,7 +411,7 @@
 .portalScope :global(.member-detail-header){
   position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:13px;padding:19px 22px;
   border-bottom:1px solid rgba(224,235,255,.12);
-  background:rgba(15,23,45,.92);backdrop-filter:blur(20px);
+  background:rgba(15,23,45,.92);backdrop-filter:none;
 }
 .portalScope :global(.member-detail-avatar){width:52px;height:52px;flex:none;display:grid;place-items:center;border:2px solid rgba(111,214,255,.5);border-radius:17px;background:linear-gradient(140deg,#ff9b62,#9b68e9);color:#fff;font-weight:900;font-size:17px;}
 .portalScope :global(.member-detail-header) > div:nth-child(2){flex:1;min-width:0;}
@@ -562,8 +562,8 @@
   overscroll-behavior: contain;
   isolation: isolate;
   background: rgba(3, 7, 18, .72);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
 }
 .portalScope :global(.member-detail-modal){
   width: min(100%, 820px) !important;
@@ -609,17 +609,17 @@
 
 /* Entrada escalonada y salida suave de las tarjetas al abrir una ficha. */
 @keyframes adminMemberCardEnter {
-  from { opacity: 0; transform: translateY(14px) scale(.985); filter: blur(3px); }
-  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  from { opacity: 0; transform: translateY(14px) scale(.985); filter:none; }
+  to { opacity: 1; transform: translateY(0) scale(1); filter:none; }
 }
 .scope :global(.member-card) {
   animation: adminMemberCardEnter .44s cubic-bezier(.18,.78,.18,1) both;
-  transition: opacity .22s ease, transform .24s ease, filter .22s ease;
+  transition: opacity .22s ease, transform .24s ease;
 }
 .scope :global(.member-card.is-opening) {
   opacity: 0;
   transform: translateY(-10px) scale(.985);
-  filter: blur(3px);
+  filter:none;
   pointer-events: none;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -756,8 +756,8 @@
 }
 .portalScope:global(.member-detail-backdrop) {
   background:rgba(8,6,13,.76);
-  -webkit-backdrop-filter:blur(12px);
-  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
 }
 .portalScope :global(.member-detail-modal) {
   border:1px solid rgba(215,177,119,.26);
