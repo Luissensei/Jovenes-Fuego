@@ -36,7 +36,8 @@ export default function DashboardPage() {
   const leaderPermissions = Array.isArray(profile?.permissions)
     ? profile.permissions.filter((item): item is string => typeof item === 'string')
     : ['attendance', 'reports', 'ranking', 'games', 'profile'];
-  const canReadAttendance = isAdmin || isPastor || (isLeader && (leaderPermissions.includes('attendance') || leaderPermissions.includes('reports')));
+  const leaderHasReports = Array.isArray(profile?.permissions) ? profile.permissions.includes('reports') : false;
+  const canReadAttendance = isAdmin || isPastor || (isLeader && (leaderPermissions.includes('attendance') || leaderHasReports));
   const firstName = String(profile?.name ?? user?.email?.split('@')[0] ?? 'equipo').trim().split(/\s+/)[0] || 'equipo';
   const [people, setPeople] = useState<PublicRankingMetric[]>([]);
   const [activities, setActivities] = useState<WeeklyActivity[]>([]);
@@ -45,7 +46,7 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!configured) { setPeople([]); setActivities([]); setLoading(false); return; }
+    if (!configured) { setPeople([]); setActivities([]); setAttendanceMeetings([]); setLoading(false); return; }
     let active = true;
     setLoading(true);
     setError('');
@@ -53,7 +54,7 @@ export default function DashboardPage() {
       getPublicRankingMetrics(),
       getWeeklyActivities(),
       canReadAttendance
-        ? listAttendanceMeetings(isLeader && !leaderPermissions.includes('reports') ? 'attendance' : 'reports')
+        ? listAttendanceMeetings(isLeader && !leaderHasReports ? 'attendance' : 'reports')
         : Promise.resolve([] as AttendanceMeeting[]),
     ]).then((results) => {
       if (!active) return;
@@ -61,9 +62,11 @@ export default function DashboardPage() {
       else setError('No se pudieron consultar los perfiles y puntos públicos.');
       if (results[1].status === 'fulfilled') setActivities(results[1].value);
       else setError((old) => old || 'No se pudo consultar la agenda publicada.');
+      if (results[2].status === 'fulfilled') setAttendanceMeetings(results[2].value);
+      else setError((old) => old || 'No se pudo consultar la asistencia del periodo.');
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [configured, canReadAttendance, isLeader, leaderPermissions]);
+  }, [configured, canReadAttendance, isLeader, leaderHasReports]);
 
   const ranked = useMemo(() => [...people].sort((a, b) => (b.points ?? 0) - (a.points ?? 0) || a.name.localeCompare(b.name, 'es')), [people]);
   const totalPoints = useMemo(
