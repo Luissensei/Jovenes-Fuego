@@ -22,6 +22,7 @@ export function LoginPage() {
       await login(email.trim(), password);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'No se pudo iniciar sesión.');
+    } finally {
       setSubmitting(false);
     }
   }
