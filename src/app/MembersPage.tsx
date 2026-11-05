@@ -1,4 +1,5 @@
 import styles from './styles/MembersPage.module.css';
+import { motion } from 'motion/react';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import type {FormEvent} from 'react';
 import {createPortal} from 'react-dom';
@@ -342,10 +343,13 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
       {!loading && firebaseConfigured && !error && filtered.length > 0 && (
         <div className="members-grid">
           {filtered.map((member, index) => (
-            <article
+            <motion.article
               className={`member-card ${selectedMember?.id === member.id && !detailMinimized ? "is-opening" : ""}`}
               key={member.id}
-              style={{animationDelay: `${Math.min(index, 14) * 45}ms`}}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -3 }}
+              transition={{ duration: 0.24, delay: Math.min(index, 10) * 0.035, ease: 'easeOut' }}
             >
               <div className="member-card-top">
                 <MemberAvatar member={member} />
@@ -362,7 +366,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
                 {member.mn && <div><ShieldCheck size={16}/><span>{String(member.mn)}</span></div>}
               </div>
               <button type="button" className="member-detail-button" onClick={() => openMember(member)}><Edit3 size={16}/> {canEdit ? 'Abrir ficha completa' : 'Ver ficha completa'} <span>{canEdit ? 'Editar' : 'Solo lectura'}</span></button>
-            </article>
+            </motion.article>
           ))}
         </div>
       )}
