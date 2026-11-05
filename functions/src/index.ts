@@ -729,39 +729,88 @@ export const getAttendanceMeetings = onCall(async (request) => {
   }
   await requireModulePermission(request.auth.uid, "attendance");
 
-  const snapshot = await db.collection("attendanceMeetings")
-    .orderBy("date", "desc")
-    .limit(300)
-    .get();
+  const [modernSnapshot, legacySnapshot, membersSnapshot] = await Promise.all([
+    db.collection("attendanceMeetings").orderBy("date", "desc").limit(300).get(),
+    db.collection("attendance").limit(1000).get(),
+    db.collection("members").limit(1000).get(),
+  ]);
 
-  return {
-    meetings: snapshot.docs.map((document) => {
-      const data = document.data();
-      const participants = Array.isArray(data.participants)
-        ? data.participants.flatMap((item) => {
-          if (typeof item !== "object" || item === null) return [];
-          const row = item as Record<string, unknown>;
-          if (typeof row.memberId !== "string" ||
-            typeof row.name !== "string" ||
-            !["Presente", "Ausente", "Tarde", "Falta", "Justificada", "Justificado"].includes(String(row.status))) {
-            return [];
-          }
-          return [{
-            memberId: row.memberId,
-            name: row.name,
-            status: (row.status === "Justificado" ? "Justificada" : row.status) as "Presente" | "Ausente" | "Tarde" | "Falta" | "Justificada",
-          }];
-        })
-        : [];
+  const memberNames = new Map(
+    membersSnapshot.docs.map((document) => [
+      document.id,
+      text(document.data().name, 120) || document.id,
+    ]),
+  );
+  const validStatuses = ["Presente", "Ausente", "Tarde", "Falta", "Justificada", "Justificado"];
+  const modern = modernSnapshot.docs.map((document) => {
+    const data = document.data();
+    const participants = Array.isArray(data.participants)
+      ? data.participants.flatMap((item) => {
+        if (typeof item !== "object" || item === null) return [];
+        const row = item as Record<string, unknown>;
+        if (typeof row.memberId !== "string" || !validStatuses.includes(String(row.status))) return [];
+        return [{
+          memberId: text(row.memberId, 150),
+          name: text(row.name, 120) || memberNames.get(text(row.memberId, 150)) || "Joven",
+          status: (row.status === "Justificado" ? "Justificada" : row.status) as
+            "Presente" | "Ausente" | "Tarde" | "Falta" | "Justificada",
+        }];
+      })
+      : [];
+    return {
+      id: document.id,
+      name: text(data.name, 100),
+      date: text(data.date, 20),
+      createdAt: data.createdAt && typeof data.createdAt.toDate === "function"
+        ? data.createdAt.toDate().toISOString()
+        : text(data.createdAt, 40),
+      participants,
+    };
+  });
 
-      return {
-        id: document.id,
-        name: text(data.name, 100),
-        date: text(data.date, 20),
-        createdAt: text(data.createdAt, 40),
-        participants,
+  const serviceNames: Record<string, string> = {
+    dis: "Discipulado",
+    mie: "Servicio de miércoles",
+    vie: "Servicio de viernes",
+    ayj: "Ayuno y servicio de jóvenes",
+    ayc: "Ayuno de la congregación",
+    esc: "Escuela dominical",
+    otr: "Otro servicio o actividad",
+    gen: "Servicio",
+  };
+  const legacy = legacySnapshot.docs.map((document) => {
+    const data = document.data();
+    const [date = "", service = "gen"] = document.id.split("_");
+    const records = data.r && typeof data.r === "object"
+      ? data.r as Record<string, unknown>
+      : {};
+    const participants = Object.entries(records).flatMap(([memberId, value]) => {
+      if (!value || typeof value !== "object") return [];
+      const statusCode = text((value as Record<string, unknown>).s, 10);
+      const statusMap: Record<string, "Presente" | "Tarde" | "Falta" | "Justificada"> = {
+        P: "Presente", T: "Tarde", F: "Falta", J: "Justificada",
       };
-    }),
+      const status = statusMap[statusCode];
+      return status ? [{
+        memberId,
+        name: memberNames.get(memberId) ?? memberId,
+        status,
+      }] : [];
+    });
+    return {
+      id: document.id,
+      name: serviceNames[service] ?? serviceNames.gen,
+      date,
+      createdAt: "",
+      participants,
+    };
+  });
+
+  const merged = new Map<string, typeof modern[number]>();
+  [...legacy, ...modern].forEach((meeting) => merged.set(meeting.id, meeting));
+  return {
+    meetings: [...merged.values()].sort((left, right) => right.date.localeCompare(left.date)),
+    historyLimited: legacySnapshot.size >= 1000 || membersSnapshot.size >= 1000,
   };
 });
 
