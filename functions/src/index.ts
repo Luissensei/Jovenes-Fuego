@@ -228,15 +228,15 @@ export const getMyApplicationProfile = onCall(async (request) => {
       );
     }
 
-    if (data.status === "inactive") {
-      throw new HttpsError("permission-denied", "El acceso de esta cuenta está suspendido.");
-    }
     return {
       profile: {
         name: text(data.name, 120),
         user: text(data.user, 120),
         role,
-        groups: cleanStringArray(data.groups, ["general", "jóvenes", "liderazgo", "alabanza", "intercesión", "multimedia"]),
+        groups: Array.isArray(data.groups)
+          ? data.groups.filter((item): item is string => typeof item === "string")
+            .map((item) => text(item, 80)).filter(Boolean).slice(0, 30)
+          : [],
         permissions: Array.isArray(data.permissions)
           ? cleanStringArray(data.permissions, manageablePermissions)
           : defaultLeaderPermissions,
