@@ -16,6 +16,7 @@ const shortcuts = [
   { label: 'Asistencia', detail: 'Registro de servicios', path: '/asistencia', moduleId: 'attendance', adminOnly: false, icon: ClipboardCheck, tone: 'green' },
   { label: 'Agenda', detail: 'Actividades y eventos', path: '/eventos', moduleId: 'events', adminOnly: false, icon: CalendarDays, tone: 'purple' },
   { label: 'Devocionales', detail: 'Contenido de crecimiento', path: '/devocionales', moduleId: 'devotionals', adminOnly: false, icon: BookOpen, tone: 'orange' },
+  { label: 'Informes', detail: 'Reportes y estadísticas', path: '/informes', moduleId: 'reports', adminOnly: false, icon: ChartNoAxesCombined, tone: 'purple' },
   { label: 'Líderes', detail: 'Roles y permisos', path: '/lideres', moduleId: 'leaders', icon: ShieldCheck, tone: 'cyan', adminOnly: true },
 ];
 function localDateKey(date: Date) {
@@ -33,7 +34,7 @@ export default function DashboardPage() {
   const isLeader = ['lider', 'líder'].includes(role);
   const leaderPermissions = Array.isArray(profile?.permissions)
     ? profile.permissions.filter((item): item is string => typeof item === 'string')
-    : ['attendance', 'ranking', 'games', 'profile'];
+    : ['attendance', 'reports', 'ranking', 'games', 'profile'];
   const firstName = String(profile?.name ?? user?.email?.split('@')[0] ?? 'equipo').trim().split(/\s+/)[0] || 'equipo';
   const [people, setPeople] = useState<PublicRankingMetric[]>([]);
   const [activities, setActivities] = useState<WeeklyActivity[]>([]);
