@@ -16,13 +16,11 @@ import {
   type AttendanceMeeting,
 } from '../../services/attendance';
 
-import {
-  subscribeMembers,
-  type MemberRecord,
-} from '../../services/repositories/members';
+import {getMembersForAdministration} from '../../services/youthPortal';
+import type {MemberAdminRecord} from '../../services/youthPortal';
 
 export default function ReportsPage() {
-  const [members, setMembers] = useState<MemberRecord[]>([]);
+  const [members, setMembers] = useState<MemberAdminRecord[]>([]);
   const [meetings, setMeetings] = useState<AttendanceMeeting[]>([]);
   const [month, setMonth] = useState(
     new Date().toISOString().slice(0, 7),
@@ -31,24 +29,18 @@ export default function ReportsPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    let membersUnsubscribe: (() => void) | null = null;
 
     try {
-      membersUnsubscribe = subscribeMembers(
-        (items) => {
-          setMembers(items);
-          setLoading(false);
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
-
-      void listAttendanceMeetings()
-        .then((items) => setMeetings(items))
+      void Promise.all([
+        getMembersForAdministration(),
+        listAttendanceMeetings(),
+      ])
+        .then(([memberRows, meetingRows]) => {
+          setMembers(memberRows);
+          setMeetings(meetingRows);
+        })
         .catch((cause: unknown) => {
-          setError(cause instanceof Error ? cause.message : 'No se pudieron consultar las reuniones.');
+          setError(cause instanceof Error ? cause.message : 'No se pudieron consultar los informes.');
         })
         .finally(() => setLoading(false));
     } catch (cause) {
@@ -61,7 +53,6 @@ export default function ReportsPage() {
     }
 
     return () => {
-      membersUnsubscribe?.();
     };
   }, []);
 
