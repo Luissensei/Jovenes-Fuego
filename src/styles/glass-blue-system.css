@@ -1,0 +1,111 @@
+/* Glass Blue design system — selective translucency, no expensive backdrop blur. */
+:root{
+  --glass-bg:rgba(13,31,57,.82);
+  --glass-bg-strong:rgba(16,39,70,.94);
+  --glass-line:rgba(105,169,235,.24);
+  --glass-line-hot:rgba(74,164,255,.48);
+  --glass-glow:0 18px 48px rgba(0,8,24,.28),inset 0 1px 0 rgba(220,239,255,.055);
+  --glass-blue:#55aaff;
+  --glass-cyan:#55d8f4;
+}
+html,body,#root{background:#061326!important}
+body{
+ background:
+  radial-gradient(ellipse at 78% -8%,rgba(30,111,203,.22),transparent 36%),
+  radial-gradient(ellipse at 4% 42%,rgba(17,78,148,.13),transparent 34%),
+  linear-gradient(145deg,#061326 0%,#081a32 52%,#061326 100%)!important;
+}
+.layout{background:transparent!important}
+.sidebar{
+ background:linear-gradient(165deg,rgba(12,33,61,.97),rgba(6,20,39,.98))!important;
+ border-right:1px solid var(--glass-line)!important;
+ box-shadow:12px 0 44px rgba(0,8,24,.28),inset -1px 0 rgba(130,190,255,.035)!important;
+}
+.sidebar .brand-mark.church-brand-mark{
+ background:linear-gradient(145deg,rgba(42,112,190,.32),rgba(12,38,70,.88))!important;
+ border:1px solid rgba(104,177,255,.34)!important;
+ box-shadow:0 0 24px rgba(28,128,239,.16),inset 0 1px rgba(255,255,255,.1)!important;
+}
+.sidebar .env-chip,.sidebar .module-search,.sidebar .safe-note,
+.sidebar .sidebar-collapse-toggle{
+ background:linear-gradient(145deg,rgba(24,55,91,.76),rgba(10,29,53,.9))!important;
+ border-color:var(--glass-line)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.035)!important;
+}
+.sidebar .nav-item{transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease!important}
+.sidebar .nav-item.active{
+ background:linear-gradient(105deg,rgba(26,117,207,.42),rgba(22,71,126,.42))!important;
+ border:1px solid rgba(91,174,255,.42)!important;
+ box-shadow:0 7px 22px rgba(0,93,190,.18),inset 0 1px rgba(255,255,255,.09)!important;
+}
+.sidebar .nav-item.active .nav-item-icon{
+ background:linear-gradient(145deg,rgba(73,160,245,.34),rgba(22,83,145,.48))!important;
+ color:#d8efff!important;
+}
+.main{background:transparent!important}
+.main>.topline{
+ background:linear-gradient(100deg,rgba(9,27,50,.94),rgba(12,36,65,.88))!important;
+ border-bottom:1px solid var(--glass-line)!important;
+ box-shadow:0 8px 28px rgba(0,8,24,.12),inset 0 1px rgba(255,255,255,.035)!important;
+}
+.project-label,.topline-status,.main .preview-warning{
+ border:1px solid var(--glass-line)!important;
+ background:linear-gradient(145deg,rgba(20,49,82,.82),rgba(10,29,53,.9))!important;
+ color:#d9eaff!important;
+}
+.main .app-page :is(.page-card,.panel,.card,.stat-card,.dashboard-stat,.dashboard-shortcut,
+.dashboard-community-stat,.dashboard-chart-card,.dashboard-bottom-note,.ranking-hero,
+.ranking-tabs,.ranking-content,.ranking-progress-panel,.ranking-player,.member-card,
+.members-total-card,.members-controls,.attendance-card,.followup-card,.visitor-card,
+.devotional-card,.photo-card,.reports-card,.managed-record,.management-record,
+.management-summary,.management-form,.management-records,.event-card,.prayer-card,
+.settings-card,.checkin-panel,.checkin-config,.youth-profile-card,.youth-activity-card,
+.youth-hall-card,.youth-game-tile,.mbg-game,.verse-game){
+ background:linear-gradient(145deg,rgba(19,43,73,.91),rgba(10,27,49,.94))!important;
+ border:1px solid rgba(91,143,199,.24)!important;
+ box-shadow:var(--glass-glow)!important;
+}
+.main .app-page :is(.dashboard-stat,.dashboard-chart-card,.dashboard-shortcut,
+.dashboard-community-stat,.ranking-player,.member-card,.attendance-card,
+.followup-card,.visitor-card,.devotional-card,.photo-card,.event-card,
+.prayer-card,.managed-record,.management-record,.youth-activity-card){
+ position:relative;
+}
+.main .app-page :is(.dashboard-stat,.dashboard-chart-card,.dashboard-shortcut,
+.dashboard-community-stat,.ranking-player,.member-card,.attendance-card,
+.followup-card,.visitor-card,.devotional-card,.photo-card,.event-card,
+.prayer-card,.managed-record,.management-record,.youth-activity-card):hover{
+ border-color:var(--glass-line-hot)!important;
+ box-shadow:0 18px 42px rgba(0,9,26,.34),0 0 0 1px rgba(67,151,237,.07),inset 0 1px rgba(255,255,255,.07)!important;
+}
+.main .app-page :is(h1,h2,h3){color:#f2f7ff}
+.main .app-page :is(.eyebrow,.section-kicker,.dashboard-section-label){color:#77baff}
+.main .app-page :is(input,select,textarea){
+ background:rgba(5,19,37,.78)!important;
+ border-color:rgba(91,143,199,.32)!important;
+ color:#edf6ff!important;
+}
+.main .app-page :is(button:not(.nav-item),.button){
+ transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,background .16s ease;
+}
+.main .app-page :is(button:not(:disabled),.button):active{transform:translateY(1px)}
+.main .app-page :is(table thead,th){background:rgba(21,49,82,.8)!important}
+.main .app-page :is(table td,table th){border-color:rgba(91,143,199,.18)!important}
+.jf-bottom-nav{
+ background:linear-gradient(145deg,rgba(13,35,63,.97),rgba(6,21,41,.98))!important;
+ border-color:rgba(103,166,230,.3)!important;
+ box-shadow:0 14px 38px rgba(0,8,24,.42),inset 0 1px rgba(255,255,255,.07)!important;
+}
+.jf-bottom-nav-item.active{
+ color:#eaf6ff!important;
+ background:linear-gradient(145deg,rgba(35,123,210,.34),rgba(20,67,117,.32))!important;
+ border:1px solid rgba(91,174,255,.3)!important;
+ border-radius:12px!important;
+}
+@media(max-width:900px){
+ .sidebar{background:linear-gradient(165deg,rgba(10,29,54,.99),rgba(5,17,34,.99))!important}
+ .main>.topline{background:linear-gradient(100deg,rgba(9,27,50,.98),rgba(12,36,65,.96))!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .sidebar .nav-item,.main .app-page :is(button,.button){transition:none!important}
+}
