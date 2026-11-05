@@ -1735,6 +1735,7 @@ export const adminUpdatePrayerStatus = onCall(async (request) => {
   } else {
     throw new HttpsError("invalid-argument", "El identificador de la petición no es válido.");
   }
+  await recordAudit("prayer.status.updated", request.auth.uid, id, {status});
   return {success: true};
 });
 
@@ -1838,6 +1839,7 @@ export const createCheckin = onCall(async (request) => {
       createdBy: request.auth!.uid,
     });
   });
+  await recordAudit("checkin.created", request.auth.uid, memberId, {date, meetingName});
   return {success: true, id, memberName};
 });
 
