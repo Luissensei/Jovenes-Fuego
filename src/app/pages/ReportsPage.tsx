@@ -29,31 +29,25 @@ export default function ReportsPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-
-    try {
-      void Promise.all([
-        getMembersForAdministration(),
-        listAttendanceMeetings(),
-      ])
-        .then(([memberRows, meetingRows]) => {
-          setMembers(memberRows);
-          setMeetings(meetingRows);
-        })
-        .catch((cause: unknown) => {
+    let active = true;
+    Promise.all([
+      getMembersForAdministration('attendance'),
+      listAttendanceMeetings(),
+    ])
+      .then(([memberRows, meetingRows]) => {
+        if (!active) return;
+        setMembers(memberRows);
+        setMeetings(meetingRows);
+      })
+      .catch((cause: unknown) => {
+        if (active) {
           setError(cause instanceof Error ? cause.message : 'No se pudieron consultar los informes.');
-        })
-        .finally(() => setLoading(false));
-    } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'No se pudieron consultar los informes.',
-      );
-      setLoading(false);
-    }
-
-    return () => {
-    };
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
   }, []);
 
   const report = useMemo(() => {
