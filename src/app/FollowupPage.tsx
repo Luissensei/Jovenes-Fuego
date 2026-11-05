@@ -11,7 +11,7 @@ const config: ManagedPageConfig = {
     { key: 'date', label: 'Fecha', type: 'date' },
     { key: 'reason', label: 'Motivo', placeholder: 'Acompañamiento espiritual, inasistencia...' },
     { key: 'notes', label: 'Observaciones', type: 'textarea', placeholder: 'Detalles del seguimiento...' },
-    { key: 'memberId', label: 'Vincular con joven registrado', type: 'member' },
+    { key: 'memberId', label: 'Vincular con joven registrado', type: 'member', listHidden: true },
   ],
   statusOptions: ['Pendiente', 'En proceso', 'Completado'],
   emptyTitle: 'Sin seguimientos registrados',
