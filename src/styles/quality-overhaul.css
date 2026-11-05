@@ -221,3 +221,65 @@ body .layout .main :is(.prayers-admin-page,.events-page,.management-page,.manage
 @media(prefers-reduced-motion:reduce){
  body .layout .main :is(.management-record,.managed-record,.devotional-card,.attendance-card,.attendance-member,.prayer-admin-card,.weekly-admin-item){transition:none!important;transform:none!important}
 }
+
+
+/* Youth portal: preserve the fire identity while sharing the same blue command-center foundation. */
+body .youth-portal{
+ --yd-bg:#071326!important;--yd-panel:#101f38!important;--yd-panel-raised:#162b49!important;
+ --yd-line:#294563!important;--yd-muted:#a7b8ce!important;--yd-fire:#f28b45!important;
+ --yd-gold:#ffc45c!important;--jf-bg:#071326;--jf-surface:#101f38;--jf-surface-2:#162b49;
+ background:radial-gradient(ellipse at 82% 0%,#17395b55,transparent 36%),linear-gradient(145deg,#071326,#0a1930 62%,#101a31)!important;
+ color:#f4f7fc!important;
+}
+body .youth-portal :is(.youth-selector,.youth-welcome,.youth-home,.youth-activities,.youth-game-hub,.youth-prayer-panel,.youth-options article,.youth-hall-card,.youth-activity-card,.youth-immersive-ranking,.youth-profile-card,.youth-section,.youth-panel,.youth-customizer){
+ background:#101f38!important;border:1px solid #294563!important;border-radius:16px!important;
+ color:#f4f7fc!important;box-shadow:0 12px 30px #0003!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+body .youth-portal :is(.youth-welcome,.youth-home){
+ background:linear-gradient(118deg,#10294b 0%,#172747 60%,#30253b 100%)!important;
+ border-color:#365779!important;border-radius:21px!important;
+}
+body .youth-portal :is(.youth-activity-card,.youth-hall-card,.youth-profile-card,.youth-options article):hover{
+ transform:translateY(-2px)!important;border-color:#3988c5!important;box-shadow:0 16px 34px #0005!important;
+}
+body .youth-portal :is(h1,h2,h3,h4,strong,b){color:#f4f7fc!important}
+body .youth-portal :is(p,small,label,.youth-security-note){color:#a7b8ce}
+body .youth-portal :is(button,input,select,textarea){
+ border-color:#304b69;color:#f4f7fc;
+}
+body .youth-portal :is(input,select,textarea){
+ background:#091a30!important;border-radius:10px!important;
+}
+body .youth-portal :is(button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible){
+ outline:2px solid #42c7e9!important;outline-offset:3px!important;
+}
+body .youth-portal :is(.youth-eyebrow,.youth-kicker,.youth-brand-label,.youth-profile-title){color:#63c8ef!important}
+body .youth-portal :is(.youth-avatar-frame,.youth-brand-icon,.youth-avatar){
+ border-color:#f28b45!important;
+}
+body .youth-portal :is(.youth-profile-quickstats span,.youth-look-signature span,.youth-ranking-summary article,.youth-my-standing-card){
+ background:#142946!important;border-color:#345272!important;color:#e6f0fb!important;
+}
+body .youth-portal .youth-podium-list li{
+ background:linear-gradient(180deg,#193859,#10213a)!important;border-color:#365779!important;
+}
+body .youth-portal .youth-podium-list li.place-1{
+ background:linear-gradient(180deg,#694d2b,#25334a)!important;border-color:#d6a64f!important;
+}
+body .youth-portal .youth-podium-medal,body .youth-portal .youth-podium-list li>strong{color:#ffc45c!important}
+body .youth-portal .youth-ranking-tabs,body .youth-portal .youth-tabs{
+ background:#0c1b30!important;border-color:#294563!important;backdrop-filter:none!important;
+}
+body .youth-portal :is(.youth-ranking-tabs,.youth-tabs) button.active{
+ background:#145da4!important;border-color:#318be0!important;color:#fff!important;
+}
+@media(max-width:640px){
+ body .youth-portal{padding:12px 10px 28px!important}
+ body .youth-portal :is(.youth-selector,.youth-activities,.youth-game-hub,.youth-prayer-panel){padding:14px!important}
+ body .youth-portal .youth-home{padding:54px 14px 22px!important}
+ body .youth-portal .youth-welcome{border-radius:17px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body .youth-portal :is(.youth-activity-card,.youth-hall-card,.youth-profile-card,.youth-options article){transition:none!important;animation:none!important}
+}
