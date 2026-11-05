@@ -1,4 +1,5 @@
 import styles from './styles/YouthPortalPage.module.css';
+import dashboardStyles from './styles/YouthPortalDashboard.module.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type {FormEvent} from 'react';
 
@@ -955,7 +956,7 @@ export default function YouthPortalPage() {
 
   if (selectedProfile) {
     return (
-      <main className={`${styles.scope} youth-portal youth-look-${look.background} ${portalExiting ? "youth-profile-exit" : ""}`}>
+      <main className={`${styles.scope} ${dashboardStyles.dashboard} youth-portal youth-look-${look.background} ${portalExiting ? "youth-profile-exit" : ""}`}>
         <div className="youth-container youth-home-enter">
           <div className="youth-home-toolbar">
             <button type="button" className="youth-back" onClick={leaveProfile}>
@@ -1103,9 +1104,9 @@ export default function YouthPortalPage() {
             ) : (
               <div className="youth-empty-activities"><CalendarDays size={25}/><strong>No hay actividades publicadas por ahora</strong><span>Cuando el equipo publique la agenda, aparecerá aquí al entrar.</span></div>
             )}
- 
+          </section>
+
           <HallOfFame topPlayers={topPlayersWithPhotos} faithful={faithfulWithPhotos} attendanceLimited={attendanceLimited}/>
-         </section>
 
 
           <section className="youth-immersive-ranking">
