@@ -1468,9 +1468,23 @@ export const submitPublicPrayerRequest = onCall(async (request) => {
   if (!memberId || memberId.length >= 40 || memberId.startsWith("public-profile-")) {
     throw new HttpsError("invalid-argument", "Selecciona un perfil válido para enviar la petición.");
   }
-  const memberSnapshot = await db.collection("members").doc(memberId).get();
-  if (!memberSnapshot.exists || memberSnapshot.data()?.nopub === true) {
-    throw new HttpsError("failed-precondition", "El perfil seleccionado ya no está disponible.");
+  const [memberSnapshot, modernPublicSnapshot, rankingSnapshot] = await Promise.all([
+    db.collection("members").doc(memberId).get(),
+    db.collection("publicProfiles").doc(memberId).get(),
+    db.collection("public").doc("ranking").get(),
+  ]);
+  const rankingData = rankingSnapshot.data() ?? {};
+  const legacyEntries = Array.isArray(rankingData.all) ? rankingData.all as unknown[] : [];
+  const publishedInLegacyRanking = rankingData.off !== true && legacyEntries.some((entry) =>
+    Boolean(entry && typeof entry === "object" &&
+      text((entry as Record<string, unknown>).i, 150) === memberId),
+  );
+  const modernProfileIsPublic = modernPublicSnapshot.exists &&
+    modernPublicSnapshot.data()?.nopub !== true &&
+    Boolean(text(modernPublicSnapshot.data()?.name, 120));
+  if (!memberSnapshot.exists || memberSnapshot.data()?.nopub === true ||
+    (!modernProfileIsPublic && !publishedInLegacyRanking)) {
+    throw new HttpsError("failed-precondition", "El perfil seleccionado ya no está publicado o no está disponible.");
   }
 
   const ip = String(request.rawRequest.ip ?? "unknown").slice(0, 100);
