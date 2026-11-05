@@ -55,7 +55,7 @@ const dbInstance: Firestore = getFirestore(firebaseApp);
 const functionsInstance: Functions | null = null;
 
 export { firebaseApp };
-export const firebaseReadOnlyMode = true;
+export const firebaseReadOnlyMode = false;
 export const firebaseAiAvailable = appCheckReady;
 export const firebaseAiSetupMessage = appCheckReady
   ? 'Firebase original conectado. App Check Enterprise está inicializado. Comprueba que Firebase AI Logic esté habilitado y que App Check esté aplicado a Firebase AI Logic en este proyecto.'
@@ -67,12 +67,12 @@ export const db: Firestore | null = dbInstance;
 export const functions: Functions | null = functionsInstance;
 
 /**
- * La aplicación conserva el Firebase original en solo lectura.
- * No se permiten escrituras desde el frontend; las reglas de Firestore
- * siguen siendo la autoridad final para los datos y permisos.
+ * La aplicación puede solicitar escrituras en el proyecto Firebase original.
+ * Firestore Security Rules y Authentication siguen siendo la autoridad final:
+ * este control no concede permisos ni evita las reglas del servidor.
  */
 export function assertFirebaseWritesAllowed(): void {
-  throw new Error(
-    'La base original está protegida en modo de solo lectura. Esta operación no puede realizarse desde la aplicación.',
-  );
+  if (!firebaseConfigured || !db) {
+    throw new Error('Firebase Firestore no está configurado.');
+  }
 }
