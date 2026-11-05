@@ -1320,20 +1320,20 @@ export const adminCreatePastoralNote = onCall(async (request) => {
 export const adminListAuditRecords = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireAdmin(request.auth.uid);
-  const snapshot = await db.collection("audit").limit(500).get();
+  const snapshot = await db.collection("audit").orderBy("createdAt", "desc").limit(500).get();
   const records = snapshot.docs.map((document) => {
     const data = document.data();
     return {
       id: document.id,
       action: text(data.action, 120),
       actorUid: text(data.actorUid ?? data.userId, 150),
+      userId: text(data.actorUid ?? data.userId, 150),
       userName: text(data.userName, 120),
       targetUid: text(data.targetUid, 150),
       description: text(data.description ?? data.action, 500),
       createdAt: photoDate(data.createdAt),
-      metadata: data.metadata && typeof data.metadata === "object" ? data.metadata : {},
     };
-  }).sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+  });
   return {records};
 });
 
