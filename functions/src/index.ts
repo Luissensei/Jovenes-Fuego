@@ -474,6 +474,79 @@ export const adminUpdateMember = onCall(async (request) => {
   return {success: true, memberId};
 });
 
+export const savePublicProfileAppearance = onCall(async (request) => {
+  const memberId = text(request.data?.memberId, 150);
+  const source = request.data?.appearance && typeof request.data.appearance === "object"
+    ? request.data.appearance as Record<string, unknown>
+    : null;
+  if (!memberId || memberId.length >= 40 || memberId.startsWith("public-profile-") || !source) {
+    throw new HttpsError("invalid-argument", "El perfil seleccionado no es válido.");
+  }
+
+  const memberRef = db.collection("members").doc(memberId);
+  const photoRef = db.collection("photos").doc(memberId);
+  const memberSnapshot = await memberRef.get();
+  if (!memberSnapshot.exists || memberSnapshot.data()?.nopub === true) {
+    throw new HttpsError("not-found", "El perfil ya no está disponible para personalización.");
+  }
+
+  const ip = String(request.rawRequest.ip ?? "unknown").slice(0, 100);
+  const day = new Date().toISOString().slice(0, 10);
+  const rateKey = createHash("sha256").update(ip + "|" + memberId + "|" + day).digest("hex");
+  const rateRef = db.collection("publicAppearanceRateLimits").doc(rateKey);
+
+  const allowedString = (value: unknown, max: number, fallback: string) =>
+    typeof value === "string" ? value.trim().slice(0, max) : fallback;
+  const ownedItems = Array.isArray(source.ownedItems)
+    ? [...new Set(source.ownedItems
+      .filter((value): value is string => typeof value === "string")
+      .map((value) => value.trim().slice(0, 120))
+      .filter(Boolean))].slice(0, 400)
+    : [];
+
+  const appearance = {
+    f: allowedString(source.frame, 50, "fuego"),
+    a: allowedString(source.avatar, 80, ""),
+    b: allowedString(source.background, 50, "brasa"),
+    t: allowedString(source.title, 80, "chispa"),
+    u: ownedItems,
+  };
+
+  const flamesValue = Number(source.flames);
+  if (!Number.isFinite(flamesValue) || flamesValue < 0 || flamesValue > 100000) {
+    throw new HttpsError("invalid-argument", "El saldo de Llamas no es válido.");
+  }
+
+  await db.runTransaction(async (transaction) => {
+    const [rateSnapshot, photoSnapshot] = await Promise.all([
+      transaction.get(rateRef),
+      transaction.get(photoRef),
+    ]);
+    const count = Number(rateSnapshot.data()?.count ?? 0);
+    if (count >= 60) {
+      throw new HttpsError("resource-exhausted", "Se alcanzó el límite diario de cambios para este perfil.");
+    }
+    const currentFlames = Number(photoSnapshot.data()?.w ?? 0);
+    const safeFlames = Number.isFinite(currentFlames) && currentFlames >= 0
+      ? Math.min(currentFlames, 100000)
+      : 0;
+
+    transaction.set(photoRef, {
+      ...appearance,
+      // The public browser may spend existing flames, but cannot mint them.
+      w: Math.min(flamesValue, safeFlames),
+      c: Date.now(),
+    }, {merge: true});
+    transaction.set(rateRef, {
+      count: FieldValue.increment(1),
+      day,
+      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
+    }, {merge: true});
+  });
+
+  return {success: true, memberId};
+});
+
 type WeeklyActivityRecord = {
   id: string;
   title: string;
