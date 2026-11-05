@@ -12,10 +12,10 @@ import { getWeeklyActivities, type WeeklyActivity } from '../services/youthPorta
 import { firebaseProjectId, firebaseReadOnlyMode } from '../services/firebase/client';
 
 const shortcuts = [
-  { label: 'Jóvenes', detail: 'Directorio y perfiles', path: '/jovenes', moduleId: 'members', icon: Users, tone: 'blue' },
-  { label: 'Asistencia', detail: 'Registro de servicios', path: '/asistencia', moduleId: 'attendance', icon: ClipboardCheck, tone: 'green' },
-  { label: 'Agenda', detail: 'Actividades y eventos', path: '/eventos', moduleId: 'events', icon: CalendarDays, tone: 'purple' },
-  { label: 'Devocionales', detail: 'Contenido de crecimiento', path: '/devocionales', moduleId: 'devotionals', icon: BookOpen, tone: 'orange' },
+  { label: 'Jóvenes', detail: 'Directorio y perfiles', path: '/jovenes', moduleId: 'members', adminOnly: false, icon: Users, tone: 'blue' },
+  { label: 'Asistencia', detail: 'Registro de servicios', path: '/asistencia', moduleId: 'attendance', adminOnly: false, icon: ClipboardCheck, tone: 'green' },
+  { label: 'Agenda', detail: 'Actividades y eventos', path: '/eventos', moduleId: 'events', adminOnly: false, icon: CalendarDays, tone: 'purple' },
+  { label: 'Devocionales', detail: 'Contenido de crecimiento', path: '/devocionales', moduleId: 'devotionals', adminOnly: false, icon: BookOpen, tone: 'orange' },
   { label: 'Líderes', detail: 'Roles y permisos', path: '/lideres', moduleId: 'leaders', icon: ShieldCheck, tone: 'cyan', adminOnly: true },
 ];
 function localDateKey(date: Date) {
