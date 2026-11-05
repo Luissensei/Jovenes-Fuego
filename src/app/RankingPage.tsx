@@ -572,31 +572,30 @@ export default function RankingPage({
       {activeTab === 'games' && (
         <div className="ranking-content">
 
-          <Suspense fallback={<div className="jf-page-loading" role="status" aria-live="polite"><span/><strong>Preparando el juego</strong><small>Un momento…</small></div>}>
-          {activeGame === 'trivia' ? (
-            <TriviaGame
-              onExit={() => setActiveGame(null)}
-            />
-          ) : activeGame === 'verse' ? (
-            <VerseGame
-              onExit={() => setActiveGame(null)}
-            />
-          ) : activeGame === 'memory' ? (
-            <MemoryGame onExit={() => setActiveGame(null)} />
-          ) : activeGame === 'challenge' ? (
-            <ChallengeGame onExit={() => setActiveGame(null)} />
-          ) : activeGame === 'survival' ? (
-            <SurvivalGame onExit={() => setActiveGame(null)} />
-          ) : activeGame === 'duel' ? (
-            <DuelGame onExit={() => setActiveGame(null)} />
-          ) : activeGame === 'order' ? (
-            <OrderVerseGame onExit={() => setActiveGame(null)} />
-          ) : activeGame === 'truefalse' ? (
-            <TrueFalseGame onExit={() => setActiveGame(null)} />
-          ) : activeGame === 'whoami' ? (
-            <WhoAmIGame onExit={() => setActiveGame(null)} />
-          </Suspense>
+          {activeGame ? (
+            <Suspense fallback={<div className="jf-page-loading" role="status" aria-live="polite"><span/><strong>Preparando el juego</strong><small>Un momento…</small></div>}>
+              {activeGame === 'trivia' ? (
+                <TriviaGame onExit={() => setActiveGame(null)} />
+              ) : activeGame === 'verse' ? (
+                <VerseGame onExit={() => setActiveGame(null)} />
+              ) : activeGame === 'memory' ? (
+                <MemoryGame onExit={() => setActiveGame(null)} />
+              ) : activeGame === 'challenge' ? (
+                <ChallengeGame onExit={() => setActiveGame(null)} />
+              ) : activeGame === 'survival' ? (
+                <SurvivalGame onExit={() => setActiveGame(null)} />
+              ) : activeGame === 'duel' ? (
+                <DuelGame onExit={() => setActiveGame(null)} />
+              ) : activeGame === 'order' ? (
+                <OrderVerseGame onExit={() => setActiveGame(null)} />
+              ) : activeGame === 'truefalse' ? (
+                <TrueFalseGame onExit={() => setActiveGame(null)} />
+              ) : (
+                <WhoAmIGame onExit={() => setActiveGame(null)} />
+              )}
+            </Suspense>
           ) : (
+
             <>
               <div className="ranking-section-heading">
                 <div>
