@@ -153,10 +153,10 @@ export async function listAttendanceMeetings(): Promise<AttendanceMeeting[]> {
   // attendance/{YYYY-MM-DD}_{service}; las reuniones nuevas viven en
   // attendanceMeetings. Se consultan ambas para no ocultar datos históricos
   // ni perder las reuniones recién creadas.
-  const [attendanceSnapshot, membersSnapshot, meetingsSnapshot] = await Promise.all([
+  const [attendanceSnapshot, membersSnapshot, meetingsResponse] = await Promise.all([
     getDocs(collection(db, 'attendance')),
     getDocs(collection(db, 'members')),
-    getDocs(collection(db, 'attendanceMeetings')),
+    call<{meetings: AttendanceMeeting[]}>('getAttendanceMeetings'),
   ]);
 
   const memberNames = new Map(
@@ -212,16 +212,7 @@ export async function listAttendanceMeetings(): Promise<AttendanceMeeting[]> {
     };
   });
 
-  const currentMeetings = meetingsSnapshot.docs.map((item) => {
-    const data = item.data();
-    return {
-      id: item.id,
-      name: typeof data.name === 'string' ? data.name : '',
-      date: typeof data.date === 'string' ? data.date : '',
-      createdAt: parseCreatedAt(data.createdAt),
-      participants: parseParticipants(data.participants),
-    };
-  });
+  const currentMeetings = meetingsResponse.meetings;
 
   return [...currentMeetings, ...legacyMeetings]
     .sort((a, b) => b.date.localeCompare(a.date));
