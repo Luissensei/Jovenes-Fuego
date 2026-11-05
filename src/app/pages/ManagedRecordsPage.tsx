@@ -25,8 +25,9 @@ export type ManagedField = {
   key: string;
   label: string;
   placeholder?: string;
-  type?: 'text' | 'date' | 'time' | 'tel' | 'textarea';
+  type?: 'text' | 'date' | 'time' | 'tel' | 'textarea' | 'member';
   required?: boolean;
+  hidden?: boolean;
 };
 
 export type ManagedPageConfig = {
@@ -84,6 +85,8 @@ export default function ManagedRecordsPage({ config }: Props) {
   );
 
   const mountedRef = useRef(false);
+  const [members, setMembers] = useState<MemberAdminRecord[]>([]);
+  const [membersLoading, setMembersLoading] = useState(false);
 
   const loadRecords = useCallback(async (showLoading = true) => {
     if (mountedRef.current) {
@@ -107,6 +110,19 @@ export default function ManagedRecordsPage({ config }: Props) {
     void loadRecords();
     return () => { mountedRef.current = false; };
   }, [loadRecords]);
+
+  useEffect(() => {
+    if (!config.fields.some((field) => field.type === 'member')) return;
+    let active = true;
+    setMembersLoading(true);
+    getMembersForAdministration('followups')
+      .then((items) => { if (active) setMembers(items); })
+      .catch((cause) => {
+        if (active) setError(cause instanceof Error ? cause.message : 'No se pudieron cargar los jóvenes.');
+      })
+      .finally(() => { if (active) setMembersLoading(false); });
+    return () => { active = false; };
+  }, [config.fields]);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -483,19 +499,39 @@ export default function ManagedRecordsPage({ config }: Props) {
               </button>
             </header>
 
-            {config.fields.map((field) => (
+            {config.fields.filter((field) => !field.hidden).map((field) => (
               <div className="managed-form-field" key={field.key}>
                 <label htmlFor={`managed-${field.key}`}>
                   {field.label}
                 </label>
 
-                {field.type === 'textarea' ? (
+                {field.type === 'member' ? (
+                  <select
+                    id={`managed-${field.key}`}
+                    value={form[field.key] ?? ''}
+                    onChange={(event) => {
+                      const member = members.find((item) => item.id === event.target.value);
+                      setForm((previous) => ({
+                        ...previous,
+                        [field.key]: event.target.value,
+                        name: String(member?.name ?? member?.nick ?? ''),
+                      }));
+                    }}
+                    required={field.required !== false}
+                    disabled={membersLoading || members.length === 0}
+                  >
+                    <option value="">{membersLoading ? 'Cargando jóvenes...' : members.length ? 'Selecciona un joven' : 'No hay jóvenes disponibles'}</option>
+                    {members.map((member) => (
+                      <option key={member.id} value={member.id}>
+                        {String(member.name ?? 'Sin nombre')}{member.nick ? ` · @${member.nick}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                ) : field.type === 'textarea' ? (
                   <textarea
                     id={`managed-${field.key}`}
                     value={form[field.key] ?? ''}
-                    onChange={(event) =>
-                      changeField(field.key, event.target.value)
-                    }
+                    onChange={(event) => changeField(field.key, event.target.value)}
                     placeholder={field.placeholder}
                     required={field.required !== false}
                     rows={4}
@@ -506,9 +542,7 @@ export default function ManagedRecordsPage({ config }: Props) {
                     id={`managed-${field.key}`}
                     type={field.type ?? 'text'}
                     value={form[field.key] ?? ''}
-                    onChange={(event) =>
-                      changeField(field.key, event.target.value)
-                    }
+                    onChange={(event) => changeField(field.key, event.target.value)}
                     placeholder={field.placeholder}
                     required={field.required !== false}
                     maxLength={500}
