@@ -583,24 +583,24 @@ body{background:var(--jf-bg)!important;color:var(--jf-text)!important}
 
 
 /* Youth portal + learning games: align the signed-in experience with the new visual language. */
-.main .youth-portal{
+body .youth-portal{
  --jf-bg:#0b1220;--jf-surface:#121f32;--jf-surface-raised:#1d3048;--jf-border:#2a3d56;
  --jf-text:#edf3fb;--jf-muted:#9aabc0;--jf-accent:#668cff;--jf-shadow-soft:0 7px 22px rgba(0,0,0,.16);
  background:#0b1220!important;color:#edf3fb!important
 }
-.main .youth-portal :is(.youth-selector,.youth-welcome,.youth-profile-card,.youth-customizer,.youth-activity-card,.youth-game-tile,.youth-prayer-panel,.youth-immersive-ranking,.youth-my-standing-card,.youth-hall-card,.youth-3d-avatar-card){
+body .youth-portal :is(.youth-selector,.youth-welcome,.youth-profile-card,.youth-customizer,.youth-activity-card,.youth-game-tile,.youth-prayer-panel,.youth-immersive-ranking,.youth-my-standing-card,.youth-hall-card,.youth-3d-avatar-card){
  background:#121f32!important;border:1px solid #2a3d56!important;color:#edf3fb!important;
  box-shadow:0 7px 22px rgba(0,0,0,.16)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important
 }
-.main .youth-portal :is(.youth-welcome,.youth-activities,.youth-game-hub,.youth-immersive-ranking-header){
+body .youth-portal :is(.youth-welcome,.youth-activities,.youth-game-hub,.youth-immersive-ranking-header){
  background:linear-gradient(115deg,#172943,#203b60)!important;border-color:#354d6c!important
 }
-.main .youth-portal :is(.youth-welcome h1,.youth-welcome h2,.youth-profile-title,.youth-podium-name,.youth-hall-caption,.youth-activity-card h3,.youth-game-tile h3){color:#f3f6fc!important}
-.main .youth-portal :is(.youth-welcome p,.youth-profile-motto,.youth-activity-meta,.youth-activity-date,.youth-hall-faithful,.youth-faithful-name,.youth-profile-quickstats,.youth-security-note){color:#a9bad0!important}
-.main .youth-portal :is(.youth-brand-icon,.youth-avatar,.youth-podium-medal,.youth-profile-badge){background:#203a5b!important;color:#cfe0ff!important}
-.main .youth-portal :is(.youth-customize-trigger,.youth-card-action,.youth-sound-toggle){background:#1b304a!important;border:1px solid #48617f!important;color:#e5eefb!important}
-.main .youth-portal :is(.youth-activity-card,.youth-game-tile,.youth-profile-card){border-radius:14px!important}
-.main .youth-portal :is(.youth-activity-card:hover,.youth-game-tile:hover,.youth-profile-card:hover){border-color:#668cff!important;transform:translateY(-2px)}
+body .youth-portal :is(.youth-welcome h1,.youth-welcome h2,.youth-profile-title,.youth-podium-name,.youth-hall-caption,.youth-activity-card h3,.youth-game-tile h3){color:#f3f6fc!important}
+body .youth-portal :is(.youth-welcome p,.youth-profile-motto,.youth-activity-meta,.youth-activity-date,.youth-hall-faithful,.youth-faithful-name,.youth-profile-quickstats,.youth-security-note){color:#a9bad0!important}
+body .youth-portal :is(.youth-brand-icon,.youth-avatar,.youth-podium-medal,.youth-profile-badge){background:#203a5b!important;color:#cfe0ff!important}
+body .youth-portal :is(.youth-customize-trigger,.youth-card-action,.youth-sound-toggle){background:#1b304a!important;border:1px solid #48617f!important;color:#e5eefb!important}
+body .youth-portal :is(.youth-activity-card,.youth-game-tile,.youth-profile-card){border-radius:14px!important}
+body .youth-portal :is(.youth-activity-card:hover,.youth-game-tile:hover,.youth-profile-card:hover){border-color:#668cff!important;transform:translateY(-2px)}
 .main :is(.qbg-shell,.mbg-game,.verse-game,.trivia-shell){
  background:#121f32!important;border:1px solid #2a3d56!important;border-radius:16px!important;color:#edf3fb!important;box-shadow:0 12px 28px rgba(0,0,0,.2)!important
 }
@@ -626,7 +626,7 @@ body{background:var(--jf-bg)!important;color:var(--jf-text)!important}
 .main .fuego-assistant .userMessage{background:#294b7a!important;color:#fff!important}
 .main .fuego-assistant .composer textarea{background:#0d192a!important;border-color:#30445e!important;color:#edf3fb!important}
 @media(max-width:650px){
- .main .youth-portal{padding:14px!important}
+ body .youth-portal{padding:14px!important}
  .main :is(.qbg-shell,.mbg-game,.verse-game,.trivia-shell){padding:14px!important;border-radius:13px!important}
  .main :is(.qbg-stats,.mbg-stats,.verse-game-stats){flex-wrap:wrap;gap:8px}
 }
