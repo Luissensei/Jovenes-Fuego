@@ -3,11 +3,12 @@ import {NavLink} from 'react-router-dom';
 import {firebaseProjectId,firebaseReadOnlyMode} from '../../services/firebase/client';
 import ManagementPage from './ManagementPages';
 import {
-  Users, ShieldCheck, CalendarDays, BookOpen, ClipboardList,
+  Users, ShieldCheck, CalendarDays, BookOpen, ClipboardList, Bell,
   Sparkles, Palette, ChevronRight, LockKeyhole,
 } from 'lucide-react';
 
 const areas=[
+  {title:'Notificaciones',description:'Revisar pendientes y novedades que requieren atención.',path:'/notificaciones',icon:Bell,tag:'PENDIENTES'},
   {title:'Líderes y permisos',description:'Invitar responsables, asignar roles, grupos y accesos por módulo.',path:'/lideres',icon:Users,tag:'ACCESO'},
   {title:'Agenda y servicios',description:'Organizar reuniones, cultos, encuentros y actividades juveniles.',path:'/eventos',icon:CalendarDays,tag:'AGENDA'},
   {title:'Devocionales',description:'Publicar contenido de crecimiento espiritual y organizar su revisión.',path:'/devocionales',icon:BookOpen,tag:'CONTENIDO'},
