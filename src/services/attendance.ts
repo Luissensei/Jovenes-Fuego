@@ -149,11 +149,14 @@ export async function listAttendanceMeetings(): Promise<AttendanceMeeting[]> {
     throw new Error('Firebase Firestore no está configurado.');
   }
 
-  // La aplicación original guarda la asistencia por fecha y servicio:
-  // attendance/{YYYY-MM-DD}_{service} con el mapa de estados en "r".
-  const [attendanceSnapshot, membersSnapshot] = await Promise.all([
+  // La aplicación original guarda la asistencia por fecha y servicio en
+  // attendance/{YYYY-MM-DD}_{service}; las reuniones nuevas viven en
+  // attendanceMeetings. Se consultan ambas para no ocultar datos históricos
+  // ni perder las reuniones recién creadas.
+  const [attendanceSnapshot, membersSnapshot, meetingsSnapshot] = await Promise.all([
     getDocs(collection(db, 'attendance')),
     getDocs(collection(db, 'members')),
+    getDocs(collection(db, 'attendanceMeetings')),
   ]);
 
   const memberNames = new Map(
@@ -174,7 +177,7 @@ export async function listAttendanceMeetings(): Promise<AttendanceMeeting[]> {
     gen: 'Servicio',
   };
 
-  const meetings = attendanceSnapshot.docs.map((item) => {
+  const legacyMeetings = attendanceSnapshot.docs.map((item) => {
     const data = item.data();
     const [date = '', service = 'gen'] = item.id.split('_');
     const records = data.r && typeof data.r === 'object'
@@ -209,7 +212,19 @@ export async function listAttendanceMeetings(): Promise<AttendanceMeeting[]> {
     };
   });
 
-  return meetings.sort((a, b) => b.date.localeCompare(a.date));
+  const currentMeetings = meetingsSnapshot.docs.map((item) => {
+    const data = item.data();
+    return {
+      id: item.id,
+      name: typeof data.name === 'string' ? data.name : '',
+      date: typeof data.date === 'string' ? data.date : '',
+      createdAt: parseCreatedAt(data.createdAt),
+      participants: parseParticipants(data.participants),
+    };
+  });
+
+  return [...currentMeetings, ...legacyMeetings]
+    .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export async function createAttendanceMeeting(
