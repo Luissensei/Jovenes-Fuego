@@ -15,7 +15,6 @@ import {
   X,
   LogOut,
   UserRound,
-  FlaskConical,
   LockKeyhole,
   ShieldAlert,
   Search,
@@ -219,12 +218,12 @@ function AdminApp() {
     ? ShieldAlert
     : firebaseReadOnlyMode
       ? LockKeyhole
-      : FlaskConical;
+      : ShieldCheck;
   const environmentStatus = !configured
     ? 'Vista previa · sin Firebase'
     : firebaseReadOnlyMode
       ? 'Producción · solo lectura'
-      : 'Firebase conectado';
+      : 'Firebase original conectado';
   const environmentTone = !configured
     ? 'preview'
     : firebaseReadOnlyMode
