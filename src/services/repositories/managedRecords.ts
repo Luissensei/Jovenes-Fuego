@@ -1,18 +1,6 @@
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  orderBy,
-  query,
-  Timestamp,
-  updateDoc,
-  type Unsubscribe,
-} from 'firebase/firestore';
+import {httpsCallable} from 'firebase/functions';
 
-import { assertFirebaseWritesAllowed, db } from '../firebase/client';
-import { COLLECTIONS } from './collections';
+import {assertFirebaseWritesAllowed, functions} from '../firebase/client';
 
 export type ManagedCollection =
   | 'prayers'
@@ -27,56 +15,29 @@ export type ManagedRecord = {
   status: string;
   createdAt: string;
   updatedAt: string;
+  editable?: boolean;
   [key: string]: unknown;
 };
 
-export function subscribeManagedRecords(
+async function call<TRequest, TResponse>(
+  name: string,
+  payload: TRequest,
+): Promise<TResponse> {
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const callable = httpsCallable<TRequest, TResponse>(functions, name);
+  const response = await callable(payload);
+  return response.data;
+}
+
+/** Lista registros usando autorización y consulta en el servidor. */
+export async function listManagedRecords(
   collectionName: ManagedCollection,
-  callback: (records: ManagedRecord[]) => void,
-  onError: (error: Error) => void,
-): Unsubscribe {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
-  const collectionNameInFirebase = COLLECTIONS[collectionName];
-
-  const recordsQuery = query(
-    collection(db, collectionNameInFirebase),
-    orderBy('createdAt', 'desc'),
-  );
-
-  return onSnapshot(
-    recordsQuery,
-    (snapshot) => {
-      const records = snapshot.docs.map((item) => {
-        const data = item.data();
-
-        return {
-          ...data,
-          id: item.id,
-          status: String(data.status ?? ''),
-          createdAt:
-            data.createdAt instanceof Timestamp
-              ? data.createdAt.toDate().toISOString()
-              : '',
-          updatedAt:
-            data.updatedAt instanceof Timestamp
-              ? data.updatedAt.toDate().toISOString()
-              : '',
-        } as ManagedRecord;
-      });
-
-      callback(records);
-    },
-    (cause) => {
-      onError(
-        cause instanceof Error
-          ? cause
-          : new Error('No se pudieron cargar los registros.'),
-      );
-    },
-  );
+): Promise<ManagedRecord[]> {
+  const response = await call<
+    {module: string},
+    {records: ManagedRecord[]}
+  >('adminListManagedRecords', {module: collectionName});
+  return Array.isArray(response.records) ? response.records : [];
 }
 
 export async function createManagedRecord(
@@ -84,29 +45,19 @@ export async function createManagedRecord(
   data: Record<string, string>,
 ): Promise<string> {
   assertFirebaseWritesAllowed();
-
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
+  const {status, ...record} = data;
+  const response = await call<
+    {module: string; record: Record<string, string>; status: string},
+    {success: boolean; id: string}
+  >('adminCreateManagedRecord', {
+    module: collectionName,
+    record,
+    status: status ?? '',
+  });
+  if (!response.success || !response.id) {
+    throw new Error('No se pudo confirmar la creación del registro.');
   }
-
-  const cleanData: Record<string, string> = {};
-
-  for (const [key, value] of Object.entries(data)) {
-    cleanData[key] = value.trim();
-  }
-
-  const now = Timestamp.now();
-
-  const result = await addDoc(
-    collection(db, COLLECTIONS[collectionName]),
-    {
-      ...cleanData,
-      createdAt: now,
-      updatedAt: now,
-    },
-  );
-
-  return result.id;
+  return response.id;
 }
 
 export async function updateManagedRecord(
@@ -115,27 +66,16 @@ export async function updateManagedRecord(
   data: Record<string, string>,
 ): Promise<void> {
   assertFirebaseWritesAllowed();
-
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
-  if (!recordId.trim()) {
-    throw new Error('Selecciona un registro válido.');
-  }
-
-  const cleanData: Record<string, string | Timestamp> = {};
-
-  for (const [key, value] of Object.entries(data)) {
-    cleanData[key] = value.trim();
-  }
-
-  cleanData.updatedAt = Timestamp.now();
-
-  await updateDoc(
-    doc(db, COLLECTIONS[collectionName], recordId),
-    cleanData,
-  );
+  if (!recordId.trim()) throw new Error('Selecciona un registro válido.');
+  const response = await call<
+    {module: string; id: string; record: Record<string, string>},
+    {success: boolean}
+  >('adminUpdateManagedRecord', {
+    module: collectionName,
+    id: recordId.trim(),
+    record: data,
+  });
+  if (!response.success) throw new Error('No se pudo confirmar la actualización.');
 }
 
 export async function updateManagedRecordStatus(
@@ -144,22 +84,18 @@ export async function updateManagedRecordStatus(
   status: string,
 ): Promise<void> {
   assertFirebaseWritesAllowed();
-
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
   if (!recordId.trim() || !status.trim()) {
     throw new Error('El registro y el estado son obligatorios.');
   }
-
-  await updateDoc(
-    doc(db, COLLECTIONS[collectionName], recordId),
-    {
-      status,
-      updatedAt: Timestamp.now(),
-    },
-  );
+  const response = await call<
+    {module: string; id: string; status: string},
+    {success: boolean}
+  >('adminUpdateManagedRecordStatus', {
+    module: collectionName,
+    id: recordId.trim(),
+    status: status.trim(),
+  });
+  if (!response.success) throw new Error('No se pudo confirmar el cambio de estado.');
 }
 
 export async function deleteManagedRecord(
@@ -167,16 +103,13 @@ export async function deleteManagedRecord(
   recordId: string,
 ): Promise<void> {
   assertFirebaseWritesAllowed();
-
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
-  if (!recordId.trim()) {
-    throw new Error('Selecciona un registro válido.');
-  }
-
-  await deleteDoc(
-    doc(db, COLLECTIONS[collectionName], recordId),
-  );
+  if (!recordId.trim()) throw new Error('Selecciona un registro válido.');
+  const response = await call<
+    {module: string; id: string},
+    {success: boolean}
+  >('adminDeleteManagedRecord', {
+    module: collectionName,
+    id: recordId.trim(),
+  });
+  if (!response.success) throw new Error('No se pudo confirmar la eliminación.');
 }
