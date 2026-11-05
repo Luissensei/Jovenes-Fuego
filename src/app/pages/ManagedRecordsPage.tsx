@@ -404,7 +404,7 @@ export default function ManagedRecordsPage({ config }: Props) {
                   )}
 
                   <div className="managed-record-details">
-                    {config.fields.slice(2).map((field) => {
+                    {config.fields.filter((field) => !field.listHidden && field.key !== config.fields[0]?.key && field.key !== config.fields[1]?.key).map((field) => {
                       const value = getRecordValue(record, field.key);
 
                       if (!value) return null;
@@ -481,14 +481,14 @@ export default function ManagedRecordsPage({ config }: Props) {
       )}
 
       {showForm && (
-        <div className="managed-overlay">
-          <form className="managed-modal" onSubmit={handleSubmit}>
+        <div className="managed-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) closeForm(); }}>
+          <form className="managed-modal" onSubmit={handleSubmit} role="dialog" aria-modal="true" aria-labelledby="managed-modal-title">
             <header className="managed-modal-header">
               <div>
                 <span className="managed-eyebrow">
                   {editingId ? 'ACTUALIZAR' : 'NUEVO REGISTRO'}
                 </span>
-                <h2>{editingId ? 'Editar registro' : config.createLabel}</h2>
+                <h2 id="managed-modal-title">{editingId ? 'Editar registro' : config.createLabel}</h2>
               </div>
 
               <button
