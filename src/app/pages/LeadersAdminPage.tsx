@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Users, UserPlus, RefreshCw, Copy, Pencil, UserX, UserCheck, X, Save, LockKeyhole} from 'lucide-react';
 import {createLeader, listLeaders, updateLeader, type LeaderRecord} from '../../services/leaders';
 import styles from '../styles/LeadersAdminPage.module.css';
@@ -35,13 +35,29 @@ export default function LeadersAdminPage(){
   const [draft,setDraft]=useState<Draft>(emptyDraft);
   const [setupLink,setSetupLink]=useState('');
 
-  async function refresh(){
-    setLoading(true);setError('');
-    try{setLeaders(await listLeaders());}
-    catch(cause){setError(cause instanceof Error?cause.message:'No se pudo consultar la lista de líderes.');}
-    finally{setLoading(false);}
-  }
-  useEffect(()=>{void refresh();},[]);
+  const mountedRef = useRef(false);
+  const refresh = useCallback(async () => {
+    if (mountedRef.current) {
+      setLoading(true);
+      setError('');
+    }
+    try {
+      const items = await listLeaders();
+      if (mountedRef.current) setLeaders(items);
+    } catch (cause) {
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo consultar la lista de líderes.');
+      }
+    } finally {
+      if (mountedRef.current) setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    void refresh();
+    return () => { mountedRef.current = false; };
+  }, [refresh]);
 
   const filtered=useMemo(()=>{
     const term=query.trim().toLocaleLowerCase('es');
@@ -64,18 +80,23 @@ export default function LeadersAdminPage(){
     try{
       if(editing){
         await updateLeader({uid:editing.id,role:draft.role,groups:toGroups(draft.groups),permissions:draft.permissions,active:editing.active});
+        if (!mountedRef.current) return;
         setNotice('Los datos y permisos del líder se actualizaron.');
         setEditing(null);
       }else{
         const result=await createLeader({name:draft.name.trim(),email:draft.email.trim().toLowerCase(),role:draft.role,groups:toGroups(draft.groups),permissions:draft.permissions});
+        if (!mountedRef.current) return;
         setSetupLink(result.setupLink);
         setShowCreate(false);
         setNotice('La cuenta fue creada. Copia y entrega el enlace de activación al nuevo líder.');
       }
       await refresh();
-      if(editing){setShowCreate(false);} 
-    }catch(cause){setError(cause instanceof Error?cause.message:'No se pudo completar la operación.');}
-    finally{setSaving(false);}
+      if(editing && mountedRef.current){setShowCreate(false);}
+    }catch(cause){
+      if (mountedRef.current) setError(cause instanceof Error?cause.message:'No se pudo completar la operación.');
+    }finally{
+      if (mountedRef.current) setSaving(false);
+    }
   }
   async function toggleAccess(item:LeaderRecord){
     const action=item.active?'suspender':'restaurar';
@@ -83,10 +104,14 @@ export default function LeadersAdminPage(){
     setSaving(true);setError('');setNotice('');
     try{
       await updateLeader({uid:item.id,role:item.role,groups:item.groups,permissions:item.permissions,active:!item.active});
+      if (!mountedRef.current) return;
       setNotice(item.active?'Acceso suspendido. La cuenta y su historial se conservaron.':'Acceso restaurado.');
       await refresh();
-    }catch(cause){setError(cause instanceof Error?cause.message:'No se pudo cambiar el acceso.');}
-    finally{setSaving(false);}
+    }catch(cause){
+      if (mountedRef.current) setError(cause instanceof Error?cause.message:'No se pudo cambiar el acceso.');
+    }finally{
+      if (mountedRef.current) setSaving(false);
+    }
   }
   async function copyLink(){
     try{await navigator.clipboard.writeText(setupLink);setNotice('Enlace copiado. Envíalo únicamente al correo del nuevo líder.');}
