@@ -1,5 +1,6 @@
 import styles from './styles/DashboardPage.module.css';
 import { motion } from 'motion/react';
+import PointsChart from './components/PointsChart';
 import { useEffect, useMemo, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
@@ -97,8 +98,11 @@ export default function DashboardPage() {
     };
   }, [attendanceMeetings, currentMonth]);
   const topThree = ranked.slice(0, 3);
-  const chartPeople = ranked.slice(0, 6);
-  const maxPoints = Math.max(1, ...chartPeople.map((person) => person.points ?? 0));
+  const chartData = useMemo(
+    () => ranked.slice(0, 6).map((person) => ({ name: person.name, value: Math.max(0, person.points ?? 0) })),
+    [ranked],
+  );
+  const maxPoints = Math.max(1, ...chartData.map((person) => person.value));
   const metricCards = [
     { label: 'PERFILES PÚBLICOS', value: loading ? '…' : configured ? String(people.length) : '—', note: 'Perfiles visibles del ranking', icon: Users, tone: 'blue' },
     { label: 'ACTIVIDADES PRÓXIMAS', value: loading ? '…' : configured ? String(upcoming.length) : '—', note: 'Eventos publicados desde hoy', icon: CalendarDays, tone: 'green' },
@@ -171,13 +175,15 @@ export default function DashboardPage() {
 
         <article className={styles.panel + ' ' + styles.chartPanel}>
           <div className={styles.panelHeading}><div><span className={styles.kicker}>RENDIMIENTO</span><h2>Puntos por participante</h2><p>Comparativo de los seis primeros lugares.</p></div><ChartNoAxesCombined size={20} /></div>
-          {chartPeople.length ? <div className={styles.chart} role="img" aria-label="Gráfico de puntos de los seis primeros participantes">
-            {chartPeople.map((person, index) => {
-              const points = Math.max(0, person.points ?? 0);
-              return <div className={styles.chartRow} key={person.id}><span>{person.name}</span><div><i style={{ width: `${Math.max(points > 0 ? 3 : 0, points / maxPoints * 100)}%` }} data-index={index} /></div><b>{points.toLocaleString('es-CO')}</b></div>;
-            })}
-            <div className={styles.chartFoot}><span>0 puntos</span><span>Mayor puntuación: {maxPoints.toLocaleString('es-CO')}</span></div>
-          </div> : <div className={styles.empty}><ChartNoAxesCombined size={25} /><b>{loading ? 'Preparando estadísticas…' : 'No hay datos para graficar'}</b><span>El gráfico utiliza las puntuaciones reales del ranking.</span></div>}
+          {chartData.length ? (
+            <div className={styles.chart}>
+              <PointsChart data={chartData} ariaLabel="Puntos de los seis primeros participantes del ranking" />
+              <div className={styles.chartFoot}>
+                <span>0 puntos</span>
+                <span>Mayor puntuación: {maxPoints.toLocaleString('es-CO')}</span>
+              </div>
+            </div>
+          ) : <div className={styles.empty}><ChartNoAxesCombined size={25} /><b>{loading ? 'Preparando estadísticas…' : 'No hay datos para graficar'}</b><span>El gráfico utiliza las puntuaciones reales del ranking.</span></div>}
         </article>
       </section>
 
