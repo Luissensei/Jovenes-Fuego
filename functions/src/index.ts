@@ -1594,6 +1594,7 @@ export const adminSaveWeeklyActivity = onCall(async (request) => {
     updatedBy: request.auth.uid,
     ...(previous?.exists ? {} : {createdAt: new Date().toISOString()}),
   }, {merge: true});
+  await recordAudit(id ? "event.updated" : "event.created", request.auth.uid, ref.id, {published});
   return {success: true, id: ref.id};
 });
 
