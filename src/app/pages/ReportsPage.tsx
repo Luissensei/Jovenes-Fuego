@@ -131,7 +131,7 @@ export default function ReportsPage() {
       .map((row) =>
         row
           .map((value) => {
-            const safeValue = /^[\\t\\r ]*[=+\\-@]/.test(value) ? `'${value}` : value;
+            const safeValue = /^[\t\r ]*(?:=|\+|-|@)/.test(value) ? `'${value}` : value;
             return `"${safeValue.replace(/"/g, '""')}"`;
           })
           .join(','),
