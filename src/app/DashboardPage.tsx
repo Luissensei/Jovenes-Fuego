@@ -63,17 +63,19 @@ export default function DashboardPage() {
   );
   const today = localDateKey(new Date());
   const upcoming = useMemo(() => activities.filter((item) => item.date >= today).sort((a, b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || '')).slice(0, 4), [activities, today]);
-  const availableShortcuts = shortcuts.filter((item) => {
-    if (item.adminOnly) return isAdmin;
+  const canOpenModule = (moduleId: string) => {
     if (isAdmin || isPastor) return true;
-    return isLeader && leaderPermissions.includes(item.moduleId);
-  });
+    return isLeader && leaderPermissions.includes(moduleId);
+  };
+  const availableShortcuts = shortcuts.filter((item) =>
+    item.adminOnly ? isAdmin : canOpenModule(item.moduleId),
+  );
   const topThree = ranked.slice(0, 3);
   const chartPeople = ranked.slice(0, 6);
   const maxPoints = Math.max(1, ...chartPeople.map((person) => person.points ?? 0));
   const metricCards = [
-    { label: 'JÓVENES REGISTRADOS', value: loading ? '…' : configured ? String(people.length) : '—', note: 'Perfiles públicos', icon: Users, tone: 'blue' },
-    { label: 'ASISTENCIA / ACTIVIDADES', value: loading ? '…' : configured ? String(upcoming.length) : '—', note: 'Actividades próximas', icon: CalendarDays, tone: 'green' },
+    { label: 'PERFILES PÚBLICOS', value: loading ? '…' : configured ? String(people.length) : '—', note: 'Perfiles visibles del ranking', icon: Users, tone: 'blue' },
+    { label: 'ACTIVIDADES PRÓXIMAS', value: loading ? '…' : configured ? String(upcoming.length) : '—', note: 'Eventos publicados desde hoy', icon: CalendarDays, tone: 'green' },
     { label: 'PUNTOS ACUMULADOS', value: loading ? '…' : configured ? totalPoints.toLocaleString('es-CO') : '—', note: 'Total del ranking público', icon: Star, tone: 'purple' },
     { label: 'LÍDER DEL RANKING', value: loading ? '…' : ranked[0]?.name || '—', note: ranked[0] ? `${(ranked[0].points ?? 0).toLocaleString('es-CO')} puntos` : 'Sin datos publicados', icon: Trophy, tone: 'orange' },
   ];
@@ -85,10 +87,18 @@ export default function DashboardPage() {
           <span className={styles.eyebrow}><i /> PANEL DE ADMINISTRACIÓN <span>/</span> RESUMEN GENERAL</span>
           <h1>¡Bienvenido de nuevo, <em>{firstName}</em>!</h1>
           <p>Una comunidad que crece cuando cada persona cuenta. Aquí tienes el estado de la actividad y la participación.</p>
-          <div className={styles.welcomeActions}>
-            <NavLink to="/jovenes" className={styles.primaryAction}><Users size={16} /> Gestionar jóvenes <ArrowUpRight size={15} /></NavLink>
-            <NavLink to="/asistencia" className={styles.secondaryAction}>Registrar asistencia <ArrowUpRight size={15} /></NavLink>
-          </div>
+          {(canOpenModule('members') || canOpenModule('attendance')) && (
+            <div className={styles.welcomeActions}>
+              {canOpenModule('members') && (
+                <NavLink to="/jovenes" className={styles.primaryAction}>
+                  <Users size={16} /> {isLeader ? 'Consultar jóvenes' : 'Gestionar jóvenes'} <ArrowUpRight size={15} />
+                </NavLink>
+              )}
+              {canOpenModule('attendance') && (
+                <NavLink to="/asistencia" className={styles.secondaryAction}>Registrar asistencia <ArrowUpRight size={15} /></NavLink>
+              )}
+            </div>
+          )}
         </div>
         <div className={styles.welcomeVisual} aria-hidden="true"><div className={styles.visualHalo} /><div className={styles.visualCore}><ChartNoAxesCombined size={64} /></div><span>COMUNIDAD<br />EN MOVIMIENTO</span></div>
       </header>
@@ -129,7 +139,7 @@ export default function DashboardPage() {
           {chartPeople.length ? <div className={styles.chart} role="img" aria-label="Gráfico de puntos de los seis primeros participantes">
             {chartPeople.map((person, index) => {
               const points = Math.max(0, person.points ?? 0);
-              return <div className={styles.chartRow} key={person.name}><span>{person.name}</span><div><i style={{ width: `${Math.max(points > 0 ? 3 : 0, points / maxPoints * 100)}%` }} data-index={index} /></div><b>{points.toLocaleString('es-CO')}</b></div>;
+              return <div className={styles.chartRow} key={person.id}><span>{person.name}</span><div><i style={{ width: `${Math.max(points > 0 ? 3 : 0, points / maxPoints * 100)}%` }} data-index={index} /></div><b>{points.toLocaleString('es-CO')}</b></div>;
             })}
             <div className={styles.chartFoot}><span>0 puntos</span><span>Mayor puntuación: {maxPoints.toLocaleString('es-CO')}</span></div>
           </div> : <div className={styles.empty}><ChartNoAxesCombined size={25} /><b>{loading ? 'Preparando estadísticas…' : 'No hay datos para graficar'}</b><span>El gráfico utiliza las puntuaciones reales del ranking.</span></div>}
