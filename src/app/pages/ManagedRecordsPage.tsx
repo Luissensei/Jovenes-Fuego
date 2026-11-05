@@ -1,5 +1,5 @@
 import styles from '../styles/ManagedRecordsPage.module.css';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Plus,
   Search,
@@ -85,7 +85,7 @@ export default function ManagedRecordsPage({ config }: Props) {
 
   const mountedRef = useRef(false);
 
-  async function loadRecords(showLoading = true) {
+  const loadRecords = useCallback(async (showLoading = true) => {
     if (mountedRef.current) {
       if (showLoading) setLoading(true);
       setError('');
@@ -100,13 +100,13 @@ export default function ManagedRecordsPage({ config }: Props) {
     } finally {
       if (mountedRef.current) setLoading(false);
     }
-  }
+  }, [config.collection]);
 
   useEffect(() => {
     mountedRef.current = true;
     void loadRecords();
     return () => { mountedRef.current = false; };
-  }, [config.collection]);
+  }, [loadRecords]);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
