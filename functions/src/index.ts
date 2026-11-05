@@ -562,6 +562,266 @@ function validPhotoUrl(value: string): boolean {
   }
 }
 
+type ManagedModule = "followups" | "visitors" | "inbox" | "turns";
+
+type ManagedDefinition = {
+  collection: string;
+  permission: string;
+  fields: string[];
+  statuses: string[];
+  required: string[];
+};
+
+const managedDefinitions: Record<ManagedModule, ManagedDefinition> = {
+  followups: {
+    collection: "followups",
+    permission: "followups",
+    fields: ["name", "date", "reason", "notes"],
+    statuses: ["Pendiente", "En proceso", "Completado"],
+    required: ["name", "date", "reason"],
+  },
+  visitors: {
+    collection: "visitors",
+    permission: "visitors",
+    fields: ["name", "phone", "email", "date", "source", "notes"],
+    statuses: ["Nuevo", "Contactado", "Integrado"],
+    required: ["name", "phone", "date"],
+  },
+  inbox: {
+    collection: "inbox",
+    permission: "prayers",
+    fields: ["senderName", "subject", "senderContact", "message"],
+    statuses: ["Nuevo", "En revisión", "Respondido", "Archivado"],
+    required: ["senderName", "subject", "message"],
+  },
+  turns: {
+    collection: "turnos",
+    permission: "turns",
+    fields: ["service", "responsibleName", "date", "startTime", "endTime", "notes"],
+    statuses: ["Pendiente", "Confirmado", "Completado"],
+    required: ["service", "responsibleName", "date", "startTime", "endTime"],
+  },
+};
+
+function managedDefinition(value: unknown): {module: ManagedModule; definition: ManagedDefinition} {
+  const module = text(value, 30) as ManagedModule;
+  const definition = managedDefinitions[module];
+  if (!definition) throw new HttpsError("invalid-argument", "El módulo solicitado no está permitido.");
+  return {module, definition};
+}
+
+function managedPayload(
+  definition: ManagedDefinition,
+  value: unknown,
+): Record<string, string> {
+  const source = value && typeof value === "object"
+    ? value as Record<string, unknown>
+    : {};
+  const payload: Record<string, string> = {};
+  definition.fields.forEach((field) => {
+    payload[field] = text(source[field], field === "notes" || field === "message" ? 3000 : 500);
+  });
+  return payload;
+}
+
+function managedRecordDate(value: unknown): string {
+  const parsed = photoDate(value);
+  return parsed ? parsed.slice(0, 10) : text(value, 20);
+}
+
+function mapManagedRecord(id: string, data: Record<string, unknown>, editable = true) {
+  return {
+    id,
+    ...data,
+    status: text(data.status, 40) || "Pendiente",
+    createdAt: photoDate(data.createdAt),
+    updatedAt: photoDate(data.updatedAt),
+    editable,
+  };
+}
+
+export const adminListManagedRecords = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  const {module, definition} = managedDefinition(request.data?.module);
+  if (module === "inbox") await requireAdminOrPastor(request.auth.uid);
+  else await requireModulePermission(request.auth.uid, definition.permission);
+
+  const collectionRef = db.collection(definition.collection);
+  const snapshotPromise = collectionRef.limit(400).get();
+  const membersPromise = module === "followups" ? db.collection("members").limit(700).get() : null;
+  const [snapshot, membersSnapshot] = await Promise.all([
+    snapshotPromise,
+    membersPromise ?? Promise.resolve(null),
+  ]);
+
+  const members = new Map(
+    (membersSnapshot?.docs ?? []).map((document) => [
+      document.id,
+      text(document.data().name, 120) || document.id,
+    ]),
+  );
+
+  const records = snapshot.docs.flatMap((document) => {
+    const data = document.data();
+    if (module === "inbox" && data.k === "p") return [];
+
+    if (module === "followups" && !("name" in data) && ("m" in data || "t" in data)) {
+      const memberId = text(data.m, 150);
+      return [{
+        id: `legacy:${document.id}`,
+        name: members.get(memberId) ?? memberId ?? "Joven sin nombre",
+        date: managedRecordDate(data.d) || managedRecordDate(data.c),
+        reason: text(data.t, 500) || "Seguimiento",
+        notes: text(data.n, 3000),
+        status: "Completado",
+        createdAt: photoDate(data.c),
+        updatedAt: "",
+        editable: false,
+      }];
+    }
+
+    if (module === "visitors" && ("created" in data || "vs" in data || "st" in data)) {
+      const visits = Array.isArray(data.vs) ? data.vs : [];
+      const originalStatus = text(data.st, 40);
+      return [{
+        id: `legacy:${document.id}`,
+        name: text(data.name, 120),
+        phone: text(data.phone, 80),
+        email: "",
+        date: managedRecordDate(data.created),
+        source: text(data.by, 300),
+        notes: visits.length ? `Visitas registradas: ${visits.length}` : "",
+        status: originalStatus === "miembro"
+          ? "Integrado"
+          : visits.length > 1 ? "Contactado" : "Nuevo",
+        createdAt: photoDate(data.created),
+        updatedAt: "",
+        editable: false,
+      }];
+    }
+
+    const safeData: Record<string, unknown> = {};
+    definition.fields.forEach((field) => {
+      safeData[field] = text(data[field], field === "notes" || field === "message" ? 3000 : 500);
+    });
+    return [mapManagedRecord(document.id, {
+      ...safeData,
+      status: text(data.status, 40) || definition.statuses[0],
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    })];
+  });
+
+  records.sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+  return {records};
+});
+
+export const adminCreateManagedRecord = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  const {module, definition} = managedDefinition(request.data?.module);
+  if (module === "inbox") await requireAdminOrPastor(request.auth.uid);
+  else await requireModulePermission(request.auth.uid, definition.permission);
+
+  const payload = managedPayload(definition, request.data?.record);
+  if (definition.required.some((field) => !payload[field]?.trim())) {
+    throw new HttpsError("invalid-argument", "Completa todos los campos obligatorios.");
+  }
+  if (!isValidDate(payload.date)) {
+    throw new HttpsError("invalid-argument", "Indica una fecha válida.");
+  }
+  if (module === "turns" && (!isValidTime(payload.startTime) || !isValidTime(payload.endTime))) {
+    throw new HttpsError("invalid-argument", "Indica horas válidas para el turno.");
+  }
+
+  const requestedStatus = text(request.data?.status, 40);
+  const status = requestedStatus || definition.statuses[0];
+  if (!definition.statuses.includes(status)) {
+    throw new HttpsError("invalid-argument", "El estado del registro no es válido.");
+  }
+
+  const now = new Date().toISOString();
+  const ref = await db.collection(definition.collection).add({
+    ...payload,
+    status,
+    createdAt: now,
+    updatedAt: now,
+    createdBy: request.auth.uid,
+    updatedBy: request.auth.uid,
+  });
+  return {success: true, id: ref.id};
+});
+
+export const adminUpdateManagedRecord = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  const {module, definition} = managedDefinition(request.data?.module);
+  if (module === "inbox") await requireAdminOrPastor(request.auth.uid);
+  else await requireModulePermission(request.auth.uid, definition.permission);
+
+  const id = text(request.data?.id, 150);
+  if (!id || id.startsWith("legacy:")) {
+    throw new HttpsError("failed-precondition", "Los registros históricos se conservan en solo lectura.");
+  }
+  const payload = managedPayload(definition, request.data?.record);
+  if (definition.required.some((field) => !payload[field]?.trim())) {
+    throw new HttpsError("invalid-argument", "Completa todos los campos obligatorios.");
+  }
+  if (!isValidDate(payload.date)) {
+    throw new HttpsError("invalid-argument", "Indica una fecha válida.");
+  }
+  if (module === "turns" && (!isValidTime(payload.startTime) || !isValidTime(payload.endTime))) {
+    throw new HttpsError("invalid-argument", "Indica horas válidas para el turno.");
+  }
+
+  const ref = db.collection(definition.collection).doc(id);
+  const existing = await ref.get();
+  if (!existing.exists) throw new HttpsError("not-found", "No se encontró el registro que intentas editar.");
+  await ref.update({
+    ...payload,
+    updatedAt: new Date().toISOString(),
+    updatedBy: request.auth.uid,
+  });
+  return {success: true};
+});
+
+export const adminUpdateManagedRecordStatus = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  const {module, definition} = managedDefinition(request.data?.module);
+  if (module === "inbox") await requireAdminOrPastor(request.auth.uid);
+  else await requireModulePermission(request.auth.uid, definition.permission);
+
+  const id = text(request.data?.id, 150);
+  const status = text(request.data?.status, 40);
+  if (!id || id.startsWith("legacy:") || !definition.statuses.includes(status)) {
+    throw new HttpsError("invalid-argument", "El registro o estado no es válido.");
+  }
+  const ref = db.collection(definition.collection).doc(id);
+  const existing = await ref.get();
+  if (!existing.exists) throw new HttpsError("not-found", "No se encontró el registro solicitado.");
+  await ref.update({
+    status,
+    updatedAt: new Date().toISOString(),
+    updatedBy: request.auth.uid,
+  });
+  return {success: true};
+});
+
+export const adminDeleteManagedRecord = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  const {module, definition} = managedDefinition(request.data?.module);
+  if (module === "inbox") await requireAdminOrPastor(request.auth.uid);
+  else await requireModulePermission(request.auth.uid, definition.permission);
+
+  const id = text(request.data?.id, 150);
+  if (!id || id.startsWith("legacy:")) {
+    throw new HttpsError("failed-precondition", "Los registros históricos se conservan en solo lectura.");
+  }
+  const ref = db.collection(definition.collection).doc(id);
+  const existing = await ref.get();
+  if (!existing.exists) throw new HttpsError("not-found", "No se encontró el registro solicitado.");
+  await ref.delete();
+  return {success: true};
+});
+
 export const adminListPhotos = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireAdminOrPastor(request.auth.uid);
