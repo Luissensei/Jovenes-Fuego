@@ -348,7 +348,7 @@ function AdminApp() {
           title={`Cambiar a ${nextThemeLabel}`}
           onClick={toggleTheme}
         >
-          {theme === 'dark' ? <Sun size={19} /> : theme === 'light' ? <Crown size={19} /> : <Moon size={19} />}
+          {theme === 'dark' ? <Sun size={19} /> : <Moon size={19} />}
         </button>
       </header>
 
@@ -434,7 +434,7 @@ function AdminApp() {
             aria-label={`Cambiar a ${nextThemeLabel}`}
             title={`Cambiar a ${nextThemeLabel}`}
           >
-            {theme === 'dark' ? <Sun size={17} /> : theme === 'light' ? <Crown size={17} /> : <Moon size={17} />}
+            {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
             Cambiar a {nextThemeLabel}
           </button>
 
