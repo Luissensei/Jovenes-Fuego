@@ -225,3 +225,18 @@
 :global(:root[data-theme="light"]) .scope :global(.checkin-panel),
 :global(:root[data-theme="light"]) .scope :global(.checkin-summary){background:#fff;color:#382d40;border-color:#e9e0eb}
 @media(max-width:600px){.scope :global(.checkin-hero){padding:20px;border-radius:18px}.scope :global(.checkin-config),.scope :global(.checkin-panel){padding:15px;border-radius:16px}}
+
+/* QR check-in: clear camera area and compact registration workflow. */
+.scope :global(.checkin-hero){background:linear-gradient(115deg,#172943,#203b60);border:1px solid #354d6c;border-radius:17px}
+.scope :global(.checkin-eyebrow){color:#a9c4f3}
+.scope :global(.checkin-config),.scope :global(.checkin-panel){background:#121f32;border:1px solid #2a3d56;border-radius:14px;box-shadow:0 7px 22px #0002}
+.scope :global(.checkin-config) h2,.scope :global(.checkin-panel-heading),.scope :global(.checkin-panel) h2{color:#edf3fb}
+.scope :global(.checkin-fields) label,.scope :global(.checkin-panel) label{color:#bdcadd}
+.scope :global(.checkin-fields) input,.scope :global(.checkin-search){background:#0d192a;border:1px solid #30445e;color:#edf3fb;border-radius:9px}
+.scope :global(.checkin-camera-placeholder){background:#0d192a;border:1px dashed #456184;color:#a9bad0;border-radius:12px}
+.scope :global(.checkin-summary)>article{background:#14243a;border:1px solid #304864;border-radius:12px}
+.scope :global(.checkin-summary)>article span{color:#a9bad0}
+.scope :global(.checkin-primary){background:#426fce;border:1px solid #5d88e0;color:#fff;border-radius:9px}
+.scope :global(.checkin-secondary){background:#1b304a;border:1px solid #48617f;color:#e5eefb;border-radius:9px}
+.scope :global(.checkin-list){background:#101e31;border:1px solid #2a3d56;border-radius:12px}
+@media(max-width:650px){.scope :global(.checkin-hero){padding:19px;border-radius:15px}.scope :global(.checkin-grid){grid-template-columns:1fr}}
