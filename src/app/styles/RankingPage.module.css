@@ -204,3 +204,45 @@
 .scope :global(.ranking-view-filters) button:global(.active){background:#12345b!important;box-shadow:inset 0 0 0 1px #287dc0!important}
 .scope :global(.ranking-player-card){border-color:#24395d!important;background:#101f39!important;box-shadow:0 10px 26px #0002!important}
 @media(hover:hover){.scope :global(.ranking-player-card):hover{border-color:#318ee5!important;box-shadow:0 14px 30px #0004!important}}
+
+
+/* Command-center ranking refresh: solid navy surfaces, fire accents and zero blur. */
+.scope:global(.ranking-hub){
+ --jf-bg:#071326;--jf-panel:#101f38;--jf-border:#294563;--jf-muted:#a7b8ce;
+ --jf-fire:#f28b45;--jf-gold:#ffc45c;background:#071326;color:#f4f7fc;
+}
+.scope:global(.ranking-hub)::before{
+ background:radial-gradient(ellipse at 12% 8%,#1c4e7b55,transparent 32%),
+ radial-gradient(ellipse at 86% 14%,#3b315c4a,transparent 32%),
+ linear-gradient(145deg,#071326,#0a1930 64%,#111a2e)!important;
+}
+.scope :global(.ranking-hero){
+ background:linear-gradient(115deg,#10294b,#172747 62%,#30253b)!important;
+ border-color:#365779!important;border-radius:20px!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ box-shadow:0 18px 44px #0004!important;
+}
+.scope :global(.ranking-hero)::before{background:radial-gradient(circle,#f28b4533,transparent 68%)}
+.scope :global(.ranking-tabs),.scope :global(.ranking-content),
+.scope :global(.ranking-progress-panel),.scope :global(.ranking-info-grid) article{
+ background:#101f38!important;border-color:#294563!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ box-shadow:0 12px 30px #0003!important;
+}
+.scope :global(.ranking-tabs) button:global(.active){
+ background:#145da4!important;border-color:#318be0!important;color:#fff!important;
+ box-shadow:none!important;
+}
+.scope :global(.ranking-kicker),.scope :global(.ranking-eyebrow){color:#63c8ef!important}
+.scope :global(.ranking-hero-button){
+ background:linear-gradient(110deg,#1686ec,#075ec2)!important;border-color:#318be0!important;
+ box-shadow:0 8px 20px #006bd326!important;
+}
+.scope :global(.ranking-player){background:#142946!important;border-color:#315174!important}
+.scope :global(.ranking-player):hover{transform:translateY(-2px)!important;border-color:#3988c5!important}
+.scope :global(.ranking-info-grid) article{border-radius:14px!important}
+@media(max-width:700px){
+ .scope:global(.ranking-hub){padding:8px!important}
+ .scope :global(.ranking-content){padding:15px!important;border-radius:15px!important}
+ .scope :global(.ranking-hero){padding:20px!important;border-radius:16px!important}
+}
