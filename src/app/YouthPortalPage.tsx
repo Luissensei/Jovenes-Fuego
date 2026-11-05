@@ -1,5 +1,6 @@
 import styles from './styles/YouthPortalPage.module.css';
 import dashboardStyles from './styles/YouthPortalDashboard.module.css';
+import { motion } from 'motion/react';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {FormEvent} from 'react';
 
@@ -967,7 +968,12 @@ export default function YouthPortalPage() {
 
   if (selectedProfile) {
     return (
-      <main className={`${styles.scope} ${dashboardStyles.dashboard} youth-portal youth-look-${look.background} ${portalExiting ? "youth-profile-exit" : ""}`}>
+      <motion.main
+        className={`${styles.scope} ${dashboardStyles.dashboard} youth-portal youth-look-${look.background} ${portalExiting ? "youth-profile-exit" : ""}`}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.28, ease: "easeOut" }}
+      >
         <div className="youth-container youth-home-enter">
           <div className="youth-home-toolbar">
             <button type="button" className="youth-back" onClick={leaveProfile}>
@@ -1233,7 +1239,7 @@ export default function YouthPortalPage() {
           )}
           <div className="youth-security-note"><ShieldCheck size={17}/> Este acceso muestra únicamente información pública. No revela datos privados ni acredita la identidad; los puntos de partidas no se incorporan automáticamente al ranking oficial.</div>
         </div>
-        </main>
+        </motion.main>
     );
   }
 
