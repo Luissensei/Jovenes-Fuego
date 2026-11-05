@@ -158,7 +158,7 @@ export function AuthProvider({children}: {children: ReactNode}) {
           callableError.message,
         );
 
-        const code = String(callableError.code ?? '').replace(/^functions\\//, '');
+        const code = String(callableError.code ?? '').replace(/^functions\//, '');
         if (code === 'permission-denied') {
           setError(callableError.message || 'La cuenta no tiene un perfil autorizado en Firebase.');
         } else if (code === 'unavailable' || code === 'deadline-exceeded') {
