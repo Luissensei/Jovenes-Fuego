@@ -1,17 +1,14 @@
 import styles from '../styles/ManagementPages.module.css';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
+import {getMembersForAdministration, type MemberAdminRecord} from '../../services/youthPortal';
 import {
-  addDoc,
-  collection,
-  doc,
-  onSnapshot,
-  serverTimestamp,
-  setDoc,
-} from 'firebase/firestore';
-
-import { auth, db, assertFirebaseWritesAllowed } from '../../services/firebase/client';
-import { getMembersForAdministration, type MemberAdminRecord } from '../../services/youthPortal';
+  createBonusRecord,
+  createPastoralNote,
+  listManagementRecords,
+  saveManagementSetting,
+  type ManagementRecord,
+} from '../../services/repositories/management';
 
 import {
   ShieldCheck,
@@ -29,9 +26,7 @@ import {
 
 type ModuleKind = 'bonus' | 'pastoral' | 'leaders' | 'audit' | 'settings';
 
-type RecordItem = Record<string, unknown> & {
-  id: string;
-};
+type RecordItem = ManagementRecord;
 
 const configurations = {
   bonus: {
@@ -101,7 +96,10 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
   const [membersLoading, setMembersLoading] = useState(false);
   const [memberSearch, setMemberSearch] = useState('');
   const [selectedMemberId, setSelectedMemberId] = useState('');
-  const selectedMember = members.find((member) => member.id === selectedMemberId);
+  const selectedMember = useMemo(
+    () => members.find((member) => member.id === selectedMemberId),
+    [members, selectedMemberId],
+  );
   const memberName = selectedMember ? String(selectedMember.name ?? selectedMember.nick ?? '') : '';
   const filteredMembers = useMemo(() => {
     const query = memberSearch.trim().toLocaleLowerCase('es');
@@ -112,49 +110,34 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
   }, [members, memberSearch]);
   const [reason, setReason] = useState('');
   const [points, setPoints] = useState('10');
-
   const [noteTitle, setNoteTitle] = useState('');
   const [note, setNote] = useState('');
-
   const [settingKey, setSettingKey] = useState('');
   const [settingValue, setSettingValue] = useState('');
+  const mountedRef = useRef(false);
+
+  const loadRecords = useCallback(async () => {
+    if (mountedRef.current) {
+      setLoading(true);
+      setError('');
+    }
+    try {
+      const result = await listManagementRecords(kind);
+      if (mountedRef.current) setRecords(result);
+    } catch (cause) {
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo cargar la información.');
+      }
+    } finally {
+      if (mountedRef.current) setLoading(false);
+    }
+  }, [kind]);
 
   useEffect(() => {
-    const database = db;
-
-    if (!database) {
-      setError('Firebase no está configurado en este entorno.');
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    const unsubscribe = onSnapshot(
-      collection(database, config.collection),
-      (snapshot) => {
-        const result = snapshot.docs.map((item) => ({
-          ...item.data(),
-          id: item.id,
-        })) as RecordItem[];
-
-        setRecords(result);
-        setLoading(false);
-      },
-      (err) => {
-        console.error(`Error leyendo ${config.collection}:`, err);
-        setError(
-          err.code === 'permission-denied'
-            ? 'No tienes permisos para consultar esta información. Revisa las reglas del proyecto Firebase original.'
-            : 'No se pudo cargar la información. Comprueba tu conexión.',
-        );
-        setLoading(false);
-      },
-    );
-
-    return unsubscribe;
-  }, [config.collection]);
+    mountedRef.current = true;
+    void loadRecords();
+    return () => { mountedRef.current = false; };
+  }, [loadRecords]);
 
   useEffect(() => {
     if (kind !== 'bonus' && kind !== 'pastoral') return;
@@ -179,34 +162,23 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
 
   async function saveRecord(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    if (!db || !auth?.currentUser) {
-      setError('Debes iniciar sesión para realizar esta acción.');
-      return;
-    }
-
     setSaving(true);
     setError('');
     setMessage('');
 
     try {
-      assertFirebaseWritesAllowed();
       if (kind === 'bonus') {
         const amount = Number(points);
-
-        if (!selectedMember || !memberName.trim() || !reason.trim() || !Number.isFinite(amount) || amount <= 0) {
-          throw new Error('Completa el nombre, el motivo y una cantidad válida de puntos.');
+        if (!selectedMember || !memberName.trim() || !reason.trim() ||
+          !Number.isInteger(amount) || amount <= 0 || amount > 10000) {
+          throw new Error('Selecciona un joven, indica el motivo y una cantidad entera válida de puntos.');
         }
-
-        await addDoc(collection(db, 'bonus'), {
+        await createBonusRecord({
           memberId: selectedMember.id,
-          memberName: memberName.trim(),
           reason: reason.trim(),
           points: amount,
-          createdAt: serverTimestamp(),
-          createdBy: auth.currentUser.uid,
         });
-
+        if (!mountedRef.current) return;
         setSelectedMemberId('');
         setMemberSearch('');
         setReason('');
@@ -218,16 +190,12 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
         if (!selectedMember || !memberName.trim() || !noteTitle.trim() || !note.trim()) {
           throw new Error('Completa el nombre, el título y la nota.');
         }
-
-        await addDoc(collection(db, 'pastoral'), {
+        await createPastoralNote({
           memberId: selectedMember.id,
-          memberName: memberName.trim(),
           title: noteTitle.trim(),
           note: note.trim(),
-          createdAt: serverTimestamp(),
-          createdBy: auth.currentUser.uid,
         });
-
+        if (!mountedRef.current) return;
         setSelectedMemberId('');
         setMemberSearch('');
         setNoteTitle('');
@@ -237,35 +205,24 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
 
       if (kind === 'settings') {
         const key = settingKey.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-');
-
         if (!key || !settingValue.trim()) {
           throw new Error('Escribe el nombre y el valor del ajuste.');
         }
-
-        await setDoc(
-          doc(db, 'settings', key),
-          {
-            key,
-            value: settingValue.trim(),
-            updatedAt: serverTimestamp(),
-            updatedBy: auth.currentUser.uid,
-          },
-          { merge: true },
-        );
-
+        await saveManagementSetting({key, value: settingValue.trim()});
+        if (!mountedRef.current) return;
         setSettingKey('');
         setSettingValue('');
         setMessage('La configuración fue guardada.');
       }
+
+      if (mountedRef.current) await loadRecords();
     } catch (err) {
       console.error(err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'No se pudo guardar el registro.',
-      );
+      if (mountedRef.current) {
+        setError(err instanceof Error ? err.message : 'No se pudo guardar el registro.');
+      }
     } finally {
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   }
 
@@ -446,7 +403,8 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
 
           <button
             type="button"
-            onClick={() => window.location.reload()}
+            onClick={() => void loadRecords()}
+            disabled={loading}
             title="Actualizar"
           >
             <RefreshCw size={16} />
