@@ -1,4 +1,5 @@
 import styles from './styles/RankingPage.module.css';
+import { motion } from 'motion/react';
 
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -392,10 +393,13 @@ export default function RankingPage({
               ) : ranking.length ? (
                 <ol className="ranking-podium-list ranking-podium-stage">
                   {podiumDisplay.map(({ player, slot }) => (
-                    <li
+                    <motion.li
                       key={player.id}
                       className={`ranking-podium-player podium-${slot} place-${player.position}`}
                       aria-label={`Puesto ${player.position}: ${player.name}, ${player.points} puntos`}
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: player.position * 0.07 }}
                     >
                       <span className="ranking-podium-rank" aria-hidden="true">
                         {slot === 'first' ? <Crown size={22} /> : <Medal size={20} />}
@@ -416,7 +420,7 @@ export default function RankingPage({
                       <span className="ranking-podium-base" aria-hidden="true">
                         <b>{slot === 'first' ? '1' : slot === 'second' ? '2' : '3'}</b>
                       </span>
-                    </li>
+                    </motion.li>
                   ))}
                 </ol>
               ) : (
@@ -525,7 +529,17 @@ export default function RankingPage({
                   const leaderShare = ranking[0]?.points ? Math.max(0, Math.min(100, ((profile.points ?? 0) / ranking[0].points) * 100)) : 0;
                   const positionLabel = profile.position === 1 ? '1.º' : profile.position === 2 ? '2.º' : profile.position === 3 ? '3.º' : `${profile.position}.º`;
                   return (
-                    <article className={`ranking-player-card ${profile.position <= 3 ? `ranking-card-top-${profile.position}` : ''}`} key={profile.id} role="listitem" aria-label={`Puesto ${profile.position}: ${profile.name}, ${profile.points} puntos`} style={{'--card-order': index} as React.CSSProperties}>
+                    <motion.article
+                      className={`ranking-player-card ${profile.position <= 3 ? `ranking-card-top-${profile.position}` : ''}`}
+                      key={profile.id}
+                      role="listitem"
+                      aria-label={`Puesto ${profile.position}: ${profile.name}, ${profile.points} puntos`}
+                      style={{'--card-order': index} as React.CSSProperties}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      whileHover={{ y: -4 }}
+                      transition={{ duration: 0.24, delay: Math.min(index, 10) * 0.025 }}
+                    >
                       <div className="ranking-card-topline">
                         <span className="ranking-card-position">
                           {profile.position === 1 ? <Crown size={16}/> : profile.position <= 3 ? <Medal size={16}/> : <Trophy size={15}/>}
@@ -557,7 +571,7 @@ export default function RankingPage({
                         <button type="button" className="ranking-player-expand" aria-label={expanded ? 'Ocultar detalles' : 'Ver detalles'} aria-expanded={expanded} onClick={() => setExpandedRankingId(expanded ? null : profile.id)}><ChevronRight size={16}/></button>
                       </div>
                       {expanded && <div className="ranking-player-tooltip"><span><b>Posición:</b> #{profile.position}</span><span><b>Puntuación:</b> {(profile.points ?? 0).toLocaleString('es-CO')} puntos</span><span><b>Brecha al líder:</b> {profile.position === 1 ? 'Está en la cima' : leaderGap.toLocaleString('es-CO') + ' puntos'}</span><span><b>Avance relativo:</b> {Math.round(leaderShare)}%</span></div>}
-                    </article>
+                    </motion.article>
                   );
                 })}
                 {visibleRanking.length === 0 && <div className="ranking-state"><Search size={25}/><strong>No encontramos ese joven</strong><span>Prueba con otro nombre o apodo.</span></div>}
