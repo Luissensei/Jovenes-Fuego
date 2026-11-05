@@ -14,7 +14,7 @@ Esta revisión inspecciona el registro de módulos, el enrutamiento, las pantall
 |---|---|---|
 | Panel principal | Conectado | Ranking y agenda usan datos reales; se añadió indicador mensual de asistencia para roles con permiso. |
 | Fuego AI | Conectado | Carga diferida; requiere revisar límites, errores y disponibilidad del modelo en producción. |
-| Jóvenes | Conectado | Consulta privada y edición mediante callable; los líderes reciben campos reducidos. |
+| Jóvenes | Mejorado | Consulta privada y edición mediante callable; los líderes reciben campos reducidos. La ficha individual ahora reúne el historial permitido de asistencia y seguimientos.
 | Asistencia | Conectado | Reuniones modernas e historial legado; registro de asistencia mediante Functions. |
 | Seguimiento | Mejorado | Ahora permite seleccionar un joven real y persiste su `memberId`; la función valida el registro en servidor. Los registros históricos siguen en solo lectura. |
 | Devocionales | Conectado en código | Usa endpoints administrativos; falta prueba de publicación y lectura con perfiles reales. |
