@@ -1,6 +1,6 @@
 import styles from '../styles/PhotosPage.module.css';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Image,
   Plus,
@@ -13,8 +13,7 @@ import {
 
 import {
   createPhotoRequest,
-  subscribePendingPhotos,
-  subscribeApprovedPhotos,
+  listPhotosForAdministration,
   approvePhoto,
   rejectPhoto,
   deleteApprovedPhoto,
@@ -36,43 +35,31 @@ export default function PhotosPage() {
   const [imageUrl, setImageUrl] = useState('');
   const [authorName, setAuthorName] = useState('');
 
-  useEffect(() => {
-    let pendingUnsubscribe: (() => void) | undefined;
-    let approvedUnsubscribe: (() => void) | undefined;
+  const mountedRef = useRef(false);
 
-    try {
-      pendingUnsubscribe = subscribePendingPhotos(
-        (items) => {
-          setPending(items.filter((item) => item.status !== 'Rechazada'));
-          setLoading(false);
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
-
-      approvedUnsubscribe = subscribeApprovedPhotos(
-        (items) => {
-          setApproved(items);
-          setLoading(false);
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
-    } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : 'No se pudieron cargar las fotografías.',
-      );
-      setLoading(false);
+  async function loadPhotos(showLoading = true) {
+    if (mountedRef.current) {
+      if (showLoading) setLoading(true);
+      setError('');
     }
+    try {
+      const lists = await listPhotosForAdministration();
+      if (!mountedRef.current) return;
+      setPending(lists.pending.filter((item) => item.status !== 'Rechazada'));
+      setApproved(lists.approved);
+    } catch (cause) {
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudieron cargar las fotografías.');
+      }
+    } finally {
+      if (mountedRef.current) setLoading(false);
+    }
+  }
 
-    return () => {
-      pendingUnsubscribe?.();
-      approvedUnsubscribe?.();
-    };
+  useEffect(() => {
+    mountedRef.current = true;
+    void loadPhotos();
+    return () => { mountedRef.current = false; };
   }, []);
 
   function resetForm() {
@@ -96,15 +83,15 @@ export default function PhotosPage() {
         authorName,
       });
 
+      if (!mountedRef.current) return;
       resetForm();
       setShowForm(false);
       setMessage('Fotografía enviada a revisión.');
+      await loadPhotos(false);
     } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : 'No se pudo registrar la fotografía.',
-      );
+      if (mountedRef.current) setError(cause instanceof Error ? cause.message : 'No se pudo registrar la fotografía.');
     } finally {
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   }
 
@@ -117,13 +104,13 @@ export default function PhotosPage() {
 
     try {
       await approvePhoto(item);
+      if (!mountedRef.current) return;
       setMessage('Fotografía aprobada y publicada.');
+      await loadPhotos(false);
     } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : 'No se pudo aprobar la fotografía.',
-      );
+      if (mountedRef.current) setError(cause instanceof Error ? cause.message : 'No se pudo aprobar la fotografía.');
     } finally {
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   }
 
@@ -136,13 +123,13 @@ export default function PhotosPage() {
 
     try {
       await rejectPhoto(item.id);
+      if (!mountedRef.current) return;
       setMessage('Fotografía rechazada.');
+      await loadPhotos(false);
     } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : 'No se pudo rechazar la fotografía.',
-      );
+      if (mountedRef.current) setError(cause instanceof Error ? cause.message : 'No se pudo rechazar la fotografía.');
     } finally {
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   }
 
@@ -155,13 +142,13 @@ export default function PhotosPage() {
 
     try {
       await deleteApprovedPhoto(item.id);
+      if (!mountedRef.current) return;
       setMessage('Fotografía eliminada.');
+      await loadPhotos(false);
     } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : 'No se pudo eliminar la fotografía.',
-      );
+      if (mountedRef.current) setError(cause instanceof Error ? cause.message : 'No se pudo eliminar la fotografía.');
     } finally {
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   }
 
