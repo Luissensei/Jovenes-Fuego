@@ -1,4 +1,4 @@
-import {doc, getDoc, runTransaction, setDoc, updateDoc} from 'firebase/firestore';
+import {doc, getDoc, setDoc, updateDoc} from 'firebase/firestore';
 
 import {httpsCallable} from 'firebase/functions';
 import {assertFirebaseWritesAllowed, db, functions} from './firebase/client';
@@ -267,31 +267,18 @@ export async function updateMemberForAdministration(
   patch: AdminMemberPatch,
 ): Promise<void> {
   assertFirebaseWritesAllowed();
-  if (!db) throw new Error('Firebase Firestore no está configurado.');
-  const memberRef = doc(db, 'members', memberId);
-  const photoRef = doc(db, 'photos', memberId);
-  const photo = typeof patch.pic === 'string' ? patch.pic : null;
-  const validJpeg = photo !== null
-    && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(photo)
-    && photo.length < 60000;
-  const syncPhoto = validJpeg || photo === '';
-  await runTransaction(db, async (transaction) => {
-    const existingPhoto = syncPhoto ? await transaction.get(photoRef) : null;
-    transaction.update(memberRef, patch);
-    if (syncPhoto) {
-      const values = {
-        p: photo ?? '',
-        c: Date.now(),
-      };
-      if (existingPhoto?.exists()) {
-        transaction.update(photoRef, values);
-      } else {
-        transaction.set(photoRef, {
-          p: values.p, f: '', a: '', b: '', t: '', u: [], w: 0, c: values.c,
-        });
-      }
-    }
-  });
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  if (!memberId.trim()) throw new Error('Selecciona un joven válido.');
+
+  const updateMember = httpsCallable<
+    {memberId: string; patch: AdminMemberPatch},
+    {success: boolean; memberId: string}
+  >(functions, 'adminUpdateMember');
+
+  const response = await updateMember({memberId: memberId.trim(), patch});
+  if (!response.data.success || response.data.memberId !== memberId.trim()) {
+    throw new Error('No se pudo confirmar la actualización de la ficha.');
+  }
 }
 
 export async function getPrayerRequestsForAdministration(): Promise<AdminPrayerRequest[]> {
