@@ -14,7 +14,6 @@ import {
   Menu,
   Moon,
   Sun,
-  Crown,
   ShieldCheck,
   X,
   LogOut,
