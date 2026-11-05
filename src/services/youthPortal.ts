@@ -276,18 +276,20 @@ export async function sendPrayerRequest(input: PrayerRequestInput): Promise<void
   });
 }
 
-export async function getMembersForAdministration(): Promise<MemberAdminRecord[]> {
+export async function getMembersForAdministration(
+  module: 'members' | 'attendance' | 'checkins' = 'members',
+): Promise<MemberAdminRecord[]> {
   if (!functions) {
     throw new Error('Firebase Functions no está configurado.');
   }
 
   // Las fichas privadas se consultan en el servidor: las reglas de Firestore
   // no deben permitir que el navegador descargue el directorio completo.
-  const loadMembers = httpsCallable<Record<string, never>, {members: MemberAdminRecord[]}>(
+  const loadMembers = httpsCallable<{module: string}, {members: MemberAdminRecord[]}>(
     functions,
     'getPrivateMembers',
   );
-  const response = await loadMembers({});
+  const response = await loadMembers({module});
   return Array.isArray(response.data.members)
     ? response.data.members.map((member) => ({
       ...member,
