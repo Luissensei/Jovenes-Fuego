@@ -1,6 +1,6 @@
 import styles from './styles/YouthPortalPage.module.css';
 import dashboardStyles from './styles/YouthPortalDashboard.module.css';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import type {FormEvent} from 'react';
 
 import {
@@ -23,17 +23,16 @@ import {
   saveYouthProfileAppearance,
 } from '../services/youthPortal';
 
-import TriviaGame from './TriviaGame';
-import VerseGame from './VerseGame';
-import ThreeDAvatarStudio from './ThreeDAvatarStudio';
-import { TrueFalseGame, WhoAmIGame } from './QuickBibleGames';
-import {
-  MemoryGame,
-  ChallengeGame,
-  SurvivalGame,
-  DuelGame,
-  OrderVerseGame,
-} from './MoreBibleGames';
+const TriviaGame = lazy(() => import('./TriviaGame'));
+const VerseGame = lazy(() => import('./VerseGame'));
+const ThreeDAvatarStudio = lazy(() => import('./ThreeDAvatarStudio'));
+const TrueFalseGame = lazy(() => import('./QuickBibleGames').then((module) => ({default: module.TrueFalseGame})));
+const WhoAmIGame = lazy(() => import('./QuickBibleGames').then((module) => ({default: module.WhoAmIGame})));
+const MemoryGame = lazy(() => import('./MoreBibleGames').then((module) => ({default: module.MemoryGame})));
+const ChallengeGame = lazy(() => import('./MoreBibleGames').then((module) => ({default: module.ChallengeGame})));
+const SurvivalGame = lazy(() => import('./MoreBibleGames').then((module) => ({default: module.SurvivalGame})));
+const DuelGame = lazy(() => import('./MoreBibleGames').then((module) => ({default: module.DuelGame})));
+const OrderVerseGame = lazy(() => import('./MoreBibleGames').then((module) => ({default: module.OrderVerseGame})));
 
 import { useThemePreference } from './useThemePreference';
 
@@ -940,15 +939,17 @@ export default function YouthPortalPage() {
               <span>Cambiar a {nextThemeLabel}</span>
             </button>
           </div>
-          {activeGame === 'trivia' && <TriviaGame onExit={exitGame}/>}
-          {activeGame === 'verse' && <VerseGame onExit={exitGame}/>}
-          {activeGame === 'memory' && <MemoryGame onExit={exitGame}/>}
-          {activeGame === 'challenge' && <ChallengeGame onExit={exitGame}/>}
-          {activeGame === 'survival' && <SurvivalGame onExit={exitGame}/>}
-          {activeGame === 'duel' && <DuelGame onExit={exitGame}/>}
-          {activeGame === 'order' && <OrderVerseGame onExit={exitGame}/>}
-          {activeGame === 'truefalse' && <TrueFalseGame onExit={exitGame}/>}
-          {activeGame === 'whoami' && <WhoAmIGame onExit={exitGame}/>}
+          <Suspense fallback={<div className="jf-page-loading" role="status" aria-live="polite"><span/><strong>Preparando el juego</strong><small>Un momento…</small></div>}>
+            {activeGame === 'trivia' && <TriviaGame onExit={exitGame}/>}
+            {activeGame === 'verse' && <VerseGame onExit={exitGame}/>}
+            {activeGame === 'memory' && <MemoryGame onExit={exitGame}/>}
+            {activeGame === 'challenge' && <ChallengeGame onExit={exitGame}/>}
+            {activeGame === 'survival' && <SurvivalGame onExit={exitGame}/>}
+            {activeGame === 'duel' && <DuelGame onExit={exitGame}/>}
+            {activeGame === 'order' && <OrderVerseGame onExit={exitGame}/>}
+            {activeGame === 'truefalse' && <TrueFalseGame onExit={exitGame}/>}
+            {activeGame === 'whoami' && <WhoAmIGame onExit={exitGame}/>}
+          </Suspense>
         </div>
       </main>
     );
@@ -977,11 +978,13 @@ export default function YouthPortalPage() {
             <button type="button" className="youth-customize-trigger" onClick={() => setEditingLook((value) => !value)}>
               <Palette size={17}/> Personalizar perfil
             </button>
-            <ThreeDAvatarStudio
-              profileId={selectedProfile.id}
-              profileName={profileExtras.displayName || selectedProfile.name}
-              fallback={<YouthAvatar profile={{...selectedProfile, frame: look.frame, avatar: look.avatar}} large/>}
-            />
+            <Suspense fallback={<div className="youth-3d-avatar-preview" role="status" aria-label="Cargando avatar"><span className="jf-loading-spinner"/></div>}>
+              <ThreeDAvatarStudio
+                profileId={selectedProfile.id}
+                profileName={profileExtras.displayName || selectedProfile.name}
+                fallback={<YouthAvatar profile={{...selectedProfile, frame: look.frame, avatar: look.avatar}} large/>}
+              />
+            </Suspense>
             <span className={`youth-profile-badge badge-${look.badge}`}>
               {({flame:'🔥 Llama viva',book:'📖 Amante de la Palabra',heart:'💛 Corazón de servicio',shield:'🛡️ Fe firme',star:'⭐ Luz del mundo',crown:'👑 Corona de vida'} as Record<string,string>)[look.badge] ?? '🔥 Llama viva'}
             </span>
