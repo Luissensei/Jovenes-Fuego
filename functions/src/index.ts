@@ -1474,33 +1474,52 @@ export const submitPublicPrayerRequest = onCall(async (request) => {
 
   const ip = String(request.rawRequest.ip ?? "unknown").slice(0, 100);
   const day = new Date().toISOString().slice(0, 10);
-  const key = createHash("sha256").update(ip + "|" + day).digest("hex");
-  const rateRef = db.collection("publicPrayerRateLimits").doc(key);
+  const ipKey = createHash("sha256").update(ip + "|" + day).digest("hex");
+  const memberKey = createHash("sha256").update(ip + "|" + memberId + "|" + day).digest("hex");
+  const ipRateRef = db.collection("publicPrayerRateLimits").doc(ipKey);
+  const memberRateRef = db.collection("publicPrayerMemberRateLimits").doc(memberKey);
+  const prayerRef = db.collection("publicPrayerRequests").doc();
+  const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
 
   await db.runTransaction(async (transaction) => {
-    const snapshot = await transaction.get(rateRef);
-    const count = Number(snapshot.data()?.count ?? 0);
-    if (count >= 3) {
-      throw new HttpsError("resource-exhausted", "Ya se alcanzó el límite diario de peticiones desde esta conexión.");
+    const [ipSnapshot, memberRateSnapshot] = await Promise.all([
+      transaction.get(ipRateRef),
+      transaction.get(memberRateRef),
+    ]);
+    const ipCount = Number(ipSnapshot.data()?.count ?? 0);
+    const memberCount = Number(memberRateSnapshot.data()?.count ?? 0);
+
+    // Shared church/mobile networks can contain many different young people.
+    // Keep a broad network ceiling and a tighter per-profile ceiling.
+    if (ipCount >= 100) {
+      throw new HttpsError("resource-exhausted", "Esta conexión alcanzó el límite diario de solicitudes. Intenta mañana.");
     }
-    transaction.set(rateRef, {
+    if (memberCount >= 3) {
+      throw new HttpsError("resource-exhausted", "Este perfil ya alcanzó el límite diario de peticiones.");
+    }
+
+    transaction.set(ipRateRef, {
       count: FieldValue.increment(1),
       day,
-      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
+      expiresAt,
     }, {merge: true});
+    transaction.set(memberRateRef, {
+      count: FieldValue.increment(1),
+      day,
+      expiresAt,
+    }, {merge: true});
+    transaction.create(prayerRef, {
+      memberId,
+      requester,
+      category,
+      message,
+      status: "Pendiente",
+      createdAt: new Date().toISOString(),
+      source: "portal-joven",
+    });
   });
 
-  const ref = db.collection("publicPrayerRequests").doc();
-  await ref.set({
-    memberId,
-    requester,
-    category,
-    message,
-    status: "Pendiente",
-    createdAt: new Date().toISOString(),
-    source: "portal-joven",
-  });
-  return {success: true, id: ref.id};
+  return {success: true, id: prayerRef.id};
 });
 
 export const adminGetPrayerRequests = onCall(async (request) => {
