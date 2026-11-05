@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 import {
-  subscribeAttendanceMeetings,
+  listAttendanceMeetings,
   type AttendanceMeeting,
 } from '../../services/attendance';
 
@@ -32,7 +32,6 @@ export default function ReportsPage() {
 
   useEffect(() => {
     let membersUnsubscribe: (() => void) | null = null;
-    let meetingsUnsubscribe: (() => void) | null = null;
 
     try {
       membersUnsubscribe = subscribeMembers(
@@ -46,16 +45,12 @@ export default function ReportsPage() {
         },
       );
 
-      meetingsUnsubscribe = subscribeAttendanceMeetings(
-        (items) => {
-          setMeetings(items);
-          setLoading(false);
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
+      void listAttendanceMeetings()
+        .then((items) => setMeetings(items))
+        .catch((cause: unknown) => {
+          setError(cause instanceof Error ? cause.message : 'No se pudieron consultar las reuniones.');
+        })
+        .finally(() => setLoading(false));
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -67,7 +62,6 @@ export default function ReportsPage() {
 
     return () => {
       membersUnsubscribe?.();
-      meetingsUnsubscribe?.();
     };
   }, []);
 
