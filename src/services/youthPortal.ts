@@ -40,6 +40,11 @@ export type YouthProfileAppearance = {
   avatar: string;
   background: string;
   title: string;
+  effects: string;
+  badge: string;
+  hair: string;
+  outfit: string;
+  accessory: string;
   ownedItems: string[];
   flames: number;
 };
@@ -293,6 +298,11 @@ export async function saveYouthProfileAppearance(
       avatar: appearance.avatar,
       background: appearance.background,
       title: appearance.title,
+      effects: appearance.effects,
+      badge: appearance.badge,
+      hair: appearance.hair,
+      outfit: appearance.outfit,
+      accessory: appearance.accessory,
       ownedItems: appearance.ownedItems.slice(0, 400),
       flames: Math.max(0, Math.min(100000, appearance.flames)),
     },
