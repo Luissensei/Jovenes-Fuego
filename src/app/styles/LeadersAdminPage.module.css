@@ -32,3 +32,11 @@
 .scope .search input{color:var(--jf-text)}
 .scope .modal{background:var(--jf-surface);color:var(--jf-text);border:1px solid var(--jf-border);border-radius:21px;box-shadow:0 30px 90px rgba(0,0,0,.4)}
 @media(max-width:650px){.scope .hero{align-items:flex-start;padding:18px;border-radius:18px}.scope .summary{grid-template-columns:repeat(2,minmax(0,1fr))}.scope .listPanel{padding:14px}}
+
+/* Leaders: permissions management with compact controls and strong table contrast. */
+.scope :global(.leaders-hero){background:linear-gradient(115deg,#172943,#203b60);border:1px solid #354d6c;border-radius:17px}
+.scope :global(.leaders-card),.scope :global(.leaders-stat){background:#121f32;border:1px solid #2a3d56;border-radius:14px;box-shadow:0 7px 22px #0002}
+.scope :global(.leaders-table-wrapper){border:1px solid #2a3d56;border-radius:12px;overflow-x:auto}
+.scope :global(.leaders-table) th{background:#17283e;color:#b8c9df}
+.scope :global(.leaders-table) td{color:#e1eaf5;border-color:#293d55}
+@media(max-width:650px){.scope :global(.leaders-hero){padding:19px;border-radius:15px}}
