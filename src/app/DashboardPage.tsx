@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   ArrowUpRight, CalendarDays, Users, Trophy, BookOpen, ClipboardCheck,
-  Sparkles, ShieldCheck, Clock3, MapPin, ArrowRight, RefreshCw,
+  Sparkles, ShieldCheck, Clock3, MapPin, ArrowRight,
   LayoutDashboard, UserRound, Medal, Star, ChartNoAxesCombined,
 } from 'lucide-react';
 import { useAuth } from './AuthContext';
@@ -34,7 +34,6 @@ export default function DashboardPage() {
   const [activities, setActivities] = useState<WeeklyActivity[]>([]);
   const [loading, setLoading] = useState(configured);
   const [error, setError] = useState('');
-  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!configured) { setPeople([]); setActivities([]); setLoading(false); return; }
@@ -49,7 +48,7 @@ export default function DashboardPage() {
       else setError((old) => old || 'No se pudo consultar la agenda publicada.');
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [configured, refreshKey]);
+  }, [configured]);
 
   const ranked = useMemo(() => [...people].sort((a, b) => (b.points ?? 0) - (a.points ?? 0) || a.name.localeCompare(b.name, 'es')), [people]);
   const totalPoints = people.reduce((sum, item) => sum + (item.points ?? 0), 0);
