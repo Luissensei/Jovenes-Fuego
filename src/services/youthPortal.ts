@@ -1,4 +1,4 @@
-import {collection, doc, getDoc, getDocs, runTransaction, setDoc, updateDoc} from 'firebase/firestore';
+import {doc, getDoc, runTransaction, setDoc, updateDoc} from 'firebase/firestore';
 
 import {httpsCallable} from 'firebase/functions';
 import {assertFirebaseWritesAllowed, db, functions} from './firebase/client';
