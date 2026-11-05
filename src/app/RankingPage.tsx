@@ -1,6 +1,6 @@
 import styles from './styles/RankingPage.module.css';
 
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 
 import {
   Trophy,
@@ -35,16 +35,15 @@ import {
   type FaithfulPlayer,
 } from '../services/youthPortal';
 
-import TriviaGame from './TriviaGame';
-import VerseGame from './VerseGame';
-import { TrueFalseGame, WhoAmIGame } from './QuickBibleGames';
-import {
-  MemoryGame,
-  ChallengeGame,
-  SurvivalGame,
-  DuelGame,
-  OrderVerseGame,
-} from './MoreBibleGames';
+const TriviaGame = lazy(() => import('./TriviaGame'));
+const VerseGame = lazy(() => import('./VerseGame'));
+const TrueFalseGame = lazy(() => import('./QuickBibleGames').then((module) => ({default: module.TrueFalseGame})));
+const WhoAmIGame = lazy(() => import('./QuickBibleGames').then((module) => ({default: module.WhoAmIGame})));
+const MemoryGame = lazy(() => import('./MoreBibleGames').then((module) => ({default: module.MemoryGame})));
+const ChallengeGame = lazy(() => import('./MoreBibleGames').then((module) => ({default: module.ChallengeGame})));
+const SurvivalGame = lazy(() => import('./MoreBibleGames').then((module) => ({default: module.SurvivalGame})));
+const DuelGame = lazy(() => import('./MoreBibleGames').then((module) => ({default: module.DuelGame})));
+const OrderVerseGame = lazy(() => import('./MoreBibleGames').then((module) => ({default: module.OrderVerseGame})));
 
 type Tab = 'ranking' | 'games' | 'profiles';
 
@@ -573,6 +572,7 @@ export default function RankingPage({
       {activeTab === 'games' && (
         <div className="ranking-content">
 
+          <Suspense fallback={<div className="jf-page-loading" role="status" aria-live="polite"><span/><strong>Preparando el juego</strong><small>Un momento…</small></div>}>
           {activeGame === 'trivia' ? (
             <TriviaGame
               onExit={() => setActiveGame(null)}
@@ -595,6 +595,7 @@ export default function RankingPage({
             <TrueFalseGame onExit={() => setActiveGame(null)} />
           ) : activeGame === 'whoami' ? (
             <WhoAmIGame onExit={() => setActiveGame(null)} />
+          </Suspense>
           ) : (
             <>
               <div className="ranking-section-heading">
