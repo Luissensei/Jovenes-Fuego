@@ -407,7 +407,7 @@ export const adminUpdateMember = onCall(async (request) => {
   const patch: Record<string, unknown> = {};
   const limits: Record<string, number> = {
     name: 120, nick: 60, phone: 40, from: 120, bd: 20, ap: 120,
-    br: 120, mn: 120, nt: 1000, con: 120, dis: 120, pic: 1500,
+    br: 120, mn: 120, nt: 1000, bau: 20, con: 20, dis: 20, pic: 60000, ac: 120, bd: 20,
   };
 
   for (const [field, max] of Object.entries(limits)) {
@@ -415,7 +415,7 @@ export const adminUpdateMember = onCall(async (request) => {
       patch[field] = text(source[field], max);
     }
   }
-  for (const field of ["ac", "nopub"]) {
+  for (const field of ["nopub"]) {
     if (source[field] !== undefined) {
       if (typeof source[field] !== "boolean") {
         throw new HttpsError("invalid-argument", "Uno de los campos booleanos no es válido.");
@@ -430,12 +430,14 @@ export const adminUpdateMember = onCall(async (request) => {
   if (patch.name !== undefined && String(patch.name).trim().length < 2) {
     throw new HttpsError("invalid-argument", "El nombre debe tener al menos 2 caracteres.");
   }
-  if (patch.pic && !/^https:\/\//i.test(String(patch.pic))) {
-    throw new HttpsError("invalid-argument", "La foto debe ser una dirección HTTPS.");
+  if (patch.pic && !/^https:\/\//i.test(String(patch.pic)) &&
+    !/^data:image\/jpeg;base64,[A-Za-z0-9+/=]{1,59000}$/.test(String(patch.pic))) {
+    throw new HttpsError("invalid-argument", "La foto debe ser una dirección HTTPS o una imagen JPEG comprimida válida.");
   }
 
   const memberRef = db.collection("members").doc(memberId);
   const publicRef = db.collection("publicProfiles").doc(memberId);
+  const photoRef = db.collection("photos").doc(memberId);
   const [memberSnapshot, publicSnapshot] = await Promise.all([
     memberRef.get(),
     publicRef.get(),
@@ -446,6 +448,16 @@ export const adminUpdateMember = onCall(async (request) => {
 
   const batch = db.batch();
   batch.set(memberRef, patch, {merge: true});
+
+  if (typeof patch.pic === "string") {
+    const values = {p: patch.pic, c: new Date().toISOString()};
+    const photoSnapshot = await photoRef.get();
+    if (photoSnapshot.exists) {
+      batch.set(photoRef, values, {merge: true});
+    } else {
+      batch.set(photoRef, {p: patch.pic, f: "", a: "", b: "", t: "", u: [], w: 0, c: values.c});
+    }
+  }
 
   if (publicSnapshot.exists) {
     const publicPatch: Record<string, string | boolean> = {};
