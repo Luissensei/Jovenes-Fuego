@@ -120,6 +120,8 @@ export default function ThreeDAvatarStudio({
 
   useEffect(() => {
     let active = true;
+    setBusy(false);
+    setNotice('');
     setHasAvatar(false);
     setViewerReady(false);
     setAvatarUrl('');
