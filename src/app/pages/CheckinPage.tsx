@@ -12,14 +12,12 @@ import {
   Search,
 } from 'lucide-react';
 
-import {
-  subscribeMembers,
-  type MemberRecord,
-} from '../../services/repositories/members';
+import {getMembersForAdministration} from '../../services/youthPortal';
+import type {MemberRecord} from '../../services/repositories/members';
 
 import {
   createCheckin,
-  subscribeCheckins,
+  listCheckins,
   type CheckinRecord,
 } from '../../services/repositories/checkins';
 
@@ -48,39 +46,27 @@ export default function CheckinPage() {
   );
 
   useEffect(() => {
-    let unsubscribeMembers: (() => void) | null = null;
-    let unsubscribeCheckins: (() => void) | null = null;
-
-    try {
-      unsubscribeMembers = subscribeMembers(
-        (items) => setMembers(items),
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
-
-      unsubscribeCheckins = subscribeCheckins(
-        (items) => {
-          setCheckins(items);
-          setLoading(false);
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
-    } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : 'Error cargando datos.',
-      );
-      setLoading(false);
+    let active = true;
+    async function loadCheckinData() {
+      setLoading(true);
+      setError('');
+      try {
+        const [memberItems, checkinItems] = await Promise.all([
+          getMembersForAdministration('checkins'),
+          listCheckins(),
+        ]);
+        if (!active) return;
+        setMembers(memberItems as MemberRecord[]);
+        setCheckins(checkinItems);
+      } catch (cause) {
+        if (!active) return;
+        setError(cause instanceof Error ? cause.message : 'No se pudieron cargar los datos del check-in.');
+      } finally {
+        if (active) setLoading(false);
+      }
     }
-
-    return () => {
-      unsubscribeMembers?.();
-      unsubscribeCheckins?.();
-    };
+    void loadCheckinData();
+    return () => { active = false; };
   }, []);
 
   const processQr = useCallback(async (value: string) => {
@@ -130,13 +116,12 @@ export default function CheckinPage() {
     setSaving(true);
 
     try {
-      await createCheckin({
-        memberId,
-        memberName,
-        meetingName,
-        date,
-      });
-
+      await createCheckin({memberId, memberName, meetingName, date});
+      setCheckins((items) => [{
+        id: `${memberId}-${date}-${meetingName.trim()}`,
+        memberId, memberName, meetingName: meetingName.trim(), date,
+        createdAt: new Date().toISOString(),
+      }, ...items]);
       setMessage(`Asistencia registrada para ${memberName}.`);
     } catch (cause) {
       setError(
@@ -223,13 +208,13 @@ export default function CheckinPage() {
     setSaving(true);
 
     try {
-      await createCheckin({
-        memberId: selectedMember.id,
-        memberName,
-        meetingName,
-        date,
-      });
-
+      await createCheckin({memberId: selectedMember.id, memberName, meetingName, date});
+      setCheckins((items) => [{
+        id: `${selectedMember.id}-${date}-${meetingName.trim()}`,
+        memberId: selectedMember.id, memberName,
+        meetingName: meetingName.trim(), date,
+        createdAt: new Date().toISOString(),
+      }, ...items]);
       setMessage(`Asistencia registrada para ${memberName}.`);
     } catch (cause) {
       setError(
