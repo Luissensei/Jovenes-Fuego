@@ -101,8 +101,8 @@ export default function DashboardPage() {
           {topThree.length ? <div className={styles.podium}>
             {[topThree[1], topThree[0], topThree[2]].map((person, visualIndex) => {
               if (!person) return <div className={styles.podiumEmpty} key={visualIndex} />;
-              const position = ranked.findIndex((item) => item.name === person.name) + 1;
-              return <div className={styles.podiumPerson} data-place={position} key={person.name}>
+              const position = ranked.findIndex((item) => item.id === person.id) + 1;
+              return <div className={styles.podiumPerson} data-place={position} key={person.id}>
                 <div className={styles.avatarWrap}><div className={styles.avatar}>{initials(person.name)}</div><span>{position === 1 ? <Medal size={17} /> : position}</span></div>
                 <b title={person.name}>{person.name}</b><small><Star size={12} fill="currentColor" /> {(person.points ?? 0).toLocaleString('es-CO')} pts</small>
                 <div className={styles.podiumBase}><strong>{position === 1 ? '1º' : position === 2 ? '2º' : '3º'}</strong></div>
