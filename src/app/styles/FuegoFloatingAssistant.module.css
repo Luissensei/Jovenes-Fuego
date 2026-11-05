@@ -1,61 +1,17 @@
-.dock{position:fixed;right:26px;bottom:26px;z-index:9500;display:grid;justify-items:end;gap:14px;pointer-events:none}
-.launcher{position:relative;isolation:isolate;display:grid;place-items:center;width:72px;height:72px;padding:0;border:2px solid rgba(255,255,255,.82);border-radius:50%;background:linear-gradient(145deg,#5b8cff 0%,#8157e8 48%,#20b99a 100%);color:#fff;box-shadow:0 14px 36px rgba(42,65,150,.32),inset 0 2px 0 rgba(255,255,255,.42);cursor:pointer;pointer-events:auto;transition:transform .35s cubic-bezier(.2,.9,.2,1),box-shadow .35s ease,filter .35s ease}
-.launcher:hover{transform:translateY(-5px) rotate(-7deg) scale(1.08);box-shadow:0 20px 48px rgba(74,81,190,.42),0 0 0 8px rgba(129,87,232,.1);filter:saturate(1.2)}
-.launcher:active{transform:scale(.94)}
-.launcher:focus-visible{outline:3px solid var(--jf-blue,#5b8cff);outline-offset:5px}
-.launcherAura{position:absolute;z-index:-1;inset:-8px;border:1px solid rgba(111,139,255,.55);border-radius:50%;box-shadow:0 0 0 6px rgba(32,185,154,.1),0 0 32px rgba(129,87,232,.35);animation:fuegoAura 3.1s ease-in-out infinite}
-.launcherIcon{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;filter:drop-shadow(0 3px 5px rgba(18,24,65,.3))}
+.dock{position:fixed;right:24px;bottom:24px;z-index:9500;display:grid;justify-items:end;gap:12px;pointer-events:none}
+.launcher{position:relative;isolation:isolate;display:grid;place-items:center;width:68px;height:68px;padding:0;border:1px solid #91adf7;border-radius:50%;background:linear-gradient(145deg,#668cff 0%,#4771e8 72%,#35bd91 100%);color:#fff;box-shadow:0 14px 34px rgba(30,58,120,.34),inset 0 1px 0 rgba(255,255,255,.35);cursor:pointer;pointer-events:auto;transition:transform .2s ease,box-shadow .2s ease}
+.launcher:hover{transform:translateY(-3px);box-shadow:0 18px 38px rgba(30,58,120,.38)}
+.launcher:active{transform:translateY(0)}
+.launcher:focus-visible{outline:3px solid #91b9ff;outline-offset:4px}
+.launcherAura{position:absolute;z-index:-1;inset:-7px;border:1px solid #789cff;border-radius:50%;box-shadow:0 0 0 5px rgba(102,140,255,.12),0 0 22px rgba(102,140,255,.2);animation:fuegoAura 3.1s ease-in-out infinite}
+.launcherIcon{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff}
 .launcherText{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
-.launcherSparkle{position:absolute;right:9px;top:8px;color:#fff;filter:drop-shadow(0 2px 3px rgba(18,24,65,.4))}
-.window{width:min(420px,calc(100vw - 32px));height:min(660px,calc(100dvh - 124px));min-height:360px;overflow:hidden;border:1px solid rgba(129,87,232,.35);border-radius:27px;background:var(--jf-surface,#fff);box-shadow:0 28px 90px rgba(16,25,65,.28),0 0 0 1px rgba(255,255,255,.42) inset;pointer-events:auto;transform-origin:bottom right;animation:fuegoWindowIn .42s cubic-bezier(.16,1,.3,1) both;backdrop-filter:none}
+.launcherSparkle{position:absolute;right:8px;top:7px;color:#fff}
+.window{width:min(420px,calc(100vw - 32px));height:min(660px,calc(100dvh - 124px));min-height:360px;overflow:hidden;border:1px solid #344c70;border-radius:18px;background:#121f32;box-shadow:0 24px 72px rgba(2,8,18,.5);pointer-events:auto;transform-origin:bottom right;animation:fuegoWindowIn .28s ease-out both;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 .window>*{width:100%;height:100%}
-@keyframes fuegoAura{0%,100%{transform:scale(.97);opacity:.55}50%{transform:scale(1.08);opacity:1}}
-@keyframes fuegoWindowIn{from{opacity:0;transform:translateY(22px) scale(.94) rotate(1deg);filter:none}to{opacity:1;transform:translateY(0) scale(1) rotate(0);filter:none{.dock{right:16px;bottom:calc(16px + env(safe-area-inset-bottom))}.launcher{width:64px;height:64px}.launcherIcon{width:43px;height:43px}.window{position:fixed;right:12px;bottom:calc(90px + env(safe-area-inset-bottom));width:calc(100vw - 24px);height:min(680px,calc(100dvh - 112px));min-height:300px;border-radius:22px}}
-@media(prefers-reduced-motion:reduce){.launcherAura,.window{animation:none!important}.launcher{transition:none}}
-
-
-/* Floating assistant — solid surfaces, no glass blur, consistent command-center palette. */
-.dock{right:24px;bottom:24px;gap:12px}
-.launcher{
- border:1px solid #91adf7;
- background:linear-gradient(145deg,#668cff 0%,#4771e8 72%,#35bd91 100%);
- box-shadow:0 14px 34px rgba(30,58,120,.34),inset 0 1px 0 rgba(255,255,255,.35);
-}
-.launcher:hover{
- transform:translateY(-3px);
- box-shadow:0 18px 38px rgba(30,58,120,.38);
- filter:none;
-}
-.launcherAura{
- border-color:#789cff;
- box-shadow:0 0 0 5px rgba(102,140,255,.12),0 0 22px rgba(102,140,255,.2);
-}
-.launcherIcon{background:rgba(255,255,255,.16);filter:none}
-.window{
- border:1px solid #344c70;
- border-radius:18px;
- background:#121f32;
- box-shadow:0 24px 72px rgba(2,8,18,.5);
- backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
-}
-@keyframes fuegoWindowIn{
- from{opacity:0;transform:translateY(14px) scale(.98)}
- to{opacity:1;transform:translateY(0) scale(1)}
-}
-@media(max-width:900px){
- .dock{right:14px;bottom:calc(102px + env(safe-area-inset-bottom))}
- .window{
-  right:10px;bottom:calc(178px + env(safe-area-inset-bottom));
-  width:calc(100vw - 20px);height:min(620px,calc(100dvh - 196px - env(safe-area-inset-bottom)));
-  min-height:230px;border-radius:16px;
- }
-}
-@media(max-width:600px){
- .dock{right:12px}
- .window{right:10px;width:calc(100vw - 20px)}
-}
-@media(max-height:500px) and (max-width:900px){
- .dock{bottom:calc(90px + env(safe-area-inset-bottom))}
- .window{bottom:calc(156px + env(safe-area-inset-bottom));height:calc(100dvh - 174px - env(safe-area-inset-bottom));min-height:190px}
-}
-@media(prefers-reduced-motion:reduce){.launcherAura{animation:none!important}}
+@keyframes fuegoAura{0%,100%{transform:scale(.98);opacity:.55}50%{transform:scale(1.04);opacity:1}}
+@keyframes fuegoWindowIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:900px){.dock{right:14px;bottom:calc(102px + env(safe-area-inset-bottom))}.window{position:fixed;right:10px;bottom:calc(178px + env(safe-area-inset-bottom));width:calc(100vw - 20px);height:min(620px,calc(100dvh - 196px - env(safe-area-inset-bottom)));min-height:230px;border-radius:16px}}
+@media(max-width:600px){.dock{right:12px}.launcher{width:62px;height:62px}.launcherIcon{width:42px;height:42px}.window{right:10px;width:calc(100vw - 20px)}}
+@media(max-height:500px) and (max-width:900px){.dock{bottom:calc(90px + env(safe-area-inset-bottom))}.window{bottom:calc(156px + env(safe-area-inset-bottom));height:calc(100dvh - 174px - env(safe-area-inset-bottom));min-height:190px}}
+@media(prefers-reduced-motion:reduce){.launcherAura,.window{animation:none!important}.launcher{transition:none!important}}
