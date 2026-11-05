@@ -254,7 +254,7 @@ function isSavedLookTemplate(value: unknown): value is SavedLookTemplate {
   const item = value as Partial<SavedLookTemplate>;
   const preset = item.preset as LookPreset | undefined;
   if (typeof item.key !== 'string' || typeof item.label !== 'string' || typeof item.description !== 'string' || typeof item.emoji !== 'string' || !preset) return false;
-  return lookShop.frames.some((entry) => entry.key === preset.frame)
+  return isValidLookValue('frames', preset.frame)
     && lookShop.backgrounds.some((entry) => entry.key === preset.background)
     && lookShop.avatars.some((entry) => entry.key === preset.avatar)
     && lookShop.titles.some((entry) => entry.key === preset.title)
@@ -304,6 +304,9 @@ function YouthAvatar({profile, large = false}: {profile: PublicProfile; large?: 
 }
 
 function isValidLookValue(category: LookShopCategory, value: unknown): value is string {
+  // "amatista" era el identificador original del marco ciruela; se conserva
+  // para plantillas y perfiles antiguos aunque la tienda actual lo llame "neon".
+  if (category === 'frames' && value === 'amatista') return true;
   return typeof value === 'string' && lookShop[category].some((item) => item.key === value);
 }
 
