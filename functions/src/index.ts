@@ -186,8 +186,8 @@ export const resolveUsernameLogin = onCall(async (request) => {
   await db.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(rateRef);
     const count = Number(snapshot.data()?.count ?? 0);
-    if (count >= 30) {
-      throw new HttpsError("resource-exhausted", "Se alcanzó el límite de consultas de usuario. Intenta más tarde.");
+    if (count >= 500) {
+      throw new HttpsError("resource-exhausted", "Se alcanzó el límite diario de consultas de usuario. Intenta más tarde.");
     }
     transaction.set(rateRef, {
       count: FieldValue.increment(1),
