@@ -7,11 +7,10 @@
 .launcherIcon{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;filter:drop-shadow(0 3px 5px rgba(18,24,65,.3))}
 .launcherText{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 .launcherSparkle{position:absolute;right:9px;top:8px;color:#fff;filter:drop-shadow(0 2px 3px rgba(18,24,65,.4))}
-.window{width:min(420px,calc(100vw - 32px));height:min(660px,calc(100dvh - 124px));min-height:360px;overflow:hidden;border:1px solid rgba(129,87,232,.35);border-radius:27px;background:var(--jf-surface,#fff);box-shadow:0 28px 90px rgba(16,25,65,.28),0 0 0 1px rgba(255,255,255,.42) inset;pointer-events:auto;transform-origin:bottom right;animation:fuegoWindowIn .42s cubic-bezier(.16,1,.3,1) both;backdrop-filter:blur(24px)}
+.window{width:min(420px,calc(100vw - 32px));height:min(660px,calc(100dvh - 124px));min-height:360px;overflow:hidden;border:1px solid rgba(129,87,232,.35);border-radius:27px;background:var(--jf-surface,#fff);box-shadow:0 28px 90px rgba(16,25,65,.28),0 0 0 1px rgba(255,255,255,.42) inset;pointer-events:auto;transform-origin:bottom right;animation:fuegoWindowIn .42s cubic-bezier(.16,1,.3,1) both;backdrop-filter:none}
 .window>*{width:100%;height:100%}
 @keyframes fuegoAura{0%,100%{transform:scale(.97);opacity:.55}50%{transform:scale(1.08);opacity:1}}
-@keyframes fuegoWindowIn{from{opacity:0;transform:translateY(22px) scale(.94) rotate(1deg);filter:blur(5px)}to{opacity:1;transform:translateY(0) scale(1) rotate(0);filter:blur(0)}}
-@media(max-width:600px){.dock{right:16px;bottom:calc(16px + env(safe-area-inset-bottom))}.launcher{width:64px;height:64px}.launcherIcon{width:43px;height:43px}.window{position:fixed;right:12px;bottom:calc(90px + env(safe-area-inset-bottom));width:calc(100vw - 24px);height:min(680px,calc(100dvh - 112px));min-height:300px;border-radius:22px}}
+@keyframes fuegoWindowIn{from{opacity:0;transform:translateY(22px) scale(.94) rotate(1deg);filter:none}to{opacity:1;transform:translateY(0) scale(1) rotate(0);filter:none{.dock{right:16px;bottom:calc(16px + env(safe-area-inset-bottom))}.launcher{width:64px;height:64px}.launcherIcon{width:43px;height:43px}.window{position:fixed;right:12px;bottom:calc(90px + env(safe-area-inset-bottom));width:calc(100vw - 24px);height:min(680px,calc(100dvh - 112px));min-height:300px;border-radius:22px}}
 @media(prefers-reduced-motion:reduce){.launcherAura,.window{animation:none!important}.launcher{transition:none}}
 
 
