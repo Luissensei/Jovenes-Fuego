@@ -504,6 +504,7 @@ export default function ManagementPage({ kind }: { kind: ModuleKind }) {
                     <p>{valueText(row.action ?? row.description ?? row.type)}</p>
                     <small>
                       {valueText(row.createdAt)} · {valueText(row.userName ?? row.userId)}
+                      {row.targetUid ? ` · Objetivo: ${valueText(row.targetUid)}` : ''}
                     </small>
                   </>
                 )}
