@@ -68,7 +68,7 @@ export default function FuegoAssistant({
             <h2>Fuego AI</h2>
             <p>{youth ? 'Tu compañero para aprender, reflexionar y crecer en la Palabra.' : 'Ideas, planificación y apoyo para organizar la comunidad.'}</p>
           </div>
-          <span className={styles.status}>{firebaseAiAvailable ? 'Conectada a Staging' : 'Requiere configuración'}</span>
+          <span className={styles.status}>{firebaseAiAvailable ? 'App Check inicializado' : 'Requiere configuración'}</span>
           {compact && onClose && <button type="button" className={styles.closeButton} onClick={onClose} aria-label="Minimizar Fuego AI"><X size={19}/></button>}
         </header>
 
