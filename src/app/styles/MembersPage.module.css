@@ -819,3 +819,22 @@
 .scope :global(.member-card-details),.scope :global(.member-meta){color:#a9bad0}
 .scope :global(.member-detail-modal){background:#121f32;border:1px solid #30445e;color:#edf3fb}
 @media(max-width:650px){.scope :global(.members-hero){padding:19px;border-radius:15px;align-items:flex-start;flex-direction:column}.scope :global(.members-grid){grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:12px}}
+
+.historyPanel{display:grid;gap:12px;margin:18px 0 4px;padding:17px 18px;border:1px solid #2b405b;border-radius:14px;background:#0e1a2b;color:#eaf1fb}
+.historyPanel>header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.historyPanel>header span{display:block;margin-bottom:4px;color:#91b6ee;font-size:9px;font-weight:850;letter-spacing:.13em}
+.historyPanel>header h3{margin:0;color:#f2f6fc;font-size:16px}
+.historyPanel>header small{color:#9aafc9;font-size:10px}
+.historyState,.historyError{margin:0;padding:12px;border-radius:9px;background:#14243a;color:#afc1d7;font-size:11px;line-height:1.6}
+.historyError{background:#38232c;color:#ffd9e1}
+.historyList{display:grid;gap:0;margin:0;padding:0;list-style:none}
+.historyList li{position:relative;display:grid;grid-template-columns:12px minmax(0,1fr);gap:10px;padding:0 0 15px}
+.historyList li:not(:last-child)::before{position:absolute;top:9px;bottom:-1px;left:5px;width:1px;background:#314a68;content:""}
+.historyDot{position:relative;z-index:1;width:11px;height:11px;margin-top:3px;border:2px solid #8ab8f4;border-radius:50%;background:#14243a}
+.historyMeta{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.historyMeta b{color:#9fc3fa;font-size:9px;text-transform:uppercase;letter-spacing:.08em}
+.historyMeta time{color:#849bb6;font-size:9px}
+.historyList li strong{display:block;color:#f0f5fc;font-size:12px}
+.historyList li p{margin:4px 0;color:#aebfd3;font-size:10px;line-height:1.5;overflow-wrap:anywhere}
+.historyList li small{display:inline-block;padding:3px 7px;border-radius:20px;background:#1d3552;color:#c8dcf8;font-size:9px}
+@media(max-width:560px){.historyPanel{padding:13px}.historyPanel>header h3{font-size:14px}}
