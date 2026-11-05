@@ -186,7 +186,7 @@ export async function sendPrayerRequest(input: PrayerRequestInput): Promise<void
 }
 
 export async function getMembersForAdministration(
-  module: 'members' | 'attendance' | 'checkins' | 'reports' = 'members',
+  module: 'members' | 'attendance' | 'checkins' | 'reports' | 'followups' = 'members',
 ): Promise<MemberAdminRecord[]> {
   if (!functions) {
     throw new Error('Firebase Functions no está configurado.');
