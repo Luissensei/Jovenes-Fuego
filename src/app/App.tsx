@@ -163,7 +163,10 @@ function AdminApp() {
   const isLeader = ['lider', 'líder'].includes(role);
   const isStaff = isAdmin || isPastor || isLeader;
   // Least privilege: un líder sin permisos explícitos recibe solo herramientas operativas básicas.
-  const defaultLeaderModules = ['attendance', 'reports', 'ranking', 'games', 'profile'];
+  const defaultLeaderModules = [
+    'members', 'attendance', 'reports', 'followups', 'devotionals', 'visitors',
+    'prayers', 'events', 'checkins', 'turns', 'ranking', 'games', 'profile',
+  ];
   const leaderPermissions = Array.isArray(profile?.permissions)
     ? profile.permissions.filter((item): item is string => typeof item === 'string')
     : defaultLeaderModules;
