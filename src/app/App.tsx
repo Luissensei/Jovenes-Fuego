@@ -168,7 +168,7 @@ function AdminApp() {
   const isPastor = role === 'pastor';
   const isLeader = ['lider', 'líder'].includes(role);
   const isStaff = isAdmin || isPastor || isLeader;
-  const defaultLeaderModules = ['members','attendance','followups','devotionals','visitors','events','prayers','checkins','turns','ranking','games','profile'];
+  // Least privilege: un líder sin permisos explícitos recibe solo herramientas operativas básicas.\n  const defaultLeaderModules = ['attendance', 'ranking', 'games', 'profile'];
   const leaderPermissions = Array.isArray(profile?.permissions)
     ? profile.permissions.filter((item): item is string => typeof item === 'string')
     : defaultLeaderModules;
@@ -228,12 +228,12 @@ function AdminApp() {
     ? 'Vista previa · sin Firebase'
     : firebaseReadOnlyMode
       ? 'Producción · solo lectura'
-      : 'Staging conectado';
+      : 'Firebase conectado';
   const environmentTone = !configured
     ? 'preview'
     : firebaseReadOnlyMode
       ? 'readonly'
-      : 'staging';
+      : 'connected';
 
   const mobileNavIds = isStaff
     ? ['dashboard', 'attendance', 'ranking', 'games', 'profile']
@@ -379,7 +379,7 @@ function AdminApp() {
           {configured
             ? firebaseReadOnlyMode
               ? 'PRODUCCIÓN · SOLO LECTURA'
-              : `STAGING · ${firebaseProjectId}`
+              : `FIREBASE · ${firebaseProjectId}`
             : 'VISTA PREVIA · SIN FIREBASE'}
         </div>
 
@@ -423,7 +423,7 @@ function AdminApp() {
               <small>
                 {firebaseReadOnlyMode
                   ? 'Solo consultas; edición deshabilitada.'
-                  : 'Entorno independiente de pruebas.'}
+                  : 'Acceso protegido por rol y permisos.'}
               </small>
             </span>
           </div>
@@ -537,7 +537,7 @@ function AdminApp() {
           {configured
             ? firebaseReadOnlyMode
               ? 'producción · solo lectura'
-              : 'staging'
+              : 'conectado'
             : 'vista previa'}
         </footer>
       </div>
