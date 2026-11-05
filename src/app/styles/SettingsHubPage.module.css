@@ -41,3 +41,11 @@
 .scope .areaCard:hover{border-color:rgba(222,174,111,.48);box-shadow:0 17px 38px rgba(5,4,10,.18)}
 .scope .advanced{border:1px solid var(--jf-border);border-radius:15px;padding:14px;background:var(--jf-surface)}
 @media(max-width:600px){.scope .hero{padding:18px;border-radius:18px}.scope .themeCard{align-items:flex-start;flex-wrap:wrap;padding:15px}.scope .areaGrid{grid-template-columns:1fr}.scope .areaCard{min-height:145px}}
+
+/* Settings: restrained configuration cards and consistent form fields. */
+.scope :global(.settings-hero){background:linear-gradient(115deg,#172943,#203b60);border:1px solid #354d6c;border-radius:17px}
+.scope :global(.settings-card),.scope :global(.settings-group){background:#121f32;border:1px solid #2a3d56;border-radius:14px;box-shadow:0 7px 22px #0002}
+.scope :global(.settings-card) h2,.scope :global(.settings-group) h3{color:#edf3fb}
+.scope :global(.settings-card) p,.scope :global(.settings-group) p{color:#a9bad0}
+.scope :global(.settings-card) input,.scope :global(.settings-card) select,.scope :global(.settings-card) textarea{background:#0d192a;border:1px solid #30445e;color:#edf3fb;border-radius:9px}
+@media(max-width:650px){.scope :global(.settings-hero){padding:19px;border-radius:15px}}
