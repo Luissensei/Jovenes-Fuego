@@ -7,10 +7,11 @@ const config: ManagedPageConfig = {
   description: 'Registra y consulta el acompañamiento de cada joven.',
   createLabel: 'Nuevo seguimiento',
   fields: [
-    { key: 'name', label: 'Nombre del joven', placeholder: 'Nombre completo' },
+    { key: 'name', label: 'Nombre del joven', placeholder: 'Nombre completo', hidden: true },
     { key: 'date', label: 'Fecha', type: 'date' },
     { key: 'reason', label: 'Motivo', placeholder: 'Acompañamiento espiritual, inasistencia...' },
     { key: 'notes', label: 'Observaciones', type: 'textarea', placeholder: 'Detalles del seguimiento...' },
+    { key: 'memberId', label: 'Vincular con joven registrado', type: 'member' },
   ],
   statusOptions: ['Pendiente', 'En proceso', 'Completado'],
   emptyTitle: 'Sin seguimientos registrados',
