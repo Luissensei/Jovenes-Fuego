@@ -169,3 +169,38 @@
 @media(max-width:650px){.scope:global(.ranking-hub){padding:8px}.scope :global(.ranking-hero){padding:25px 20px;border-radius:20px}.scope :global(.ranking-hero-art){flex-basis:82px;width:82px;height:82px;border-radius:22px}.scope :global(.ranking-hero-art)>svg:first-child{width:43px}.scope :global(.ranking-tabs) button{padding:11px 5px;font-size:10px;gap:5px}.scope :global(.ranking-content){padding:16px;border-radius:17px}.scope :global(.ranking-info-grid){gap:8px}.scope :global(.ranking-info-grid) article{grid-template-columns:1fr;padding:13px;gap:6px}.scope :global(.ranking-info-grid) svg{grid-row:auto}.scope :global(.ranking-info-grid) strong{font-size:20px}.scope :global(.ranking-info-grid) span{font-size:9px}.scope :global(.youth-hall-grid){grid-template-columns:1fr}.scope :global(.ranking-progress-bands){grid-template-columns:repeat(2,minmax(0,1fr))}.scope :global(.ranking-card-grid),.scope :global(.games-grid){grid-template-columns:1fr}.scope :global(.profiles-grid){grid-template-columns:repeat(2,minmax(0,1fr))}.scope :global(.ranking-visual-toolbar){align-items:stretch;flex-direction:column}.scope :global(.ranking-view-filters) button{flex:1}.scope :global(.ranking-list-heading){align-items:flex-start;flex-direction:column}.scope :global(.ranking-list-count){align-self:flex-start}}
 @media(max-width:390px){.scope :global(.ranking-hero-art){display:none}.scope :global(.ranking-info-grid) article{padding:10px}.scope :global(.ranking-podium-avatar){width:54px;height:54px}.scope :global(.podium-first) :global(.ranking-podium-avatar){width:68px;height:68px}.scope :global(.ranking-podium-details) strong{font-size:10px}.scope :global(.ranking-podium-details) small{font-size:9px}.scope :global(.ranking-podium-base){height:55px}.scope :global(.podium-first) :global(.ranking-podium-base){height:75px}.scope :global(.podium-second) :global(.ranking-podium-base){height:65px}.scope :global(.podium-third) :global(.ranking-podium-base){height:45px}}
 @media(prefers-reduced-motion:reduce){.scope :global(.ranking-player-card),.scope :global(.game-card),.scope :global(.profile-card){transition:none!important;animation:none!important}}
+
+
+/* COMMAND CENTER OVERRIDES — neutraliza el antiguo tema glass/fire del ranking */
+.scope:global(.ranking-hub){--jf-bg:#050d20;--jf-panel:#0d1a33;--jf-border:#24395d;--jf-muted:#9eacc6;--jf-fire:#168cff;--jf-gold:#ffc45c;max-width:1540px;color:#f5f8ff}
+.scope:global(.ranking-hub)::before{display:none!important}
+.scope :global(.ranking-hero){border:1px solid #28466d!important;border-radius:18px!important;background:linear-gradient(110deg,#0b1b38,#10264a 60%,#111d3d)!important;box-shadow:0 16px 38px #0003!important;backdrop-filter:none!important}
+.scope :global(.ranking-hero)::before,.scope :global(.ranking-hero)::after{display:none!important}
+.scope :global(.ranking-eyebrow),.scope :global(.ranking-kicker){color:#55c4ff!important}
+.scope :global(.ranking-hero-button){border-color:#2388f3!important;background:linear-gradient(110deg,#087df1,#0759d8)!important;box-shadow:0 8px 20px #006fff35!important}
+.scope :global(.ranking-hero-art){border-color:#2a4b73!important;border-radius:18px!important;color:#4dc7ff!important;background:#122744!important;box-shadow:none!important}
+.scope :global(.ranking-tabs){border:1px solid #24395d!important;border-radius:12px!important;background:#0b1930!important;backdrop-filter:none!important}
+.scope :global(.ranking-tabs) button:global(.active){background:#12345b!important;border-color:#287dc0!important;box-shadow:none!important}
+.scope :global(.ranking-tabs) button:global(.active) svg{color:#5bc7ff!important}
+.scope :global(.ranking-content){border:1px solid #24395d!important;border-radius:16px!important;background:#0d1a33!important;box-shadow:0 12px 30px #0002!important;backdrop-filter:none!important}
+.scope :global(.ranking-heading-icon){border-color:#28517d!important;border-radius:12px!important;color:#56c5ff!important;background:#122b4a!important}
+.scope :global(.ranking-info-grid) article,.scope :global(.ranking-progress-panel),.scope :global(.youth-hall-card),.scope :global(.youth-faithful-list) li{border-color:#24395d!important;border-radius:13px!important;background:#101f39!important}
+.scope :global(.ranking-info-grid) svg{color:#55c4ff!important}
+.scope :global(.ranking-progress-band)>i em{background:linear-gradient(90deg,#087df1,#20c7ed)!important;box-shadow:none!important}
+.scope :global(.ranking-progress-band) .band-1{background:linear-gradient(90deg,#8a45e8,#bd83ff)!important}
+.scope :global(.ranking-progress-band) .band-2{background:linear-gradient(90deg,#087df1,#53c6ff)!important}
+.scope :global(.ranking-progress-band) .band-3{background:linear-gradient(90deg,#08b982,#55e0b5)!important}
+.scope :global(.ranking-progress-band) .band-4{background:linear-gradient(90deg,#e58b27,#ffc45c)!important}
+.scope :global(.ranking-podium-avatar){border-color:#6c8db5!important;background:#19365b!important}
+.scope :global(.podium-first) :global(.ranking-podium-avatar){border-color:#ffc45c!important;box-shadow:0 0 0 5px #ffc45c18,0 0 24px #ffc45c24!important}
+.scope :global(.podium-second) :global(.ranking-podium-avatar){border-color:#b9c8da!important}
+.scope :global(.podium-third) :global(.ranking-podium-avatar){border-color:#c58b68!important}
+.scope :global(.ranking-podium-base){border-color:#2b4c73!important;background:linear-gradient(180deg,#1a365a,#10213b)!important}
+.scope :global(.podium-first) :global(.ranking-podium-base){border-color:#b58a3f!important;color:#ffd36d!important;background:linear-gradient(180deg,#6a4d22,#302943)!important}
+.scope :global(.ranking-podium-details) small{color:#ffc45c!important}
+.scope :global(.youth-faithful-rank){background:#142e50!important;color:#60c8ff!important}
+.scope :global(.ranking-search),.scope :global(.profile-search),.scope :global(.ranking-view-filters){border-color:#294264!important;background:#0a1830!important}
+.scope :global(.ranking-search) input,.scope :global(.profile-search) input{color:#f5f8ff!important}
+.scope :global(.ranking-view-filters) button:global(.active){background:#12345b!important;box-shadow:inset 0 0 0 1px #287dc0!important}
+.scope :global(.ranking-player-card){border-color:#24395d!important;background:#101f39!important;box-shadow:0 10px 26px #0002!important}
+@media(hover:hover){.scope :global(.ranking-player-card):hover{border-color:#318ee5!important;box-shadow:0 14px 30px #0004!important}}
