@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
-import {firebaseReadOnlyMode} from '../services/firebase/client';
 import {
   getWeeklyActivities,
   getHallOfFame,
@@ -20,7 +19,6 @@ import {
   type WeeklyActivity,
   type HallOfFamePlayer,
   type FaithfulPlayer,
-  saveYouthProfileAppearance,
 } from '../services/youthPortal';
 
 const TriviaGame = lazy(() => import('./TriviaGame'));
@@ -305,40 +303,51 @@ function YouthAvatar({profile, large = false}: {profile: PublicProfile; large?: 
   );
 }
 
+function isValidLookValue(category: LookShopCategory, value: unknown): value is string {
+  return typeof value === 'string' && lookShop[category].some((item) => item.key === value);
+}
+
 function readLook(profile: PublicProfile): ProfileLook {
+  const remoteItems = Array.isArray(profile.ownedItems)
+    ? profile.ownedItems.filter((item): item is string => typeof item === 'string' && item.length <= 120).slice(0, 400)
+    : [];
+  const equippedValue = (prefix: string, fallback: string) =>
+    remoteItems.find((item) => item.startsWith(prefix))?.slice(prefix.length) || fallback;
+  const rawFlames = Number(profile.flames);
   const remote: ProfileLook = {
-    frame: profile.frame || defaultLook.frame,
-    background: profile.background || defaultLook.background,
-    avatar: profile.avatar || '',
-    title: profile.title || defaultLook.title,
-    ownedItems: profile.ownedItems ?? [],
-    flames: profile.flames ?? 0,
-    effects: profile.ownedItems?.find((item) => item.startsWith('equipped:fx:'))?.slice('equipped:fx:'.length) || 'ember',
-    badge: profile.ownedItems?.find((item) => item.startsWith('equipped:bdg:'))?.slice('equipped:bdg:'.length) || 'flame',
-    hair: profile.ownedItems?.find((item) => item.startsWith('equipped:hair:'))?.slice('equipped:hair:'.length) || 'natural',
-    outfit: profile.ownedItems?.find((item) => item.startsWith('equipped:outfit:'))?.slice('equipped:outfit:'.length) || 'basic',
-    accessory: profile.ownedItems?.find((item) => item.startsWith('equipped:accessory:'))?.slice('equipped:accessory:'.length) || 'none',
+    frame: isValidLookValue('frames', profile.frame) ? profile.frame : defaultLook.frame,
+    background: isValidLookValue('backgrounds', profile.background) ? profile.background : defaultLook.background,
+    avatar: isValidLookValue('avatars', profile.avatar) ? profile.avatar : defaultLook.avatar,
+    title: isValidLookValue('titles', profile.title) ? profile.title : defaultLook.title,
+    ownedItems: remoteItems,
+    flames: Number.isFinite(rawFlames) ? Math.max(0, Math.min(100000, rawFlames)) : 0,
+    effects: equippedValue('equipped:fx:', 'ember'),
+    badge: equippedValue('equipped:bdg:', 'flame'),
+    hair: equippedValue('equipped:hair:', 'natural'),
+    outfit: equippedValue('equipped:outfit:', 'basic'),
+    accessory: equippedValue('equipped:accessory:', 'none'),
   };
+
   try {
     const raw = window.localStorage.getItem(`jf-youth-look-${profile.id}`);
     if (!raw) return remote;
     const parsed = JSON.parse(raw) as Partial<ProfileLook>;
-    // En producción solo lectura, la personalización queda en este dispositivo.
-    // En Staging prevalecen siempre los valores sincronizados con Firebase.
-    const local = firebaseReadOnlyMode ? parsed : {};
+    const localItems = Array.isArray(parsed.ownedItems)
+      ? parsed.ownedItems.filter((item): item is string => typeof item === 'string' && item.length <= 120).slice(0, 400)
+      : remote.ownedItems;
+    const localFlames = Number(parsed.flames);
     return {
-      ...remote,
-      frame: local.frame || remote.frame,
-      background: local.background || remote.background,
-      avatar: typeof local.avatar === 'string' ? local.avatar : remote.avatar,
-      title: local.title || remote.title,
-      ownedItems: local.ownedItems ?? remote.ownedItems,
-      flames: local.flames ?? remote.flames,
-      effects: local.effects || remote.effects,
-      badge: local.badge || remote.badge,
-      hair: local.hair || remote.hair,
-      outfit: local.outfit || remote.outfit,
-      accessory: local.accessory || remote.accessory,
+      frame: isValidLookValue('frames', parsed.frame) ? parsed.frame : remote.frame,
+      background: isValidLookValue('backgrounds', parsed.background) ? parsed.background : remote.background,
+      avatar: isValidLookValue('avatars', parsed.avatar) ? parsed.avatar : remote.avatar,
+      title: isValidLookValue('titles', parsed.title) ? parsed.title : remote.title,
+      ownedItems: localItems,
+      flames: Number.isFinite(localFlames) ? Math.max(0, Math.min(100000, localFlames)) : remote.flames,
+      effects: isValidLookValue('effects', parsed.effects) ? parsed.effects : remote.effects,
+      badge: isValidLookValue('badges', parsed.badge) ? parsed.badge : remote.badge,
+      hair: isValidLookValue('hair', parsed.hair) ? parsed.hair : remote.hair,
+      outfit: isValidLookValue('outfits', parsed.outfit) ? parsed.outfit : remote.outfit,
+      accessory: isValidLookValue('accessories', parsed.accessory) ? parsed.accessory : remote.accessory,
     };
   } catch {
     return remote;
@@ -620,17 +629,13 @@ export default function YouthPortalPage() {
     setLookSaving(true);
     setLookNotice('');
     try {
-      if (firebaseReadOnlyMode) {
-        window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
-        setLookNotice(successMessage + ' Guardado solo en este dispositivo.');
-        return;
-      }
-      await saveYouthProfileAppearance(selectedProfile.id, next);
+      // La selección del perfil es pública y no demuestra quién lo está usando.
+      // Por eso la apariencia se guarda localmente y nunca modifica datos de otra persona.
       window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
-      setLookNotice(successMessage);
-    } catch (cause) {
-      setLookNotice(cause instanceof Error ? cause.message : 'No se pudo guardar el cambio. Comprueba tu conexión.');
+      setLookNotice(successMessage + ' Guardado en este dispositivo.');
+    } catch {
       setLook(readLook(selectedProfile));
+      setLookNotice('El navegador no permitió guardar la personalización en este dispositivo.');
     } finally {
       setLookSaving(false);
     }
@@ -1078,7 +1083,7 @@ export default function YouthPortalPage() {
                 })}
               </div>
               {lookNotice && <p className="youth-inline-warning" role="status">{lookNotice}</p>}
-              {firebaseReadOnlyMode && <p className="youth-inline-warning">En solo lectura, los cambios cosméticos se guardan solo en este dispositivo. Para sincronizarlos con todos los móviles usa Staging.</p>}
+              <p className="youth-inline-warning">La apariencia se guarda en este dispositivo. Como el selector de perfiles es público y no verifica identidad, estos cambios no modifican el perfil compartido ni el saldo real de Llamas.</p>
               {lookSaving && <p className="youth-inline-warning">Guardando personalización...</p>}
               <section className="youth-profile-editor">
                 <div className="youth-profile-editor-heading">
@@ -1210,13 +1215,13 @@ export default function YouthPortalPage() {
 
           {(
             <section className="youth-prayer-panel">
-              <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>{firebaseReadOnlyMode ? 'El envío se habilita al conectar el entorno seguro de pruebas.' : 'Tu mensaje llegará a la bandeja interna del equipo de oración.'}</p></div></header>
+              <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>Tu mensaje llegará a la bandeja interna del equipo de oración.</p></div></header>
               <p className="youth-prayer-privacy"><ShieldCheck size={15}/> El formulario está preparado para la bandeja interna. El selector de perfiles es público y no verifica quién está usando la cuenta; evita compartir datos sensibles.</p>
               <form onSubmit={(event) => void handlePrayerSubmit(event)}>
                 <label>Nombre (opcional)<input value={prayerName} onChange={(event) => setPrayerName(event.target.value)} maxLength={80} placeholder="Puedes enviarla como anónimo"/></label>
                 <label>Tipo de petición<select value={prayerCategory} onChange={(event) => setPrayerCategory(event.target.value)}><option>General</option><option>Familia</option><option>Estudios</option><option>Fortaleza espiritual</option><option>Agradecimiento</option><option>Otra</option></select></label>
                 <label className="prayer-message-field">Cuéntanos cómo podemos orar por ti<textarea value={prayerMessage} onChange={(event) => setPrayerMessage(event.target.value)} minLength={8} maxLength={500} rows={4} required placeholder="Escribe tu petición con confianza..."/></label>
-                <div className="youth-prayer-submit-row"><small>{prayerMessage.length}/500 caracteres. Evita compartir datos personales sensibles.</small><button type="submit" disabled={firebaseReadOnlyMode || prayerBusy || prayerMessage.trim().length < 8}>{firebaseReadOnlyMode ? 'Disponible en Staging' : prayerBusy ? 'Enviando...' : 'Enviar petición'} <Send size={16}/></button></div>
+                <div className="youth-prayer-submit-row"><small>{prayerMessage.length}/500 caracteres. Evita compartir datos personales sensibles.</small><button type="submit" disabled={prayerBusy || prayerMessage.trim().length < 8}>{prayerBusy ? 'Enviando...' : 'Enviar petición'} <Send size={16}/></button></div>
                 {prayerStatus && <p className="youth-prayer-status" role="status">{prayerStatus}</p>}
               </form>
             </section>
