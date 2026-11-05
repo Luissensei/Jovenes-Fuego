@@ -128,6 +128,13 @@ export const modules: ModuleDefinition[] = [
     description: 'Notas con acceso pastoral restringido.',
   },
   {
+    id: 'notifications',
+    icon: Bell,
+    label: 'Notificaciones',
+    path: '/notificaciones',
+    description: 'Pendientes y novedades de la comunidad.',
+  },
+  {
     id: 'inbox',
     icon: Inbox,
     label: 'Bandeja de entrada',
