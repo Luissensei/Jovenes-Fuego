@@ -628,7 +628,7 @@ const youthLookItemCosts: Record<string, number> = {
   "hair:long":65,"hair:bun":60,"hair:classic":30,"hair:cap":40,
   "outfits:basic":0,"outfits:hoodie":55,"outfits:white":60,"outfits:sport":45,"outfits:denim":70,
   "outfits:royal":100,"outfits:worship":65,"outfits:street":75,"outfits:warrior":90,"outfits:formal":70,
-  "outfits:guardian":115,"outfits:champion":120,"outfits:satin":130,
+  "outfits:guardian":115,"outfits:champion":120,"outfits:satin":130,"outfits:imperial":145,
   "accessories:none":0,"accessories:glasses":25,"accessories:headphones":40,"accessories:cross":45,
   "accessories:wristband":25,"accessories:halo":70,"accessories:book":35,"accessories:cap":40,
   "accessories:crown":80,"accessories:scarf":50,"accessories:wings":135,"accessories:sword":125,
