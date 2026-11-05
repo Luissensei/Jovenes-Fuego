@@ -1,4 +1,4 @@
-import {doc, getDoc, setDoc, updateDoc} from 'firebase/firestore';
+import {doc, getDoc} from 'firebase/firestore';
 
 import {httpsCallable} from 'firebase/functions';
 import {assertFirebaseWritesAllowed, db, functions} from './firebase/client';
@@ -316,30 +316,33 @@ export async function updatePrayerRequestStatus(
   }
 }
 
-/** Guarda la personalización en photos/{memberId}, siguiendo el esquema y las reglas históricas. */
+/** Guarda la apariencia a través de una función que valida el perfil y el saldo de Llamas. */
 export async function saveYouthProfileAppearance(
   memberId: string,
   appearance: YouthProfileAppearance,
 ): Promise<void> {
-  assertFirebaseWritesAllowed();
-  if (!db) throw new Error('Firebase Firestore no está configurado.');
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
   if (!memberId || memberId.length >= 40 || memberId.startsWith('public-profile-')) {
     throw new Error('Este perfil no está vinculado a un registro de joven válido.');
   }
-  const photoRef = doc(db, 'photos', memberId);
-  const existing = await getDoc(photoRef);
-  const values = {
-    f: appearance.frame,
-    a: appearance.avatar,
-    b: appearance.background,
-    t: appearance.title,
-    u: appearance.ownedItems.slice(0, 400),
-    w: Math.max(0, Math.min(100000, appearance.flames)),
-    c: Date.now(),
-  };
-  if (existing.exists()) {
-    await updateDoc(photoRef, values);
-  } else {
-    await setDoc(photoRef, {p: '', ...values});
+
+  const saveAppearance = httpsCallable<
+    {memberId: string; appearance: YouthProfileAppearance},
+    {success: boolean; memberId: string}
+  >(functions, 'savePublicProfileAppearance');
+
+  const response = await saveAppearance({
+    memberId,
+    appearance: {
+      frame: appearance.frame,
+      avatar: appearance.avatar,
+      background: appearance.background,
+      title: appearance.title,
+      ownedItems: appearance.ownedItems.slice(0, 400),
+      flames: Math.max(0, Math.min(100000, appearance.flames)),
+    },
+  });
+  if (!response.data.success || response.data.memberId !== memberId) {
+    throw new Error('No se pudo confirmar el guardado de la apariencia.');
   }
 }
