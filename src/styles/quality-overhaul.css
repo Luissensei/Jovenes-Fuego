@@ -283,3 +283,16 @@ body .youth-portal :is(.youth-ranking-tabs,.youth-tabs) button.active{
 @media(prefers-reduced-motion:reduce){
  body .youth-portal :is(.youth-activity-card,.youth-hall-card,.youth-profile-card,.youth-options article){transition:none!important;animation:none!important}
 }
+
+
+/* Long lists: let the browser defer paint for off-screen records on member-heavy screens. */
+.main :is(.member-row,.attendance-member,.managed-record,.management-record,.weekly-admin-item,.prayer-admin-card){
+ content-visibility:auto;contain-intrinsic-size:auto 88px;
+}
+.main :is(.visitor-card,.followup-card,.devotional-card){
+ content-visibility:auto;contain-intrinsic-size:auto 160px;
+}
+.main .photo-card{content-visibility:auto;contain-intrinsic-size:auto 280px}
+.youth-portal :is(.youth-profile-card,.youth-activity-card,.youth-hall-card,.youth-store-item){
+ content-visibility:auto;contain-intrinsic-size:auto 190px;
+}
