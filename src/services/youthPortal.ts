@@ -1,6 +1,7 @@
 import {collection, doc, getDoc, getDocs, runTransaction, setDoc, updateDoc} from 'firebase/firestore';
 
-import {assertFirebaseWritesAllowed, db} from './firebase/client';
+import {httpsCallable} from 'firebase/functions';
+import {assertFirebaseWritesAllowed, db, functions} from './firebase/client';
 
 export type WeeklyActivity = {
   id: string;
@@ -276,27 +277,24 @@ export async function sendPrayerRequest(input: PrayerRequestInput): Promise<void
 }
 
 export async function getMembersForAdministration(): Promise<MemberAdminRecord[]> {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
+  if (!functions) {
+    throw new Error('Firebase Functions no está configurado.');
   }
 
-  // El directorio original vive directamente en members; no depende de
-  // Firebase Functions, que no están desplegadas en el proyecto original.
-  const [membersSnapshot, photosSnapshot] = await Promise.all([
-    getDocs(collection(db, 'members')),
-    getDocs(collection(db, 'photos')),
-  ]);
-  const photos = new Map(
-    photosSnapshot.docs.map((item) => [
-      item.id,
-      typeof item.data().p === 'string' ? item.data().p : '',
-    ]),
+  // Las fichas privadas se consultan en el servidor: las reglas de Firestore
+  // no deben permitir que el navegador descargue el directorio completo.
+  const loadMembers = httpsCallable<Record<string, never>, {members: MemberAdminRecord[]}>(
+    functions,
+    'getPrivateMembers',
   );
-  return membersSnapshot.docs.map((item) => ({
-    ...(item.data() as AdminMemberPatch),
-    id: item.id,
-    pic: photos.get(item.id) || (typeof item.data().pic === 'string' ? item.data().pic : ''),
-  }));
+  const response = await loadMembers({});
+  return Array.isArray(response.data.members)
+    ? response.data.members.map((member) => ({
+      ...member,
+      id: String(member.id ?? ''),
+      pic: typeof member.pic === 'string' ? member.pic : '',
+    })).filter((member) => member.id)
+    : [];
 }
 
 export async function updateMemberForAdministration(
