@@ -120,9 +120,9 @@ export default function WeeklyActivitiesPanel() {
           {items.map((item) => (
             <article className="weekly-admin-item" key={item.id}>
               <div className="weekly-admin-item-icon"><CalendarDays size={20}/></div>
-              <div className="weekly-admin-item-copy"><span>{item.date} {item.time && `· ${item.time}`}</span><h3>{item.title}</h3><p>{item.description || 'Sin descripción'}</p><small>{item.location || 'Lugar por confirmar'}</small></div>
+              <div className="weekly-admin-item-copy"><span>{item.date} {item.time && `· ${item.time}`} {item.editable === false && '· Registro histórico'}</span><h3>{item.title}</h3><p>{item.description || 'Sin descripción'}</p><small>{item.location || 'Lugar por confirmar'}</small></div>
               <div className={`weekly-publish-status ${item.published ? 'published' : 'draft'}`}>{item.published ? <><Eye size={14}/> Publicada</> : <><EyeOff size={14}/> Borrador</>}</div>
-              <button type="button" className="weekly-edit-button" onClick={() => openEdit(item)} disabled={firebaseReadOnlyMode} aria-label={`Editar ${item.title}`}><Pencil size={16}/></button>
+              <button type="button" className="weekly-edit-button" onClick={() => openEdit(item)} disabled={firebaseReadOnlyMode || item.editable === false} title={item.editable === false ? 'Los registros históricos se conservan en solo lectura' : 'Editar actividad'} aria-label={`Editar ${item.title}`}><Pencil size={16}/></button>
             </article>
           ))}
         </div>
