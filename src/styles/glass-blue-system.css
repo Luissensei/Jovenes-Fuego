@@ -146,3 +146,103 @@ body{
 @media(prefers-reduced-motion:reduce){
  .jf-route-stage{animation:none!important}
 }
+
+/* Core admin modules: distinct surfaces, consistent blue depth and readable contrast. */
+.main :is(.ranking-hero,.ranking-tabs,.ranking-content,.ranking-progress-panel,.ranking-player,
+.members-heading,.member-count,.members-toolbar,.member-row,.members-list,
+.attendance-header,.attendance-card,.attendance-summary,.attendance-table,
+.checkin-panel,.checkin-qr-result,.checkin-list article,
+.devotionals-hero,.devotionals-feature,.devotional-card,.devotionals-controls,
+.followup-header,.followup-stats,.followup-card,.followup-content,
+.visitors-header,.visitors-stats,.visitor-card,.visitors-list,
+.managed-hero,.managed-stat,.managed-toolbar,.managed-record,
+.management-header,.management-summary,.management-form,.management-record,
+.reports-hero,.reports-stats,.reports-rate,.reports-section,
+.photos-hero,.photo-card,.photos-tabs,
+.leaders-hero,.leaders-card,.leaders-stat,.leaders-table-wrapper,
+.settings-hero,.settings-card,.settings-section){
+ background:linear-gradient(145deg,rgba(18,43,74,.93),rgba(8,25,47,.96))!important;
+ border-color:rgba(100,159,219,.25)!important;
+ box-shadow:0 14px 34px rgba(0,7,22,.22),inset 0 1px rgba(255,255,255,.045)!important;
+}
+.main :is(.ranking-player,.member-row,.followup-card,.visitor-card,.managed-record,
+.management-record,.photo-card,.devotional-card,.leaders-card){
+ transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important;
+}
+.main :is(.ranking-player,.member-row,.followup-card,.visitor-card,.managed-record,
+.management-record,.photo-card,.devotional-card,.leaders-card):hover{
+ border-color:rgba(87,166,245,.5)!important;
+ box-shadow:0 14px 30px rgba(0,8,24,.28),inset 0 1px rgba(255,255,255,.06)!important;
+}
+.main :is(.members-list,.attendance-list,.followup-list,.visitors-list,.managed-record-list){
+ background:rgba(6,20,38,.5)!important;
+ border:1px solid rgba(91,143,199,.2)!important;
+ border-radius:15px!important;
+}
+.main :is(.members-toolbar,.devotionals-controls,.managed-toolbar,.visitors-search,.followup-search){
+ background:rgba(8,25,47,.72)!important;
+ border:1px solid rgba(91,143,199,.24)!important;
+ border-radius:13px!important;
+}
+.main :is(.members-toolbar input,.member-search input,.attendance-card input,
+.attendance-card select,.checkin-search input,.devotionals-search input,
+.followup-search input,.visitors-search input,.managed-search input,
+.reports-filter input,.management-form input,.management-form select,
+.management-form textarea){
+ background:rgba(4,17,33,.86)!important;
+ border:1px solid rgba(102,161,222,.3)!important;
+ color:#eff7ff!important;
+}
+.main :is(.members-toolbar input,.member-search input,.attendance-card input,
+.attendance-card select,.checkin-search input,.devotionals-search input,
+.followup-search input,.visitors-search input,.managed-search input,
+.reports-filter input,.management-form input,.management-form select,
+.management-form textarea):focus{
+ outline:2px solid rgba(71,157,242,.24)!important;
+ border-color:rgba(92,177,255,.72)!important;
+}
+.main :is(.ranking-tabs button,.devotionals-categories button,.photos-tabs button){
+ background:rgba(13,35,62,.82)!important;
+ border:1px solid rgba(91,143,199,.23)!important;
+ color:#bfd5ef!important;
+}
+.main :is(.ranking-tabs button.active,.devotionals-categories button.active,.photos-tabs button.active){
+ background:linear-gradient(120deg,rgba(28,119,211,.42),rgba(24,75,132,.52))!important;
+ border-color:rgba(95,178,255,.5)!important;
+ color:#f2f8ff!important;
+}
+.main :is(.members-heading h1,.ranking-hero h1,.attendance-header h1,
+.devotionals-hero h1,.followup-header h1,.visitors-header h1,
+.managed-hero h1,.management-header h1,.reports-hero h1){color:#f4f8ff!important}
+.main :is(.members-heading p,.ranking-hero p,.attendance-header p,
+.devotionals-feature p,.followup-header p,.visitors-header p,
+.managed-hero p,.management-header p,.reports-hero p){color:#a9bfdc!important}
+
+/* Youth portal: same blue family, warmer highlights retained for identity and motivation. */
+.youth-portal :is(.youth-welcome,.youth-profile-card,.youth-3d-avatar-card,
+.youth-profile-quickstats,.youth-activity-card,.youth-hall-card,
+.youth-game-tile,.youth-card,.youth-section-card,.youth-weekly-activity){
+ background:linear-gradient(145deg,rgba(17,44,76,.95),rgba(8,25,47,.97))!important;
+ border-color:rgba(97,157,218,.28)!important;
+ box-shadow:0 15px 36px rgba(0,7,22,.26),inset 0 1px rgba(255,255,255,.055)!important;
+}
+.youth-portal :is(.youth-welcome,.youth-profile-card,.youth-activity-card,
+.youth-hall-card,.youth-game-tile):hover{
+ border-color:rgba(88,170,247,.52)!important;
+}
+.youth-portal :is(h1,h2,h3){color:#f3f8ff}
+.youth-portal :is(p,small){color:#adc2de}
+.youth-portal :is(input,select,textarea){
+ background:rgba(4,17,33,.88)!important;
+ border-color:rgba(102,161,222,.3)!important;
+ color:#eff7ff!important;
+}
+@media(max-width:700px){
+ .main .app-page{padding-left:14px!important;padding-right:14px!important}
+ .main :is(.metrics,.featureGrid,.lowerGrid){gap:11px!important}
+ .main :is(.panel,.ranking-content,.attendance-card,.checkin-panel){padding:15px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .main :is(.ranking-player,.member-row,.followup-card,.visitor-card,.managed-record,
+ .management-record,.photo-card,.devotional-card,.leaders-card){transition:none!important}
+}
