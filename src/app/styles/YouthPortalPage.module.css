@@ -147,8 +147,8 @@
   border-radius: 8px;
   background: rgba(19,25,33,.76);
   box-shadow: 0 25px 65px rgba(0,0,0,.24);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
 }
 .scope :global(.youth-selector-heading){
   border-bottom: 1px solid rgba(255,255,255,.1);
@@ -257,7 +257,7 @@
   border-radius: 7px;
   background: rgba(255,255,255,.055);
   color: #fff;
-  backdrop-filter: blur(14px);
+  backdrop-filter:none;
   transition: transform .2s ease,border-color .2s ease,background .2s ease;
 }
 .scope :global(.youth-options) article:hover{
@@ -320,8 +320,8 @@
   border-radius: 24px;
   background: rgba(12,19,39,.58);
   box-shadow: 0 28px 80px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.1);
-  backdrop-filter: blur(28px) saturate(160%);
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
 }
 .scope :global(.youth-selector-heading){ border-bottom: 1px solid rgba(220,232,255,.14); padding-bottom: 18px; }
 .scope :global(.youth-selector-heading) > div:first-child > span{ color: var(--jf-cyan); }
@@ -346,7 +346,7 @@
     radial-gradient(ellipse at 50% 3%,rgba(255,133,80,.18),transparent 52%),
     linear-gradient(145deg,rgba(43,52,82,.62),rgba(14,22,45,.68));
   color: #fff;
-  backdrop-filter: blur(22px) saturate(145%);
+  backdrop-filter:none;
 }
 .scope :global(.youth-profile-card):nth-child(4n + 2){ background:linear-gradient(145deg,rgba(91,62,145,.42),rgba(16,23,48,.72)); }
 .scope :global(.youth-profile-card):nth-child(4n + 3){ background:linear-gradient(145deg,rgba(19,106,139,.38),rgba(16,23,48,.72)); }
@@ -372,7 +372,7 @@
   background:
     linear-gradient(115deg,rgba(11,18,38,.72),rgba(37,22,57,.58)),
     url("/jf-flame-atmosphere.svg") center / cover no-repeat;
-  backdrop-filter: blur(26px) saturate(150%);
+  backdrop-filter:none;
 }
 .scope :global(.youth-welcome) h1{ color: #fff; }
 .scope :global(.youth-options) article{
@@ -380,7 +380,7 @@
   border-radius: 18px;
   background: rgba(17,26,49,.58);
   color: #fff;
-  backdrop-filter: blur(20px);
+  backdrop-filter:none;
 }
 .scope :global(.youth-options) article:nth-child(2) svg{ color: #ad8aff; }
 .scope :global(.youth-options) article:nth-child(3) svg{ color: #5edfff; }
@@ -418,7 +418,7 @@
   min-height:42px;padding:0 15px;border-radius:999px;
   border:1px solid rgba(226,238,255,.2);
   background:rgba(11,18,38,.58);color:#e9edff;
-  backdrop-filter:blur(18px);font-size:11px;font-weight:800;
+  backdrop-filter:none;font-size:11px;font-weight:800;
 }
 .scope :global(.youth-sound-toggle):global(.active){
   border-color:rgba(107,231,188,.45);
@@ -444,7 +444,7 @@
   content:"";position:absolute;inset:auto 6% -100px;height:190px;
   border-radius:50%;pointer-events:none;
   background:radial-gradient(ellipse,rgba(130,92,255,.17),transparent 68%);
-  filter:blur(22px);
+  filter:none;
 }
 .scope :global(.youth-home) :global(.youth-avatar):global(.large){
   width:126px;height:126px;margin-bottom:18px;
@@ -464,7 +464,7 @@
   display:inline-flex;align-items:center;gap:7px;
   min-height:38px;padding:0 12px;border:1px solid rgba(226,238,255,.2);
   border-radius:999px;background:rgba(9,16,36,.55);color:#e7eaff;
-  backdrop-filter:blur(14px);font-size:10px;font-weight:800;
+  backdrop-filter:none;font-size:10px;font-weight:800;
 }
 .scope :global(.youth-profile-quickstats){
   position:relative;z-index:2;display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin-top:16px;
@@ -535,7 +535,7 @@
 .scope :global(.youth-activity-card):hover{transform:translateY(-4px);border-color:rgba(86,218,255,.4);box-shadow:0 16px 32px rgba(0,0,0,.18);}
 .scope :global(.youth-activity-card)::after{
   content:"";position:absolute;right:-35px;top:-55px;width:110px;height:110px;
-  border-radius:50%;background:rgba(108,120,255,.10);filter:blur(4px);pointer-events:none;
+  border-radius:50%;background:rgba(108,120,255,.10);filter:none;pointer-events:none;
 }
 .scope :global(.youth-activity-date),
 .scope :global(.youth-activity-meta) span{display:inline-flex;align-items:center;gap:6px;color:#9ce9ff;font-size:10px;}
@@ -627,7 +627,7 @@
 .scope:global(.youth-portal) :global(.youth-options) article:nth-child(2){animation-delay:.07s;}
 .scope:global(.youth-portal) :global(.youth-options) article:nth-child(3){animation-delay:.14s;}
 .scope:global(.youth-portal) :global(.youth-options) article:nth-child(4){animation-delay:.21s;}
-.scope :global(.prayer-admin-card){padding:17px;border:1px solid var(--jf-border);border-radius:17px;background:var(--jf-glass);color:var(--jf-text);box-shadow:var(--jf-shadow);backdrop-filter:blur(18px);}
+.scope :global(.prayer-admin-card){padding:17px;border:1px solid var(--jf-border);border-radius:17px;background:var(--jf-glass);color:var(--jf-text);box-shadow:var(--jf-shadow);backdrop-filter:none;}
 .scope :global(.prayer-admin-card) > header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
 .scope :global(.prayer-admin-card) > header div > span{color:#8fdfff;font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;}
 .scope :global(.prayer-admin-card) h2{margin:4px 0;color:var(--jf-text);font-family:var(--jf-display);font-size:21px;text-transform:uppercase;}
@@ -1478,8 +1478,8 @@
 
 /* El selector se retira suavemente antes de mostrar el espacio del joven. */
 @keyframes youthProfileGridExit {
-  from { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-  to { opacity: 0; transform: translateY(-14px) scale(.985); filter: blur(4px); }
+  from { opacity: 1; transform: translateY(0) scale(1); filter:none; }
+  to { opacity: 0; transform: translateY(-14px) scale(.985); filter:none; }
 }
 .scope :global(.youth-profiles-exit) {
   pointer-events: none;
@@ -1729,8 +1729,7 @@
 
 
 /* Bitácora espiritual personal: almacenamiento local, sin sincronización de perfil público. */
-.scope :global(.youth-journal-panel){display:grid;gap:10px;margin-top:17px;padding:clamp(18px,3vw,26px);border:1px solid var(--jf-border);border-radius:19px;background:var(--jf-glass);box-shadow:var(--jf-shadow);backdrop-filter:blur(16px)}
-.scope :global(.youth-journal-panel)>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;color:#ffbd7a}
+.scope :global(.youth-journal-panel){display:grid;gap:10px;margin-top:17px;padding:clamp(18px,3vw,26px);border:1px solid var(--jf-border);border-radius:19px;background:var(--jf-glass);box-shadow:var(--jf-shadow);backdrop-filter:none;>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;color:#ffbd7a}
 .scope :global(.youth-journal-panel)>header>div{display:grid;gap:4px}
 .scope :global(.youth-journal-panel)>header span{color:#83dfff;font-size:9px;font-weight:900;letter-spacing:.14em}
 .scope :global(.youth-journal-panel)>header h2{margin:0;color:var(--jf-text);font-family:var(--jf-display);font-size:clamp(21px,3vw,29px);text-transform:uppercase}
@@ -1915,10 +1914,7 @@
   border:1px solid var(--yp-line)!important;border-radius:24px!important;
   background:linear-gradient(145deg,rgba(29,23,37,.94),rgba(18,15,24,.91))!important;
   box-shadow:0 24px 70px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.035)!important;
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)
-}
-.scope:global(.youth-portal) :global(.youth-selector){padding:clamp(18px,3vw,32px)}
-.scope:global(.youth-portal) :global(.youth-selector-heading){gap:18px;padding-bottom:20px;margin-bottom:20px}
+  backdrop-filter:none;-webkit-backdrop-filter:none;{gap:18px;padding-bottom:20px;margin-bottom:20px}
 .scope:global(.youth-portal) :global(.youth-selector-heading) h3{font-size:clamp(22px,3vw,30px);letter-spacing:-.04em}
 .scope:global(.youth-portal) :global(.youth-search){min-height:50px;border-radius:14px;border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.045)}
 .scope:global(.youth-portal) :global(.youth-search):focus-within{border-color:rgba(213,180,119,.55);box-shadow:0 0 0 3px rgba(213,180,119,.08)}
