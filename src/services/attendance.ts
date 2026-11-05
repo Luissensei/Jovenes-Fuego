@@ -1,15 +1,6 @@
-import {
-  collection,
-  limit,
-  onSnapshot,
-  orderBy,
-  query,
-  Timestamp,
-  type Unsubscribe,
-} from 'firebase/firestore';
 import {httpsCallable} from 'firebase/functions';
 
-import {db, functions} from './firebase/client';
+import {functions} from './firebase/client';
 
 export type AttendanceStatus = 'Presente' | 'Tarde' | 'Falta' | 'Justificada' | 'Ausente';
 
@@ -87,51 +78,6 @@ function parseCreatedAt(value: unknown): string {
   }
 
   return '';
-}
-
-/**
- * Subscribes to the new attendance meeting collection without a callable
- * Function. Production read-only navigation does not expose the reports page.
- */
-export function subscribeAttendanceMeetings(
-  onData: (meetings: AttendanceMeeting[]) => void,
-  onError: (error: Error) => void,
-): Unsubscribe {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
-  const meetingsQuery = query(
-    collection(db, 'attendanceMeetings'),
-    orderBy('date', 'desc'),
-    limit(300),
-  );
-
-  return onSnapshot(
-    meetingsQuery,
-    (snapshot) => {
-      const meetings = snapshot.docs.map((meetingDoc) => {
-        const data = meetingDoc.data();
-
-        return {
-          id: meetingDoc.id,
-          name: typeof data.name === 'string' ? data.name : '',
-          date: typeof data.date === 'string' ? data.date : '',
-          createdAt: parseCreatedAt(data.createdAt),
-          participants: parseParticipants(data.participants),
-        };
-      });
-
-      onData(meetings);
-    },
-    (cause) => {
-      onError(
-        cause instanceof Error
-          ? cause
-          : new Error('No se pudieron consultar las reuniones.'),
-      );
-    },
-  );
 }
 
 async function call<T>(name: string, payload: unknown = {}): Promise<T> {
