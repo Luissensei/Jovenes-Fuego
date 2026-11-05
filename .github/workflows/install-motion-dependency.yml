@@ -1,0 +1,35 @@
+name: Install Motion dependency
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/install-motion-dependency.yml"
+permissions:
+  contents: write
+jobs:
+  install-motion:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install pinned Motion package and update lockfile
+        run: npm install motion@14.9.1 --save-exact --ignore-scripts --no-audit --no-fund
+      - name: Commit dependency manifest and lockfile
+        run: |
+          if git diff --quiet -- package.json package-lock.json; then
+            echo "Motion dependency already installed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "Install Motion for React animations"
+          git push origin main
