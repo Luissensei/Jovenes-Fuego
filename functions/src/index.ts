@@ -529,6 +529,146 @@ function mergeWeeklyActivityRecords(
   );
 }
 
+function photoDate(value: unknown): string {
+  if (typeof value === "string") return text(value, 40);
+  if (value && typeof value === "object" &&
+    typeof (value as {toDate?: unknown}).toDate === "function") {
+    const date = (value as {toDate: () => Date}).toDate();
+    return Number.isNaN(date.getTime()) ? "" : date.toISOString();
+  }
+  if (value instanceof Date && !Number.isNaN(value.getTime())) return value.toISOString();
+  return "";
+}
+
+function mapPhotoRecord(id: string, data: Record<string, unknown>, defaultStatus: string) {
+  return {
+    id,
+    title: text(data.title, 120),
+    description: text(data.description, 2000),
+    imageUrl: text(data.imageUrl, 2000),
+    authorName: text(data.authorName, 120),
+    status: text(data.status, 30) || defaultStatus,
+    createdAt: photoDate(data.createdAt),
+    approvedAt: photoDate(data.approvedAt) || undefined,
+  };
+}
+
+function validPhotoUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+export const adminListPhotos = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdminOrPastor(request.auth.uid);
+
+  const [pendingSnapshot, approvedSnapshot] = await Promise.all([
+    db.collection("fotoPend").orderBy("createdAt", "desc").limit(200).get(),
+    db.collection("photos").orderBy("createdAt", "desc").limit(200).get(),
+  ]);
+
+  return {
+    pending: pendingSnapshot.docs.map((document) =>
+      mapPhotoRecord(document.id, document.data(), "Pendiente"),
+    ),
+    approved: approvedSnapshot.docs.map((document) =>
+      mapPhotoRecord(document.id, document.data(), "Aprobada"),
+    ),
+  };
+});
+
+export const submitPhotoRequest = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdminOrPastor(request.auth.uid);
+
+  const title = text(request.data?.title, 120);
+  const description = text(request.data?.description, 2000);
+  const imageUrl = text(request.data?.imageUrl, 2000);
+  const authorName = text(request.data?.authorName, 120);
+  if (!title || !imageUrl || !authorName) {
+    throw new HttpsError("invalid-argument", "Completa el título, enlace y autor.");
+  }
+  if (!validPhotoUrl(imageUrl)) {
+    throw new HttpsError("invalid-argument", "La imagen debe tener un enlace HTTP o HTTPS válido.");
+  }
+
+  const result = await db.collection("fotoPend").add({
+    title,
+    description,
+    imageUrl,
+    authorName,
+    status: "Pendiente",
+    createdAt: new Date().toISOString(),
+    createdBy: request.auth.uid,
+  });
+  return {success: true, id: result.id};
+});
+
+export const approvePhotoRequest = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdminOrPastor(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona una fotografía válida.");
+
+  const pendingRef = db.collection("fotoPend").doc(id);
+  const approvedRef = db.collection("photos").doc(id);
+  await db.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(pendingRef);
+    if (!snapshot.exists) {
+      throw new HttpsError("not-found", "La fotografía pendiente ya no existe.");
+    }
+    const data = snapshot.data() ?? {};
+    const imageUrl = text(data.imageUrl, 2000);
+    if (!validPhotoUrl(imageUrl)) {
+      throw new HttpsError("failed-precondition", "El enlace de la fotografía ya no es válido.");
+    }
+    transaction.set(approvedRef, {
+      title: text(data.title, 120),
+      description: text(data.description, 2000),
+      imageUrl,
+      authorName: text(data.authorName, 120),
+      status: "Aprobada",
+      createdAt: photoDate(data.createdAt) || new Date().toISOString(),
+      approvedAt: new Date().toISOString(),
+      approvedBy: request.auth!.uid,
+    });
+    transaction.delete(pendingRef);
+  });
+  return {success: true, id};
+});
+
+export const rejectPhotoRequest = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdminOrPastor(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona una fotografía válida.");
+  const ref = db.collection("fotoPend").doc(id);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "La fotografía pendiente ya no existe.");
+  await ref.update({
+    status: "Rechazada",
+    rejectedAt: new Date().toISOString(),
+    rejectedBy: request.auth.uid,
+  });
+  return {success: true};
+});
+
+export const deleteApprovedPhoto = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdminOrPastor(request.auth.uid);
+  const id = text(request.data?.id, 150);
+  if (!id) throw new HttpsError("invalid-argument", "Selecciona una fotografía válida.");
+  const ref = db.collection("photos").doc(id);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "La fotografía aprobada ya no existe.");
+  await ref.delete();
+  return {success: true};
+});
+
 export const getPublicWeeklyActivities = onCall(async () => {
   try {
     const [modernSnapshot, legacyEventsSnapshot, rankingSnapshot] = await Promise.all([
