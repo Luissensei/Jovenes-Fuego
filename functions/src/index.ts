@@ -1069,6 +1069,7 @@ export const adminCreateDevotional = onCall(async (request) => {
     createdAt: new Date().toISOString(),
     createdBy: request.auth.uid,
   });
+  await recordAudit("devotional.created", request.auth.uid, result.id, {date});
   return {success: true, id: result.id};
 });
 
@@ -1081,6 +1082,7 @@ export const adminDeleteDevotional = onCall(async (request) => {
   const snapshot = await ref.get();
   if (!snapshot.exists) throw new HttpsError("not-found", "No se encontró el devocional solicitado.");
   await ref.delete();
+  await recordAudit("devotional.deleted", request.auth.uid, id);
   return {success: true};
 });
 
@@ -1421,6 +1423,7 @@ export const approvePhotoRequest = onCall(async (request) => {
     });
     transaction.delete(pendingRef);
   });
+  await recordAudit("photo.approved", request.auth.uid, id);
   return {success: true, id};
 });
 
@@ -1437,6 +1440,7 @@ export const rejectPhotoRequest = onCall(async (request) => {
     rejectedAt: new Date().toISOString(),
     rejectedBy: request.auth.uid,
   });
+  await recordAudit("photo.rejected", request.auth.uid, id);
   return {success: true};
 });
 
@@ -1455,6 +1459,7 @@ export const deleteApprovedPhoto = onCall(async (request) => {
     throw new HttpsError("failed-precondition", "Este registro no pertenece a la galería pública de fotografías.");
   }
   await ref.delete();
+  await recordAudit("photo.deleted", request.auth.uid, id);
   return {success: true};
 });
 
