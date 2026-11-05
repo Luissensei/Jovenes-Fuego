@@ -510,3 +510,25 @@
 .scope :global(.managed-form-field) input,.scope :global(.managed-form-field) select,.scope :global(.managed-form-field) textarea{background:#0d192a;border:1px solid #30445e;color:#edf3fb}
 .scope :global(.managed-primary){background:#426fce;border:1px solid #5d88e0;color:#fff;border-radius:9px}
 .scope :global(.managed-secondary){background:#1b304a;border:1px solid #48617f;color:#e5eefb;border-radius:9px}
+
+/* Glass-blue system · follow-up and visitor records */
+.scope :global(.managed-page){color:var(--jf-text,#172b45)}
+.scope :global(.managed-hero){background:linear-gradient(118deg,#10233e 0%,#183c68 58%,#17658a 100%);border:1px solid rgba(115,165,224,.28);box-shadow:0 18px 42px rgba(8,25,48,.2),inset 0 1px rgba(255,255,255,.08)}
+.scope :global(.managed-eyebrow){color:#b9d6ff}
+.scope :global(.managed-primary){background:#2867bd;border:1px solid #4389df;color:#fff}
+.scope :global(.managed-primary):hover:not(:disabled){background:#1e56a2}
+.scope :global(.managed-stat),.scope :global(.managed-record),.scope :global(.managed-toolbar),.scope :global(.managed-empty){background:var(--jf-surface,#fff);border:1px solid var(--jf-border,#dce5f1);color:var(--jf-text,#172b45);box-shadow:var(--jf-shadow,0 8px 24px rgba(20,45,80,.06))}
+.scope :global(.managed-stat) span,.scope :global(.managed-record-description),.scope :global(.managed-record-details),.scope :global(.managed-created),.scope :global(.managed-results){color:var(--jf-muted,#65758c)}
+.scope :global(.managed-record-heading) h3,.scope :global(.managed-stat) strong,.scope :global(.managed-empty) strong{color:var(--jf-text,#172b45)}
+.scope :global(.managed-search){background:var(--jf-input,#f7faff);border:1px solid var(--jf-border,#dce5f1)}
+.scope :global(.managed-search) input{color:var(--jf-text,#172b45)}
+.scope :global(.managed-status-label) select,.scope :global(.managed-form-field) input,.scope :global(.managed-form-field) select,.scope :global(.managed-form-field) textarea{background:var(--jf-input,#f7faff);border:1px solid var(--jf-border,#dce5f1);color:var(--jf-text,#172b45)}
+.scope :global(.managed-form-field) :is(input,select,textarea):focus-visible,.scope :global(.managed-page) :is(button,input,select,textarea):focus-visible{outline:3px solid rgba(72,143,226,.5);outline-offset:2px}
+.scope :global(.managed-overlay){background:rgba(5,16,31,.72);backdrop-filter:none}
+.scope :global(.managed-modal){max-height:min(90dvh,820px);overscroll-behavior:contain}
+:global(:root[data-theme="light"]) .scope :global(.managed-stat),:global(:root[data-theme="light"]) .scope :global(.managed-record),:global(:root[data-theme="light"]) .scope :global(.managed-toolbar),:global(:root[data-theme="light"]) .scope :global(.managed-empty),:global(:root[data-theme="light"]) .scope :global(.managed-modal){background:#fff;border-color:#dce5f1;color:#172b45}
+:global(:root[data-theme="light"]) .scope :global(.managed-record-heading) h3,:global(:root[data-theme="light"]) .scope :global(.managed-stat) strong,:global(:root[data-theme="light"]) .scope :global(.managed-empty) strong,:global(:root[data-theme="light"]) .scope :global(.managed-form-field) label{color:#172b45}
+:global(:root[data-theme="dark"]) .scope :global(.managed-stat),:global(:root[data-theme="dark"]) .scope :global(.managed-record),:global(:root[data-theme="dark"]) .scope :global(.managed-toolbar),:global(:root[data-theme="dark"]) .scope :global(.managed-empty),:global(:root[data-theme="dark"]) .scope :global(.managed-modal){background:#111f33;border-color:#2b405c;color:#edf4ff}
+:global(:root[data-theme="dark"]) .scope :global(.managed-record-heading) h3,:global(:root[data-theme="dark"]) .scope :global(.managed-stat) strong,:global(:root[data-theme="dark"]) .scope :global(.managed-empty) strong{color:#edf4ff}
+:global(:root[data-theme="dark"]) .scope :global(.managed-search) input,:global(:root[data-theme="dark"]) .scope :global(.managed-status-label) select,:global(:root[data-theme="dark"]) .scope :global(.managed-form-field) :is(input,select,textarea){background:#0d192a;border-color:#30445e;color:#edf4ff}
+@media(prefers-reduced-motion:reduce){.scope :global(.managed-record){transition:none}.scope :global(.managed-record):hover{transform:none}}
