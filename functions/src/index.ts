@@ -173,6 +173,35 @@ async function loadVisiblePublicProfiles(includeAppearance = true) {
   });
 }
 
+export const resolveUsernameLogin = onCall(async (request) => {
+  const username = text(request.data?.username, 60).toLowerCase();
+  if (!/^[a-z0-9._-]{1,60}$/.test(username)) {
+    return {found: false};
+  }
+
+  const ip = String(request.rawRequest.ip ?? "unknown").slice(0, 100);
+  const day = new Date().toISOString().slice(0, 10);
+  const rateKey = createHash("sha256").update(ip + "|" + day).digest("hex");
+  const rateRef = db.collection("publicUsernameLookupRateLimits").doc(rateKey);
+  await db.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(rateRef);
+    const count = Number(snapshot.data()?.count ?? 0);
+    if (count >= 30) {
+      throw new HttpsError("resource-exhausted", "Se alcanzó el límite de consultas de usuario. Intenta más tarde.");
+    }
+    transaction.set(rateRef, {
+      count: FieldValue.increment(1),
+      day,
+      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
+    }, {merge: true});
+  });
+
+  const lookup = await db.collection("public").doc(`al_${username}`).get();
+  const email = text(lookup.data()?.e, 180).toLowerCase();
+  if (!lookup.exists || !email.includes("@")) return {found: false};
+  return {found: true, email};
+});
+
 export const getMyApplicationProfile = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
@@ -199,11 +228,19 @@ export const getMyApplicationProfile = onCall(async (request) => {
       );
     }
 
+    if (data.status === "inactive") {
+      throw new HttpsError("permission-denied", "El acceso de esta cuenta está suspendido.");
+    }
     return {
       profile: {
         name: text(data.name, 120),
         user: text(data.user, 120),
         role,
+        groups: cleanStringArray(data.groups, ["general", "jóvenes", "liderazgo", "alabanza", "intercesión", "multimedia"]),
+        permissions: Array.isArray(data.permissions)
+          ? cleanStringArray(data.permissions, manageablePermissions)
+          : defaultLeaderPermissions,
+        status: text(data.status, 30) || "active",
       },
     };
   } catch (cause) {
