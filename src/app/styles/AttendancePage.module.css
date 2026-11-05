@@ -617,3 +617,21 @@
 .scope :global(.attendance-status-button.active){background:#294b7a!important;border-color:#668cff!important;color:#fff!important}
 .scope :global(.attendance-summary) :global(.attendance-card){background:#14243a;border-color:#304864}
 @media(max-width:600px){.scope :global(.attendance-header){padding:19px;align-items:flex-start;flex-direction:column}.scope :global(.attendance-summary){grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Glass-blue system · attendance workspace */
+.scope :global(.attendance-header){background:linear-gradient(118deg,#10233e 0%,#183c68 58%,#17658a 100%);border:1px solid rgba(115,165,224,.28);box-shadow:0 18px 42px rgba(8,25,48,.2),inset 0 1px rgba(255,255,255,.08)}
+.scope :global(.attendance-card),.scope :global(.attendance-member){background:var(--jf-surface,#fff);border-color:var(--jf-border,#dce5f1);box-shadow:var(--jf-shadow,0 8px 24px rgba(20,45,80,.06))}
+.scope :global(.attendance-card) button{background:#2867bd}
+.scope :global(.attendance-card) button:hover:not(:disabled){background:#1e56a2}
+.scope :global(.attendance-card) input:focus,.scope :global(.attendance-card) select:focus{border-color:#4389df;box-shadow:0 0 0 3px rgba(67,137,223,.15)}
+.scope :global(.attendance-status-options) .tone-present[aria-pressed="true"]{background:rgba(22,134,92,.12)}
+.scope :global(.attendance-status-options) .tone-late[aria-pressed="true"]{background:rgba(166,107,11,.12)}
+.scope :global(.attendance-status-options) .tone-missing[aria-pressed="true"]{background:rgba(195,66,82,.12)}
+.scope :global(.attendance-status-options) .tone-justified[aria-pressed="true"]{background:rgba(52,121,189,.12)}
+.scope :global(.attendance-status-options) .tone-absent[aria-pressed="true"]{background:rgba(101,112,134,.12)}
+.scope :global(.attendance-page) :is(button,input,select):focus-visible{outline:3px solid rgba(72,143,226,.55);outline-offset:2px}
+:global(:root[data-theme="light"]) .scope :global(.attendance-card),:global(:root[data-theme="light"]) .scope :global(.attendance-member){background:#fff;border-color:#dce5f1;color:#172b45}
+:global(:root[data-theme="light"]) .scope :global(.attendance-card) h2,:global(:root[data-theme="light"]) .scope :global(.attendance-member) strong{color:#172b45}
+:global(:root[data-theme="dark"]) .scope :global(.attendance-card),:global(:root[data-theme="dark"]) .scope :global(.attendance-member){background:#111f33;border-color:#2b405c}
+:global(:root[data-theme="dark"]) .scope :global(.attendance-card) input,:global(:root[data-theme="dark"]) .scope :global(.attendance-card) select{background:#0d192a;border-color:#30445e;color:#edf4ff}
+@media(prefers-reduced-motion:reduce){.scope :global(.attendance-member),.scope :global(.attendance-card) button{transition:none}.scope :global(.attendance-member):hover,.scope :global(.attendance-card) button:hover{transform:none}}
