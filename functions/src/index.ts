@@ -542,6 +542,88 @@ export const getPrivateMembers = onCall(async (request) => {
   }
 });
 
+
+export const adminGetMemberHistory = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  const memberId = text(request.data?.memberId, 150);
+  if (!memberId) throw new HttpsError("invalid-argument", "Selecciona un joven válido.");
+  const role = await requireModulePermission(request.auth.uid, "members");
+  const userSnapshot = await db.collection("users").doc(request.auth.uid).get();
+  const storedPermissions = userSnapshot.data()?.permissions;
+  const permissions = Array.isArray(storedPermissions)
+    ? cleanStringArray(storedPermissions, manageablePermissions)
+    : defaultLeaderPermissions;
+  const privileged = role === "admin" || role === "administrador" || role === "pastor";
+  const canSeeAttendance = privileged || permissions.includes("attendance");
+  const canSeeFollowups = privileged || permissions.includes("followups");
+
+  const [meetingsSnapshot, legacyAttendanceSnapshot, followupsSnapshot] = await Promise.all([
+    canSeeAttendance
+      ? db.collection("attendanceMeetings").orderBy("date", "desc").limit(120).get()
+      : Promise.resolve(null),
+    canSeeAttendance
+      ? db.collection("attendance").limit(1000).get()
+      : Promise.resolve(null),
+    canSeeFollowups
+      ? db.collection("followups").limit(300).get()
+      : Promise.resolve(null),
+  ]);
+
+  const history: Array<{
+    id: string; kind: string; date: string; title: string; detail: string; status: string;
+  }> = [];
+
+  (meetingsSnapshot?.docs ?? []).forEach((document) => {
+    const data = document.data();
+    const participants = Array.isArray(data.participants) ? data.participants : [];
+    const participant = participants.find((item) =>
+      item && typeof item === "object" &&
+      text((item as Record<string, unknown>).memberId, 150) === memberId,
+    ) as Record<string, unknown> | undefined;
+    if (!participant) return;
+    history.push({
+      id: `attendance:${document.id}`, kind: "Asistencia",
+      date: text(data.date, 20), title: text(data.name, 100) || "Reunión",
+      detail: "Registro de asistencia",
+      status: text(participant.status, 30) || "Registrada",
+    });
+  });
+
+  (legacyAttendanceSnapshot?.docs ?? []).forEach((document) => {
+    const data = document.data();
+    const value = data.r && typeof data.r === "object"
+      ? (data.r as Record<string, unknown>)[memberId]
+      : null;
+    if (!value || typeof value !== "object") return;
+    const statusCode = text((value as Record<string, unknown>).s, 10);
+    const statusMap: Record<string, string> = {
+      P: "Presente", T: "Tarde", F: "Falta", J: "Justificada",
+    };
+    const status = statusMap[statusCode];
+    if (!status) return;
+    const [date = "", service = "gen"] = document.id.split("_");
+    history.push({
+      id: `legacy-attendance:${document.id}`, kind: "Asistencia",
+      date, title: service, detail: "Registro histórico", status,
+    });
+  });
+
+  (followupsSnapshot?.docs ?? []).forEach((document) => {
+    const data = document.data();
+    if (text(data.memberId ?? data.m, 150) !== memberId) return;
+    const date = managedRecordDate(data.date ?? data.d ?? data.createdAt);
+    history.push({
+      id: `followup:${document.id}`, kind: "Seguimiento",
+      date, title: text(data.reason ?? data.t, 180) || "Acompañamiento",
+      detail: text(data.notes ?? data.n, 500) || "Sin observaciones",
+      status: text(data.status, 40) || "Histórico",
+    });
+  });
+
+  history.sort((left, right) => right.date.localeCompare(left.date));
+  return {history: history.slice(0, 60)};
+});
+
 export const adminUpdateMember = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
