@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-  LayoutDashboard, Users, CalendarCheck, MessageCircle, BookOpen,
+  LayoutDashboard, Users, CalendarCheck, MessageCircle, BookOpen, Bell,
   UserPlus, HandHeart, CalendarDays, QrCode, Trophy, Gamepad2,
   UserRound, Images, Star, ShieldCheck, Inbox, ClipboardList,
   BarChart3, Crown, Settings, Sparkles,
