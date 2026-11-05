@@ -1,16 +1,5 @@
-
-import {
-  addDoc,
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-  Timestamp,
-  type Unsubscribe,
-} from 'firebase/firestore';
-
-import { assertFirebaseWritesAllowed, db } from '../firebase/client';
-import { COLLECTIONS } from './collections';
+import {httpsCallable} from 'firebase/functions';
+import {functions} from '../firebase/client';
 
 export type CheckinRecord = {
   id: string;
@@ -21,46 +10,19 @@ export type CheckinRecord = {
   createdAt: string;
 };
 
-export function subscribeCheckins(
-  callback: (items: CheckinRecord[]) => void,
-  onError: (error: Error) => void,
-): Unsubscribe {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
+async function call<TResponse, TPayload = Record<string, never>>(
+  name: string,
+  payload: TPayload,
+): Promise<TResponse> {
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const callable = httpsCallable<TPayload, TResponse>(functions, name);
+  const response = await callable(payload);
+  return response.data;
+}
 
-  const checkinsQuery = query(
-    collection(db, COLLECTIONS.checkins),
-    orderBy('createdAt', 'desc'),
-  );
-
-  return onSnapshot(
-    checkinsQuery,
-    (snapshot) => {
-      callback(
-        snapshot.docs.map((item) => {
-          const data = item.data();
-
-          return {
-            id: item.id,
-            memberId: String(data.memberId ?? ''),
-            memberName: String(data.memberName ?? ''),
-            meetingName: String(data.meetingName ?? ''),
-            date: String(data.date ?? ''),
-            createdAt:
-              data.createdAt instanceof Timestamp
-                ? data.createdAt.toDate().toISOString()
-                : '',
-          };
-        }),
-      );
-    },
-    (cause) => onError(
-      cause instanceof Error
-        ? cause
-        : new Error('No se pudieron cargar los registros QR.'),
-    ),
-  );
+export async function listCheckins(): Promise<CheckinRecord[]> {
+  const response = await call<{checkins: CheckinRecord[]}>('listCheckins', {});
+  return Array.isArray(response.checkins) ? response.checkins : [];
 }
 
 export async function createCheckin(data: {
@@ -69,31 +31,13 @@ export async function createCheckin(data: {
   meetingName: string;
   date: string;
 }): Promise<string> {
-  assertFirebaseWritesAllowed();
-
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
-  const memberId = data.memberId.trim();
-  const memberName = data.memberName.trim();
-  const meetingName = data.meetingName.trim();
-  const date = data.date.trim();
-
-  if (!memberId || !memberName || !meetingName || !date) {
-    throw new Error('Faltan datos para registrar la asistencia.');
-  }
-
-  const result = await addDoc(
-    collection(db, COLLECTIONS.checkins),
-    {
-      memberId,
-      memberName,
-      meetingName,
-      date,
-      createdAt: Timestamp.now(),
-    },
-  );
-
-  return result.id;
+  const response = await call<
+    {success: boolean; id: string; memberName: string},
+    {memberId: string; meetingName: string; date: string}
+  >('createCheckin', {
+    memberId: data.memberId.trim(),
+    meetingName: data.meetingName.trim(),
+    date: data.date.trim(),
+  });
+  return response.id;
 }
