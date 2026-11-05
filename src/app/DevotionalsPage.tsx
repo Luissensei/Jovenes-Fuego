@@ -1,6 +1,6 @@
 import styles from './styles/DevotionalsPage.module.css';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   BookOpen,
   Plus,
@@ -16,7 +16,7 @@ import {
 import {
   createDevotional,
   deleteDevotional,
-  subscribeDevotionals,
+  listDevotionals,
   type DevotionalRecord,
 } from '../services/repositories/devotionals';
 
@@ -48,31 +48,29 @@ export default function DevotionalsPage() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
+  const mountedRef = useRef(false);
 
-    try {
-      unsubscribe = subscribeDevotionals(
-        (items) => {
-          setDevotionals(items);
-          setLoading(false);
-          setError('');
-        },
-        (cause) => {
-          setError(cause.message);
-          setLoading(false);
-        },
-      );
-    } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'No se pudieron cargar los devocionales.',
-      );
-      setLoading(false);
+  async function loadDevotionals(showLoading = true) {
+    if (mountedRef.current) {
+      if (showLoading) setLoading(true);
+      setError('');
     }
+    try {
+      const items = await listDevotionals();
+      if (mountedRef.current) setDevotionals(items);
+    } catch (cause) {
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudieron cargar los devocionales.');
+      }
+    } finally {
+      if (mountedRef.current) setLoading(false);
+    }
+  }
 
-    return () => unsubscribe?.();
+  useEffect(() => {
+    mountedRef.current = true;
+    void loadDevotionals();
+    return () => { mountedRef.current = false; };
   }, []);
 
   const filtered = useMemo(() => {
@@ -117,17 +115,17 @@ export default function DevotionalsPage() {
         content,
       });
 
+      if (!mountedRef.current) return;
       resetForm();
       setShowForm(false);
       setMessage('Devocional publicado correctamente.');
+      await loadDevotionals(false);
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'No se pudo publicar el devocional.',
-      );
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo publicar el devocional.');
+      }
     } finally {
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   }
 
@@ -140,16 +138,16 @@ export default function DevotionalsPage() {
 
     try {
       await deleteDevotional(item.id);
+      if (!mountedRef.current) return;
       setSelected(null);
       setMessage('Devocional eliminado correctamente.');
+      await loadDevotionals(false);
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'No se pudo eliminar el devocional.',
-      );
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo eliminar el devocional.');
+      }
     } finally {
-      setDeleting(false);
+      if (mountedRef.current) setDeleting(false);
     }
   }
 
@@ -382,7 +380,7 @@ export default function DevotionalsPage() {
       )}
 
       <p className="devotionals-notice">
-        Los devocionales se guardan en Firebase Staging.
+        Los devocionales se consultan y administran en el proyecto Firebase original.
       </p>
     </main>
   );
