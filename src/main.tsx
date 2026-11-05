@@ -8,13 +8,10 @@ import './styles/theme-system.css';
 import './styles/professional-ui.css';
 import './styles/premium-motion.css';
 import './styles/ember-command.css';
+import './styles/command-center.css';
 
-try {
-  const savedTheme = window.localStorage.getItem('jf-theme');
-  document.documentElement.dataset.theme = savedTheme === 'dark' || savedTheme === 'royal' ? 'dark' : 'light';
-} catch {
-  document.documentElement.dataset.theme = 'light';
-}
+document.documentElement.dataset.theme = 'dark';
+document.documentElement.style.colorScheme = 'dark';
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
