@@ -70,30 +70,105 @@ function isValidTime(value: string): boolean {
     hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59;
 }
 
+function safePublicPhoto(value: unknown): string {
+  const image = text(value, 60000);
+  if (/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(image)) return image;
+  return image.startsWith("https://") ? image.slice(0, 2000) : "";
+}
+
 async function loadVisiblePublicProfiles() {
-  const snapshot = await db.collection("publicProfiles").limit(200).get();
-  const memberSnapshots = snapshot.docs.length > 0
-    ? await db.getAll(...snapshot.docs.map((document) =>
-      db.collection("members").doc(document.id),
-    ))
+  const [modernSnapshot, rankingSnapshot] = await Promise.all([
+    db.collection("publicProfiles").limit(250).get(),
+    db.collection("public").doc("ranking").get(),
+  ]);
+
+  const rankingData = rankingSnapshot.data() ?? {};
+  if (rankingData.off === true) return [];
+
+  type Candidate = {
+    id: string;
+    name: string;
+    nick: string;
+    points: number;
+    modern: Record<string, unknown>;
+  };
+  const byId = new Map<string, Candidate>();
+
+  if (Array.isArray(rankingData.all)) {
+    (rankingData.all as unknown[]).forEach((entry, index) => {
+      if (!entry || typeof entry !== "object") return;
+      const data = entry as Record<string, unknown>;
+      const name = text(data.n, 120);
+      if (!name) return;
+      const memberId = text(data.i, 150);
+      const id = memberId || `public-profile-${index}`;
+      const rawPoints = Number(data.t ?? 0);
+      byId.set(id, {
+        id,
+        name,
+        nick: "",
+        points: Number.isFinite(rawPoints) && rawPoints >= 0 ? rawPoints : 0,
+        modern: {},
+      });
+    });
+  }
+
+  modernSnapshot.docs.forEach((document) => {
+    const data = document.data();
+    const name = text(data.name, 120);
+    if (!name || data.nopub === true) return;
+    const previous = byId.get(document.id);
+    const rawPoints = Number(data.points ?? data.puntos ?? previous?.points ?? 0);
+    byId.set(document.id, {
+      id: document.id,
+      name,
+      nick: text(data.nick, 60) || previous?.nick || "",
+      points: Number.isFinite(rawPoints) && rawPoints >= 0 ? rawPoints : 0,
+      modern: data,
+    });
+  });
+
+  const candidates = [...byId.values()];
+  const memberIds = candidates
+    .map((item) => item.id)
+    .filter((id) => !id.startsWith("public-profile-"));
+  const memberSnapshots = memberIds.length
+    ? await db.getAll(...memberIds.map((id) => db.collection("members").doc(id)))
+    : [];
+  const photoSnapshots = memberIds.length
+    ? await db.getAll(...memberIds.map((id) => db.collection("photos").doc(id)))
     : [];
 
-  return snapshot.docs.flatMap((document, index) => {
-    const data = document.data();
-    const memberData = memberSnapshots[index]?.data();
+  const members = new Map(
+    memberSnapshots.map((snapshot) => [snapshot.id, snapshot.data() ?? {}]),
+  );
+  const photos = new Map(
+    photoSnapshots.map((snapshot) => [snapshot.id, snapshot.data() ?? {}]),
+  );
 
-    // La marca de no publicación se respeta tanto en el perfil público
-    // como en la ficha privada del miembro.
-    if (data.nopub === true || memberData?.nopub === true) return [];
+  return candidates.flatMap((candidate) => {
+    const member = members.get(candidate.id);
+    if (member?.nopub === true || candidate.modern.nopub === true) return [];
+    const photo = photos.get(candidate.id) ?? {};
+    const modern = candidate.modern;
+    const flames = Number(photo.w ?? modern.flames ?? 0);
+    const ownedItems = Array.isArray(photo.u)
+      ? photo.u.filter((value): value is string => typeof value === "string")
+        .map((value) => value.slice(0, 120)).slice(0, 400)
+      : [];
 
-    const points = Number(data.points ?? data.puntos ?? 0);
-    const image = text(data.pic, 1500);
     return [{
-      id: document.id,
-      name: typeof data.name === "string" ? data.name : "",
-      nick: typeof data.nick === "string" ? data.nick : "",
-      pic: image.startsWith("https://") ? image : "",
-      points: Number.isFinite(points) && points >= 0 ? points : 0,
+      id: candidate.id,
+      name: candidate.name,
+      nick: candidate.nick || text(member?.nick, 60),
+      pic: safePublicPhoto(photo.p) || safePublicPhoto(modern.pic),
+      points: candidate.points,
+      frame: text(photo.f ?? modern.frame, 50),
+      avatar: text(photo.a ?? modern.avatar, 80),
+      background: text(photo.b ?? modern.background, 50),
+      title: text(photo.t ?? modern.title, 80),
+      flames: Number.isFinite(flames) && flames >= 0 ? Math.min(flames, 100000) : 0,
+      ownedItems,
     }];
   });
 }
@@ -354,6 +429,19 @@ export const getPublicProfiles = onCall(async () => {
     return {profiles: await loadVisiblePublicProfiles()};
   } catch {
     throw new HttpsError("internal", "No se pudieron consultar los perfiles públicos.");
+  }
+});
+
+export const getPublicRankingMetrics = onCall(async () => {
+  try {
+    const profiles = await loadVisiblePublicProfiles();
+    return {metrics: profiles.map((profile) => ({
+      id: profile.id,
+      name: profile.name,
+      points: profile.points,
+    }))};
+  } catch {
+    throw new HttpsError("internal", "No se pudieron consultar las métricas públicas del ranking.");
   }
 });
 
