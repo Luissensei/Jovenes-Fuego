@@ -244,3 +244,16 @@
 :global(:root[data-theme="light"]) .scope :global(.photo-card),:global(:root[data-theme="light"]) .scope :global(.photos-tabs),:global(:root[data-theme="light"]) .scope :global(.photos-modal){background:#fff;color:#382d40;border-color:#e9e0eb}
 @media(max-width:600px){.scope :global(.photos-hero){padding:20px;border-radius:18px}.scope :global(.photo-card){border-radius:16px}}
 @media(prefers-reduced-motion:reduce){.scope :global(.photo-card){transition:none}.scope :global(.photo-card):hover{transform:none}}
+
+/* Community photos: moderation queue with clear content-first cards. */
+.scope :global(.photos-hero){background:linear-gradient(115deg,#172943,#203b60);border:1px solid #354d6c;border-radius:17px}
+.scope :global(.photos-eyebrow){color:#a9c4f3}
+.scope :global(.photos-stats)>article,.scope :global(.photo-card){background:#121f32;border:1px solid #2a3d56;border-radius:14px;box-shadow:0 7px 22px #0002}
+.scope :global(.photo-card-content) h2,.scope :global(.photo-card-content) h3{color:#edf3fb}
+.scope :global(.photo-card-content) p,.scope :global(.photo-status){color:#a9bad0}
+.scope :global(.photos-tabs) button{background:#17283e;border:1px solid #30445e;color:#cbd8e8;border-radius:9px}
+.scope :global(.photos-tabs) button.active{background:#294b7a;border-color:#668cff;color:#fff}
+.scope :global(.photos-modal){background:#121f32;border:1px solid #30445e;color:#edf3fb;border-radius:15px}
+.scope :global(.photos-approve){background:#247b63;color:#fff;border:1px solid #399c7e}
+.scope :global(.photos-reject){background:#7b3445;color:#fff;border:1px solid #a54d61}
+@media(max-width:650px){.scope :global(.photos-hero){padding:19px;border-radius:15px}.scope :global(.photos-grid){grid-template-columns:1fr}}
