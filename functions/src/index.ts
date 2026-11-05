@@ -807,7 +807,7 @@ export const adminListManagedRecords = onCall(async (request) => {
     ]),
   );
 
-  const records: Array<{id: string; createdAt: string; updatedAt: string; editable: boolean; [key: string]: unknown}> = snapshot.docs.flatMap((document) => {
+  const records = snapshot.docs.flatMap<{id: string; createdAt: string; updatedAt: string; editable: boolean; [key: string]: unknown}>((document) => {
     const data = document.data();
     if (module === "inbox" && data.k === "p") return [];
 
