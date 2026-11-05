@@ -138,7 +138,6 @@ export function AuthProvider({children}: {children: ReactNode}) {
 
         if (data.status === 'inactive') {
           setError('El acceso de esta cuenta fue suspendido. Contacta al administrador de la comunidad.');
-          await signOut(authInstance);
           return;
         }
 
