@@ -2,7 +2,7 @@ import styles from './styles/DashboardPage.module.css';
 import { useEffect, useMemo, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  ArrowUpRight, CalendarDays, Users, Trophy, BookOpen, ClipboardCheck,
+  ArrowUpRight, CalendarDays, Users, Trophy, BookOpen, ClipboardCheck, Bell,
   Sparkles, ShieldCheck, Clock3, MapPin, ArrowRight,
   LayoutDashboard, UserRound, Medal, Star, ChartNoAxesCombined,
 } from 'lucide-react';
@@ -18,6 +18,7 @@ const shortcuts = [
   { label: 'Agenda', detail: 'Actividades y eventos', path: '/eventos', moduleId: 'events', adminOnly: false, icon: CalendarDays, tone: 'purple' },
   { label: 'Devocionales', detail: 'Contenido de crecimiento', path: '/devocionales', moduleId: 'devotionals', adminOnly: false, icon: BookOpen, tone: 'orange' },
   { label: 'Informes', detail: 'Reportes y estadísticas', path: '/informes', moduleId: 'reports', adminOnly: false, icon: ChartNoAxesCombined, tone: 'purple' },
+  { label: 'Notificaciones', detail: 'Pendientes y novedades', path: '/notificaciones', moduleId: 'notifications', adminOnly: false, icon: Bell, tone: 'cyan' },
   { label: 'Líderes', detail: 'Roles y permisos', path: '/lideres', moduleId: 'leaders', icon: ShieldCheck, tone: 'cyan', adminOnly: true },
 ];
 function localDateKey(date: Date) {
