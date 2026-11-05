@@ -584,7 +584,7 @@ export function App() {
     <Routes>
       <Route
         path="/portal-joven/*"
-        element={<Suspense fallback={<PageLoading label="Abriendo portal juvenil"/>}><YouthPortalPage /></Suspense>}
+        element={<MotionConfig reducedMotion="user"><Suspense fallback={<PageLoading label="Abriendo portal juvenil"/>}><YouthPortalPage /></Suspense></MotionConfig>}
       />
 
       <Route
