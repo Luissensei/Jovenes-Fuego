@@ -158,12 +158,19 @@ export function AuthProvider({children}: {children: ReactNode}) {
           callableError.message,
         );
 
-        if (callableError.code === 'functions/permission-denied' ||
-          callableError.code === 'permission-denied') {
+        const code = String(callableError.code ?? '').replace(/^functions\\//, '');
+        if (code === 'permission-denied') {
           setError(callableError.message || 'La cuenta no tiene un perfil autorizado en Firebase.');
-        } else if (callableError.code === 'functions/unavailable' ||
-          callableError.code === 'unavailable') {
-          setError('Firebase Functions no está disponible. Comprueba la conexión e inténtalo de nuevo.');
+        } else if (code === 'unavailable' || code === 'deadline-exceeded') {
+          setError('Firebase Functions no responde en este momento. Comprueba la conexión e inténtalo de nuevo.');
+        } else if (code === 'not-found') {
+          setError('La función getMyApplicationProfile no está desplegada en Firebase. Hay que desplegar las Cloud Functions del proyecto jovenes-de-fuego.');
+        } else if (code === 'unauthenticated') {
+          setError('Firebase no pudo validar tu sesión. Cierra sesión, vuelve a ingresar e inténtalo otra vez.');
+        } else if (code === 'internal' || code === 'unknown') {
+          setError('La función de Firebase falló en el servidor. Revisa los registros de Cloud Functions; no se modificó tu perfil.');
+        } else if (code) {
+          setError(`No se pudo validar el perfil (Firebase: ${code}). Revisa la configuración de Cloud Functions.`);
         } else {
           setError('No se pudo validar el perfil de aplicación mediante Firebase Functions.');
         }
