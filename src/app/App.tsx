@@ -165,7 +165,7 @@ function AdminApp() {
   // Least privilege: un líder sin permisos explícitos recibe solo herramientas operativas básicas.
   const defaultLeaderModules = [
     'members', 'attendance', 'reports', 'followups', 'devotionals', 'visitors',
-    'prayers', 'events', 'checkins', 'turns', 'ranking', 'games', 'profile',
+    'events', 'checkins', 'turns', 'ranking', 'games', 'profile',
   ];
   const leaderPermissions = Array.isArray(profile?.permissions)
     ? profile.permissions.filter((item): item is string => typeof item === 'string')
@@ -176,7 +176,12 @@ function AdminApp() {
     // La visibilidad sigue dependiendo del perfil y del rol autenticado.
     if (item.id === 'assistant') return isAdmin;
 
-    if (isLeader) return item.id === 'dashboard' || leaderPermissions.includes(item.id);
+    if (isLeader) {
+      // Las peticiones contienen información privada; su bandeja queda reservada
+      // a administración y pastoral. La agenda sí usa permiso de módulo.
+      if (['prayers', 'inbox'].includes(item.id)) return false;
+      return item.id === 'dashboard' || leaderPermissions.includes(item.id);
+    }
 
     if (item.id === 'pastoral') {
       return isPastor || isAdmin;
