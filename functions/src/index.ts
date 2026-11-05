@@ -1178,17 +1178,23 @@ export const adminListPhotos = onCall(async (request) => {
 
   const [pendingSnapshot, approvedSnapshot] = await Promise.all([
     db.collection("fotoPend").orderBy("createdAt", "desc").limit(200).get(),
-    db.collection("photos").orderBy("createdAt", "desc").limit(200).get(),
+    db.collection("photos").orderBy("createdAt", "desc").limit(300).get(),
   ]);
 
-  return {
-    pending: pendingSnapshot.docs.map((document) =>
-      mapPhotoRecord(document.id, document.data(), "Pendiente"),
-    ),
-    approved: approvedSnapshot.docs.map((document) =>
-      mapPhotoRecord(document.id, document.data(), "Aprobada"),
-    ),
-  };
+  const pending = pendingSnapshot.docs.flatMap((document) => {
+    const item = mapPhotoRecord(document.id, document.data(), "Pendiente");
+    return item.imageUrl && validPhotoUrl(item.imageUrl) ? [item] : [];
+  });
+  const approved = approvedSnapshot.docs.flatMap((document) => {
+    const data = document.data();
+    const item = mapPhotoRecord(document.id, data, "Aprobada");
+    // Profile-photo records in photos/{memberId} use p/f/a/b/t/u/w, not gallery images.
+    if (!item.imageUrl || !validPhotoUrl(item.imageUrl)) return [];
+    if (data.status && !["Aprobada", "approved", "published"].includes(String(data.status))) return [];
+    return [{...item, status: "Aprobada"}];
+  });
+
+  return {pending, approved};
 });
 
 export const submitPhotoRequest = onCall(async (request) => {
@@ -1275,6 +1281,12 @@ export const deleteApprovedPhoto = onCall(async (request) => {
   const ref = db.collection("photos").doc(id);
   const snapshot = await ref.get();
   if (!snapshot.exists) throw new HttpsError("not-found", "La fotografía aprobada ya no existe.");
+  const data = snapshot.data() ?? {};
+  const imageUrl = text(data.imageUrl, 2000);
+  if (!imageUrl || !validPhotoUrl(imageUrl) ||
+    (data.status && !["Aprobada", "approved", "published"].includes(String(data.status)))) {
+    throw new HttpsError("failed-precondition", "Este registro no pertenece a la galería pública de fotografías.");
+  }
   await ref.delete();
   return {success: true};
 });
