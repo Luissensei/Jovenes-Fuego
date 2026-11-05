@@ -1,14 +1,6 @@
-import {
-  collection,
-  doc,
-  documentId,
-  getDoc,
-  getDocs,
-  query,
-  where,
-} from 'firebase/firestore';
+import {httpsCallable} from 'firebase/functions';
 
-import {db} from './firebase/client';
+import {functions} from './firebase/client';
 
 export type PublicProfile = {
   id: string;
@@ -24,184 +16,47 @@ export type PublicProfile = {
   ownedItems?: string[];
 };
 
-type LegacyRankingEntry = {
-  i?: unknown;
-  n?: unknown;
-  t?: unknown;
-};
-
-const PHOTO_QUERY_BATCH_SIZE = 30;
-
-function safePhoto(value: unknown): string {
-  if (typeof value !== 'string') return '';
-
-  // The original app stores approved public photos as JPEG data URLs.
-  if (/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(value)) {
-    return value;
-  }
-
-  // Keep support for already-hosted HTTPS photos if present in old records.
-  if (value.startsWith('https://')) return value;
-
-  return '';
-}
-
 export type PublicRankingMetric = Pick<PublicProfile, 'id' | 'name' | 'points'>;
 
-/**
- * Lectura ligera para indicadores: usa únicamente public/ranking y no descarga
- * fotografías ni otros datos del perfil.
- */
-export async function getPublicRankingMetrics(): Promise<PublicRankingMetric[]> {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
-  try {
-    const snapshot = await getDoc(doc(db, 'public', 'ranking'));
-    if (!snapshot.exists()) return [];
-
-    const data = snapshot.data();
-    if (data.off === true) return [];
-
-    const entries = Array.isArray(data.all)
-      ? data.all as LegacyRankingEntry[]
-      : [];
-
-    return entries.flatMap((entry, index) => {
-      if (!entry || typeof entry !== 'object') return [];
-
-      const name = typeof entry.n === 'string' ? entry.n.trim() : '';
-      if (!name) return [];
-
-      const memberId = typeof entry.i === 'string' ? entry.i.trim() : '';
-      const rawPoints = Number(entry.t ?? 0);
-
-      return [{
-        id: memberId || `public-ranking-${index}`,
-        name,
-        points: Number.isFinite(rawPoints) && rawPoints >= 0 ? rawPoints : 0,
-      }];
-    });
-  } catch (error) {
-    const firebaseError = error as {code?: string};
-    console.error('Error consultando métricas públicas del ranking:', error);
-
-    if (firebaseError.code === 'permission-denied') {
-      throw new Error('Firestore no permite leer public/ranking con las reglas actuales.');
-    }
-
-    throw new Error('No se pudieron consultar las métricas públicas del ranking.');
-  }
+async function call<TResponse>(
+  name: string,
+): Promise<TResponse> {
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const callable = httpsCallable<Record<string, never>, TResponse>(functions, name);
+  const response = await callable({});
+  return response.data;
 }
 
+/** Obtiene únicamente indicadores públicos, sin descargar fotografías ni datos privados. */
+export async function getPublicRankingMetrics(): Promise<PublicRankingMetric[]> {
+  const response = await call<{metrics: PublicRankingMetric[]}>('getPublicRankingMetrics');
+  return Array.isArray(response.metrics)
+    ? response.metrics.map((item) => ({
+      id: String(item.id ?? ''),
+      name: String(item.name ?? ''),
+      points: Math.max(0, Number(item.points) || 0),
+    })).filter((item) => item.id && item.name)
+    : [];
+}
+
+/** Perfiles y apariencia pública se consultan con Admin SDK y filtro nopub en servidor. */
 export async function getPublicProfiles(): Promise<PublicProfile[]> {
-  if (!db) {
-    throw new Error('Firebase Firestore no está configurado.');
-  }
-
-  try {
-    // The legacy app publishes its privacy-filtered profile list here.
-    // The original Firestore rules allow a public get on this exact document.
-    const rankingSnapshot = await getDoc(
-      doc(db, 'public', 'ranking'),
-    );
-
-    if (!rankingSnapshot.exists()) return [];
-
-    const rankingData = rankingSnapshot.data();
-    if (rankingData.off === true) return [];
-
-    const entries = Array.isArray(rankingData.all)
-      ? rankingData.all as LegacyRankingEntry[]
-      : [];
-
-    const profiles: PublicProfile[] = entries.flatMap((entry, index) => {
-      if (!entry || typeof entry !== 'object') return [];
-
-      const name = typeof entry.n === 'string' ? entry.n.trim() : '';
-      if (!name) return [];
-
-      const memberId = typeof entry.i === 'string'
-        ? entry.i.trim()
-        : '';
-
-      // The legacy public ranking already removes members marked "nopub".
-      // Entries without an ID can still be shown, but cannot load a photo.
-      const id = memberId || `public-profile-${index}`;
-      const rawPoints = Number(entry.t ?? 0);
-
-      return [{
-        id,
-        name,
-        nick: '',
-        pic: '',
-        points: Number.isFinite(rawPoints) && rawPoints >= 0
-          ? rawPoints
-          : 0,
-      }];
-    });
-
-    const memberIds = [...new Set(
-      profiles
-        .map((profile) => profile.id)
-        .filter((id) => !id.startsWith('public-profile-')),
-    )];
-
-    // Public profile photos are stored separately in photos/{memberId}.
-    // Fetch only the photo documents corresponding to visible public profiles.
-    const photos = new Map<string, Record<string, unknown>>();
-
-    for (
-      let start = 0;
-      start < memberIds.length;
-      start += PHOTO_QUERY_BATCH_SIZE
-    ) {
-      const ids = memberIds.slice(
-        start,
-        start + PHOTO_QUERY_BATCH_SIZE,
-      );
-
-      const photoQuery = query(
-        collection(db, 'photos'),
-        where(documentId(), 'in', ids),
-      );
-
-      const photoSnapshot = await getDocs(photoQuery);
-
-      photoSnapshot.docs.forEach((photoDoc) => {
-        photos.set(photoDoc.id, photoDoc.data());
-      });
-    }
-
-    return profiles.map((profile) => {
-      const photo = photos.get(profile.id) ?? {};
-      const flames = Number(photo.w ?? 0);
-      return {
-        ...profile,
-        pic: safePhoto(photo.p),
-        frame: typeof photo.f === 'string' ? photo.f : '',
-        avatar: typeof photo.a === 'string' ? photo.a : '',
-        background: typeof photo.b === 'string' ? photo.b : '',
-        title: typeof photo.t === 'string' ? photo.t : '',
-        flames: Number.isFinite(flames) && flames >= 0 ? flames : 0,
-        ownedItems: Array.isArray(photo.u)
-          ? photo.u.filter((item): item is string => typeof item === 'string')
-          : [],
-      };
-    });
-  } catch (error) {
-    const firebaseError = error as {code?: string};
-    console.error('Error consultando perfiles del ranking original:', error);
-
-    if (firebaseError.code === 'permission-denied') {
-      throw new Error(
-        'Firestore no permite leer public/ranking o las fotos públicas. Revisa las reglas originales.',
-      );
-    }
-
-    throw new Error(
-      'No se pudieron cargar los perfiles desde el ranking original de Firebase.',
-    );
-  }
+  const response = await call<{profiles: PublicProfile[]}>('getPublicProfiles');
+  return Array.isArray(response.profiles)
+    ? response.profiles.map((item) => ({
+      id: String(item.id ?? ''),
+      name: String(item.name ?? ''),
+      nick: String(item.nick ?? ''),
+      pic: String(item.pic ?? ''),
+      points: Math.max(0, Number(item.points) || 0),
+      frame: String(item.frame ?? ''),
+      avatar: String(item.avatar ?? ''),
+      background: String(item.background ?? ''),
+      title: String(item.title ?? ''),
+      flames: Math.max(0, Number(item.flames) || 0),
+      ownedItems: Array.isArray(item.ownedItems)
+        ? item.ownedItems.filter((value): value is string => typeof value === 'string').slice(0, 400)
+        : [],
+    })).filter((item) => item.id && item.name)
+    : [];
 }
