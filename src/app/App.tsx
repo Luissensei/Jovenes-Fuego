@@ -22,6 +22,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   RefreshCw,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 import { modules } from './modules';
@@ -102,7 +104,7 @@ function AdminApp() {
     retryProfile,
   } = useAuth();
 
-  useThemePreference();
+  const {theme, toggleTheme, nextThemeLabel} = useThemePreference();
   const [menuOpen, setMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [moduleSearch, setModuleSearch] = useState('');
@@ -497,6 +499,16 @@ function AdminApp() {
               'Firebase: no configurado'
             )}
           </span>
+          <button
+            className="topline-theme-toggle"
+            type="button"
+            onClick={toggleTheme}
+            aria-label={nextThemeLabel}
+            title={nextThemeLabel}
+          >
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            <span>{theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}</span>
+          </button>
         </div>
 
         {!configured && (
