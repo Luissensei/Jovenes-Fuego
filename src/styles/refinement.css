@@ -1277,3 +1277,102 @@ html[data-theme="dark"] .youth-portal .youth-bottom-navigation button.active {
   background: #244a34 !important;
   border-color: #356b4c !important;
 }
+
+
+/* One combined selector for generating a member QR code. */
+.main .checkin-search {
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  min-height: 44px;
+  padding: 0 11px !important;
+  color: #6c8074 !important;
+  background: #fff !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 10px !important;
+}
+.main .checkin-search input {
+  width: 100% !important;
+  min-width: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+.main .checkin-search button {
+  flex: 0 0 auto;
+  color: #65796b !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+.main .checkin-member-results {
+  display: grid;
+  gap: 6px;
+  max-height: 270px;
+  overflow: auto;
+  padding: 5px;
+  border: 1px solid #e5ece7;
+  border-radius: 11px;
+  background: #f8fbf9;
+}
+.main .checkin-member-results > button {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100%;
+  min-width: 0;
+  padding: 9px 10px !important;
+  text-align: left;
+  color: #2d4437 !important;
+  background: #fff !important;
+  border: 1px solid #edf2ee !important;
+  border-radius: 9px !important;
+}
+.main .checkin-member-results > button:hover {
+  background: #eff9f3 !important;
+  border-color: #c8e8d5 !important;
+}
+.main .checkin-member-initials {
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  color: #167c50;
+  background: #e8f7ef;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 850;
+}
+.main .checkin-member-result-name {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.main .checkin-member-result-name strong { color: #20382b !important; font-size: 11px; }
+.main .checkin-member-result-name small { color: #7c8d82 !important; font-size: 9px; }
+.main .checkin-member-result-action { color: #168957 !important; font-size: 9px; font-weight: 800; }
+.main .checkin-selected-member {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 12px;
+  color: #254233;
+  background: #edf8f1;
+  border: 1px solid #d1ebdb;
+  border-radius: 10px;
+}
+.main .checkin-selected-member > div { display: grid; gap: 3px; min-width: 0; }
+.main .checkin-selected-member strong { color: #1c573c !important; font-size: 12px; }
+.main .checkin-selected-member small { color: #688272 !important; font-size: 10px; }
+.main .checkin-selected-member button {
+  flex: 0 0 auto;
+  color: #16764d !important;
+  background: #fff !important;
+  border: 1px solid #cde7d6 !important;
+  border-radius: 8px !important;
+  padding: 7px 10px !important;
+  font-size: 10px !important;
+}
+.main .checkin-results-limit { margin: 5px 7px; color: #7d8e83 !important; font-size: 10px; }
