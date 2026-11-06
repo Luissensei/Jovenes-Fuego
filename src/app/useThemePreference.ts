@@ -6,7 +6,7 @@ function readThemePreference(): ThemePreference {
   try {
     return window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
   } catch {
-    return 'dark';
+    return 'light';
   }
 }
 
