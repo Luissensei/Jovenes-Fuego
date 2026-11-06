@@ -982,9 +982,9 @@ export default function YouthPortalPage() {
     return (
       <motion.main
         className={`${styles.scope} ${dashboardStyles.dashboard} youth-portal ${portalExiting ? "youth-profile-exit" : ""}`}
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.28, ease: "easeOut" }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
       >
         <div className="youth-container youth-home-enter">
           <div className="youth-home-toolbar">
