@@ -1376,3 +1376,111 @@ html[data-theme="dark"] .youth-portal .youth-bottom-navigation button.active {
   font-size: 10px !important;
 }
 .main .checkin-results-limit { margin: 5px 7px; color: #7d8e83 !important; font-size: 10px; }
+
+
+/* Final palette normalization for legacy component modifiers. */
+.main .ranking-hub .game-card {
+  color: #263d31 !important;
+  background: #fff !important;
+  border: 1px solid #e2e9e5 !important;
+  border-radius: 13px !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main .ranking-hub .game-card .game-icon,
+.main .ranking-hub .game-card.purple .game-icon,
+.main .ranking-hub .game-card.blue .game-icon,
+.main .ranking-hub .game-card.orange .game-icon,
+.main .ranking-hub .game-card.green .game-icon,
+.main .ranking-hub .game-card.red .game-icon {
+  color: #168957 !important;
+  background: #e8f7ef !important;
+  border: 1px solid #d1ebdc !important;
+}
+.main .ranking-hub .game-card :is(h3,strong,b) { color: #20382b !important; }
+.main .ranking-hub .game-card :is(p,small) { color: #718176 !important; }
+.main .ranking-hub .game-card .game-status { color: #168957 !important; }
+
+.main .reports-icon,
+.main .reports-icon.purple,
+.main .reports-icon.orange,
+.main .reports-icon.green,
+.main .reports-icon.red {
+  color: #168957 !important;
+  background: #e8f7ef !important;
+  border: 1px solid #d1ebdc !important;
+}
+.main .reports-progress,
+.main .reports-progress > div { background: #e8f0eb !important; }
+.main .reports-progress > div,
+.main .reports-progress > i { background: #19a96b !important; }
+.main .reports-rate,
+.main .reports-stats article { background: #fff !important; }
+.main .reports-stats strong { color: #183126 !important; }
+.main .reports-stats span { color: #68796f !important; }
+
+/* Every dashboard statistic and shortcut shares the same emerald accent. */
+.main [class*="DashboardPage_metricCard"] { --tone: #18a66c !important; }
+.main [class*="DashboardPage_metricCard"][data-tone="green"],
+.main [class*="DashboardPage_metricCard"][data-tone="purple"],
+.main [class*="DashboardPage_metricCard"][data-tone="orange"] { --tone: #18a66c !important; }
+.main [class*="DashboardPage_metricTop"] i,
+.main [class*="DashboardPage_shortcuts"] a[data-tone="blue"] > i,
+.main [class*="DashboardPage_shortcuts"] a[data-tone="purple"] > i,
+.main [class*="DashboardPage_shortcuts"] a[data-tone="orange"] > i,
+.main [class*="DashboardPage_shortcuts"] a[data-tone="cyan"] > i,
+.main [class*="DashboardPage_shortcuts"] a[data-tone="green"] > i {
+  color: #168957 !important;
+  background: #e8f7ef !important;
+}
+.main [class*="DashboardPage_metricSpark"] span { background: #19a96b !important; }
+.main [class*="DashboardPage_chartRow"] > div > i,
+.main [class*="DashboardPage_chartRow"] > div > i[data-index="1"],
+.main [class*="DashboardPage_chartRow"] > div > i[data-index="2"],
+.main [class*="DashboardPage_chartRow"] > div > i[data-index="3"] {
+  background: #19a96b !important;
+}
+
+/* Remove leftover 3D motion and blur from the legacy shell rules. */
+body .layout *,
+body .youth-portal * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.sidebar .nav-item,
+.sidebar .nav-item:hover,
+.sidebar nav.jf-module-navigation .jf-nav-group-items > .nav-item:hover .nav-item-icon,
+.sidebar .sidebar-bottom .theme-toggle:hover {
+  transform: none !important;
+  transition: background .16s ease, border-color .16s ease, color .16s ease !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  .main :is(
+    .dashboard-stat,.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,
+    .dashboard-bottom-note,.ranking-info-grid article,.ranking-player,.game-card,
+    .profile-card,.selected-profile-panel,.members-total-card,.members-controls,
+    .member-card,.member-row,.attendance-card,.attendance-member,.followup-stat,
+    .followup-content,.followup-card,.visitors-stat,.visitors-content,.visitor-card,
+    .devotionals-feature,.devotionals-controls,.devotional-card,.photos-stats article,
+    .photo-card,.reports-card,.reports-stats article,.checkin-config,.checkin-panel,
+    .checkin-summary article,.management-summary,.management-form,.management-records,
+    .management-record,.managed-stat,.managed-record,.weekly-admin-item,.youth-hall-card,
+    .youth-activity-card,.youth-store-item,.youth-game-tile,.youth-profile-card
+  ):hover {
+    transform: translateY(-2px) !important;
+  }
+}
+
+/* Portal tabs stay separate and the fixed menu clears the device safe area. */
+body .youth-portal .youth-tab-page { min-height: 160px; }
+body .youth-portal .youth-bottom-navigation button { transform: none !important; }
+body .youth-portal .youth-bottom-navigation button:hover {
+  color: #138453 !important;
+  background: #f2faf5 !important;
+  border-color: #d9eee1 !important;
+}
+@media (max-width: 650px) {
+  body .youth-portal.dashboard .youth-bottom-navigation {
+    bottom: max(8px, env(safe-area-inset-bottom)) !important;
+  }
+  body .youth-portal.dashboard .youth-security-note { padding-bottom: 10px; }
+}
