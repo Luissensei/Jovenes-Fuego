@@ -638,9 +638,7 @@ export default function RankingPage({
 
                   return (
                     <article
-                      className={`game-card ${game.color} ${
-                        game.available ? 'game-available' : ''
-                      }`}
+                      className={`game-card ${game.available ? 'game-available' : ''}`}
                       key={game.id}
                     >
                       <div className="game-card-top">
