@@ -211,19 +211,19 @@ export default function ReportsPage() {
 
       <section className="reports-stats">
         <article>
-          <div className="reports-icon purple"><Users /></div>
+          <div className="reports-icon"><Users /></div>
           <span>Jóvenes registrados</span>
           <strong>{members.length}</strong>
         </article>
 
         <article>
-          <div className="reports-icon orange"><CalendarDays /></div>
+          <div className="reports-icon"><CalendarDays /></div>
           <span>Reuniones del periodo</span>
           <strong>{report.meetings.length}</strong>
         </article>
 
         <article>
-          <div className="reports-icon green"><CheckCircle2 /></div>
+          <div className="reports-icon"><CheckCircle2 /></div>
           <span>Presentes</span>
           <strong>{report.present}</strong>
         </article>
