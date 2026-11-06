@@ -957,9 +957,9 @@ export default function YouthPortalPage() {
           <div className="youth-game-topbar">
             <button className="youth-back" type="button" onClick={exitGame}><ArrowLeft size={17}/> Volver a mi espacio</button>
             <span><Gamepad2 size={16}/> JUGADOR · {selectedProfile.name}</span>
-            <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={`Cambiar a ${nextThemeLabel}`} title={`Cambiar a ${nextThemeLabel}`}>
+            <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={nextThemeLabel} title={nextThemeLabel}>
               <ThemeIcon size={17}/>
-              <span>Cambiar a {nextThemeLabel}</span>
+              <span>{nextThemeLabel}</span>
             </button>
           </div>
           <Suspense fallback={<div className="jf-page-loading" role="status" aria-live="polite"><span/><strong>Preparando el juego</strong><small>Un momento…</small></div>}>
@@ -995,9 +995,9 @@ export default function YouthPortalPage() {
               {soundOn ? <Volume2 size={17}/> : <VolumeX size={17}/>}
               {soundOn ? 'Ambiente activado' : 'Activar ambiente'}
             </button>
-            <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={`Cambiar a ${nextThemeLabel}`} title={`Cambiar a ${nextThemeLabel}`}>
+            <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={nextThemeLabel} title={nextThemeLabel}>
               <ThemeIcon size={17}/>
-              <span>Cambiar a {nextThemeLabel}</span>
+              <span>{nextThemeLabel}</span>
             </button>
           </div>
 
@@ -1010,17 +1010,12 @@ export default function YouthPortalPage() {
             <div className="youth-profile-avatar-card" aria-label="Avatar del perfil">
               <YouthAvatar profile={{...selectedProfile, frame: look.frame, avatar: look.avatar}} large/>
             </div>
-            <span className={`youth-profile-badge badge-${look.badge}`}>
-              {({flame:'🔥 Llama viva',book:'📖 Amante de la Palabra',heart:'💛 Corazón de servicio',shield:'🛡️ Fe firme',star:'⭐ Luz del mundo',crown:'👑 Corona de vida'} as Record<string,string>)[look.badge] ?? '🔥 Llama viva'}
-            </span>
+            <span className="youth-profile-badge">MIEMBRO DE LA COMUNIDAD</span>
             <span className="youth-brand-label">COMUNIDAD JÓVENES DE FUEGO</span>
             <h1 className="jf-title-reveal">¡Hola, <span className="jf-name-reveal">{profileExtras.displayName || selectedProfile.name}</span>!</h1>
             <p>Tu espacio para crecer, servir, aprender y compartir.</p>
             {(profileExtras.nickname || selectedProfile.nick) && <span className="youth-profile-nick">@{profileExtras.nickname || selectedProfile.nick}</span>}
             {profileExtras.motto && <p className="youth-profile-motto">“{profileExtras.motto}”</p>}
-            <div className="youth-look-signature">
-              <span>Cabello: {look.hair}</span><span>Ropa: {look.outfit}</span><span>Accesorio: {look.accessory}</span>
-            </div>
             {look.title && <span className="youth-profile-title">{({chispa:'Chispa Encendida',valiente:'Valiente',guerrero:'Guerrero de Fe',intercesor:'Intercesor',adorador:'Adorador',sabio:'Sabio de la Palabra',leyenda:'Leyenda de Fuego'} as Record<string,string>)[look.title] ?? look.title}</span>}
             <div className="youth-profile-quickstats">
               <span><Star size={15}/> {selectedProfile.points > 0 ? `${selectedProfile.points} puntos públicos` : 'Puntos aún no publicados'}</span>
@@ -1155,7 +1150,7 @@ export default function YouthPortalPage() {
                 <div className="youth-ranking-podium">
                   {communityRanking.slice(0,3).map((player,index) => (
                     <article key={player.id} className={'youth-ranking-podium-card place-' + (index + 1)}>
-                      <span className="youth-ranking-podium-place">{index === 0 ? '👑' : index === 1 ? '🥈' : '🥉'} <small>PUESTO {player.position}</small></span>
+                      <span className="youth-ranking-podium-place"><small>PUESTO {player.position}</small></span>
                       <div className="youth-ranking-podium-avatar">{player.pic ? <img src={player.pic} alt={'Foto de ' + player.name} loading="lazy"/> : player.name.trim().split(/\s+/).slice(0,2).map((part) => part[0] ?? '').join('').toUpperCase()}</div>
                       <b>{player.name}</b><strong>{(player.points ?? 0).toLocaleString('es-CO')} <small>PTS</small></strong>
                       <div className="youth-ranking-meter"><i style={{width: (rankingLeaderPoints > 0 ? Math.max(4,((player.points ?? 0)/rankingLeaderPoints)*100) : 0) + '%' }}/></div>
@@ -1300,9 +1295,9 @@ export default function YouthPortalPage() {
           <div className="youth-selector-heading">
             <div><span>ACCESO JUVENIL</span><h3>Nuestra comunidad</h3></div>
             <div className="youth-selector-actions">
-              <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={`Cambiar a ${nextThemeLabel}`} title={`Cambiar a ${nextThemeLabel}`}>
+              <button type="button" className="youth-theme-toggle" onClick={toggleTheme} aria-label={nextThemeLabel} title={nextThemeLabel}>
                 <ThemeIcon size={17}/>
-                <span>Cambiar a {nextThemeLabel}</span>
+                <span>{nextThemeLabel}</span>
               </button>
               <div className="youth-total"><Users size={17}/>{profiles.length} perfiles</div>
             </div>
