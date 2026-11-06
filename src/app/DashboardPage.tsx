@@ -15,13 +15,13 @@ import { getWeeklyActivities, type WeeklyActivity } from '../services/youthPorta
 import { firebaseProjectId, firebaseReadOnlyMode } from '../services/firebase/client';
 
 const shortcuts = [
-  { label: 'Jóvenes', detail: 'Directorio y perfiles', path: '/jovenes', moduleId: 'members', adminOnly: false, icon: Users, tone: 'blue' },
-  { label: 'Asistencia', detail: 'Registro de servicios', path: '/asistencia', moduleId: 'attendance', adminOnly: false, icon: ClipboardCheck, tone: 'green' },
-  { label: 'Agenda', detail: 'Actividades y eventos', path: '/eventos', moduleId: 'events', adminOnly: false, icon: CalendarDays, tone: 'purple' },
-  { label: 'Devocionales', detail: 'Contenido de crecimiento', path: '/devocionales', moduleId: 'devotionals', adminOnly: false, icon: BookOpen, tone: 'orange' },
-  { label: 'Informes', detail: 'Reportes y estadísticas', path: '/informes', moduleId: 'reports', adminOnly: false, icon: ChartNoAxesCombined, tone: 'purple' },
-  { label: 'Notificaciones', detail: 'Pendientes y novedades', path: '/notificaciones', moduleId: 'notifications', adminOnly: false, icon: Bell, tone: 'cyan' },
-  { label: 'Líderes', detail: 'Roles y permisos', path: '/lideres', moduleId: 'leaders', icon: ShieldCheck, tone: 'cyan', adminOnly: true },
+  { label: 'Jóvenes', detail: 'Directorio y perfiles', path: '/jovenes', moduleId: 'members', adminOnly: false, icon: Users },
+  { label: 'Asistencia', detail: 'Registro de servicios', path: '/asistencia', moduleId: 'attendance', adminOnly: false, icon: ClipboardCheck },
+  { label: 'Agenda', detail: 'Actividades y eventos', path: '/eventos', moduleId: 'events', adminOnly: false, icon: CalendarDays },
+  { label: 'Devocionales', detail: 'Contenido de crecimiento', path: '/devocionales', moduleId: 'devotionals', adminOnly: false, icon: BookOpen },
+  { label: 'Informes', detail: 'Reportes y estadísticas', path: '/informes', moduleId: 'reports', adminOnly: false, icon: ChartNoAxesCombined },
+  { label: 'Notificaciones', detail: 'Pendientes y novedades', path: '/notificaciones', moduleId: 'notifications', adminOnly: false, icon: Bell },
+  { label: 'Líderes', detail: 'Roles y permisos', path: '/lideres', moduleId: 'leaders', icon: ShieldCheck, adminOnly: true },
 ];
 function localDateKey(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -104,11 +104,11 @@ export default function DashboardPage() {
   );
   const maxPoints = Math.max(1, ...chartData.map((person) => person.value));
   const metricCards = [
-    { label: 'PERFILES PÚBLICOS', value: loading ? '…' : configured ? String(people.length) : '—', note: 'Perfiles visibles del ranking', icon: Users, tone: 'blue' },
-    { label: 'ACTIVIDADES PRÓXIMAS', value: loading ? '…' : configured ? String(upcoming.length) : '—', note: 'Eventos publicados desde hoy', icon: CalendarDays, tone: 'green' },
-    { label: 'PUNTOS ACUMULADOS', value: loading ? '…' : configured ? totalPoints.toLocaleString('es-CO') : '—', note: 'Total del ranking público', icon: Star, tone: 'purple' },
-    { label: 'LÍDER DEL RANKING', value: loading ? '…' : ranked[0]?.name || '—', note: ranked[0] ? `${(ranked[0].points ?? 0).toLocaleString('es-CO')} puntos` : 'Sin datos publicados', icon: Trophy, tone: 'orange' },
-    ...(canReadAttendance ? [{label: 'ASISTENCIA DEL MES', value: loading ? '…' : attendanceMetric.value, note: attendanceMetric.note, icon: ClipboardCheck, tone: 'green'}] : []),
+    { label: 'PERFILES PÚBLICOS', value: loading ? '…' : configured ? String(people.length) : '—', note: 'Perfiles visibles del ranking', icon: Users },
+    { label: 'ACTIVIDADES PRÓXIMAS', value: loading ? '…' : configured ? String(upcoming.length) : '—', note: 'Eventos publicados desde hoy', icon: CalendarDays },
+    { label: 'PUNTOS ACUMULADOS', value: loading ? '…' : configured ? totalPoints.toLocaleString('es-CO') : '—', note: 'Total del ranking público', icon: Star },
+    { label: 'LÍDER DEL RANKING', value: loading ? '…' : ranked[0]?.name || '—', note: ranked[0] ? `${(ranked[0].points ?? 0).toLocaleString('es-CO')} puntos` : 'Sin datos publicados', icon: Trophy },
+    ...(canReadAttendance ? [{label: 'ASISTENCIA DEL MES', value: loading ? '…' : attendanceMetric.value, note: attendanceMetric.note, icon: ClipboardCheck}] : []),
   ];
 
   return (
@@ -135,10 +135,9 @@ export default function DashboardPage() {
       </header>
 
       <section className={styles.metrics} aria-label="Indicadores generales">
-        {metricCards.map(({ label, value, note, icon: Icon, tone }, index) => (
+        {metricCards.map(({ label, value, note, icon: Icon }, index) => (
           <motion.article
             className={styles.metricCard}
-            data-tone={tone}
             key={label}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -195,7 +194,7 @@ export default function DashboardPage() {
 
         <article className={styles.panel}>
           <div className={styles.panelHeading}><div><span className={styles.kicker}>NAVEGACIÓN RÁPIDA</span><h2>Accesos a módulos</h2><p>Atajos a las tareas más utilizadas.</p></div><LayoutDashboard size={20} /></div>
-          <div className={styles.shortcuts}>{availableShortcuts.map((item) => { const Icon = item.icon; return <NavLink to={item.path} key={item.path} data-tone={item.tone}><i><Icon size={17} /></i><span><b>{item.label}</b><small>{item.detail}</small></span><ArrowUpRight size={15} /></NavLink>; })}</div>
+          <div className={styles.shortcuts}>{availableShortcuts.map((item) => { const Icon = item.icon; return <NavLink to={item.path} key={item.path}><i><Icon size={17} /></i><span><b>{item.label}</b><small>{item.detail}</small></span><ArrowUpRight size={15} /></NavLink>; })}</div>
         </article>
 
         <article className={styles.assistantCard}><div className={styles.assistantIcon}><Sparkles size={22} /></div><div><span className={styles.kicker}>ASISTENTE</span><h2>Fuego AI</h2><p>Apoyo para preparar actividades, comunicaciones e informes.</p></div>{isAdmin ? <NavLink to="/asistente">Abrir asistente <ArrowUpRight size={14} /></NavLink> : <small>Acceso administrativo</small>}</article>
