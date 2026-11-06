@@ -4,6 +4,12 @@ import {appCheck, auth} from "./client";
 
 type CallableError = Error & {code: string; details?: unknown};
 
+type CallablePayload<TResponse> = {
+  data?: TResponse;
+  result?: TResponse;
+  error?: {status?: string; message?: string; details?: unknown};
+};
+
 function makeError(code: string, message: string, details?: unknown): CallableError {
   const error = new Error(message) as CallableError;
   error.code = `functions/${code}`;
@@ -62,15 +68,11 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
     }
 
     const responseText = await response.text().catch(() => "");
-    let payload: {
-      data?: TResponse;
-      result?: TResponse;
-      error?: {status?: string; message?: string; details?: unknown};
-    } | null = null;
+    let payload: CallablePayload<TResponse> | null = null;
 
     if (responseText) {
       try {
-        payload = JSON.parse(responseText) as typeof payload;
+        payload = JSON.parse(responseText) as CallablePayload<TResponse>;
       } catch {
         payload = null;
       }
