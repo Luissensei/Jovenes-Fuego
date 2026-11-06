@@ -437,7 +437,7 @@ export default function RankingPage({
                 </div>
               </header>
               <p className="youth-hall-caption">
-                Según las asistencias consecutivas publicadas por el sistema original.
+                Según el total de servicios donde cada joven figura como presente.
               </p>
               {attendanceLimited && (
                 <p className="youth-hall-limited" role="note">
@@ -454,13 +454,13 @@ export default function RankingPage({
                       <span className="youth-faithful-name">{player.name}</span>
                       <strong>
                         {player.attendances}{' '}
-                        {player.attendances === 1 ? 'servicio seguido' : 'servicios seguidos'}
+                        {player.attendances === 1 ? 'servicio asistido' : 'servicios asistidos'}
                       </strong>
                     </li>
                   ))}
                 </ol>
               ) : (
-                <p className="youth-data-empty">Aún no hay asistencias consecutivas publicadas.</p>
+                <p className="youth-data-empty">Aún no hay registros de asistencia disponibles.</p>
               )}
             </article>
           </section>
