@@ -4,7 +4,7 @@ export type ThemePreference = 'dark' | 'light';
 
 function readThemePreference(): ThemePreference {
   try {
-    return window.localStorage.getItem('jf-theme') === 'light' ? 'light' : 'dark';
+    return window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
   } catch {
     return 'dark';
   }
