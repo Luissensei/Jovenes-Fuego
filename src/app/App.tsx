@@ -22,7 +22,6 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   RefreshCw,
-  RefreshCw,
 } from 'lucide-react';
 
 import { modules } from './modules';
