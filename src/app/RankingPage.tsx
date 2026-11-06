@@ -55,7 +55,6 @@ const games = [
     description: 'Demuestra cuánto sabes de la Biblia.',
     detail: 'Preguntas, respuestas y puntuación.',
     icon: BookOpen,
-    color: 'orange',
     available: true,
   },
   {
@@ -64,7 +63,6 @@ const games = [
     description: 'Recuerda y completa las Escrituras.',
     detail: 'Pon a prueba tu memoria bíblica.',
     icon: Star,
-    color: 'purple',
     available: true,
   },
   {
@@ -73,7 +71,6 @@ const games = [
     description: 'Encuentra las parejas correctas.',
     detail: 'Relaciona personajes y acontecimientos.',
     icon: Brain,
-    color: 'blue',
     available: true,
   },
   {
@@ -82,7 +79,6 @@ const games = [
     description: 'Responde antes de que termine el tiempo.',
     detail: 'Responde rápido y consigue puntos.',
     icon: Timer,
-    color: 'green',
     available: true,
   },
   {
@@ -91,7 +87,6 @@ const games = [
     description: '¿Cuántas preguntas puedes superar?',
     detail: 'Avanza de nivel sin perder oportunidades.',
     icon: Flame,
-    color: 'red',
     available: true,
   },
   {
@@ -100,7 +95,6 @@ const games = [
     description: 'Compite con otro joven.',
     detail: 'Demuestra tus conocimientos.',
     icon: Swords,
-    color: 'purple',
     available: true,
   },
   {
@@ -109,11 +103,10 @@ const games = [
     description: 'Organiza las palabras correctamente.',
     detail: 'Reconstruye versículos.',
     icon: Puzzle,
-    color: 'blue',
     available: true,
   },
-  {id:'truefalse',title:'Verdadero o falso',description:'Identifica afirmaciones correctas e incorrectas.',detail:'20 afirmaciones para entrenar tu conocimiento.',icon:BadgeCheck,color:'green',available:true},
-  {id:'whoami',title:'¿Quién soy?',description:'Adivina el personaje con pistas progresivas.',detail:'Gana más puntos si necesitas menos pistas.',icon:UserSearch,color:'purple',available:true},
+  {id:'truefalse',title:'Verdadero o falso',description:'Identifica afirmaciones correctas e incorrectas.',detail:'20 afirmaciones para entrenar tu conocimiento.',icon:BadgeCheck,available:true},
+  {id:'whoami',title:'¿Quién soy?',description:'Adivina el personaje con pistas progresivas.',detail:'Gana más puntos si necesitas menos pistas.',icon:UserSearch,available:true},
 ];
 
 export default function RankingPage({
