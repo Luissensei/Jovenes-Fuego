@@ -193,12 +193,6 @@ html[data-theme="light"] .main :is(
   .managed-record, .photo-card, .leaders-card, .settings-card
 ) :is(h1,h2,h3,h4,strong,b) { color: #17334f !important; }
 html[data-theme="light"] .main :is(
-  .panel, .ranking-content, .attendance-card, .followup-card, .visitor-card,
-  .devotional-card, .reports-card, .checkin-panel, .management-summary,
-  .management-form, .management-record, .managed-record, .photo-card,
-  .leaders-card, .settings-card
-) :is(p,small,label,span) { }
-html[data-theme="light"] .main :is(
   input:not([type="checkbox"]):not([type="radio"]), select, textarea
 ) {
   color: #203b56 !important;
@@ -462,7 +456,6 @@ html[data-theme="light"] .youth-portal :is(
   box-shadow: 0 8px 24px rgba(27, 61, 93, .065) !important;
 }
 html[data-theme="light"] .youth-portal :is(h1,h2,h3,h4,strong,b) { color: #173650 !important; }
-html[data-theme="light"] .youth-portal :is(p,small,label,span) { }
 html[data-theme="light"] .youth-portal :is(input,select,textarea) {
   color: #203b56 !important;
   background: #f8fbff !important;
