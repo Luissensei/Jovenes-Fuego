@@ -64,6 +64,7 @@ type AuthContextValue = {
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  retryProfile: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -105,6 +106,7 @@ export function AuthProvider({children}: {children: ReactNode}) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(firebaseConfigured);
   const [error, setError] = useState<string | null>(null);
+  const [profileRetryKey, setProfileRetryKey] = useState(0);
 
   useEffect(() => {
     if (!firebaseConfigured || !auth || !functions) {
@@ -190,7 +192,7 @@ export function AuthProvider({children}: {children: ReactNode}) {
       authEvent += 1;
       unsubscribe();
     };
-  }, []);
+  }, [profileRetryKey]);
 
   const value = useMemo<AuthContextValue>(() => ({
     user,
@@ -198,6 +200,11 @@ export function AuthProvider({children}: {children: ReactNode}) {
     loading,
     configured: firebaseConfigured,
     error,
+    retryProfile() {
+      setError(null);
+      setLoading(true);
+      setProfileRetryKey((value) => value + 1);
+    },
 
     async login(email, password) {
       if (!firebaseConfigured || !auth) {
