@@ -24,7 +24,12 @@ jobs:
         run: npm ci
         working-directory: functions
       - name: Lint Firebase Functions
-        run: npx eslint --no-eslintrc --parser @typescript-eslint/parser --plugin @typescript-eslint --env es2022,node --rule 'no-unused-vars: off' --rule '@typescript-eslint/no-unused-vars: warn' "src/**/*.ts"
+        run: >-
+          npx eslint --no-eslintrc --parser @typescript-eslint/parser
+          --plugin @typescript-eslint --env es2022,node
+          --rule "no-unused-vars: off"
+          --rule "@typescript-eslint/no-unused-vars: warn"
+          "src/**/*.ts"
         working-directory: functions
       - name: Build Firebase Functions
         run: npm run build
