@@ -2,6 +2,13 @@ name: Deploy Firebase Original Functions
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/deploy-firebase-original.yml'
+      - 'functions/**'
+      - 'firebase.json'
 
 permissions:
   contents: read
@@ -24,13 +31,10 @@ jobs:
         run: npm ci
         working-directory: functions
       - name: Lint Firebase Functions
-        run: >-
-          npx eslint --no-eslintrc --parser @typescript-eslint/parser
-          --plugin @typescript-eslint --env es2022,node
-          --rule "no-unused-vars: off"
-          --rule "@typescript-eslint/no-unused-vars: warn"
-          "src/**/*.ts"
+        run: npx eslint -c .eslintrc.js "src/**/*.ts"
         working-directory: functions
+        env:
+          ESLINT_USE_FLAT_CONFIG: 'false'
       - name: Build Firebase Functions
         run: npm run build
         working-directory: functions
