@@ -1092,7 +1092,7 @@ export default function YouthPortalPage() {
                     <button
                       type="button"
                       key={item.key || 'default'}
-                      className={`youth-store-item rarity-${item.cost >= 150 ? 'legendary' : item.cost >= 100 ? 'epic' : item.cost >= 50 ? 'rare' : 'common'} ${selected ? 'selected' : ''} ${unlocked ? 'unlocked' : 'locked'}`}
+                      className={`youth-store-item ${selected ? 'selected' : ''} ${unlocked ? 'unlocked' : 'locked'}`}
                       disabled={lookSaving}
                       onClick={() => void equipLookItem(lookCategory,item)}
                     >
@@ -1106,20 +1106,7 @@ export default function YouthPortalPage() {
               {lookNotice && <p className="youth-inline-warning" role="status">{lookNotice}</p>}
               <p className="youth-inline-warning">La apariencia se guarda en este dispositivo. Como el selector de perfiles es público y no verifica identidad, estos cambios no modifican el perfil compartido ni el saldo real de Llamas.</p>
               {lookSaving && <p className="youth-inline-warning">Guardando personalización...</p>}
-              <section className="youth-profile-editor">
-                <div className="youth-profile-editor-heading">
-                  <div><b>Editar mi perfil personal</b><span>Nombre visible, apodo, frase y meta semanal.</span></div>
-                  <UserSearch size={20}/>
-                </div>
-                <div className="youth-profile-editor-grid">
-                  <label>Nombre visible en este dispositivo<input value={profileExtras.displayName} onChange={(event) => setProfileExtras((value) => ({...value,displayName:event.target.value}))} maxLength={60} placeholder={selectedProfile.name}/></label>
-                  <label>Mi apodo<input value={profileExtras.nickname} onChange={(event) => setProfileExtras((value) => ({...value,nickname:event.target.value}))} maxLength={30} placeholder={selectedProfile.nick || 'Mi apodo'}/></label>
-                  <label>Mi frase personal<input value={profileExtras.motto} onChange={(event) => setProfileExtras((value) => ({...value,motto:event.target.value}))} maxLength={100} placeholder="Una frase que me representa"/></label>
-                  <label>Mi meta de esta semana<textarea value={profileExtras.weeklyGoal} onChange={(event) => setProfileExtras((value) => ({...value,weeklyGoal:event.target.value}))} maxLength={160} rows={2} placeholder="Ej. Leer un capítulo diario y servir en mi grupo"/></label>
-                </div>
-                <button type="button" onClick={saveProfileExtras}>Guardar mi perfil</button>
-                <small>Estos campos se guardan únicamente en este dispositivo. No cambian el nombre oficial ni los datos públicos de Firebase.</small>
-              </section>
+
             </section>
           )}
 
@@ -1251,13 +1238,15 @@ export default function YouthPortalPage() {
             <div className="youth-games-grid">
               {games.map((game) => {
                 const Icon = game.icon;
-                return <button type="button" key={game.id} className={`youth-game-tile ${game.color}`} onClick={() => setActiveGame(game.id)}>
+                return <button type="button" key={game.id} className="youth-game-tile" onClick={() => setActiveGame(game.id)}>
                   <span><Icon size={23}/></span><b>{game.title}</b><small>{game.subtitle}</small><i>JUGAR <ChevronRight size={14}/></i>
                 </button>;
               })}
             </div>
           </section>
+          </div>)}
 
+          {activeYouthSection === 'space' && (<div className="youth-tab-page youth-space-tab">
           <section className="youth-prayer-panel">
               <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>Tu mensaje llegará a la bandeja interna del equipo de oración.</p></div></header>
               <p className="youth-prayer-privacy"><ShieldCheck size={15}/> El formulario está preparado para la bandeja interna. El selector de perfiles es público y no verifica quién está usando la cuenta; evita compartir datos sensibles.</p>
