@@ -440,11 +440,11 @@ html[data-theme="light"] .members-page .members-total-card strong { color: #1736
 html[data-theme="light"] .members-page .members-total-card span:last-child { color: #647d94 !important; }
 
 /* Youth portal light mode: warm identity accents over clear neutral surfaces. */
-html[data-theme="light"] .youth-portal {
+html[data-theme="light"] .main .youth-portal {
   color: #1b344d !important;
   background: linear-gradient(145deg, #f3f7fc, #eaf1f8) !important;
 }
-html[data-theme="light"] .youth-portal :is(
+html[data-theme="light"] .main .youth-portal :is(
   .youth-selector, .youth-customizer, .youth-activities, .youth-game-hub,
   .youth-prayer-panel, .youth-activity-card, .youth-hall-card,
   .youth-profile-card, .youth-store-item, .youth-faithful-list li,
@@ -455,19 +455,19 @@ html[data-theme="light"] .youth-portal :is(
   border-color: #dbe5ef !important;
   box-shadow: 0 8px 24px rgba(27, 61, 93, .065) !important;
 }
-html[data-theme="light"] .youth-portal :is(h1,h2,h3,h4,strong,b) { color: #173650 !important; }
-html[data-theme="light"] .youth-portal :is(input,select,textarea) {
+html[data-theme="light"] .main .youth-portal :is(h1,h2,h3,h4,strong,b) { color: #173650 !important; }
+html[data-theme="light"] .main .youth-portal :is(input,select,textarea) {
   color: #203b56 !important;
   background: #f8fbff !important;
   border-color: #d6e1ed !important;
 }
-html[data-theme="light"] .youth-portal .youth-welcome {
+html[data-theme="light"] .main .youth-portal .youth-welcome {
   background:
     radial-gradient(ellipse at 78% 0%, rgba(239, 152, 78, .12), transparent 34%),
     linear-gradient(120deg, #ffffff, #f1f6fb) !important;
 }
-html[data-theme="light"] .youth-portal .youth-activities h2,
-html[data-theme="light"] .youth-portal .youth-hall-card h2 { color: #173650 !important; }
+html[data-theme="light"] .main .youth-portal .youth-activities h2,
+html[data-theme="light"] .main .youth-portal .youth-hall-card h2 { color: #173650 !important; }
 
 /* Mobile refinements: less chrome, usable touch targets and no clipped cards. */
 @media (max-width: 760px) {
