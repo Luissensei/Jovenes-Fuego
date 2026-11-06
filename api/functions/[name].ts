@@ -1,6 +1,3 @@
-import {getAppCheck} from "../../functions/node_modules/firebase-admin/lib/app-check/index.js";
-import {getAuth} from "../../functions/node_modules/firebase-admin/lib/auth/index.js";
-
 type RequestLike = {
   method?: string;
   headers: Record<string, string | string[] | undefined>;
@@ -128,8 +125,15 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
   }
 
   try {
-    // Cargar las funciones dentro del try permite capturar fallos de inicialización
-    // de Firebase Admin (credencial, proyecto o módulos) y registrarlos en Vercel.
+    // Resolver Firebase Admin dentro del try evita que un error al cargar módulos
+    // deje que Vercel responda con HTML antes de que podamos devolver JSON.
+    const [{getAppCheck}, {getAuth}] = await Promise.all([
+      import("../../functions/node_modules/firebase-admin/lib/app-check/index.js"),
+      import("../../functions/node_modules/firebase-admin/lib/auth/index.js"),
+    ]);
+
+    // Cargar las funciones dentro del try permite capturar también fallos de
+    // inicialización de Firebase Admin (credencial, proyecto o módulos).
     const callableExports = await import("../../functions/lib/index.js");
     const callable = (callableExports as Record<string, unknown>)[name] as CallableLike | undefined;
     if (typeof callable !== "function" || !callable.__vercelHandler) {
