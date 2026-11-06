@@ -46,6 +46,31 @@ jobs:
             echo "::error title=Missing GitHub environment secret::Add FIREBASE_SERVICE_ACCOUNT_JOVENES_DE_FUEGO to Settings > Environments > firebase-production > Environment secrets."
             exit 1
           fi
+          node <<'NODE'
+          const raw = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+          let credential;
+          try {
+            credential = JSON.parse(raw);
+          } catch {
+            console.error(
+              "::error title=Invalid Firebase secret::The secret must contain the raw contents of the downloaded JSON file, not a file path, Base64 text, or compressed/binary data."
+            );
+            process.exit(1);
+          }
+          if (
+            credential.type !== "service_account" ||
+            credential.project_id !== "jovenes-de-fuego" ||
+            typeof credential.client_email !== "string" ||
+            typeof credential.private_key !== "string" ||
+            !credential.private_key.includes("-----BEGIN PRIVATE KEY-----")
+          ) {
+            console.error(
+              "::error title=Wrong Firebase credential::Use a service-account JSON key from the jovenes-de-fuego project."
+            );
+            process.exit(1);
+          }
+          console.log("Firebase service-account JSON format and project ID verified.");
+          NODE
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
         with:
