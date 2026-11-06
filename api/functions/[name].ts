@@ -1,5 +1,5 @@
-import {getAppCheck} from "firebase-admin/app-check";
-import {getAuth} from "firebase-admin/auth";
+import {getAppCheck} from "../../functions/node_modules/firebase-admin/lib/app-check/index.js";
+import {getAuth} from "../../functions/node_modules/firebase-admin/lib/auth/index.js";
 
 type RequestLike = {
   method?: string;
