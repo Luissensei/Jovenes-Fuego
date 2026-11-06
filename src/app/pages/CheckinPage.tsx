@@ -361,27 +361,55 @@ export default function CheckinPage() {
             <input
               type="search"
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar por nombre, apodo o ID..."
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setSelectedMemberId('');
+              }}
+              placeholder="Buscar joven por nombre, apodo o ID..."
               aria-label="Buscar joven para generar el código QR"
+              disabled={loading || members.length === 0}
             />
+            {search && (
+              <button type="button" onClick={() => setSearch('')} aria-label="Limpiar búsqueda">×</button>
+            )}
           </div>
 
-          <select
-            value={selectedMemberId}
-            onChange={(event) => setSelectedMemberId(event.target.value)}
-            disabled={loading || members.length === 0}
-            aria-label="Seleccionar joven para generar el código QR"
-          >
-            <option value="">{loading ? 'Cargando jóvenes...' : members.length === 0 ? 'No hay jóvenes disponibles' : 'Seleccionar joven'}</option>
-            {filteredMembers.map((member) => (
-              <option key={member.id} value={member.id}>
-                {member.name || 'Joven sin nombre'}{member.nick ? ` · @${member.nick}` : ''}
-              </option>
-            ))}
-          </select>
-          {!loading && members.length > 0 && filteredMembers.length === 0 && (
-            <p className="checkin-no-results">No encontramos jóvenes con ese nombre, apodo o identificador.</p>
+          {selectedMember ? (
+            <div className="checkin-selected-member">
+              <div>
+                <strong>{selectedMember.name || 'Joven sin nombre'}</strong>
+                {selectedMember.nick && <small>@{selectedMember.nick}</small>}
+              </div>
+              <button type="button" onClick={() => setSelectedMemberId('')}>Cambiar</button>
+            </div>
+          ) : (
+            <div className="checkin-member-results" role="listbox" aria-label="Resultados de jóvenes">
+              {filteredMembers.slice(0, 8).map((member) => (
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={false}
+                  key={member.id}
+                  onClick={() => {setSelectedMemberId(member.id);setSearch('');}}
+                >
+                  <span className="checkin-member-initials">
+                    {String(member.name || '?').trim().split(/\\s+/).slice(0,2).map((part) => part[0] ?? '').join('').toUpperCase()}
+                  </span>
+                  <span className="checkin-member-result-name">
+                    <strong>{member.name || 'Joven sin nombre'}</strong>
+                    {member.nick && <small>@{member.nick}</small>}
+                  </span>
+                  <span className="checkin-member-result-action">Elegir</span>
+                </button>
+              ))}
+              {!loading && members.length > 0 && filteredMembers.length === 0 && (
+                <p className="checkin-no-results">No encontramos jóvenes con ese nombre, apodo o identificador.</p>
+              )}
+              {!loading && filteredMembers.length > 8 && (
+                <p className="checkin-results-limit">Escribe algunas letras más para reducir la lista.</p>
+              )}
+              {loading && <p className="checkin-results-limit">Cargando jóvenes…</p>}
+            </div>
           )}
 
           {selectedMember && (
