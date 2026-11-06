@@ -24,7 +24,7 @@ jobs:
         run: npm ci
         working-directory: functions
       - name: Lint Firebase Functions
-        run: npm run lint
+        run: npx eslint .
         working-directory: functions
       - name: Build Firebase Functions
         run: npm run build
