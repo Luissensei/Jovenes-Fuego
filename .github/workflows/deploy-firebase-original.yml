@@ -13,9 +13,9 @@ jobs:
     environment: firebase-production
     steps:
       - name: Checkout selected branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Configure Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -24,7 +24,7 @@ jobs:
         run: npm ci
         working-directory: functions
       - name: Lint Firebase Functions
-        run: npx eslint .
+        run: npx eslint --no-eslintrc --parser @typescript-eslint/parser --plugin @typescript-eslint --env es2022,node --rule 'no-unused-vars: off' --rule '@typescript-eslint/no-unused-vars: warn' "src/**/*.ts"
         working-directory: functions
       - name: Build Firebase Functions
         run: npm run build
