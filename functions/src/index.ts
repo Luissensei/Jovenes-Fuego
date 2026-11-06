@@ -122,9 +122,10 @@ function safePublicPhoto(value: unknown): string {
 }
 
 async function loadVisiblePublicProfiles(includeAppearance = true) {
-  const [modernSnapshot, rankingSnapshot] = await Promise.all([
+  const [modernSnapshot, rankingSnapshot, membersSnapshot] = await Promise.all([
     db.collection("publicProfiles").limit(100).get(),
     db.collection("public").doc("ranking").get(),
+    db.collection("members").limit(500).get(),
   ]);
 
   const rankingData = rankingSnapshot.data() ?? {};
@@ -170,6 +171,24 @@ async function loadVisiblePublicProfiles(includeAppearance = true) {
       nick: text(data.nick, 60) || previous?.nick || "",
       points: Number.isFinite(rawPoints) && rawPoints >= 0 ? rawPoints : 0,
       modern: data,
+    });
+  });
+
+  // Migración compatible: los perfiles históricos viven en "members".
+  // La colección se consulta con Admin SDK, pero solo se publican campos de
+  // identidad juvenil; nunca teléfono, dirección, notas ni datos familiares.
+  // "nopub" es la exclusión explícita conservada por el panel administrativo.
+  membersSnapshot.docs.forEach((document) => {
+    const data = document.data();
+    const name = text(data.name, 120);
+    if (!name || data.nopub === true || byId.has(document.id)) return;
+    const rawPoints = Number(data.points ?? data.puntos ?? 0);
+    byId.set(document.id, {
+      id: document.id,
+      name,
+      nick: text(data.nick, 60),
+      points: Number.isFinite(rawPoints) && rawPoints >= 0 ? rawPoints : 0,
+      modern: {},
     });
   });
 
