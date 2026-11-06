@@ -98,6 +98,7 @@ function AdminApp() {
     configured,
     error: authError,
     logout,
+    retryProfile,
   } = useAuth();
 
   useThemePreference();
@@ -145,15 +146,27 @@ function AdminApp() {
           <ShieldCheck size={34} />
           <h1>Perfil de acceso no disponible</h1>
           <p>{authError || 'No se pudo validar tu perfil de aplicación. Por seguridad, no se abrirán los módulos internos.'}</p>
-          <button
-            type="button"
-            onClick={async () => {
-              await logout();
-              navigate('/');
-            }}
-          >
-            <LogOut size={17} /> Cerrar sesión
-          </button>
+          <div className="access-denied-actions">
+            <button type="button" onClick={retryProfile}>
+              <RefreshCw size={17} /> Reintentar validación
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                await logout();
+                navigate('/');
+              }}
+            >
+              <LogOut size={17} /> Cerrar sesión
+            </button>
+          </div>
+          <p className="access-denied-help">
+            Si el error persiste y menciona que la función no está desplegada, un administrador debe publicar
+            las Cloud Functions del proyecto Firebase original.
+          </p>
+          <a className="access-denied-deploy-link" href="https://github.com/Luissensei/Jovenes-Fuego/actions/workflows/deploy-firebase-original.yml" target="_blank" rel="noreferrer">
+            Revisar despliegue de Firebase Functions
+          </a>
         </div>
       </main>
     );
