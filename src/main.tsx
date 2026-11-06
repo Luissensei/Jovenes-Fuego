@@ -7,9 +7,16 @@ import './styles/layout.css';
 import './styles/command-center.css';
 import './styles/quality-overhaul.css';
 import './styles/glass-blue-system.css';
+import './styles/refinement.css';
 
-document.documentElement.dataset.theme = 'dark';
-document.documentElement.style.colorScheme = 'dark';
+try {
+  const initialTheme = window.localStorage.getItem('jf-theme') === 'light' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = initialTheme;
+  document.documentElement.style.colorScheme = initialTheme;
+} catch {
+  document.documentElement.dataset.theme = 'dark';
+  document.documentElement.style.colorScheme = 'dark';
+}
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
