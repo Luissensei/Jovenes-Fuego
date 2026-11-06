@@ -11,8 +11,8 @@ try {
   document.documentElement.dataset.theme = initialTheme;
   document.documentElement.style.colorScheme = initialTheme;
 } catch {
-  document.documentElement.dataset.theme = 'dark';
-  document.documentElement.style.colorScheme = 'dark';
+  document.documentElement.dataset.theme = 'light';
+  document.documentElement.style.colorScheme = 'light';
 }
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
