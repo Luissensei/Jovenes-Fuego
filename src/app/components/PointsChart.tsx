@@ -46,20 +46,20 @@ export default function PointsChart({
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
-        backgroundColor: '#071a30',
-        borderColor: 'rgba(104, 169, 231, 0.38)',
-        textStyle: { color: '#edf6ff', fontSize: 11 },
+        backgroundColor: '#ffffff',
+        borderColor: '#dce9e1',
+        textStyle: { color: '#263d31', fontSize: 11 },
         valueFormatter: (value) => `${Number(value).toLocaleString('es-CO')} puntos`,
       },
       xAxis: {
         type: 'value',
         min: 0,
         max: Math.ceil(maxValue * 1.15),
-        axisLabel: { color: '#829bb9', fontSize: 10 },
+        axisLabel: { color: '#7a8a80', fontSize: 10 },
         axisLine: { show: false },
         axisTick: { show: false },
         splitLine: {
-          lineStyle: { color: 'rgba(125, 164, 207, 0.14)', type: 'dashed' },
+          lineStyle: { color: '#e7eee9', type: 'dashed' },
         },
       },
       yAxis: {
@@ -67,7 +67,7 @@ export default function PointsChart({
         inverse: true,
         data: data.map((item) => item.name),
         axisLabel: {
-          color: '#c5d9f1',
+          color: '#596e61',
           fontSize: 10,
           width: 116,
           overflow: 'truncate',
@@ -82,15 +82,15 @@ export default function PointsChart({
           barMaxWidth: 18,
           showBackground: true,
           backgroundStyle: {
-            color: 'rgba(92, 130, 173, 0.12)',
+            color: '#edf3ef',
             borderRadius: [0, 8, 8, 0],
           },
           itemStyle: {
-            color: '#35a8f5',
+            color: '#17a86b',
             borderRadius: [0, 8, 8, 0],
           },
           emphasis: {
-            itemStyle: { color: '#68c9ff' },
+            itemStyle: { color: '#128457' },
           },
         },
       ],
