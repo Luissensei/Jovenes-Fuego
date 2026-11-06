@@ -21,6 +21,7 @@ import {
   Search,
   PanelLeftClose,
   PanelLeftOpen,
+  RefreshCw,
 } from 'lucide-react';
 
 import { modules } from './modules';
