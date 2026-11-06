@@ -1,5 +1,5 @@
-import {getAppCheck} from "firebase-admin/app-check";
-import {getAuth} from "firebase-admin/auth";
+import {getAppCheck} from "../../functions/node_modules/firebase-admin/lib/app-check/index.js";
+import {getAuth} from "../../functions/node_modules/firebase-admin/lib/auth/index.js";
 import * as callableExports from "../../functions/lib/index.js";
 
 type RequestLike = {
@@ -18,7 +18,7 @@ type ResponseLike = {
   end(): void;
 };
 
-type CallableLike = {
+type CallableLike = ((...args: unknown[]) => unknown) & {
   __vercelHandler?: (request: {
     data: unknown;
     auth: {uid: string; token: Record<string, unknown>} | null;
