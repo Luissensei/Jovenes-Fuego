@@ -1,0 +1,521 @@
+/* Jóvenes de Fuego · Design refinement layer
+   Opaque surfaces, readable contrast, responsive cards and real light theme. */
+
+:root {
+  --jf-radius-sm: 10px;
+  --jf-radius-md: 15px;
+  --jf-radius-lg: 21px;
+  --jf-motion: cubic-bezier(.2,.75,.25,1);
+}
+
+html[data-theme="dark"] {
+  --jf-app-bg: #07182b;
+  --jf-surface: #102641;
+  --jf-surface-raised: #15314f;
+  --jf-surface-soft: #0b2038;
+  --jf-edge: rgba(122, 177, 225, .2);
+  --jf-text-main: #edf6ff;
+  --jf-text-muted: #9fb6ce;
+  --jf-accent: #55b7f5;
+  --jf-accent-strong: #2588df;
+}
+
+html[data-theme="light"] {
+  --jf-app-bg: #f3f6fb;
+  --jf-surface: #ffffff;
+  --jf-surface-raised: #f8fbff;
+  --jf-surface-soft: #edf3fa;
+  --jf-edge: #d8e2ee;
+  --jf-text-main: #152b43;
+  --jf-text-muted: #61758d;
+  --jf-accent: #1676c5;
+  --jf-accent-strong: #075da8;
+}
+
+/* Replace stacked translucent layers with solid, fast and predictable surfaces. */
+.layout,
+.sidebar,
+.main > .topline,
+.mobile-header,
+.scrim,
+.main .ranking-hero,
+.main .ranking-tabs,
+.main .ranking-content,
+.main .ranking-player-card,
+.members-page .member-card,
+.youth-portal .youth-welcome,
+.youth-portal .youth-profile-card,
+.youth-portal .youth-activity-card,
+.youth-portal .youth-hall-card {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-theme="dark"] body,
+html[data-theme="dark"] #root {
+  background:
+    radial-gradient(ellipse at 78% -10%, rgba(34, 126, 207, .18), transparent 37%),
+    radial-gradient(ellipse at 4% 44%, rgba(28, 94, 161, .11), transparent 35%),
+    linear-gradient(145deg, #061326 0%, #091c34 54%, #071629 100%) !important;
+  color: var(--jf-text-main);
+}
+
+html[data-theme="dark"] .sidebar {
+  background: linear-gradient(180deg, #0d2744 0%, #081a30 100%) !important;
+  border-right: 1px solid rgba(99, 166, 222, .22) !important;
+}
+
+html[data-theme="dark"] .main > .topline,
+html[data-theme="dark"] .mobile-header {
+  background: #0b2038 !important;
+  border-bottom: 1px solid rgba(103, 163, 216, .2) !important;
+}
+
+/* Admin theme button. */
+.topline-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border: 1px solid rgba(105, 169, 225, .28);
+  border-radius: 11px;
+  color: var(--jf-text-main, #edf6ff);
+  background: var(--jf-surface-raised, #15314f);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+.topline-theme-toggle svg { color: var(--jf-accent, #55b7f5); }
+.topline-theme-toggle:hover { border-color: var(--jf-accent, #55b7f5); transform: translateY(-1px); }
+
+html[data-theme="light"] .layout,
+html[data-theme="light"] body,
+html[data-theme="light"] #root {
+  background: var(--jf-app-bg) !important;
+  color: var(--jf-text-main) !important;
+}
+
+html[data-theme="light"] .sidebar {
+  color: #1b344e !important;
+  background: #ffffff !important;
+  border-right: 1px solid #dbe4ee !important;
+  box-shadow: 10px 0 32px rgba(27, 57, 88, .08) !important;
+}
+html[data-theme="light"] .sidebar .brand strong { color: #18334e !important; }
+html[data-theme="light"] .sidebar .brand small { color: #637a93 !important; }
+html[data-theme="light"] .sidebar .brand-mark.church-brand-mark {
+  background: linear-gradient(145deg, #e5f3ff, #d5eaff) !important;
+  border-color: #bfdcf4 !important;
+  box-shadow: none !important;
+}
+html[data-theme="light"] .sidebar .env-chip,
+html[data-theme="light"] .sidebar .module-search,
+html[data-theme="light"] .sidebar .safe-note,
+html[data-theme="light"] .sidebar .sidebar-collapse-toggle {
+  color: #526b84 !important;
+  background: #f3f7fc !important;
+  border-color: #dce6f0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="light"] .sidebar .module-search input { color: #18334e !important; }
+html[data-theme="light"] .sidebar .nav-item { color: #536a83 !important; }
+html[data-theme="light"] .sidebar .nav-item:hover {
+  color: #123b60 !important;
+  background: #edf5fc !important;
+  transform: none !important;
+}
+html[data-theme="light"] .sidebar .nav-item.active {
+  color: #075da8 !important;
+  background: linear-gradient(100deg, #e7f3ff, #f0f7ff) !important;
+  border: 1px solid #c8e2f8 !important;
+  box-shadow: none !important;
+}
+html[data-theme="light"] .sidebar .nav-item.active .nav-item-icon {
+  color: #086bb9 !important;
+  background: #d8edff !important;
+}
+html[data-theme="light"] .sidebar .safe-note { color: #536a83 !important; }
+html[data-theme="light"] .sidebar .safe-note small { color: #71869d !important; }
+html[data-theme="light"] .sidebar .theme-toggle {
+  color: #31516e !important;
+  border-color: #d7e3ef !important;
+  background: #f7faff !important;
+}
+
+html[data-theme="light"] .main > .topline,
+html[data-theme="light"] .mobile-header {
+  color: #28445f !important;
+  background: rgba(255,255,255,.97) !important;
+  border-color: #dbe4ee !important;
+  box-shadow: 0 5px 18px rgba(25, 57, 88, .045) !important;
+}
+html[data-theme="light"] .topline-status,
+html[data-theme="light"] .project-label,
+html[data-theme="light"] .topline-theme-toggle {
+  color: #34516c !important;
+  background: #f4f8fd !important;
+  border-color: #d8e4f0 !important;
+}
+html[data-theme="light"] .topline-status-module,
+html[data-theme="light"] .topline-status-environment { color: #496782 !important; }
+html[data-theme="light"] .topline-theme-toggle svg { color: #146eb5 !important; }
+html[data-theme="light"] .main > footer { color: #76899d !important; border-color: #dce5ee !important; }
+html[data-theme="light"] .main .preview-warning {
+  color: #795a1b !important;
+  background: #fff8e8 !important;
+  border-color: #f2dfb4 !important;
+}
+
+/* A unified, legible light surface for the administrative modules. */
+html[data-theme="light"] .main :is(
+  .panel, .ranking-content, .ranking-tabs, .ranking-progress-panel,
+  .members-controls, .members-state, .attendance-card, .attendance-summary,
+  .followup-content, .followup-card, .visitors-content, .visitor-card,
+  .devotionals-controls, .devotional-card, .reports-card, .reports-section,
+  .checkin-panel, .checkin-config, .management-summary, .management-form,
+  .management-records, .management-record, .managed-record, .managed-stat,
+  .photos-tabs, .photo-card, .leaders-card, .leaders-table-wrapper,
+  .settings-card, .settings-section, .shared-page-header, .shared-stat-card
+) {
+  color: #1c3550 !important;
+  background: #ffffff !important;
+  border-color: #dce5ef !important;
+  box-shadow: 0 8px 24px rgba(21, 52, 83, .055) !important;
+}
+html[data-theme="light"] .main :is(
+  .panel, .ranking-content, .ranking-progress-panel, .attendance-card,
+  .followup-card, .visitor-card, .devotional-card, .reports-card,
+  .checkin-panel, .management-summary, .management-form, .management-record,
+  .managed-record, .photo-card, .leaders-card, .settings-card
+) :is(h1,h2,h3,h4,strong,b) { color: #17334f !important; }
+html[data-theme="light"] .main :is(
+  .panel, .ranking-content, .attendance-card, .followup-card, .visitor-card,
+  .devotional-card, .reports-card, .checkin-panel, .management-summary,
+  .management-form, .management-record, .managed-record, .photo-card,
+  .leaders-card, .settings-card
+) :is(p,small,label,span) { }
+html[data-theme="light"] .main :is(
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea
+) {
+  color: #203b56 !important;
+  background: #f8fbff !important;
+  border-color: #d5e1ed !important;
+}
+html[data-theme="light"] .main :is(input,textarea,select)::placeholder { color: #8093a8 !important; }
+html[data-theme="light"] .main :is(table th,table thead th) {
+  color: #294c6b !important;
+  background: #edf4fb !important;
+  border-color: #dce5ef !important;
+}
+html[data-theme="light"] .main :is(table td,table tbody td) {
+  color: #3c5873 !important;
+  border-color: #e5ebf2 !important;
+}
+html[data-theme="light"] .main :is(.ranking-tabs,.photos-tabs,.devotionals-categories) button {
+  color: #536b84 !important;
+}
+html[data-theme="light"] .main :is(.ranking-tabs,.photos-tabs,.devotionals-categories) button.active {
+  color: #075da8 !important;
+  background: #e6f3ff !important;
+  border-color: #c3e1fa !important;
+}
+
+/* Dashboard module — remove hard-coded dark fills in light mode. */
+html[data-theme="light"] .main [class*="DashboardPage_welcome"] {
+  background:
+    radial-gradient(ellipse at 88% 15%, rgba(52, 147, 222, .15), transparent 34%),
+    linear-gradient(115deg, #ffffff, #edf5fd) !important;
+  border-color: #d2e3f2 !important;
+  box-shadow: 0 13px 32px rgba(25, 65, 101, .08) !important;
+}
+html[data-theme="light"] .main [class*="DashboardPage_welcome"] :is(h1,strong) { color: #183650 !important; }
+html[data-theme="light"] .main [class*="DashboardPage_welcome"] p { color: #5e748a !important; }
+html[data-theme="light"] .main [class*="DashboardPage_metricCard"],
+html[data-theme="light"] .main [class*="DashboardPage_panel"],
+html[data-theme="light"] .main [class*="DashboardPage_assistantCard"],
+html[data-theme="light"] .main [class*="DashboardPage_systemCard"] {
+  color: #203b56 !important;
+  background: #ffffff !important;
+  border-color: #d9e4ef !important;
+  box-shadow: 0 9px 24px rgba(25, 57, 88, .06) !important;
+}
+html[data-theme="light"] .main [class*="DashboardPage_metricCard"] :is(strong,b),
+html[data-theme="light"] .main [class*="DashboardPage_panel"] :is(h2,h3,b,strong),
+html[data-theme="light"] .main [class*="DashboardPage_assistantCard"] h2,
+html[data-theme="light"] .main [class*="DashboardPage_systemCard"] b { color: #183650 !important; }
+html[data-theme="light"] .main [class*="DashboardPage_metricCard"] small,
+html[data-theme="light"] .main [class*="DashboardPage_panel"] p,
+html[data-theme="light"] .main [class*="DashboardPage_eventInfo"] p,
+html[data-theme="light"] .main [class*="DashboardPage_empty"] span { color: #6a7f94 !important; }
+html[data-theme="light"] .main [class*="DashboardPage_shortcuts"] a {
+  color: #294760 !important;
+  background: #f6faff !important;
+  border-color: #dce7f1 !important;
+}
+html[data-theme="light"] .main [class*="DashboardPage_shortcuts"] a small { color: #6b8298 !important; }
+
+/* Ranking: distinct podium columns, focused leaderboard and no blur. */
+.main .ranking-hub {
+  --jf-border: rgba(101, 164, 220, .22);
+}
+.main .ranking-hub .ranking-hero {
+  border-radius: 22px !important;
+  background:
+    radial-gradient(ellipse at 84% 12%, rgba(51, 163, 232, .25), transparent 36%),
+    linear-gradient(115deg, #081e38 0%, #123c65 56%, #1c3156 100%) !important;
+  border: 1px solid rgba(112, 186, 241, .34) !important;
+  box-shadow: 0 22px 46px rgba(2, 17, 36, .22) !important;
+}
+.main .ranking-hub .ranking-hero h1 { letter-spacing: -.055em !important; }
+.main .ranking-hub .ranking-tabs { border-radius: 14px !important; }
+.main .ranking-hub .ranking-content {
+  border-radius: 19px !important;
+  box-shadow: 0 12px 34px rgba(2, 17, 36, .12) !important;
+}
+.main .ranking-hub .ranking-podium-stage {
+  align-items: end !important;
+  gap: clamp(7px, 1.5vw, 16px) !important;
+  padding: 26px 3px 0 !important;
+}
+.main .ranking-hub .ranking-podium-player {
+  position: relative;
+  display: flex !important;
+  min-height: 258px;
+  justify-content: flex-end !important;
+  overflow: hidden;
+  padding: 17px 9px 0 !important;
+  border: 1px solid rgba(103, 166, 222, .23) !important;
+  border-bottom: 0 !important;
+  border-radius: 17px 17px 0 0 !important;
+  background: linear-gradient(180deg, #163a5c, #0d2945 80%) !important;
+  box-shadow: 0 12px 28px rgba(1, 14, 29, .18) !important;
+}
+.main .ranking-hub .ranking-podium-player.podium-second { min-height: 285px; }
+.main .ranking-hub .ranking-podium-player.podium-first {
+  min-height: 335px;
+  border-color: rgba(255, 207, 103, .55) !important;
+  background: linear-gradient(180deg, #604a2d 0%, #203750 44%, #102b46 100%) !important;
+  box-shadow: 0 18px 40px rgba(2, 16, 32, .26), 0 0 28px rgba(255, 190, 69, .1) !important;
+}
+.main .ranking-hub .ranking-podium-player.podium-third { min-height: 248px; }
+.main .ranking-hub .ranking-podium-rank { color: #b8d6ee !important; }
+.main .ranking-hub .podium-first .ranking-podium-rank { color: #ffda83 !important; }
+.main .ranking-hub .ranking-podium-avatar {
+  width: 68px !important;
+  height: 68px !important;
+  border: 3px solid #79b9e4 !important;
+  background: #183f61 !important;
+  box-shadow: 0 0 0 5px rgba(103, 181, 237, .1) !important;
+}
+.main .ranking-hub .podium-first .ranking-podium-avatar {
+  width: 86px !important;
+  height: 86px !important;
+  border-color: #ffd166 !important;
+  box-shadow: 0 0 0 6px rgba(255, 209, 102, .13), 0 0 30px rgba(255, 194, 85, .22) !important;
+}
+.main .ranking-hub .ranking-podium-details strong { color: #f5f9ff !important; font-size: 13px !important; }
+.main .ranking-hub .ranking-podium-details small { color: #ffda83 !important; }
+.main .ranking-hub .ranking-podium-place { color: #b5cce0 !important; }
+.main .ranking-hub .ranking-podium-base {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  margin-top: auto;
+  border-color: rgba(121, 184, 228, .25) !important;
+  background: linear-gradient(180deg, rgba(69, 145, 204, .3), rgba(13, 39, 65, .12)) !important;
+}
+.main .ranking-hub .podium-first .ranking-podium-base {
+  color: #ffdc8b !important;
+  border-color: rgba(255, 209, 102, .43) !important;
+  background: linear-gradient(180deg, rgba(255, 207, 103, .25), rgba(255, 207, 103, .05)) !important;
+}
+.main .ranking-hub .ranking-player-card {
+  min-height: 242px;
+  border-radius: 16px !important;
+  background: linear-gradient(150deg, #153756, #0d2945) !important;
+  border-color: rgba(117, 177, 226, .25) !important;
+  box-shadow: 0 10px 24px rgba(2, 15, 31, .17) !important;
+}
+.main .ranking-hub .ranking-player-card::before { height: 3px !important; }
+.main .ranking-hub .ranking-card-top-1 {
+  border-color: rgba(255, 209, 102, .48) !important;
+  background: linear-gradient(145deg, #284866, #17334e) !important;
+}
+.main .ranking-hub .ranking-card-top-2 { border-color: rgba(194, 218, 239, .37) !important; }
+.main .ranking-hub .ranking-card-top-3 { border-color: rgba(223, 162, 119, .38) !important; }
+.main .ranking-hub .ranking-card-name strong { color: #f6fbff !important; }
+.main .ranking-hub .ranking-card-role {
+  color: #a7dcff !important;
+  background: rgba(47, 151, 219, .13) !important;
+  border-color: rgba(90, 181, 238, .25) !important;
+}
+.main .ranking-hub .ranking-card-points strong { color: #fff !important; }
+.main .ranking-hub .ranking-player-track { height: 8px !important; background: #253f59 !important; }
+.main .ranking-hub .ranking-player-track > i { background: linear-gradient(90deg, #2b9ee8, #64d3ec, #ffbf62) !important; }
+.main .ranking-hub .ranking-player-tooltip { background: #091e34 !important; }
+
+/* Ranking light mode. */
+html[data-theme="light"] .main .ranking-hub::before {
+  background:
+    radial-gradient(ellipse at 12% 8%, rgba(80, 158, 218, .12), transparent 34%),
+    linear-gradient(145deg, #f2f7fc, #eaf2fa) !important;
+}
+html[data-theme="light"] .main .ranking-hub .ranking-hero {
+  background: linear-gradient(115deg, #ffffff, #eaf4fd 60%, #f0f6fc) !important;
+  border-color: #d2e2f0 !important;
+  box-shadow: 0 13px 32px rgba(30, 73, 112, .09) !important;
+}
+html[data-theme="light"] .main .ranking-hub .ranking-hero :is(h1,p) { color: #173650 !important; }
+html[data-theme="light"] .main .ranking-hub .ranking-eyebrow { color: #176da9 !important; }
+html[data-theme="light"] .main .ranking-hub .ranking-tabs,
+html[data-theme="light"] .main .ranking-hub .ranking-content,
+html[data-theme="light"] .main .ranking-hub .ranking-progress-panel,
+html[data-theme="light"] .main .ranking-hub .youth-hall-card {
+  color: #1a3651 !important;
+  background: #ffffff !important;
+  border-color: #d9e4ef !important;
+  box-shadow: 0 9px 24px rgba(30, 73, 112, .055) !important;
+}
+html[data-theme="light"] .main .ranking-hub :is(.ranking-section-heading h2,.ranking-list-heading h3,.youth-hall-card h2) {
+  color: #173650 !important;
+}
+html[data-theme="light"] .main .ranking-hub :is(.ranking-section-heading p,.ranking-list-heading p,.youth-hall-caption) { color: #647b91 !important; }
+html[data-theme="light"] .main .ranking-hub .ranking-podium-player {
+  color: #1d3852 !important;
+  background: linear-gradient(180deg, #eaf3fb, #dceaf6) !important;
+  border-color: #c9dceb !important;
+  box-shadow: 0 8px 18px rgba(28, 72, 112, .08) !important;
+}
+html[data-theme="light"] .main .ranking-hub .ranking-podium-player.podium-first {
+  background: linear-gradient(180deg, #fff6df, #eaf2f8) !important;
+  border-color: #e7c36d !important;
+}
+html[data-theme="light"] .main .ranking-hub .ranking-podium-details strong { color: #183650 !important; }
+html[data-theme="light"] .main .ranking-hub .ranking-podium-details small { color: #986915 !important; }
+html[data-theme="light"] .main .ranking-hub .ranking-podium-place { color: #637b92 !important; }
+html[data-theme="light"] .main .ranking-hub .ranking-podium-base {
+  color: #315a7d !important;
+  background: linear-gradient(180deg, #cfe3f5, #e6f1fa) !important;
+  border-color: #c0d8eb !important;
+}
+html[data-theme="light"] .main .ranking-hub .podium-first .ranking-podium-base {
+  color: #875b0c !important;
+  background: linear-gradient(180deg, #f9e1a1, #fff5dc) !important;
+  border-color: #e7c36d !important;
+}
+html[data-theme="light"] .main .ranking-hub .ranking-player-card {
+  color: #1a3651 !important;
+  background: #ffffff !important;
+  border-color: #d8e4ef !important;
+  box-shadow: 0 8px 20px rgba(30, 73, 112, .07) !important;
+}
+html[data-theme="light"] .main .ranking-hub .ranking-card-name strong,
+html[data-theme="light"] .main .ranking-hub .ranking-card-points strong { color: #183650 !important; }
+html[data-theme="light"] .main .ranking-hub .ranking-card-name small,
+html[data-theme="light"] .main .ranking-hub .ranking-card-meta small,
+html[data-theme="light"] .main .ranking-hub .ranking-card-footer,
+html[data-theme="light"] .main .ranking-hub .ranking-card-progress-label { color: #647b91 !important; }
+html[data-theme="light"] .main .ranking-hub .ranking-card-role { color: #126ba9 !important; background: #eaf5ff !important; border-color: #cce5f8 !important; }
+html[data-theme="light"] .main .ranking-hub .ranking-player-tooltip { color: #31516e !important; background: #f2f7fc !important; border-color: #dce5ef !important; }
+html[data-theme="light"] .main .ranking-hub .youth-faithful-list li { background: #f6faff !important; border-color: #e0e9f2 !important; }
+html[data-theme="light"] .main .ranking-hub .youth-faithful-name { color: #294760 !important; }
+html[data-theme="light"] .main .ranking-hub .youth-faithful-list strong { color: #176da9 !important; }
+
+/* Members directory keeps a bright white card system in either theme. */
+html[data-theme="light"] .members-page {
+  --members-surface: #ffffff;
+  --members-surface-soft: #f4f8fd;
+  --members-border: #dce6f0;
+  --members-text: #183650;
+  --members-muted: #667e95;
+  --members-accent: #176fb6;
+}
+html[data-theme="light"] .members-page .members-hero {
+  background: linear-gradient(115deg, #ffffff, #eaf4fd) !important;
+  border-color: #d3e3f0 !important;
+  box-shadow: 0 13px 32px rgba(30, 73, 112, .08) !important;
+}
+html[data-theme="light"] .members-page .members-hero h1 { color: #173650 !important; }
+html[data-theme="light"] .members-page .members-hero-copy p { color: #607990 !important; }
+html[data-theme="light"] .members-page .members-total-card { background: #f5faff !important; border-color: #d8e6f1 !important; }
+html[data-theme="light"] .members-page .members-total-card strong { color: #173650 !important; }
+html[data-theme="light"] .members-page .members-total-card span:last-child { color: #647d94 !important; }
+
+/* Youth portal light mode: warm identity accents over clear neutral surfaces. */
+html[data-theme="light"] .youth-portal {
+  color: #1b344d !important;
+  background: linear-gradient(145deg, #f3f7fc, #eaf1f8) !important;
+}
+html[data-theme="light"] .youth-portal :is(
+  .youth-selector, .youth-customizer, .youth-activities, .youth-game-hub,
+  .youth-prayer-panel, .youth-activity-card, .youth-hall-card,
+  .youth-profile-card, .youth-store-item, .youth-faithful-list li,
+  .youth-options article, .youth-home
+) {
+  color: #1c3853 !important;
+  background: #ffffff !important;
+  border-color: #dbe5ef !important;
+  box-shadow: 0 8px 24px rgba(27, 61, 93, .065) !important;
+}
+html[data-theme="light"] .youth-portal :is(h1,h2,h3,h4,strong,b) { color: #173650 !important; }
+html[data-theme="light"] .youth-portal :is(p,small,label,span) { }
+html[data-theme="light"] .youth-portal :is(input,select,textarea) {
+  color: #203b56 !important;
+  background: #f8fbff !important;
+  border-color: #d6e1ed !important;
+}
+html[data-theme="light"] .youth-portal .youth-welcome {
+  background:
+    radial-gradient(ellipse at 78% 0%, rgba(239, 152, 78, .12), transparent 34%),
+    linear-gradient(120deg, #ffffff, #f1f6fb) !important;
+}
+html[data-theme="light"] .youth-portal .youth-activities h2,
+html[data-theme="light"] .youth-portal .youth-hall-card h2 { color: #173650 !important; }
+
+/* Mobile refinements: less chrome, usable touch targets and no clipped cards. */
+@media (max-width: 760px) {
+  .topline-theme-toggle { min-width: 40px; width: 40px; padding: 0; }
+  .topline-theme-toggle span { display: none; }
+  .main .ranking-hub { padding: 8px !important; }
+  .main .ranking-hub .ranking-hero { padding: 22px 18px !important; }
+  .main .ranking-hub .ranking-hero-art { width: 92px !important; height: 92px !important; flex-basis: 92px !important; }
+  .main .ranking-hub .ranking-hero-art svg:first-child { width: 42px; height: 42px; }
+  .main .ranking-hub .ranking-content { padding: 15px !important; }
+  .main .ranking-hub .ranking-podium-stage { gap: 6px !important; padding-top: 18px !important; }
+  .main .ranking-hub .ranking-podium-player,
+  .main .ranking-hub .ranking-podium-player.podium-second,
+  .main .ranking-hub .ranking-podium-player.podium-third { min-height: 225px; padding-inline: 4px !important; }
+  .main .ranking-hub .ranking-podium-player.podium-first { min-height: 260px; }
+  .main .ranking-hub .ranking-podium-avatar { width: 48px !important; height: 48px !important; }
+  .main .ranking-hub .podium-first .ranking-podium-avatar { width: 60px !important; height: 60px !important; }
+  .main .ranking-hub .ranking-podium-details strong { font-size: 10px !important; }
+  .main .ranking-hub .ranking-podium-details small { font-size: 9px !important; }
+  .main .ranking-hub .ranking-podium-place { font-size: 7px !important; }
+  .main .ranking-hub .ranking-info-grid { gap: 8px !important; }
+  .main .ranking-hub .ranking-info-grid article { padding: 12px 9px !important; }
+  .main .ranking-hub .ranking-progress-bands { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+  .main .ranking-hub .ranking-card-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 9px !important; }
+  .main .ranking-hub .ranking-player-card { padding: 13px !important; }
+  .main .ranking-hub .ranking-card-identity { align-items: flex-start !important; gap: 8px !important; }
+  .main .ranking-hub .ranking-card-avatar { width: 45px !important; height: 45px !important; }
+  .main .ranking-hub .ranking-card-name strong { font-size: 11px !important; }
+  .main .ranking-hub .ranking-card-meta { align-items: flex-start !important; flex-direction: column !important; }
+  .main .ranking-hub .ranking-card-points strong { font-size: 17px !important; }
+  .main .ranking-hub .ranking-card-progress-label { font-size: 8px !important; }
+}
+@media (max-width: 430px) {
+  .main .ranking-hub .ranking-card-grid { grid-template-columns: minmax(0,1fr) !important; }
+  .main .ranking-hub .ranking-player-card { min-height: 0 !important; }
+  .main .ranking-hub .ranking-info-grid { grid-template-columns: minmax(0,1fr) !important; }
+  .main .ranking-hub .ranking-progress-bands { grid-template-columns: minmax(0,1fr) !important; }
+  .main .ranking-hub .ranking-visual-toolbar { align-items: stretch !important; flex-direction: column !important; }
+  .main .ranking-hub .ranking-view-filters { justify-content: space-between !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .topline-theme-toggle,
+  .main .ranking-hub .ranking-player-card { transition: none !important; }
+}
