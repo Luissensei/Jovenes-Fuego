@@ -450,7 +450,7 @@ function HallOfFame({topPlayers, faithful, attendanceLimited}: {
 
 export default function YouthPortalPage() {
   const { theme, nextThemeLabel, toggleTheme } = useThemePreference();
-  const ThemeIcon = theme === 'dark' ? Sun : theme === 'light' ? Crown : Moon;
+  const ThemeIcon = theme === 'dark' ? Sun : Moon;
   const [profiles, setProfiles] = useState<PublicProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
