@@ -4,13 +4,10 @@ import { BrowserRouter } from 'react-router-dom';
 import { App } from './app/App';
 import './styles/app.css';
 import './styles/layout.css';
-import './styles/command-center.css';
-import './styles/quality-overhaul.css';
-import './styles/glass-blue-system.css';
 import './styles/refinement.css';
 
 try {
-  const initialTheme = window.localStorage.getItem('jf-theme') === 'light' ? 'light' : 'dark';
+  const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
   document.documentElement.dataset.theme = initialTheme;
   document.documentElement.style.colorScheme = initialTheme;
 } catch {
