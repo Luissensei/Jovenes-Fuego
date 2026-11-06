@@ -171,7 +171,15 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
     const message = code === "internal"
       ? "El servidor no pudo completar la operación. Consulta los registros de Vercel."
       : String(error?.message ?? "No se pudo completar la operación.");
-    console.error("Vercel callable failed:", {name, code});
+    const diagnostic = cause instanceof Error ? cause : new Error(String(cause));
+    // Logs privados de Vercel: no incluir headers, tokens, UID ni cuerpo de la solicitud.
+    console.error("Vercel callable failed:", {
+      name,
+      code,
+      errorName: diagnostic.name.slice(0, 80),
+      errorMessage: diagnostic.message.slice(0, 500),
+      stack: diagnostic.stack?.slice(0, 3000),
+    });
     respondError(res, code, message, error?.details);
   }
 }
