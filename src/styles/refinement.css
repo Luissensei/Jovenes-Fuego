@@ -46,7 +46,7 @@ body {
   font-family: Inter, "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   -webkit-font-smoothing: antialiased;
 }
-body, .layout, .main, .youth-portal, .main * , .youth-portal * {
+body, .layout, .sidebar, .main, .youth-portal, .main * , .youth-portal * {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
@@ -794,13 +794,13 @@ body .youth-portal .youth-error {
 }
 
 /* Youth personal area, one screen per bottom tab */
-body .youth-portal.dashboard {
+body .youth-portal {
   min-height: 100vh;
   padding: 14px 14px calc(116px + env(safe-area-inset-bottom)) !important;
   background: #f4f7f6 !important;
 }
-body .youth-portal.dashboard .youth-container { width: min(100%, 1160px) !important; }
-body .youth-portal.dashboard .youth-home-toolbar {
+body .youth-portal .youth-container { width: min(100%, 1160px) !important; }
+body .youth-portal .youth-home-toolbar {
   display: flex !important;
   align-items: center !important;
   justify-content: flex-end !important;
@@ -808,7 +808,7 @@ body .youth-portal.dashboard .youth-home-toolbar {
   gap: 8px !important;
   margin: 0 auto 14px !important;
 }
-body .youth-portal.dashboard .youth-welcome {
+body .youth-portal .youth-welcome {
   display: grid !important;
   grid-template-columns: minmax(112px, 150px) minmax(0, 1fr) !important;
   align-items: center !important;
@@ -823,17 +823,17 @@ body .youth-portal.dashboard .youth-welcome {
   text-align: left !important;
   backdrop-filter: none !important;
 }
-body .youth-portal.dashboard .youth-welcome::before,
-body .youth-portal.dashboard .youth-welcome::after { display: none !important; }
-body .youth-portal.dashboard .youth-welcome > * { position: relative; z-index: 1; }
-body .youth-portal.dashboard .youth-profile-avatar-card {
+body .youth-portal .youth-welcome::before,
+body .youth-portal .youth-welcome::after { display: none !important; }
+body .youth-portal .youth-welcome > * { position: relative; z-index: 1; }
+body .youth-portal .youth-profile-avatar-card {
   grid-column: 1;
   grid-row: 1 / span 8;
   display: grid;
   place-items: center;
   min-width: 0;
 }
-body .youth-portal.dashboard .youth-profile-avatar-card .youth-avatar {
+body .youth-portal .youth-profile-avatar-card .youth-avatar {
   width: 112px !important;
   height: 112px !important;
   border: 3px solid rgba(255,255,255,.85) !important;
@@ -841,21 +841,21 @@ body .youth-portal.dashboard .youth-profile-avatar-card .youth-avatar {
   background: #fff !important;
   box-shadow: 0 5px 15px rgba(0,0,0,.08) !important;
 }
-body .youth-portal.dashboard .youth-welcome :is(.youth-brand-label,.youth-profile-badge,.youth-profile-nick,.youth-profile-motto,.youth-profile-title,.youth-look-signature,.youth-profile-quickstats,.youth-welcome h1,.youth-welcome > p) {
+body .youth-portal .youth-welcome :is(.youth-brand-label,.youth-profile-badge,.youth-profile-nick,.youth-profile-motto,.youth-profile-title,.youth-look-signature,.youth-profile-quickstats,.youth-welcome h1,.youth-welcome > p) {
   grid-column: 2;
   justify-self: start;
   color: #fff !important;
 }
-body .youth-portal.dashboard .youth-welcome .youth-brand-label { margin: 0 !important; color: #d9f7e7 !important; }
-body .youth-portal.dashboard .youth-welcome h1 {
+body .youth-portal .youth-welcome .youth-brand-label { margin: 0 !important; color: #d9f7e7 !important; }
+body .youth-portal .youth-welcome h1 {
   margin: 2px 0 !important;
   font-size: clamp(25px, 3.5vw, 38px) !important;
   line-height: 1.12 !important;
   letter-spacing: -.045em !important;
 }
-body .youth-portal.dashboard .youth-welcome > p { margin: 0 !important; color: rgba(255,255,255,.88) !important; font-size: 12px !important; }
-body .youth-portal.dashboard .youth-profile-badge,
-body .youth-portal.dashboard .youth-profile-title {
+body .youth-portal .youth-welcome > p { margin: 0 !important; color: rgba(255,255,255,.88) !important; font-size: 12px !important; }
+body .youth-portal .youth-profile-badge,
+body .youth-portal .youth-profile-title {
   display: inline-flex;
   align-items: center;
   padding: 5px 8px;
@@ -865,8 +865,8 @@ body .youth-portal.dashboard .youth-profile-title {
   color: #fff !important;
   font-size: 9px !important;
 }
-body .youth-portal.dashboard .youth-look-signature { display: flex; flex-wrap: wrap; gap: 6px; }
-body .youth-portal.dashboard .youth-look-signature span {
+body .youth-portal .youth-look-signature { display: flex; flex-wrap: wrap; gap: 6px; }
+body .youth-portal .youth-look-signature span {
   color: rgba(255,255,255,.9) !important;
   background: rgba(255,255,255,.12) !important;
   border: 1px solid rgba(255,255,255,.2);
@@ -874,8 +874,8 @@ body .youth-portal.dashboard .youth-look-signature span {
   padding: 5px 8px;
   font-size: 9px;
 }
-body .youth-portal.dashboard .youth-profile-quickstats { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 4px; }
-body .youth-portal.dashboard .youth-profile-quickstats span {
+body .youth-portal .youth-profile-quickstats { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 4px; }
+body .youth-portal .youth-profile-quickstats span {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -886,7 +886,7 @@ body .youth-portal.dashboard .youth-profile-quickstats span {
   background: rgba(255,255,255,.13) !important;
   font-size: 9px;
 }
-body .youth-portal.dashboard .youth-customize-trigger {
+body .youth-portal .youth-customize-trigger {
   position: absolute !important;
   top: 15px !important;
   right: 15px !important;
@@ -900,8 +900,8 @@ body .youth-portal.dashboard .youth-customize-trigger {
   font-size: 10px !important;
   font-weight: 800 !important;
 }
-body .youth-portal.dashboard .youth-tab-page { display: grid; gap: 15px; }
-body .youth-portal.dashboard :is(.youth-activities,.youth-hall-card,.youth-immersive-ranking,.youth-growth-plan,.youth-journal-panel,.youth-game-hub,.youth-prayer-panel,.youth-customizer,.youth-profile-editor) {
+body .youth-portal .youth-tab-page { display: grid; gap: 15px; }
+body .youth-portal :is(.youth-activities,.youth-hall-card,.youth-immersive-ranking,.youth-growth-plan,.youth-journal-panel,.youth-game-hub,.youth-prayer-panel,.youth-customizer,.youth-profile-editor) {
   color: #293f33 !important;
   background: #fff !important;
   border: 1px solid var(--jf-line) !important;
@@ -909,61 +909,61 @@ body .youth-portal.dashboard :is(.youth-activities,.youth-hall-card,.youth-immer
   box-shadow: var(--jf-shadow) !important;
   backdrop-filter: none !important;
 }
-body .youth-portal.dashboard :is(.youth-activities,.youth-hall-card,.youth-immersive-ranking,.youth-growth-plan,.youth-journal-panel,.youth-game-hub,.youth-prayer-panel,.youth-customizer,.youth-profile-editor) :is(h1,h2,h3,h4,strong,b) { color: #1c3528 !important; }
-body .youth-portal.dashboard :is(.youth-activities,.youth-hall-card,.youth-immersive-ranking,.youth-growth-plan,.youth-journal-panel,.youth-game-hub,.youth-prayer-panel,.youth-customizer,.youth-profile-editor) :is(p,small,span,label) { color: #6e8074 !important; }
-body .youth-portal.dashboard .youth-hall-card header > div > span,
-body .youth-portal.dashboard .youth-activities header > div > span,
-body .youth-portal.dashboard .youth-immersive-ranking-header > div > span,
-body .youth-portal.dashboard .youth-growth-plan header > div > span,
-body .youth-portal.dashboard .youth-journal-panel header > div > span,
-body .youth-portal.dashboard .youth-game-hub header > div > span,
-body .youth-portal.dashboard .youth-prayer-panel header > div > span {
+body .youth-portal :is(.youth-activities,.youth-hall-card,.youth-immersive-ranking,.youth-growth-plan,.youth-journal-panel,.youth-game-hub,.youth-prayer-panel,.youth-customizer,.youth-profile-editor) :is(h1,h2,h3,h4,strong,b) { color: #1c3528 !important; }
+body .youth-portal :is(.youth-activities,.youth-hall-card,.youth-immersive-ranking,.youth-growth-plan,.youth-journal-panel,.youth-game-hub,.youth-prayer-panel,.youth-customizer,.youth-profile-editor) :is(p,small,span,label) { color: #6e8074 !important; }
+body .youth-portal .youth-hall-card header > div > span,
+body .youth-portal .youth-activities header > div > span,
+body .youth-portal .youth-immersive-ranking-header > div > span,
+body .youth-portal .youth-growth-plan header > div > span,
+body .youth-portal .youth-journal-panel header > div > span,
+body .youth-portal .youth-game-hub header > div > span,
+body .youth-portal .youth-prayer-panel header > div > span {
   color: #168957 !important;
 }
-body .youth-portal.dashboard .youth-activity-card,
-body .youth-portal.dashboard .youth-store-item,
-body .youth-portal.dashboard .youth-faithful-list li,
-body .youth-portal.dashboard .youth-ranking-row,
-body .youth-portal.dashboard .youth-growth-grid article,
-body .youth-portal.dashboard .youth-profile-editor {
+body .youth-portal .youth-activity-card,
+body .youth-portal .youth-store-item,
+body .youth-portal .youth-faithful-list li,
+body .youth-portal .youth-ranking-row,
+body .youth-portal .youth-growth-grid article,
+body .youth-portal .youth-profile-editor {
   color: #2d4437 !important;
   background: #f9fbfa !important;
   border: 1px solid #e5ede7 !important;
   border-radius: 11px !important;
   box-shadow: none !important;
 }
-body .youth-portal.dashboard .youth-activity-card:hover,
-body .youth-portal.dashboard .youth-game-tile:hover,
-body .youth-portal.dashboard .youth-store-item:hover {
+body .youth-portal .youth-activity-card:hover,
+body .youth-portal .youth-game-tile:hover,
+body .youth-portal .youth-store-item:hover {
   transform: translateY(-2px) !important;
   border-color: #bce3ce !important;
 }
-body .youth-portal.dashboard .youth-podium-list li,
-body .youth-portal.dashboard .youth-ranking-podium-card {
+body .youth-portal .youth-podium-list li,
+body .youth-portal .youth-ranking-podium-card {
   color: #2d4437 !important;
   background: #f4faf6 !important;
   border: 1px solid #dcebe1 !important;
   border-radius: 12px !important;
   box-shadow: none !important;
 }
-body .youth-portal.dashboard .youth-podium-medal,
-body .youth-portal.dashboard .youth-ranking-podium-place,
-body .youth-portal.dashboard .youth-podium-list strong { color: #168957 !important; }
-body .youth-portal.dashboard .youth-ranking-meter,
-body .youth-portal.dashboard .youth-growth-progress { background: #e7efe9 !important; }
-body .youth-portal.dashboard .youth-ranking-meter i,
-body .youth-portal.dashboard .youth-growth-progress i { background: #19a96b !important; }
-body .youth-portal.dashboard .youth-my-standing-card {
+body .youth-portal .youth-podium-medal,
+body .youth-portal .youth-ranking-podium-place,
+body .youth-portal .youth-podium-list strong { color: #168957 !important; }
+body .youth-portal .youth-ranking-meter,
+body .youth-portal .youth-growth-progress { background: #e7efe9 !important; }
+body .youth-portal .youth-ranking-meter i,
+body .youth-portal .youth-growth-progress i { background: #19a96b !important; }
+body .youth-portal .youth-my-standing-card {
   background: #edf8f1 !important;
   border: 1px solid #d3ebdc !important;
   border-radius: 12px !important;
   color: #294436 !important;
 }
-body .youth-portal.dashboard .youth-my-standing-card :is(b,strong,small,span) { color: #236b49 !important; }
-body .youth-portal.dashboard .youth-ranking-row-main { color: #30483a !important; }
-body .youth-portal.dashboard .youth-ranking-row-position { color: #168957 !important; }
-body .youth-portal.dashboard .youth-ranking-row-avatar { background: #e5f5eb !important; color: #167d50 !important; }
-body .youth-portal.dashboard .youth-game-tile {
+body .youth-portal .youth-my-standing-card :is(b,strong,small,span) { color: #236b49 !important; }
+body .youth-portal .youth-ranking-row-main { color: #30483a !important; }
+body .youth-portal .youth-ranking-row-position { color: #168957 !important; }
+body .youth-portal .youth-ranking-row-avatar { background: #e5f5eb !important; color: #167d50 !important; }
+body .youth-portal .youth-game-tile {
   display: flex !important;
   flex-direction: column;
   align-items: flex-start;
@@ -976,7 +976,7 @@ body .youth-portal.dashboard .youth-game-tile {
   border-radius: 12px !important;
   box-shadow: var(--jf-shadow) !important;
 }
-body .youth-portal.dashboard .youth-game-tile > span {
+body .youth-portal .youth-game-tile > span {
   display: grid;
   place-items: center;
   width: 40px;
@@ -985,69 +985,69 @@ body .youth-portal.dashboard .youth-game-tile > span {
   color: #168957 !important;
   background: #e8f7ef !important;
 }
-body .youth-portal.dashboard .youth-game-tile b { color: #20392b !important; }
-body .youth-portal.dashboard .youth-game-tile small { color: #74857a !important; }
-body .youth-portal.dashboard .youth-game-tile i { color: #168957 !important; font-style: normal; }
-body .youth-portal.dashboard .youth-prayer-panel form { display: grid; gap: 12px; }
-body .youth-portal.dashboard .youth-prayer-panel form label,
-body .youth-portal.dashboard .youth-profile-editor-grid label {
+body .youth-portal .youth-game-tile b { color: #20392b !important; }
+body .youth-portal .youth-game-tile small { color: #74857a !important; }
+body .youth-portal .youth-game-tile i { color: #168957 !important; font-style: normal; }
+body .youth-portal .youth-prayer-panel form { display: grid; gap: 12px; }
+body .youth-portal .youth-prayer-panel form label,
+body .youth-portal .youth-profile-editor-grid label {
   display: grid;
   gap: 6px;
   color: #53675a !important;
   font-size: 11px;
   font-weight: 700;
 }
-body .youth-portal.dashboard .youth-profile-editor-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
-body .youth-portal.dashboard .youth-profile-editor-grid textarea { min-height: 84px; }
-body .youth-portal.dashboard .youth-open-customizer,
-body .youth-portal.dashboard .youth-profile-editor > button,
-body .youth-portal.dashboard .youth-journal-actions button,
-body .youth-portal.dashboard .youth-prayer-submit-row button,
-body .youth-portal.dashboard .youth-customizer button {
+body .youth-portal .youth-profile-editor-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+body .youth-portal .youth-profile-editor-grid textarea { min-height: 84px; }
+body .youth-portal .youth-open-customizer,
+body .youth-portal .youth-profile-editor > button,
+body .youth-portal .youth-journal-actions button,
+body .youth-portal .youth-prayer-submit-row button,
+body .youth-portal .youth-customizer button {
   color: #fff !important;
   background: var(--jf-green) !important;
   border: 1px solid var(--jf-green) !important;
   border-radius: 9px !important;
 }
-body .youth-portal.dashboard .youth-customizer button:disabled,
-body .youth-portal.dashboard .youth-prayer-submit-row button:disabled { opacity: .55; cursor: not-allowed; }
-body .youth-portal.dashboard .youth-customizer .youth-store-item {
+body .youth-portal .youth-customizer button:disabled,
+body .youth-portal .youth-prayer-submit-row button:disabled { opacity: .55; cursor: not-allowed; }
+body .youth-portal .youth-customizer .youth-store-item {
   color: #2d4437 !important;
   background: #f9fbfa !important;
   border: 1px solid #e5ede7 !important;
 }
-body .youth-portal.dashboard .youth-customizer .youth-store-item.selected {
+body .youth-portal .youth-customizer .youth-store-item.selected {
   color: #116b45 !important;
   background: #e8f7ef !important;
   border-color: #acdcbf !important;
   box-shadow: inset 0 0 0 1px #acdcbf !important;
 }
-body .youth-portal.dashboard .youth-customizer .youth-store-tabs button {
+body .youth-portal .youth-customizer .youth-store-tabs button {
   color: #607267 !important;
   background: #f7faf8 !important;
   border: 1px solid #e3ebe5 !important;
   border-radius: 8px !important;
 }
-body .youth-portal.dashboard .youth-customizer .youth-store-tabs button.active {
+body .youth-portal .youth-customizer .youth-store-tabs button.active {
   color: #167b50 !important;
   background: #e8f7ef !important;
   border-color: #bce3cb !important;
 }
-body .youth-portal.dashboard .youth-customizer > header {
+body .youth-portal .youth-customizer > header {
   display: flex;
   align-items: center;
   gap: 10px;
   color: #168957 !important;
 }
-body .youth-portal.dashboard .youth-customizer > header > div { flex: 1; min-width: 0; }
-body .youth-portal.dashboard .youth-customizer > header > button {
+body .youth-portal .youth-customizer > header > div { flex: 1; min-width: 0; }
+body .youth-portal .youth-customizer > header > button {
   min-width: 34px;
   min-height: 34px;
   color: #476152 !important;
   background: #f4f8f5 !important;
   border: 1px solid #dfe9e2 !important;
 }
-body .youth-portal.dashboard .youth-security-note {
+body .youth-portal .youth-security-note {
   color: #708176 !important;
   background: transparent !important;
   border: 0 !important;
@@ -1148,27 +1148,27 @@ body .youth-portal.dashboard .youth-security-note {
   body .youth-portal .youth-profiles { grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 9px !important; }
   body .youth-portal .youth-profile-card { min-height: 175px !important; padding: 13px 7px 0 !important; }
   body .youth-portal .youth-avatar { width: 60px !important; height: 60px !important; }
-  body .youth-portal.dashboard .youth-welcome {
+  body .youth-portal .youth-welcome {
     grid-template-columns: minmax(0,1fr) !important;
     text-align: center !important;
     gap: 8px !important;
     padding: 62px 15px 18px !important;
   }
-  body .youth-portal.dashboard .youth-profile-avatar-card {
+  body .youth-portal .youth-profile-avatar-card {
     grid-column: 1 !important;
     grid-row: auto !important;
     margin-bottom: 4px;
   }
-  body .youth-portal.dashboard .youth-profile-avatar-card .youth-avatar { width: 88px !important; height: 88px !important; }
-  body .youth-portal.dashboard .youth-welcome :is(.youth-brand-label,.youth-profile-badge,.youth-profile-nick,.youth-profile-motto,.youth-profile-title,.youth-look-signature,.youth-profile-quickstats,.youth-welcome h1,.youth-welcome > p) {
+  body .youth-portal .youth-profile-avatar-card .youth-avatar { width: 88px !important; height: 88px !important; }
+  body .youth-portal .youth-welcome :is(.youth-brand-label,.youth-profile-badge,.youth-profile-nick,.youth-profile-motto,.youth-profile-title,.youth-look-signature,.youth-profile-quickstats,.youth-welcome h1,.youth-welcome > p) {
     grid-column: 1 !important;
     justify-self: center !important;
   }
-  body .youth-portal.dashboard .youth-profile-quickstats { justify-content: center; }
-  body .youth-portal.dashboard .youth-profile-editor-grid { grid-template-columns: minmax(0,1fr) !important; }
-  body .youth-portal.dashboard .youth-ranking-summary { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
-  body .youth-portal.dashboard .youth-podium-list { grid-template-columns: repeat(3,minmax(0,1fr)) !important; gap: 6px !important; }
-  body .youth-portal.dashboard .youth-podium-list li { min-width: 0; padding: 9px 5px !important; }
+  body .youth-portal .youth-profile-quickstats { justify-content: center; }
+  body .youth-portal .youth-profile-editor-grid { grid-template-columns: minmax(0,1fr) !important; }
+  body .youth-portal .youth-ranking-summary { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+  body .youth-portal .youth-podium-list { grid-template-columns: repeat(3,minmax(0,1fr)) !important; gap: 6px !important; }
+  body .youth-portal .youth-podium-list li { min-width: 0; padding: 9px 5px !important; }
   .youth-bottom-navigation { min-height: 66px !important; }
   .youth-bottom-navigation button { font-size: 8px !important; }
   .main .ranking-hub .ranking-info-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
@@ -1189,4 +1189,91 @@ body .youth-portal.dashboard .youth-security-note {
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }
+}
+
+
+/* Dark theme: the same emerald accent on a deep neutral surface. */
+html[data-theme="dark"] body,
+html[data-theme="dark"] #root,
+html[data-theme="dark"] .layout,
+html[data-theme="dark"] .main,
+html[data-theme="dark"] .youth-portal {
+  color: #e9f3ec !important;
+  background: #101a15 !important;
+}
+html[data-theme="dark"] .sidebar {
+  color: #d8e6dc !important;
+  background: #17251c !important;
+  border-color: #2b3c30 !important;
+}
+html[data-theme="dark"] .sidebar .brand strong,
+html[data-theme="dark"] .sidebar .nav-item { color: #d8e6dc !important; }
+html[data-theme="dark"] .sidebar .brand small,
+html[data-theme="dark"] .sidebar .jf-nav-group > summary { color: #98aa9d !important; }
+html[data-theme="dark"] .sidebar .module-search,
+html[data-theme="dark"] .sidebar .env-chip,
+html[data-theme="dark"] .sidebar .safe-note {
+  color: #bbcec1 !important;
+  background: #1d3024 !important;
+  border-color: #354b3b !important;
+}
+html[data-theme="dark"] .sidebar .module-search input { color: #edf6f0 !important; }
+html[data-theme="dark"] .sidebar .nav-item.active {
+  color: #9de1b9 !important;
+  background: #214331 !important;
+  border-color: #356b4c !important;
+}
+html[data-theme="dark"] .main > .topline,
+html[data-theme="dark"] .mobile-header {
+  color: #dcebe1 !important;
+  background: #17251c !important;
+  border-color: #2b3c30 !important;
+}
+html[data-theme="dark"] .project-label,
+html[data-theme="dark"] .topline-status,
+html[data-theme="dark"] .topline-theme-toggle {
+  color: #dcebe1 !important;
+  background: #203328 !important;
+  border-color: #385444 !important;
+}
+html[data-theme="dark"] .main :is(.page-card,.panel,.card,.stat-card,.members-controls,.member-card,
+.attendance-card,.attendance-member,.followup-stat,.followup-content,.followup-card,
+.visitors-stat,.visitors-content,.visitor-card,.devotionals-feature,.devotionals-controls,
+.devotional-card,.reports-card,.checkin-config,.checkin-panel,.management-summary,
+.management-form,.management-records,.management-record,.managed-stat,.managed-record,
+.youth-hall-card,.youth-activity-card,.youth-store-item,.settings-card,.settings-section) {
+  color: #e5f0e8 !important;
+  background: #1a2a20 !important;
+  border-color: #304738 !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,.16) !important;
+}
+html[data-theme="dark"] .main :is(h1,h2,h3,h4,strong,b) { color: #edf6f0 !important; }
+html[data-theme="dark"] .main :is(p,small,label,span) { color: #aebeb3; }
+html[data-theme="dark"] .main :is(input,select,textarea) {
+  color: #edf6f0 !important;
+  background: #142219 !important;
+  border-color: #3a5142 !important;
+}
+html[data-theme="dark"] .youth-portal .youth-selector,
+html[data-theme="dark"] .youth-portal .youth-profile-card,
+html[data-theme="dark"] .youth-portal .youth-search {
+  color: #e5f0e8 !important;
+  background: #1a2a20 !important;
+  border-color: #304738 !important;
+}
+html[data-theme="dark"] .youth-portal .youth-profile-card strong { color: #edf6f0 !important; }
+html[data-theme="dark"] .youth-portal .youth-profile-card .youth-card-nick { color: #aebeb3 !important; }
+html[data-theme="dark"] .youth-portal .youth-search input { color: #edf6f0 !important; }
+html[data-theme="dark"] .youth-portal .youth-welcome {
+  background: linear-gradient(112deg, #176e49, #145d40 62%, #104a34) !important;
+}
+html[data-theme="dark"] .youth-portal .youth-bottom-navigation {
+  background: #1a2a20 !important;
+  border-color: #354b3b !important;
+}
+html[data-theme="dark"] .youth-portal .youth-bottom-navigation button { color: #aebeb3 !important; }
+html[data-theme="dark"] .youth-portal .youth-bottom-navigation button.active {
+  color: #9de1b9 !important;
+  background: #244a34 !important;
+  border-color: #356b4c !important;
 }
