@@ -16,7 +16,7 @@ permissions:
 jobs:
   deploy-original-functions:
     name: Deploy Cloud Functions to original Firebase project
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment: firebase-production
     steps:
       - name: Checkout selected branch
