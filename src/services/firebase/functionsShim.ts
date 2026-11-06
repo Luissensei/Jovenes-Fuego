@@ -41,7 +41,7 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
       throw makeError("unauthenticated", "No se pudo validar la sesión actual.");
     }
 
-    const useVercel = import.meta.env.VITE_FUNCTIONS_BACKEND === "vercel";
+    // El backend principal de producción es Vercel: no depender de una variable\n    // VITE_* opcional que puede faltar en el entorno de compilación. Solo se\n    // usa Firebase Functions si se solicita explícitamente para desarrollo.\n    const useVercel = import.meta.env.VITE_FUNCTIONS_BACKEND !== "firebase";
     const endpoint = useVercel
       ? `/api/functions/${encodeURIComponent(name)}`
       : `https://us-central1-jovenes-de-fuego.cloudfunctions.net/${encodeURIComponent(name)}`;
