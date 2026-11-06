@@ -1,514 +1,1192 @@
-/* Jóvenes de Fuego · Design refinement layer
-   Opaque surfaces, readable contrast, responsive cards and real light theme. */
+/* Jóvenes de Fuego — sistema visual limpio
+   Referencia: panel blanco, superficies ordenadas y verde esmeralda.
+   Sin blur, paletas arcoíris ni efectos que deformen los componentes. */
 
 :root {
-  --jf-radius-sm: 10px;
-  --jf-radius-md: 15px;
-  --jf-radius-lg: 21px;
-  --jf-motion: cubic-bezier(.2,.75,.25,1);
+  color-scheme: light;
+  --jf-green: #17a86b;
+  --jf-green-strong: #128457;
+  --jf-green-soft: #e8f7f0;
+  --jf-ink: #14251e;
+  --jf-muted: #68796f;
+  --jf-page: #f4f7f6;
+  --jf-card: #ffffff;
+  --jf-line: #e2e9e5;
+  --jf-shadow: 0 5px 18px rgba(20, 47, 34, .055);
+  --jf-shadow-hover: 0 10px 26px rgba(20, 47, 34, .09);
+  --jf-radius: 16px;
+  --jf-focus: 0 0 0 3px rgba(23, 168, 107, .18);
 }
 
-html[data-theme="dark"] {
-  --jf-app-bg: #07182b;
-  --jf-surface: #102641;
-  --jf-surface-raised: #15314f;
-  --jf-surface-soft: #0b2038;
-  --jf-edge: rgba(122, 177, 225, .2);
-  --jf-text-main: #edf6ff;
-  --jf-text-muted: #9fb6ce;
-  --jf-accent: #55b7f5;
-  --jf-accent-strong: #2588df;
+:root[data-theme="light"] {
+  color-scheme: light;
+  --jf-page: #f4f7f6;
+  --jf-card: #ffffff;
+  --jf-ink: #14251e;
+  --jf-muted: #68796f;
+  --jf-line: #e2e9e5;
 }
 
-html[data-theme="light"] {
-  --jf-app-bg: #f3f6fb;
-  --jf-surface: #ffffff;
-  --jf-surface-raised: #f8fbff;
-  --jf-surface-soft: #edf3fa;
-  --jf-edge: #d8e2ee;
-  --jf-text-main: #152b43;
-  --jf-text-muted: #61758d;
-  --jf-accent: #1676c5;
-  --jf-accent-strong: #075da8;
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --jf-page: #101a15;
+  --jf-card: #19251e;
+  --jf-ink: #eef6f0;
+  --jf-muted: #a8b8ad;
+  --jf-line: #2b3b31;
 }
 
-/* Replace stacked translucent layers with solid, fast and predictable surfaces. */
-.layout,
-.sidebar,
-.main > .topline,
-.mobile-header,
-.scrim,
-.main .ranking-hero,
-.main .ranking-tabs,
-.main .ranking-content,
-.main .ranking-player-card,
-.members-page .member-card,
-.youth-portal .youth-welcome,
-.youth-portal .youth-profile-card,
-.youth-portal .youth-activity-card,
-.youth-portal .youth-hall-card {
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { min-width: 320px; min-height: 100%; margin: 0; }
+html, body, #root, .layout, .main, .youth-portal {
+  background: var(--jf-page) !important;
+  color: var(--jf-ink) !important;
+}
+body {
+  font-family: Inter, "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+}
+body, .layout, .main, .youth-portal, .main * , .youth-portal * {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
+.main, .sidebar, .youth-portal { min-width: 0; }
+.main { overflow-x: clip !important; }
 
-html[data-theme="dark"] body,
-html[data-theme="dark"] #root {
-  background:
-    radial-gradient(ellipse at 78% -10%, rgba(34, 126, 207, .18), transparent 37%),
-    radial-gradient(ellipse at 4% 44%, rgba(28, 94, 161, .11), transparent 35%),
-    linear-gradient(145deg, #061326 0%, #091c34 54%, #071629 100%) !important;
-  color: var(--jf-text-main);
+/* Sidebar and application header */
+@media (min-width: 901px) {
+  .sidebar {
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    z-index: 70 !important;
+    width: 292px !important;
+    min-width: 292px !important;
+    max-width: 292px !important;
+    padding: 18px 14px 14px !important;
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    background: #fff !important;
+    border-right: 1px solid var(--jf-line) !important;
+    box-shadow: 5px 0 18px rgba(20, 47, 34, .035) !important;
+  }
+  .main {
+    width: calc(100% - 292px) !important;
+    min-height: 100vh;
+    margin-left: 292px !important;
+    padding: 0 clamp(20px, 2.1vw, 34px) 38px !important;
+    background: var(--jf-page) !important;
+  }
 }
-
-html[data-theme="dark"] .sidebar {
-  background: linear-gradient(180deg, #0d2744 0%, #081a30 100%) !important;
-  border-right: 1px solid rgba(99, 166, 222, .22) !important;
+.sidebar { color: #314239 !important; }
+.sidebar .brand {
+  min-height: 58px;
+  padding: 4px 6px 18px !important;
+  gap: 12px !important;
+  border-bottom: 1px solid #edf1ee;
 }
-
-html[data-theme="dark"] .main > .topline,
-html[data-theme="dark"] .mobile-header {
-  background: #0b2038 !important;
-  border-bottom: 1px solid rgba(103, 163, 216, .2) !important;
+.sidebar .brand-mark.church-brand-mark {
+  width: 44px !important;
+  height: 44px !important;
+  flex: 0 0 44px !important;
+  display: grid;
+  place-items: center;
+  border: 0 !important;
+  border-radius: 13px !important;
+  background: var(--jf-green) !important;
+  box-shadow: 0 5px 12px rgba(23, 168, 107, .17) !important;
 }
+.sidebar .brand-mark img { width: 100%; height: 100%; object-fit: contain; padding: 5px; }
+.sidebar .brand strong { color: #1c3026 !important; font-size: 15px !important; font-weight: 850 !important; }
+.sidebar .brand small { color: #829087 !important; font-size: 9px !important; line-height: 1.45; }
+.sidebar .env-chip {
+  margin: 12px 2px 13px !important;
+  padding: 9px 11px !important;
+  border: 1px solid #e2eee7 !important;
+  border-radius: 10px !important;
+  color: #397459 !important;
+  background: #f2faf5 !important;
+  font-size: 9px !important;
+  letter-spacing: .04em !important;
+}
+.sidebar .env-chip .pulse, .sidebar .env-chip .dot { background: var(--jf-green) !important; }
+.sidebar .module-search {
+  min-height: 42px !important;
+  margin: 0 2px 12px !important;
+  padding: 0 10px !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 10px !important;
+  background: #f8faf9 !important;
+  color: #7b8b81 !important;
+}
+.sidebar .module-search input {
+  color: #263d31 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.sidebar .jf-nav-group { margin: 0 0 8px !important; border: 0 !important; background: transparent !important; }
+.sidebar .jf-nav-group > summary {
+  min-height: 34px;
+  padding: 8px 10px !important;
+  color: #87938b !important;
+  font-size: 9px !important;
+  font-weight: 850 !important;
+  letter-spacing: .13em !important;
+  text-transform: uppercase;
+}
+.sidebar .jf-nav-count { color: #87938b !important; }
+.sidebar .nav-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-height: 43px !important;
+  margin: 2px 0 !important;
+  padding: 8px 11px !important;
+  border: 1px solid transparent !important;
+  border-radius: 11px !important;
+  color: #506157 !important;
+  background: transparent !important;
+  font-size: 12px !important;
+  font-weight: 650 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+.sidebar .nav-item:hover:not(.active) {
+  color: #1e5f43 !important;
+  background: #f3faf6 !important;
+  transform: none !important;
+}
+.sidebar .nav-item.active, .sidebar .nav-item[aria-current="page"] {
+  color: var(--jf-green-strong) !important;
+  background: var(--jf-green-soft) !important;
+  border-color: #d5eee1 !important;
+  box-shadow: none !important;
+}
+.sidebar .nav-item-icon {
+  display: grid !important;
+  place-items: center;
+  width: 29px !important;
+  height: 29px !important;
+  flex: 0 0 29px !important;
+  border-radius: 8px !important;
+  color: var(--jf-green) !important;
+  background: transparent !important;
+  transform: none !important;
+}
+.sidebar .sidebar-bottom {
+  padding-top: 12px !important;
+  border-top: 1px solid #edf1ee !important;
+}
+.sidebar .safe-note {
+  padding: 10px !important;
+  border: 1px solid #e7eee9 !important;
+  border-radius: 10px !important;
+  color: #53655a !important;
+  background: #f8faf8 !important;
+  box-shadow: none !important;
+}
+.sidebar .safe-note svg { color: var(--jf-green) !important; }
+.sidebar .safe-note small { color: #829087 !important; }
+.sidebar .theme-toggle { display: none !important; }
 
-/* Admin theme button. */
+.main > .topline {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 35 !important;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 68px !important;
+  margin: 0 calc(clamp(20px, 2.1vw, 34px) * -1) 24px !important;
+  padding: 11px clamp(20px, 2.1vw, 34px) !important;
+  border-bottom: 1px solid var(--jf-line) !important;
+  background: rgba(255,255,255,.97) !important;
+  box-shadow: 0 3px 12px rgba(20,47,34,.025) !important;
+}
+.topline-status { color: #64766b !important; }
+.topline-status-environment { color: #178b5a !important; }
+.topline-status-module { color: #263a2f !important; font-weight: 750; }
+.topline-status .dot { background: var(--jf-green) !important; }
+.project-label {
+  max-width: min(34vw, 310px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #53675a !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 9px !important;
+  background: #f7faf8 !important;
+}
 .topline-theme-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   min-height: 38px;
-  flex: 0 0 auto;
+  margin-left: auto;
   padding: 8px 12px;
-  border: 1px solid rgba(105, 169, 225, .28);
-  border-radius: 11px;
-  color: var(--jf-text-main, #edf6ff);
-  background: var(--jf-surface-raised, #15314f);
+  border: 1px solid #dce9e1;
+  border-radius: 10px;
+  color: #236447;
+  background: #f4faf6;
   font-size: 11px;
   font-weight: 800;
   cursor: pointer;
-  transition: background .18s ease, border-color .18s ease, transform .18s ease;
 }
-.topline-theme-toggle svg { color: var(--jf-accent, #55b7f5); }
-.topline-theme-toggle:hover { border-color: var(--jf-accent, #55b7f5); transform: translateY(-1px); }
+.topline-theme-toggle svg { color: var(--jf-green); }
+.topline-theme-toggle:hover { background: #e8f7ef; border-color: #bfe6d0; }
+.mobile-header {
+  background: #fff !important;
+  color: #1c3026 !important;
+  border-bottom: 1px solid var(--jf-line) !important;
+}
+.mobile-header .brand-mark { background: var(--jf-green) !important; }
+.topline-menu-button {
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 10px !important;
+  color: #40584a !important;
+  background: #fff !important;
+}
+.scrim { background: rgba(16, 31, 22, .28) !important; backdrop-filter: none !important; }
 
-html[data-theme="light"] .layout,
-html[data-theme="light"] body,
-html[data-theme="light"] #root {
-  background: var(--jf-app-bg) !important;
-  color: var(--jf-text-main) !important;
+/* Global typography, controls and cards */
+.main h1, .main h2, .main h3, .main h4 {
+  color: #183126 !important;
+  letter-spacing: -.025em;
 }
-
-html[data-theme="light"] .sidebar {
-  color: #1b344e !important;
-  background: #ffffff !important;
-  border-right: 1px solid #dbe4ee !important;
-  box-shadow: 10px 0 32px rgba(27, 57, 88, .08) !important;
-}
-html[data-theme="light"] .sidebar .brand strong { color: #18334e !important; }
-html[data-theme="light"] .sidebar .brand small { color: #637a93 !important; }
-html[data-theme="light"] .sidebar .brand-mark.church-brand-mark {
-  background: linear-gradient(145deg, #e5f3ff, #d5eaff) !important;
-  border-color: #bfdcf4 !important;
+.main p { color: #65766b; }
+.main button, .main input, .main select, .main textarea { font-family: inherit; }
+.main :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea),
+.youth-portal :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid #dbe5df !important;
+  border-radius: 9px !important;
+  color: #24392e !important;
+  background: #fff !important;
   box-shadow: none !important;
 }
-html[data-theme="light"] .sidebar .env-chip,
-html[data-theme="light"] .sidebar .module-search,
-html[data-theme="light"] .sidebar .safe-note,
-html[data-theme="light"] .sidebar .sidebar-collapse-toggle {
-  color: #526b84 !important;
-  background: #f3f7fc !important;
-  border-color: #dce6f0 !important;
+.main :is(input,textarea,select)::placeholder,
+.youth-portal :is(input,textarea,select)::placeholder { color: #98a59d !important; }
+.main :is(input,select,textarea):focus,
+.youth-portal :is(input,select,textarea):focus {
+  border-color: #7ec6a0 !important;
+  box-shadow: var(--jf-focus) !important;
+  outline: 0 !important;
+}
+.main :is(button,a,input,select,textarea):focus-visible,
+.sidebar :is(button,a,input,select,textarea):focus-visible,
+.youth-portal :is(button,a,input,select,textarea):focus-visible {
+  outline: 2px solid var(--jf-green) !important;
+  outline-offset: 3px !important;
+}
+.main button:not(:disabled):active, .youth-portal button:not(:disabled):active { transform: translateY(1px); }
+.main :is(.primary-button,.btn-primary,.submit-button,.managed-primary,.attendance-card button[type="submit"],.members-add-button,.reports-export,.management-submit) {
+  color: #fff !important;
+  background: var(--jf-green) !important;
+  border: 1px solid var(--jf-green) !important;
+  border-radius: 9px !important;
   box-shadow: none !important;
 }
-html[data-theme="light"] .sidebar .module-search input { color: #18334e !important; }
-html[data-theme="light"] .sidebar .nav-item { color: #536a83 !important; }
-html[data-theme="light"] .sidebar .nav-item:hover {
-  color: #123b60 !important;
-  background: #edf5fc !important;
-  transform: none !important;
+.main :is(.primary-button,.btn-primary,.submit-button,.managed-primary,.attendance-card button[type="submit"],.members-add-button,.reports-export,.management-submit):hover {
+  background: var(--jf-green-strong) !important;
+  border-color: var(--jf-green-strong) !important;
 }
-html[data-theme="light"] .sidebar .nav-item.active {
-  color: #075da8 !important;
-  background: linear-gradient(100deg, #e7f3ff, #f0f7ff) !important;
-  border: 1px solid #c8e2f8 !important;
+.main :is(.page-card,.panel,.card,.stat-card,.members-controls,.member-card,.attendance-card,.attendance-member,
+.followup-stat,.followup-content,.followup-card,.visitors-stat,.visitors-content,.visitor-card,
+.devotionals-feature,.devotionals-controls,.devotional-card,.reports-card,.reports-stats article,
+.checkin-config,.checkin-panel,.checkin-summary article,.management-summary,.management-form,
+.management-records,.management-record,.managed-stat,.managed-record,.youth-hall-card,
+.youth-activity-card,.youth-store-item,.youth-profile-card,.weekly-admin-item,
+.photos-stats article,.photo-card,.settings-card,.settings-section,.inbox-panel,.prayer-card,.event-card) {
+  color: #263a2e !important;
+  background: #fff !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: var(--jf-radius) !important;
+  box-shadow: var(--jf-shadow) !important;
+  backdrop-filter: none !important;
+}
+.main :is(.empty-state,.members-empty,.attendance-empty,.visitors-empty,.managed-empty,.reports-empty,.checkin-empty,.shared-empty-state) {
+  color: #6b7b70 !important;
+  background: #fff !important;
+  border: 1px dashed #d8e4dc !important;
+  border-radius: 13px !important;
+}
+.main :is(.error,.members-error,.attendance-error,.visitors-error,.managed-alert.error,[role="alert"]) {
+  color: #9b3a3a;
+  background: #fff4f2;
+  border: 1px solid #f2d6d1;
+  border-radius: 10px;
+}
+.main :is(.success,.managed-alert.success,.attendance-success) {
+  color: #216a48;
+  background: #eef9f2;
+  border: 1px solid #d4eddd;
+  border-radius: 10px;
+}
+.main a { color: var(--jf-green-strong); }
+.main table { width: 100%; border-collapse: separate; border-spacing: 0; color: #30453a; }
+.main table th {
+  color: #52675a !important;
+  background: #f3f7f4 !important;
+  font-size: 10px;
+  font-weight: 800;
+  text-align: left;
+  border-color: var(--jf-line) !important;
+}
+.main table td { color: #405448 !important; border-color: #e9efeb !important; }
+.main table tr:hover td { background: #f7fbf8 !important; }
+.main :is(.eyebrow,.kicker,.section-kicker,.management-kicker,.members-kicker,.attendance-kicker,.reports-kicker) {
+  color: var(--jf-green-strong) !important;
+}
+
+/* Consistent emerald page headers */
+.main :is(.members-hero,.attendance-header,.followup-header,.visitors-header,.devotionals-header,
+.reports-hero,.checkin-hero,.managed-hero,.management-header,.settings-hero,.photos-hero,.leaders-hero) {
+  color: #fff !important;
+  background: linear-gradient(112deg, #1bb274 0%, #168f61 60%, #116c4b 100%) !important;
+  border: 1px solid #169362 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 12px 28px rgba(21, 128, 82, .15) !important;
+}
+.main :is(.members-hero,.attendance-header,.followup-header,.visitors-header,.devotionals-header,
+.reports-hero,.checkin-hero,.managed-hero,.management-header,.settings-hero,.photos-hero,.leaders-hero) :is(h1,h2,h3,strong) {
+  color: #fff !important;
+}
+.main :is(.members-hero,.attendance-header,.followup-header,.visitors-header,.devotionals-header,
+.reports-hero,.checkin-hero,.managed-hero,.management-header,.settings-hero,.photos-hero,.leaders-hero) p {
+  color: rgba(255,255,255,.86) !important;
+}
+.main :is(.members-hero,.attendance-header,.followup-header,.visitors-header,.devotionals-header,
+.reports-hero,.checkin-hero,.managed-hero,.management-header,.settings-hero,.photos-hero,.leaders-hero) button {
+  color: #168456 !important;
+  background: #fff !important;
+  border: 1px solid rgba(255,255,255,.65) !important;
+  border-radius: 9px !important;
+}
+.main :is(.members-total-card,.managed-stat,.reports-stats article,.attendance-summary .attendance-card,.checkin-summary article) {
+  background: #fff !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 13px !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main :is(.members-total-card,.managed-stat,.reports-stats article,.attendance-summary .attendance-card,.checkin-summary article) :is(strong,b) {
+  color: #183126 !important;
+}
+.main :is(.members-total-card,.managed-stat,.reports-stats article,.attendance-summary .attendance-card,.checkin-summary article) :is(span,small,p) {
+  color: #68796f !important;
+}
+
+/* Dashboard: green welcome banner, white statistics and one emerald data series */
+.main [class*="DashboardPage_welcome"] {
+  min-height: 178px;
+  padding: clamp(22px, 3vw, 34px) !important;
+  border: 1px solid #168e5d !important;
+  border-radius: 18px !important;
+  background: linear-gradient(112deg, #1db778 0%, #159461 62%, #116d4c 100%) !important;
+  box-shadow: 0 12px 28px rgba(21, 128, 82, .14) !important;
+}
+.main [class*="DashboardPage_welcome"] :is(h1,h2,h3,strong) { color: #fff !important; }
+.main [class*="DashboardPage_welcome"] p { color: rgba(255,255,255,.88) !important; }
+.main [class*="DashboardPage_eyebrow"],
+.main [class*="DashboardPage_kicker"] { color: #d5f5e4 !important; }
+.main [class*="DashboardPage_primaryAction"] {
+  color: #138454 !important;
+  background: #fff !important;
+  border: 1px solid #fff !important;
+  border-radius: 9px !important;
   box-shadow: none !important;
 }
-html[data-theme="light"] .sidebar .nav-item.active .nav-item-icon {
-  color: #086bb9 !important;
-  background: #d8edff !important;
+.main [class*="DashboardPage_secondaryAction"] {
+  color: #fff !important;
+  background: rgba(255,255,255,.12) !important;
+  border: 1px solid rgba(255,255,255,.3) !important;
+  border-radius: 9px !important;
 }
-html[data-theme="light"] .sidebar .safe-note { color: #536a83 !important; }
-html[data-theme="light"] .sidebar .safe-note small { color: #71869d !important; }
-html[data-theme="light"] .sidebar .theme-toggle {
-  color: #31516e !important;
-  border-color: #d7e3ef !important;
-  background: #f7faff !important;
+.main [class*="DashboardPage_metricCard"],
+.main [class*="DashboardPage_panel"],
+.main [class*="DashboardPage_assistantCard"],
+.main [class*="DashboardPage_systemCard"] {
+  color: #22382d !important;
+  background: #fff !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 15px !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main [class*="DashboardPage_metricTop"] { color: #63766a !important; }
+.main [class*="DashboardPage_metricCard"] :is(strong,b) { color: #162d22 !important; }
+.main [class*="DashboardPage_metricCard"] small,
+.main [class*="DashboardPage_panel"] p,
+.main [class*="DashboardPage_eventInfo"] p,
+.main [class*="DashboardPage_empty"] span { color: #718176 !important; }
+.main [class*="DashboardPage_metricTop"] i,
+.main [class*="DashboardPage_assistantIcon"],
+.main [class*="DashboardPage_shortcuts"] a > i {
+  color: #138a58 !important;
+  background: #e8f7ef !important;
+}
+.main [class*="DashboardPage_metricSpark"] span { background: #20ae73 !important; }
+.main [class*="DashboardPage_panelHeading"] h2 { color: #1b3226 !important; }
+.main [class*="DashboardPage_panelHeading"] p { color: #718176 !important; }
+.main [class*="DashboardPage_podium"] { background: #f8fbf9 !important; }
+.main [class*="DashboardPage_podiumBase"] {
+  background: #e7f5ed !important;
+  border-color: #cde8d8 !important;
+  color: #28734f !important;
+}
+.main [class*="DashboardPage_podiumPerson"] .avatar {
+  border-color: #20a86d !important;
+  background: #e9f7ef !important;
+  color: #177b4f !important;
+}
+.main [class*="DashboardPage_chartRow"] > div { background: #e8efeb !important; }
+.main [class*="DashboardPage_chartRow"] > div > i { background: #1caf70 !important; box-shadow: none !important; }
+.main [class*="DashboardPage_chartRow"] > b { color: #53675a !important; }
+.main [class*="DashboardPage_shortcuts"] a {
+  color: #315044 !important;
+  background: #f8fbf9 !important;
+  border: 1px solid #e4ece7 !important;
+  border-radius: 10px !important;
+}
+.main [class*="DashboardPage_shortcuts"] a small { color: #74857a !important; }
+.main [class*="DashboardPage_shortcuts"] a:hover {
+  transform: translateY(-2px) !important;
+  border-color: #b9e0cb !important;
+  background: #f0faf4 !important;
+}
+.main [class*="DashboardPage_empty"] { color: #718176 !important; }
+
+/* Directory, attendance and shared records */
+.main .members-page .members-controls,
+.main .members-page .members-search,
+.main .managed-toolbar,
+.main .managed-search,
+.main .attendance-tools,
+.main .attendance-member-search,
+.main .visitors-search,
+.main .followup-search {
+  color: #62756a !important;
+  background: #fff !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 11px !important;
+  box-shadow: none !important;
+}
+.main .members-page .member-card,
+.main .attendance-member,
+.main .managed-record,
+.main .visitor-card,
+.main .followup-card {
+  color: #293d31 !important;
+  background: #fff !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 13px !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main .members-page .member-card:hover,
+.main .attendance-member:hover,
+.main .managed-record:hover,
+.main .visitor-card:hover,
+.main .followup-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: #b9e0cb !important;
+  box-shadow: var(--jf-shadow-hover) !important;
+}
+.main .members-page .member-avatar,
+.main .attendance-member .attendance-avatar,
+.main .visitor-avatar,
+.main .managed-record-icon {
+  color: #138454 !important;
+  background: #e8f7ef !important;
+  border-color: #cde8d8 !important;
+}
+.main .members-page .member-card-info h2,
+.main .managed-record :is(h2,h3,strong),
+.main .attendance-member strong { color: #1b3327 !important; }
+.main .members-page .member-card-details,
+.main .members-page .member-nick,
+.main .managed-record p,
+.main .attendance-member span { color: #74847a !important; }
+.main .attendance-status-button[aria-pressed="true"],
+.main .attendance-status-options button[aria-pressed="true"] {
+  color: #126b45 !important;
+  background: #e5f6ec !important;
+  border-color: #a9dabc !important;
+  box-shadow: none !important;
+}
+.main .attendance-status-options button {
+  border: 1px solid #dfe7e2 !important;
+  border-radius: 8px !important;
+  color: #64766b !important;
+  background: #fff !important;
 }
 
-html[data-theme="light"] .main > .topline,
-html[data-theme="light"] .mobile-header {
-  color: #28445f !important;
-  background: rgba(255,255,255,.97) !important;
-  border-color: #dbe4ee !important;
-  box-shadow: 0 5px 18px rgba(25, 57, 88, .045) !important;
-}
-html[data-theme="light"] .topline-status,
-html[data-theme="light"] .project-label,
-html[data-theme="light"] .topline-theme-toggle {
-  color: #34516c !important;
-  background: #f4f8fd !important;
-  border-color: #d8e4f0 !important;
-}
-html[data-theme="light"] .topline-status-module,
-html[data-theme="light"] .topline-status-environment { color: #496782 !important; }
-html[data-theme="light"] .topline-theme-toggle svg { color: #146eb5 !important; }
-html[data-theme="light"] .main > footer { color: #76899d !important; border-color: #dce5ee !important; }
-html[data-theme="light"] .main .preview-warning {
-  color: #795a1b !important;
-  background: #fff8e8 !important;
-  border-color: #f2dfb4 !important;
-}
-
-/* A unified, legible light surface for the administrative modules. */
-html[data-theme="light"] .main :is(
-  .panel, .ranking-content, .ranking-tabs, .ranking-progress-panel,
-  .members-controls, .members-state, .attendance-card, .attendance-summary,
-  .followup-content, .followup-card, .visitors-content, .visitor-card,
-  .devotionals-controls, .devotional-card, .reports-card, .reports-section,
-  .checkin-panel, .checkin-config, .management-summary, .management-form,
-  .management-records, .management-record, .managed-record, .managed-stat,
-  .photos-tabs, .photo-card, .leaders-card, .leaders-table-wrapper,
-  .settings-card, .settings-section, .shared-page-header, .shared-stat-card
-) {
-  color: #1c3550 !important;
-  background: #ffffff !important;
-  border-color: #dce5ef !important;
-  box-shadow: 0 8px 24px rgba(21, 52, 83, .055) !important;
-}
-html[data-theme="light"] .main :is(
-  .panel, .ranking-content, .ranking-progress-panel, .attendance-card,
-  .followup-card, .visitor-card, .devotional-card, .reports-card,
-  .checkin-panel, .management-summary, .management-form, .management-record,
-  .managed-record, .photo-card, .leaders-card, .settings-card
-) :is(h1,h2,h3,h4,strong,b) { color: #17334f !important; }
-html[data-theme="light"] .main :is(
-  input:not([type="checkbox"]):not([type="radio"]), select, textarea
-) {
-  color: #203b56 !important;
-  background: #f8fbff !important;
-  border-color: #d5e1ed !important;
-}
-html[data-theme="light"] .main :is(input,textarea,select)::placeholder { color: #8093a8 !important; }
-html[data-theme="light"] .main :is(table th,table thead th) {
-  color: #294c6b !important;
-  background: #edf4fb !important;
-  border-color: #dce5ef !important;
-}
-html[data-theme="light"] .main :is(table td,table tbody td) {
-  color: #3c5873 !important;
-  border-color: #e5ebf2 !important;
-}
-html[data-theme="light"] .main :is(.ranking-tabs,.photos-tabs,.devotionals-categories) button {
-  color: #536b84 !important;
-}
-html[data-theme="light"] .main :is(.ranking-tabs,.photos-tabs,.devotionals-categories) button.active {
-  color: #075da8 !important;
-  background: #e6f3ff !important;
-  border-color: #c3e1fa !important;
-}
-
-/* Dashboard module — remove hard-coded dark fills in light mode. */
-html[data-theme="light"] .main [class*="DashboardPage_welcome"] {
-  background:
-    radial-gradient(ellipse at 88% 15%, rgba(52, 147, 222, .15), transparent 34%),
-    linear-gradient(115deg, #ffffff, #edf5fd) !important;
-  border-color: #d2e3f2 !important;
-  box-shadow: 0 13px 32px rgba(25, 65, 101, .08) !important;
-}
-html[data-theme="light"] .main [class*="DashboardPage_welcome"] :is(h1,strong) { color: #183650 !important; }
-html[data-theme="light"] .main [class*="DashboardPage_welcome"] p { color: #5e748a !important; }
-html[data-theme="light"] .main [class*="DashboardPage_metricCard"],
-html[data-theme="light"] .main [class*="DashboardPage_panel"],
-html[data-theme="light"] .main [class*="DashboardPage_assistantCard"],
-html[data-theme="light"] .main [class*="DashboardPage_systemCard"] {
-  color: #203b56 !important;
-  background: #ffffff !important;
-  border-color: #d9e4ef !important;
-  box-shadow: 0 9px 24px rgba(25, 57, 88, .06) !important;
-}
-html[data-theme="light"] .main [class*="DashboardPage_metricCard"] :is(strong,b),
-html[data-theme="light"] .main [class*="DashboardPage_panel"] :is(h2,h3,b,strong),
-html[data-theme="light"] .main [class*="DashboardPage_assistantCard"] h2,
-html[data-theme="light"] .main [class*="DashboardPage_systemCard"] b { color: #183650 !important; }
-html[data-theme="light"] .main [class*="DashboardPage_metricCard"] small,
-html[data-theme="light"] .main [class*="DashboardPage_panel"] p,
-html[data-theme="light"] .main [class*="DashboardPage_eventInfo"] p,
-html[data-theme="light"] .main [class*="DashboardPage_empty"] span { color: #6a7f94 !important; }
-html[data-theme="light"] .main [class*="DashboardPage_shortcuts"] a {
-  color: #294760 !important;
-  background: #f6faff !important;
-  border-color: #dce7f1 !important;
-}
-html[data-theme="light"] .main [class*="DashboardPage_shortcuts"] a small { color: #6b8298 !important; }
-
-/* Ranking: distinct podium columns, focused leaderboard and no blur. */
-.main .ranking-hub {
-  --jf-border: rgba(101, 164, 220, .22);
-}
+/* Ranking is one restrained green dashboard, not a rainbow scoreboard. */
+.main .ranking-hub { color: #21382b !important; }
+.main .ranking-hub::before { display: none !important; }
 .main .ranking-hub .ranking-hero {
-  border-radius: 22px !important;
-  background:
-    radial-gradient(ellipse at 84% 12%, rgba(51, 163, 232, .25), transparent 36%),
-    linear-gradient(115deg, #081e38 0%, #123c65 56%, #1c3156 100%) !important;
-  border: 1px solid rgba(112, 186, 241, .34) !important;
-  box-shadow: 0 22px 46px rgba(2, 17, 36, .22) !important;
+  border: 1px solid #168e5d !important;
+  border-radius: 18px !important;
+  background: linear-gradient(112deg, #1db778, #159461 62%, #116d4c) !important;
+  box-shadow: 0 12px 28px rgba(21,128,82,.14) !important;
+  backdrop-filter: none !important;
 }
-.main .ranking-hub .ranking-hero h1 { letter-spacing: -.055em !important; }
-.main .ranking-hub .ranking-tabs { border-radius: 14px !important; }
-.main .ranking-hub .ranking-content {
-  border-radius: 19px !important;
-  box-shadow: 0 12px 34px rgba(2, 17, 36, .12) !important;
+.main .ranking-hub .ranking-hero :is(h1,p) { color: #fff !important; }
+.main .ranking-hub .ranking-eyebrow,
+.main .ranking-hub .ranking-kicker { color: #168a57 !important; }
+.main .ranking-hub .ranking-hero .ranking-eyebrow { color: #d9f7e7 !important; }
+.main .ranking-hub .ranking-hero-button {
+  color: #147b50 !important;
+  background: #fff !important;
+  border: 1px solid #fff !important;
+  box-shadow: none !important;
 }
-.main .ranking-hub .ranking-podium-stage {
-  align-items: end !important;
-  gap: clamp(7px, 1.5vw, 16px) !important;
-  padding: 26px 3px 0 !important;
+.main .ranking-hub .ranking-tabs,
+.main .ranking-hub .ranking-content,
+.main .ranking-hub .ranking-progress-panel,
+.main .ranking-hub .youth-hall-card {
+  color: #253b2f !important;
+  background: #fff !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 15px !important;
+  box-shadow: var(--jf-shadow) !important;
+  backdrop-filter: none !important;
 }
-.main .ranking-hub .ranking-podium-player {
-  position: relative;
-  display: flex !important;
-  min-height: 258px;
-  justify-content: flex-end !important;
-  overflow: hidden;
-  padding: 17px 9px 0 !important;
-  border: 1px solid rgba(103, 166, 222, .23) !important;
-  border-bottom: 0 !important;
-  border-radius: 17px 17px 0 0 !important;
-  background: linear-gradient(180deg, #163a5c, #0d2945 80%) !important;
-  box-shadow: 0 12px 28px rgba(1, 14, 29, .18) !important;
+.main .ranking-hub .ranking-tabs button {
+  color: #607368 !important;
+  background: #f7faf8 !important;
+  border: 1px solid #edf1ee !important;
 }
-.main .ranking-hub .ranking-podium-player.podium-second { min-height: 285px; }
+.main .ranking-hub .ranking-tabs button.active {
+  color: #147c50 !important;
+  background: #e9f7ef !important;
+  border-color: #cde9d8 !important;
+  box-shadow: none !important;
+}
+.main .ranking-hub :is(.ranking-section-heading h2,.ranking-list-heading h3,.youth-hall-card h2) { color: #1b3327 !important; }
+.main .ranking-hub :is(.ranking-section-heading p,.ranking-list-heading p,.youth-hall-caption) { color: #718176 !important; }
+.main .ranking-hub .ranking-info-grid article,
+.main .ranking-hub .ranking-player-card {
+  color: #293e32 !important;
+  background: #fff !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 13px !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main .ranking-hub .ranking-info-grid svg,
+.main .ranking-hub .ranking-card-position,
+.main .ranking-hub .ranking-card-points,
+.main .ranking-hub .ranking-card-role { color: #168957 !important; }
+.main .ranking-hub .ranking-card-name strong,
+.main .ranking-hub .ranking-card-points strong,
+.main .ranking-hub .ranking-podium-details strong { color: #1b3327 !important; }
+.main .ranking-hub .ranking-card-role {
+  background: #e9f7ef !important;
+  border: 1px solid #d1ebdc !important;
+}
+.main .ranking-hub .ranking-player-track { background: #e9f0ec !important; }
+.main .ranking-hub .ranking-player-track > i { background: #19a96b !important; }
+.main .ranking-hub .ranking-podium-player,
+.main .ranking-hub .ranking-podium-player.podium-first,
+.main .ranking-hub .ranking-podium-player.podium-second,
+.main .ranking-hub .ranking-podium-player.podium-third {
+  color: #23392c !important;
+  background: #f7faf8 !important;
+  border: 1px solid #e1eae4 !important;
+  border-radius: 13px 13px 0 0 !important;
+  box-shadow: none !important;
+}
 .main .ranking-hub .ranking-podium-player.podium-first {
-  min-height: 335px;
-  border-color: rgba(255, 207, 103, .55) !important;
-  background: linear-gradient(180deg, #604a2d 0%, #203750 44%, #102b46 100%) !important;
-  box-shadow: 0 18px 40px rgba(2, 16, 32, .26), 0 0 28px rgba(255, 190, 69, .1) !important;
+  background: #edf8f1 !important;
+  border-color: #c4e5d1 !important;
 }
-.main .ranking-hub .ranking-podium-player.podium-third { min-height: 248px; }
-.main .ranking-hub .ranking-podium-rank { color: #b8d6ee !important; }
-.main .ranking-hub .podium-first .ranking-podium-rank { color: #ffda83 !important; }
 .main .ranking-hub .ranking-podium-avatar {
-  width: 68px !important;
-  height: 68px !important;
-  border: 3px solid #79b9e4 !important;
-  background: #183f61 !important;
-  box-shadow: 0 0 0 5px rgba(103, 181, 237, .1) !important;
+  border: 3px solid #39ad78 !important;
+  background: #e7f6ed !important;
+  box-shadow: none !important;
 }
-.main .ranking-hub .podium-first .ranking-podium-avatar {
-  width: 86px !important;
-  height: 86px !important;
-  border-color: #ffd166 !important;
-  box-shadow: 0 0 0 6px rgba(255, 209, 102, .13), 0 0 30px rgba(255, 194, 85, .22) !important;
+.main .ranking-hub .podium-first .ranking-podium-avatar { border-color: #17945e !important; }
+.main .ranking-hub .ranking-podium-details small,
+.main .ranking-hub .ranking-podium-place,
+.main .ranking-hub .ranking-podium-rank { color: #4f7760 !important; }
+.main .ranking-hub .ranking-podium-base,
+.main .ranking-hub .podium-first .ranking-podium-base {
+  color: #1c764e !important;
+  background: #e5f5eb !important;
+  border-color: #cbe8d5 !important;
 }
-.main .ranking-hub .ranking-podium-details strong { color: #f5f9ff !important; font-size: 13px !important; }
-.main .ranking-hub .ranking-podium-details small { color: #ffda83 !important; }
-.main .ranking-hub .ranking-podium-place { color: #b5cce0 !important; }
-.main .ranking-hub .ranking-podium-base {
+.main .ranking-hub .youth-faithful-list li {
+  color: #30473a !important;
+  background: #f8fbf9 !important;
+  border: 1px solid #e6eee8 !important;
+}
+.main .ranking-hub .youth-faithful-rank { color: #167b50 !important; background: #e7f6ed !important; }
+.main .ranking-hub .youth-faithful-name { color: #2e4638 !important; }
+.main .ranking-hub .youth-faithful-list strong { color: #168957 !important; }
+.main .ranking-hub .ranking-player-tooltip { color: #40584a !important; background: #f4f8f5 !important; }
+
+/* Youth portal entry and personal area */
+body .youth-portal {
+  width: 100%;
+  min-height: 100vh;
+  padding: clamp(14px, 2.4vw, 30px) 14px 112px !important;
+  color: #263b2f !important;
+  background: #f4f7f6 !important;
+}
+body .youth-portal .youth-container {
+  width: min(100%, 1160px) !important;
+  margin: 0 auto !important;
+}
+body .youth-portal .youth-header {
+  max-width: 800px !important;
+  margin: 12px auto 24px !important;
+  text-align: center !important;
+}
+body .youth-portal .youth-brand-icon {
+  width: 58px !important;
+  height: 58px !important;
+  margin: 0 auto 12px;
+  border: 0 !important;
+  border-radius: 16px !important;
+  background: #17a86b !important;
+  box-shadow: none !important;
+}
+body .youth-portal .youth-header h1 {
+  margin: 9px 0 5px !important;
+  color: #183126 !important;
+  font-size: clamp(28px, 4.2vw, 42px) !important;
+  letter-spacing: -.045em !important;
+}
+body .youth-portal .youth-brand-label {
+  color: #168957 !important;
+  font-size: 9px !important;
+  font-weight: 850 !important;
+  letter-spacing: .13em !important;
+}
+body .youth-portal .youth-title-divider {
+  width: 48px !important;
+  height: 3px !important;
+  margin: 12px auto !important;
+  background: #19a96b !important;
+}
+body .youth-portal .youth-header h2 { color: #1c3528 !important; font-size: 24px !important; }
+body .youth-portal .youth-header > p { color: #738278 !important; font-size: 12px !important; }
+body .youth-portal .youth-selector {
+  padding: clamp(16px, 2.6vw, 26px) !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 17px !important;
+  background: #fff !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+body .youth-portal .youth-selector-heading {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding-bottom: 15px !important;
+  border-bottom: 1px solid #edf1ee !important;
+}
+body .youth-portal .youth-selector-heading > div:first-child > span {
+  color: #168957 !important;
+  font-size: 9px !important;
+  font-weight: 850 !important;
+  letter-spacing: .14em !important;
+}
+body .youth-portal .youth-selector-heading h3 {
+  margin: 4px 0 0 !important;
+  color: #1a3326 !important;
+  font-size: clamp(22px, 2.7vw, 28px) !important;
+  text-transform: none !important;
+}
+body .youth-portal .youth-selector-actions { display: flex; align-items: center; gap: 12px; }
+body .youth-portal .youth-total { color: #5e7668 !important; font-size: 11px !important; letter-spacing: 0 !important; }
+body .youth-portal .youth-theme-toggle,
+body .youth-portal .youth-sound-toggle,
+body .youth-portal .youth-back {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  min-height: 39px;
+  padding: 8px 12px !important;
+  color: #286345 !important;
+  background: #f1f9f4 !important;
+  border: 1px solid #d7ebde !important;
+  border-radius: 9px !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+}
+body .youth-portal .youth-search {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin: 17px 0 !important;
+  padding: 0 13px !important;
+  min-height: 46px;
+  color: #6d8376 !important;
+  background: #f8fbf9 !important;
+  border: 1px solid #dfe9e3 !important;
+  border-radius: 10px !important;
+}
+body .youth-portal .youth-search input {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 44px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: #253b2f !important;
+  background: transparent !important;
+}
+body .youth-portal .youth-profiles {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)) !important;
+  gap: 13px !important;
+}
+body .youth-portal .youth-profile-card {
+  min-width: 0;
+  min-height: 195px !important;
+  padding: 17px 13px 0 !important;
+  color: #2a4033 !important;
+  background: #fff !important;
+  border: 1px solid #e1eae4 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 14px rgba(20,47,34,.04) !important;
+  animation: none !important;
+}
+body .youth-portal .youth-profile-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: #b8e1cb !important;
+  box-shadow: var(--jf-shadow-hover) !important;
+}
+body .youth-portal .youth-avatar {
+  display: grid !important;
+  place-items: center !important;
+  width: 70px !important;
+  height: 70px !important;
+  overflow: hidden;
+  border: 2px solid #9bd7b5 !important;
+  border-radius: 50% !important;
+  color: #177b50 !important;
+  background: #eaf7ef !important;
+  box-shadow: none !important;
+  font-size: 22px !important;
+}
+body .youth-portal .youth-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+body .youth-portal .youth-profile-card strong { color: #20382b !important; font-size: 13px !important; }
+body .youth-portal .youth-card-nick { color: #809086 !important; font-size: 10px !important; }
+body .youth-portal .youth-card-action {
+  color: #168957 !important;
+  background: #f6fbf7 !important;
+  border-top: 1px solid #edf2ee !important;
+  border-color: #edf2ee !important;
+}
+body .youth-portal .youth-card-decoration { color: #159461 !important; filter: none !important; }
+body .youth-portal .youth-results-count { margin-top: 14px; color: #75867b !important; font-size: 10px !important; }
+body .youth-portal .youth-loading,
+body .youth-portal .youth-empty,
+body .youth-portal .youth-error {
+  color: #607368 !important;
+  background: #fff !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 12px !important;
+}
+
+/* Youth personal area, one screen per bottom tab */
+body .youth-portal.dashboard {
+  min-height: 100vh;
+  padding: 14px 14px calc(116px + env(safe-area-inset-bottom)) !important;
+  background: #f4f7f6 !important;
+}
+body .youth-portal.dashboard .youth-container { width: min(100%, 1160px) !important; }
+body .youth-portal.dashboard .youth-home-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  margin: 0 auto 14px !important;
+}
+body .youth-portal.dashboard .youth-welcome {
+  display: grid !important;
+  grid-template-columns: minmax(112px, 150px) minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 8px 22px !important;
+  min-height: 0 !important;
+  padding: clamp(18px, 3vw, 30px) !important;
+  color: #fff !important;
+  background: linear-gradient(112deg, #1bb274, #168f61 62%, #116d4b) !important;
+  border: 1px solid #168c5c !important;
+  border-radius: 17px !important;
+  box-shadow: 0 12px 26px rgba(21,128,82,.13) !important;
+  text-align: left !important;
+  backdrop-filter: none !important;
+}
+body .youth-portal.dashboard .youth-welcome::before,
+body .youth-portal.dashboard .youth-welcome::after { display: none !important; }
+body .youth-portal.dashboard .youth-welcome > * { position: relative; z-index: 1; }
+body .youth-portal.dashboard .youth-profile-avatar-card {
+  grid-column: 1;
+  grid-row: 1 / span 8;
   display: grid;
   place-items: center;
-  width: 100%;
-  margin-top: auto;
-  border-color: rgba(121, 184, 228, .25) !important;
-  background: linear-gradient(180deg, rgba(69, 145, 204, .3), rgba(13, 39, 65, .12)) !important;
+  min-width: 0;
 }
-.main .ranking-hub .podium-first .ranking-podium-base {
-  color: #ffdc8b !important;
-  border-color: rgba(255, 209, 102, .43) !important;
-  background: linear-gradient(180deg, rgba(255, 207, 103, .25), rgba(255, 207, 103, .05)) !important;
+body .youth-portal.dashboard .youth-profile-avatar-card .youth-avatar {
+  width: 112px !important;
+  height: 112px !important;
+  border: 3px solid rgba(255,255,255,.85) !important;
+  color: #167c51 !important;
+  background: #fff !important;
+  box-shadow: 0 5px 15px rgba(0,0,0,.08) !important;
 }
-.main .ranking-hub .ranking-player-card {
-  min-height: 242px;
+body .youth-portal.dashboard .youth-welcome :is(.youth-brand-label,.youth-profile-badge,.youth-profile-nick,.youth-profile-motto,.youth-profile-title,.youth-look-signature,.youth-profile-quickstats,.youth-welcome h1,.youth-welcome > p) {
+  grid-column: 2;
+  justify-self: start;
+  color: #fff !important;
+}
+body .youth-portal.dashboard .youth-welcome .youth-brand-label { margin: 0 !important; color: #d9f7e7 !important; }
+body .youth-portal.dashboard .youth-welcome h1 {
+  margin: 2px 0 !important;
+  font-size: clamp(25px, 3.5vw, 38px) !important;
+  line-height: 1.12 !important;
+  letter-spacing: -.045em !important;
+}
+body .youth-portal.dashboard .youth-welcome > p { margin: 0 !important; color: rgba(255,255,255,.88) !important; font-size: 12px !important; }
+body .youth-portal.dashboard .youth-profile-badge,
+body .youth-portal.dashboard .youth-profile-title {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 8px;
+  border: 1px solid rgba(255,255,255,.26) !important;
+  border-radius: 99px;
+  background: rgba(255,255,255,.13) !important;
+  color: #fff !important;
+  font-size: 9px !important;
+}
+body .youth-portal.dashboard .youth-look-signature { display: flex; flex-wrap: wrap; gap: 6px; }
+body .youth-portal.dashboard .youth-look-signature span {
+  color: rgba(255,255,255,.9) !important;
+  background: rgba(255,255,255,.12) !important;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 7px;
+  padding: 5px 8px;
+  font-size: 9px;
+}
+body .youth-portal.dashboard .youth-profile-quickstats { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 4px; }
+body .youth-portal.dashboard .youth-profile-quickstats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 99px;
+  color: #fff !important;
+  background: rgba(255,255,255,.13) !important;
+  font-size: 9px;
+}
+body .youth-portal.dashboard .youth-customize-trigger {
+  position: absolute !important;
+  top: 15px !important;
+  right: 15px !important;
+  z-index: 3;
+  min-height: 34px;
+  padding: 7px 10px !important;
+  color: #176b48 !important;
+  background: #fff !important;
+  border: 1px solid #fff !important;
+  border-radius: 8px !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+}
+body .youth-portal.dashboard .youth-tab-page { display: grid; gap: 15px; }
+body .youth-portal.dashboard :is(.youth-activities,.youth-hall-card,.youth-immersive-ranking,.youth-growth-plan,.youth-journal-panel,.youth-game-hub,.youth-prayer-panel,.youth-customizer,.youth-profile-editor) {
+  color: #293f33 !important;
+  background: #fff !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 15px !important;
+  box-shadow: var(--jf-shadow) !important;
+  backdrop-filter: none !important;
+}
+body .youth-portal.dashboard :is(.youth-activities,.youth-hall-card,.youth-immersive-ranking,.youth-growth-plan,.youth-journal-panel,.youth-game-hub,.youth-prayer-panel,.youth-customizer,.youth-profile-editor) :is(h1,h2,h3,h4,strong,b) { color: #1c3528 !important; }
+body .youth-portal.dashboard :is(.youth-activities,.youth-hall-card,.youth-immersive-ranking,.youth-growth-plan,.youth-journal-panel,.youth-game-hub,.youth-prayer-panel,.youth-customizer,.youth-profile-editor) :is(p,small,span,label) { color: #6e8074 !important; }
+body .youth-portal.dashboard .youth-hall-card header > div > span,
+body .youth-portal.dashboard .youth-activities header > div > span,
+body .youth-portal.dashboard .youth-immersive-ranking-header > div > span,
+body .youth-portal.dashboard .youth-growth-plan header > div > span,
+body .youth-portal.dashboard .youth-journal-panel header > div > span,
+body .youth-portal.dashboard .youth-game-hub header > div > span,
+body .youth-portal.dashboard .youth-prayer-panel header > div > span {
+  color: #168957 !important;
+}
+body .youth-portal.dashboard .youth-activity-card,
+body .youth-portal.dashboard .youth-store-item,
+body .youth-portal.dashboard .youth-faithful-list li,
+body .youth-portal.dashboard .youth-ranking-row,
+body .youth-portal.dashboard .youth-growth-grid article,
+body .youth-portal.dashboard .youth-profile-editor {
+  color: #2d4437 !important;
+  background: #f9fbfa !important;
+  border: 1px solid #e5ede7 !important;
+  border-radius: 11px !important;
+  box-shadow: none !important;
+}
+body .youth-portal.dashboard .youth-activity-card:hover,
+body .youth-portal.dashboard .youth-game-tile:hover,
+body .youth-portal.dashboard .youth-store-item:hover {
+  transform: translateY(-2px) !important;
+  border-color: #bce3ce !important;
+}
+body .youth-portal.dashboard .youth-podium-list li,
+body .youth-portal.dashboard .youth-ranking-podium-card {
+  color: #2d4437 !important;
+  background: #f4faf6 !important;
+  border: 1px solid #dcebe1 !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+body .youth-portal.dashboard .youth-podium-medal,
+body .youth-portal.dashboard .youth-ranking-podium-place,
+body .youth-portal.dashboard .youth-podium-list strong { color: #168957 !important; }
+body .youth-portal.dashboard .youth-ranking-meter,
+body .youth-portal.dashboard .youth-growth-progress { background: #e7efe9 !important; }
+body .youth-portal.dashboard .youth-ranking-meter i,
+body .youth-portal.dashboard .youth-growth-progress i { background: #19a96b !important; }
+body .youth-portal.dashboard .youth-my-standing-card {
+  background: #edf8f1 !important;
+  border: 1px solid #d3ebdc !important;
+  border-radius: 12px !important;
+  color: #294436 !important;
+}
+body .youth-portal.dashboard .youth-my-standing-card :is(b,strong,small,span) { color: #236b49 !important; }
+body .youth-portal.dashboard .youth-ranking-row-main { color: #30483a !important; }
+body .youth-portal.dashboard .youth-ranking-row-position { color: #168957 !important; }
+body .youth-portal.dashboard .youth-ranking-row-avatar { background: #e5f5eb !important; color: #167d50 !important; }
+body .youth-portal.dashboard .youth-game-tile {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 16px !important;
+  color: #284034 !important;
+  background: #fff !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+body .youth-portal.dashboard .youth-game-tile > span {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  color: #168957 !important;
+  background: #e8f7ef !important;
+}
+body .youth-portal.dashboard .youth-game-tile b { color: #20392b !important; }
+body .youth-portal.dashboard .youth-game-tile small { color: #74857a !important; }
+body .youth-portal.dashboard .youth-game-tile i { color: #168957 !important; font-style: normal; }
+body .youth-portal.dashboard .youth-prayer-panel form { display: grid; gap: 12px; }
+body .youth-portal.dashboard .youth-prayer-panel form label,
+body .youth-portal.dashboard .youth-profile-editor-grid label {
+  display: grid;
+  gap: 6px;
+  color: #53675a !important;
+  font-size: 11px;
+  font-weight: 700;
+}
+body .youth-portal.dashboard .youth-profile-editor-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+body .youth-portal.dashboard .youth-profile-editor-grid textarea { min-height: 84px; }
+body .youth-portal.dashboard .youth-open-customizer,
+body .youth-portal.dashboard .youth-profile-editor > button,
+body .youth-portal.dashboard .youth-journal-actions button,
+body .youth-portal.dashboard .youth-prayer-submit-row button,
+body .youth-portal.dashboard .youth-customizer button {
+  color: #fff !important;
+  background: var(--jf-green) !important;
+  border: 1px solid var(--jf-green) !important;
+  border-radius: 9px !important;
+}
+body .youth-portal.dashboard .youth-customizer button:disabled,
+body .youth-portal.dashboard .youth-prayer-submit-row button:disabled { opacity: .55; cursor: not-allowed; }
+body .youth-portal.dashboard .youth-customizer .youth-store-item {
+  color: #2d4437 !important;
+  background: #f9fbfa !important;
+  border: 1px solid #e5ede7 !important;
+}
+body .youth-portal.dashboard .youth-customizer .youth-store-item.selected {
+  color: #116b45 !important;
+  background: #e8f7ef !important;
+  border-color: #acdcbf !important;
+  box-shadow: inset 0 0 0 1px #acdcbf !important;
+}
+body .youth-portal.dashboard .youth-customizer .youth-store-tabs button {
+  color: #607267 !important;
+  background: #f7faf8 !important;
+  border: 1px solid #e3ebe5 !important;
+  border-radius: 8px !important;
+}
+body .youth-portal.dashboard .youth-customizer .youth-store-tabs button.active {
+  color: #167b50 !important;
+  background: #e8f7ef !important;
+  border-color: #bce3cb !important;
+}
+body .youth-portal.dashboard .youth-customizer > header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #168957 !important;
+}
+body .youth-portal.dashboard .youth-customizer > header > div { flex: 1; min-width: 0; }
+body .youth-portal.dashboard .youth-customizer > header > button {
+  min-width: 34px;
+  min-height: 34px;
+  color: #476152 !important;
+  background: #f4f8f5 !important;
+  border: 1px solid #dfe9e2 !important;
+}
+body .youth-portal.dashboard .youth-security-note {
+  color: #708176 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Fixed bottom navigation for the youth profile */
+.youth-bottom-navigation {
+  position: fixed !important;
+  z-index: 90 !important;
+  left: 50% !important;
+  bottom: max(10px, env(safe-area-inset-bottom)) !important;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0,1fr)) !important;
+  gap: 3px !important;
+  width: min(670px, calc(100vw - 22px)) !important;
+  min-height: 68px !important;
+  padding: 6px !important;
+  transform: translateX(-50%) !important;
+  border: 1px solid #dce8e0 !important;
   border-radius: 16px !important;
-  background: linear-gradient(150deg, #153756, #0d2945) !important;
-  border-color: rgba(117, 177, 226, .25) !important;
-  box-shadow: 0 10px 24px rgba(2, 15, 31, .17) !important;
+  background: rgba(255,255,255,.98) !important;
+  box-shadow: 0 10px 32px rgba(20,47,34,.13) !important;
 }
-.main .ranking-hub .ranking-player-card::before { height: 3px !important; }
-.main .ranking-hub .ranking-card-top-1 {
-  border-color: rgba(255, 209, 102, .48) !important;
-  background: linear-gradient(145deg, #284866, #17334e) !important;
+.youth-bottom-navigation button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+  min-height: 54px !important;
+  padding: 5px 3px !important;
+  border: 1px solid transparent !important;
+  border-radius: 11px !important;
+  color: #728177 !important;
+  background: transparent !important;
+  font-size: 9px !important;
+  font-weight: 750 !important;
+  box-shadow: none !important;
 }
-.main .ranking-hub .ranking-card-top-2 { border-color: rgba(194, 218, 239, .37) !important; }
-.main .ranking-hub .ranking-card-top-3 { border-color: rgba(223, 162, 119, .38) !important; }
-.main .ranking-hub .ranking-card-name strong { color: #f6fbff !important; }
-.main .ranking-hub .ranking-card-role {
-  color: #a7dcff !important;
-  background: rgba(47, 151, 219, .13) !important;
-  border-color: rgba(90, 181, 238, .25) !important;
+.youth-bottom-navigation button svg { color: currentColor !important; }
+.youth-bottom-navigation button.active {
+  color: #138453 !important;
+  background: #e8f7ef !important;
+  border-color: #d2ecdc !important;
 }
-.main .ranking-hub .ranking-card-points strong { color: #fff !important; }
-.main .ranking-hub .ranking-player-track { height: 8px !important; background: #253f59 !important; }
-.main .ranking-hub .ranking-player-track > i { background: linear-gradient(90deg, #2b9ee8, #64d3ec, #ffbf62) !important; }
-.main .ranking-hub .ranking-player-tooltip { background: #091e34 !important; }
+.youth-bottom-navigation button:focus-visible {
+  outline: 2px solid #18a86b !important;
+  outline-offset: 2px !important;
+}
 
-/* Ranking light mode. */
-html[data-theme="light"] .main .ranking-hub::before {
-  background:
-    radial-gradient(ellipse at 12% 8%, rgba(80, 158, 218, .12), transparent 34%),
-    linear-gradient(145deg, #f2f7fc, #eaf2fa) !important;
+/* Mobile and tablet layout */
+@media (max-width: 900px) {
+  .sidebar {
+    width: min(310px, 88vw) !important;
+    min-width: 0 !important;
+    max-width: 310px !important;
+    transform: translateX(-110%) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    background: #fff !important;
+    border-right: 1px solid var(--jf-line) !important;
+  }
+  .sidebar.open {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+  .main {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding: 0 14px calc(28px + env(safe-area-inset-bottom)) !important;
+  }
+  .main > .topline {
+    position: sticky !important;
+    top: 0 !important;
+    margin: 0 -14px 18px !important;
+    padding: 9px 14px !important;
+    min-height: 60px !important;
+  }
+  .topline-status-module { display: none !important; }
+  .topline-theme-toggle { margin-left: auto; }
+  .main .jf-route-stage { width: 100%; }
 }
-html[data-theme="light"] .main .ranking-hub .ranking-hero {
-  background: linear-gradient(115deg, #ffffff, #eaf4fd 60%, #f0f6fc) !important;
-  border-color: #d2e2f0 !important;
-  box-shadow: 0 13px 32px rgba(30, 73, 112, .09) !important;
-}
-html[data-theme="light"] .main .ranking-hub .ranking-hero :is(h1,p) { color: #173650 !important; }
-html[data-theme="light"] .main .ranking-hub .ranking-eyebrow { color: #176da9 !important; }
-html[data-theme="light"] .main .ranking-hub .ranking-tabs,
-html[data-theme="light"] .main .ranking-hub .ranking-content,
-html[data-theme="light"] .main .ranking-hub .ranking-progress-panel,
-html[data-theme="light"] .main .ranking-hub .youth-hall-card {
-  color: #1a3651 !important;
-  background: #ffffff !important;
-  border-color: #d9e4ef !important;
-  box-shadow: 0 9px 24px rgba(30, 73, 112, .055) !important;
-}
-html[data-theme="light"] .main .ranking-hub :is(.ranking-section-heading h2,.ranking-list-heading h3,.youth-hall-card h2) {
-  color: #173650 !important;
-}
-html[data-theme="light"] .main .ranking-hub :is(.ranking-section-heading p,.ranking-list-heading p,.youth-hall-caption) { color: #647b91 !important; }
-html[data-theme="light"] .main .ranking-hub .ranking-podium-player {
-  color: #1d3852 !important;
-  background: linear-gradient(180deg, #eaf3fb, #dceaf6) !important;
-  border-color: #c9dceb !important;
-  box-shadow: 0 8px 18px rgba(28, 72, 112, .08) !important;
-}
-html[data-theme="light"] .main .ranking-hub .ranking-podium-player.podium-first {
-  background: linear-gradient(180deg, #fff6df, #eaf2f8) !important;
-  border-color: #e7c36d !important;
-}
-html[data-theme="light"] .main .ranking-hub .ranking-podium-details strong { color: #183650 !important; }
-html[data-theme="light"] .main .ranking-hub .ranking-podium-details small { color: #986915 !important; }
-html[data-theme="light"] .main .ranking-hub .ranking-podium-place { color: #637b92 !important; }
-html[data-theme="light"] .main .ranking-hub .ranking-podium-base {
-  color: #315a7d !important;
-  background: linear-gradient(180deg, #cfe3f5, #e6f1fa) !important;
-  border-color: #c0d8eb !important;
-}
-html[data-theme="light"] .main .ranking-hub .podium-first .ranking-podium-base {
-  color: #875b0c !important;
-  background: linear-gradient(180deg, #f9e1a1, #fff5dc) !important;
-  border-color: #e7c36d !important;
-}
-html[data-theme="light"] .main .ranking-hub .ranking-player-card {
-  color: #1a3651 !important;
-  background: #ffffff !important;
-  border-color: #d8e4ef !important;
-  box-shadow: 0 8px 20px rgba(30, 73, 112, .07) !important;
-}
-html[data-theme="light"] .main .ranking-hub .ranking-card-name strong,
-html[data-theme="light"] .main .ranking-hub .ranking-card-points strong { color: #183650 !important; }
-html[data-theme="light"] .main .ranking-hub .ranking-card-name small,
-html[data-theme="light"] .main .ranking-hub .ranking-card-meta small,
-html[data-theme="light"] .main .ranking-hub .ranking-card-footer,
-html[data-theme="light"] .main .ranking-hub .ranking-card-progress-label { color: #647b91 !important; }
-html[data-theme="light"] .main .ranking-hub .ranking-card-role { color: #126ba9 !important; background: #eaf5ff !important; border-color: #cce5f8 !important; }
-html[data-theme="light"] .main .ranking-hub .ranking-player-tooltip { color: #31516e !important; background: #f2f7fc !important; border-color: #dce5ef !important; }
-html[data-theme="light"] .main .ranking-hub .youth-faithful-list li { background: #f6faff !important; border-color: #e0e9f2 !important; }
-html[data-theme="light"] .main .ranking-hub .youth-faithful-name { color: #294760 !important; }
-html[data-theme="light"] .main .ranking-hub .youth-faithful-list strong { color: #176da9 !important; }
-
-/* Members directory keeps a bright white card system in either theme. */
-html[data-theme="light"] .members-page {
-  --members-surface: #ffffff;
-  --members-surface-soft: #f4f8fd;
-  --members-border: #dce6f0;
-  --members-text: #183650;
-  --members-muted: #667e95;
-  --members-accent: #176fb6;
-}
-html[data-theme="light"] .members-page .members-hero {
-  background: linear-gradient(115deg, #ffffff, #eaf4fd) !important;
-  border-color: #d3e3f0 !important;
-  box-shadow: 0 13px 32px rgba(30, 73, 112, .08) !important;
-}
-html[data-theme="light"] .members-page .members-hero h1 { color: #173650 !important; }
-html[data-theme="light"] .members-page .members-hero-copy p { color: #607990 !important; }
-html[data-theme="light"] .members-page .members-total-card { background: #f5faff !important; border-color: #d8e6f1 !important; }
-html[data-theme="light"] .members-page .members-total-card strong { color: #173650 !important; }
-html[data-theme="light"] .members-page .members-total-card span:last-child { color: #647d94 !important; }
-
-/* Youth portal light mode: warm identity accents over clear neutral surfaces. */
-html[data-theme="light"] .main .youth-portal {
-  color: #1b344d !important;
-  background: linear-gradient(145deg, #f3f7fc, #eaf1f8) !important;
-}
-html[data-theme="light"] .main .youth-portal :is(
-  .youth-selector, .youth-customizer, .youth-activities, .youth-game-hub,
-  .youth-prayer-panel, .youth-activity-card, .youth-hall-card,
-  .youth-profile-card, .youth-store-item, .youth-faithful-list li,
-  .youth-options article, .youth-home
-) {
-  color: #1c3853 !important;
-  background: #ffffff !important;
-  border-color: #dbe5ef !important;
-  box-shadow: 0 8px 24px rgba(27, 61, 93, .065) !important;
-}
-html[data-theme="light"] .main .youth-portal :is(h1,h2,h3,h4,strong,b) { color: #173650 !important; }
-html[data-theme="light"] .main .youth-portal :is(input,select,textarea) {
-  color: #203b56 !important;
-  background: #f8fbff !important;
-  border-color: #d6e1ed !important;
-}
-html[data-theme="light"] .main .youth-portal .youth-welcome {
-  background:
-    radial-gradient(ellipse at 78% 0%, rgba(239, 152, 78, .12), transparent 34%),
-    linear-gradient(120deg, #ffffff, #f1f6fb) !important;
-}
-html[data-theme="light"] .main .youth-portal .youth-activities h2,
-html[data-theme="light"] .main .youth-portal .youth-hall-card h2 { color: #173650 !important; }
-
-/* Mobile refinements: less chrome, usable touch targets and no clipped cards. */
-@media (max-width: 760px) {
-  .topline-theme-toggle { min-width: 40px; width: 40px; padding: 0; }
+@media (max-width: 650px) {
+  .main { padding-left: 11px !important; padding-right: 11px !important; }
+  .main > .topline { margin-left: -11px !important; margin-right: -11px !important; }
+  .project-label { max-width: 37vw; font-size: 9px; }
+  .topline-theme-toggle { width: 39px; min-width: 39px; padding: 0; }
   .topline-theme-toggle span { display: none; }
-  .main .ranking-hub { padding: 8px !important; }
-  .main .ranking-hub .ranking-hero { padding: 22px 18px !important; }
-  .main .ranking-hub .ranking-hero-art { width: 92px !important; height: 92px !important; flex-basis: 92px !important; }
-  .main .ranking-hub .ranking-hero-art svg:first-child { width: 42px; height: 42px; }
-  .main .ranking-hub .ranking-content { padding: 15px !important; }
-  .main .ranking-hub .ranking-podium-stage { gap: 6px !important; padding-top: 18px !important; }
-  .main .ranking-hub .ranking-podium-player,
-  .main .ranking-hub .ranking-podium-player.podium-second,
-  .main .ranking-hub .ranking-podium-player.podium-third { min-height: 225px; padding-inline: 4px !important; }
-  .main .ranking-hub .ranking-podium-player.podium-first { min-height: 260px; }
-  .main .ranking-hub .ranking-podium-avatar { width: 48px !important; height: 48px !important; }
-  .main .ranking-hub .podium-first .ranking-podium-avatar { width: 60px !important; height: 60px !important; }
-  .main .ranking-hub .ranking-podium-details strong { font-size: 10px !important; }
-  .main .ranking-hub .ranking-podium-details small { font-size: 9px !important; }
-  .main .ranking-hub .ranking-podium-place { font-size: 7px !important; }
-  .main .ranking-hub .ranking-info-grid { gap: 8px !important; }
-  .main .ranking-hub .ranking-info-grid article { padding: 12px 9px !important; }
+  body .youth-portal { padding: 10px 9px calc(112px + env(safe-area-inset-bottom)) !important; }
+  body .youth-portal .youth-selector { padding: 14px !important; }
+  body .youth-portal .youth-selector-heading { align-items: flex-start !important; flex-direction: column !important; }
+  body .youth-portal .youth-selector-actions { width: 100%; justify-content: space-between; }
+  body .youth-portal .youth-profiles { grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 9px !important; }
+  body .youth-portal .youth-profile-card { min-height: 175px !important; padding: 13px 7px 0 !important; }
+  body .youth-portal .youth-avatar { width: 60px !important; height: 60px !important; }
+  body .youth-portal.dashboard .youth-welcome {
+    grid-template-columns: minmax(0,1fr) !important;
+    text-align: center !important;
+    gap: 8px !important;
+    padding: 62px 15px 18px !important;
+  }
+  body .youth-portal.dashboard .youth-profile-avatar-card {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+    margin-bottom: 4px;
+  }
+  body .youth-portal.dashboard .youth-profile-avatar-card .youth-avatar { width: 88px !important; height: 88px !important; }
+  body .youth-portal.dashboard .youth-welcome :is(.youth-brand-label,.youth-profile-badge,.youth-profile-nick,.youth-profile-motto,.youth-profile-title,.youth-look-signature,.youth-profile-quickstats,.youth-welcome h1,.youth-welcome > p) {
+    grid-column: 1 !important;
+    justify-self: center !important;
+  }
+  body .youth-portal.dashboard .youth-profile-quickstats { justify-content: center; }
+  body .youth-portal.dashboard .youth-profile-editor-grid { grid-template-columns: minmax(0,1fr) !important; }
+  body .youth-portal.dashboard .youth-ranking-summary { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+  body .youth-portal.dashboard .youth-podium-list { grid-template-columns: repeat(3,minmax(0,1fr)) !important; gap: 6px !important; }
+  body .youth-portal.dashboard .youth-podium-list li { min-width: 0; padding: 9px 5px !important; }
+  .youth-bottom-navigation { min-height: 66px !important; }
+  .youth-bottom-navigation button { font-size: 8px !important; }
+  .main .ranking-hub .ranking-info-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
   .main .ranking-hub .ranking-progress-bands { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
-  .main .ranking-hub .ranking-card-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 9px !important; }
-  .main .ranking-hub .ranking-player-card { padding: 13px !important; }
-  .main .ranking-hub .ranking-card-identity { align-items: flex-start !important; gap: 8px !important; }
-  .main .ranking-hub .ranking-card-avatar { width: 45px !important; height: 45px !important; }
-  .main .ranking-hub .ranking-card-name strong { font-size: 11px !important; }
-  .main .ranking-hub .ranking-card-meta { align-items: flex-start !important; flex-direction: column !important; }
-  .main .ranking-hub .ranking-card-points strong { font-size: 17px !important; }
-  .main .ranking-hub .ranking-card-progress-label { font-size: 8px !important; }
+  .main .ranking-hub .ranking-card-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
 }
-@media (max-width: 430px) {
+@media (max-width: 420px) {
   .main .ranking-hub .ranking-card-grid { grid-template-columns: minmax(0,1fr) !important; }
-  .main .ranking-hub .ranking-player-card { min-height: 0 !important; }
   .main .ranking-hub .ranking-info-grid { grid-template-columns: minmax(0,1fr) !important; }
   .main .ranking-hub .ranking-progress-bands { grid-template-columns: minmax(0,1fr) !important; }
-  .main .ranking-hub .ranking-visual-toolbar { align-items: stretch !important; flex-direction: column !important; }
-  .main .ranking-hub .ranking-view-filters { justify-content: space-between !important; }
+  .main :is(.members-grid,.reports-stats,.attendance-summary,.managed-stats) { grid-template-columns: minmax(0,1fr) !important; }
+  body .youth-portal .youth-profiles { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .topline-theme-toggle,
-  .main .ranking-hub .ranking-player-card { transition: none !important; }
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
 }
