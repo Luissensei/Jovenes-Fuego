@@ -9,7 +9,7 @@ import {
   Gamepad2, RefreshCw, ChevronRight, ShieldCheck, Sparkles,
   CalendarDays, Clock3, MapPin, HeartHandshake, Send, Medal, Crown,
   Palette, Volume2, VolumeX, Star, X, WandSparkles,
-  BookMarked, Timer, Swords, Brain, Layers, Moon, Sun, BadgeCheck, UserSearch, Circle, CheckCircle2, Save, Trash2,
+  BookMarked, Timer, Swords, Brain, Layers, Moon, Sun, BadgeCheck, UserSearch, Circle, CheckCircle2, Save, Trash2, Home,
 } from 'lucide-react';
 
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
@@ -24,7 +24,6 @@ import {
 
 const TriviaGame = lazy(() => import('./TriviaGame'));
 const VerseGame = lazy(() => import('./VerseGame'));
-const ThreeDAvatarStudio = lazy(() => import('./ThreeDAvatarStudio'));
 const TrueFalseGame = lazy(() => import('./QuickBibleGames').then((module) => ({default: module.TrueFalseGame})));
 const WhoAmIGame = lazy(() => import('./QuickBibleGames').then((module) => ({default: module.WhoAmIGame})));
 const MemoryGame = lazy(() => import('./MoreBibleGames').then((module) => ({default: module.MemoryGame})));
@@ -230,6 +229,15 @@ const lookCategoryStorage: Record<LookShopCategory, string> = {
 };
 
 type MiniGame = 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami';
+type YouthSection = 'home' | 'activities' | 'ranking' | 'games' | 'space';
+
+const youthNavigation: Array<{id: YouthSection; label: string; icon: typeof Home}> = [
+  {id: 'home', label: 'Inicio', icon: Home},
+  {id: 'activities', label: 'Actividades', icon: CalendarDays},
+  {id: 'ranking', label: 'Ranking', icon: Trophy},
+  {id: 'games', label: 'Juegos', icon: Gamepad2},
+  {id: 'space', label: 'Mi espacio', icon: UserRound},
+];
 
 const defaultLook: ProfileLook = {frame: 'fuego', background: 'brasa', avatar: '', title: 'chispa', ownedItems: [], flames: 0, effects: 'ember', badge: 'flame', hair: 'natural', outfit: 'basic', accessory: 'none'};
 
@@ -448,6 +456,7 @@ export default function YouthPortalPage() {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [selectedProfile, setSelectedProfile] = useState<PublicProfile | null>(null);
+  const [activeYouthSection, setActiveYouthSection] = useState<YouthSection>('home');
   const [openingProfileId, setOpeningProfileId] = useState<string | null>(null);
 
   const [activities, setActivities] = useState<WeeklyActivity[]>([]);
@@ -534,6 +543,7 @@ export default function YouthPortalPage() {
 
   useEffect(() => {
     if (selectedProfile) {
+      setActiveYouthSection('home');
       setLook(readLook(selectedProfile));
       setProfileExtras(readProfileExtras(selectedProfile.id));
       setTemplateName('');
@@ -812,6 +822,7 @@ export default function YouthPortalPage() {
     setPortalExiting(true);
     window.setTimeout(() => {
       setSelectedProfile(null);
+      setActiveYouthSection('home');
       setPortalExiting(false);
     }, 360);
   }
@@ -936,6 +947,7 @@ export default function YouthPortalPage() {
       setGameExiting(true);
       window.setTimeout(() => {
         setActiveGame(null);
+        setActiveYouthSection('games');
         setGameExiting(false);
       }, 300);
     };
@@ -989,18 +1001,15 @@ export default function YouthPortalPage() {
             </button>
           </div>
 
+          {activeYouthSection === 'home' && (<div className="youth-tab-page youth-home-tab">
           <section className={`youth-welcome youth-home youth-frame-${look.frame} youth-background-${look.background} youth-effect-${look.effects}`}>
             <div className="youth-welcome-decoration"><Sparkles size={24}/></div>
-            <button type="button" className="youth-customize-trigger" onClick={() => setEditingLook((value) => !value)}>
+            <button type="button" className="youth-customize-trigger" onClick={() => {setActiveYouthSection('space');setEditingLook(true);}}>
               <Palette size={17}/> Personalizar perfil
             </button>
-            <Suspense fallback={<div className="youth-3d-avatar-preview" role="status" aria-label="Cargando avatar"><span className="jf-loading-spinner"/></div>}>
-              <ThreeDAvatarStudio
-                profileId={selectedProfile.id}
-                profileName={profileExtras.displayName || selectedProfile.name}
-                fallback={<YouthAvatar profile={{...selectedProfile, frame: look.frame, avatar: look.avatar}} large/>}
-              />
-            </Suspense>
+            <div className="youth-profile-avatar-card" aria-label="Avatar del perfil">
+              <YouthAvatar profile={{...selectedProfile, frame: look.frame, avatar: look.avatar}} large/>
+            </div>
             <span className={`youth-profile-badge badge-${look.badge}`}>
               {({flame:'🔥 Llama viva',book:'📖 Amante de la Palabra',heart:'💛 Corazón de servicio',shield:'🛡️ Fe firme',star:'⭐ Luz del mundo',crown:'👑 Corona de vida'} as Record<string,string>)[look.badge] ?? '🔥 Llama viva'}
             </span>
@@ -1023,8 +1032,9 @@ export default function YouthPortalPage() {
           {lookNotice && <p className="youth-look-notice" role="status">{lookNotice}</p>}
 
           {profileExtras.weeklyGoal && <section className="youth-personal-goal"><span>MI META DE LA SEMANA</span><p>{profileExtras.weeklyGoal}</p></section>}
+          </div>)}
 
-          {editingLook && (
+          {activeYouthSection === 'space' && editingLook && (
             <section className="youth-customizer">
               <header>
                 <WandSparkles size={20}/>
@@ -1048,7 +1058,7 @@ export default function YouthPortalPage() {
                   <input id="youth-template-name" value={templateName} onChange={(event) => setTemplateName(event.target.value)} maxLength={32} placeholder="Ej. Mi estilo de fuego" />
                   <button type="button" onClick={saveCurrentLookTemplate} disabled={lookSaving || !templateName.trim()}><Save size={15}/> Guardar plantilla</button>
                 </div>
-                <small>Guarda la combinación de marco, fondo, avatar, título y accesorios cosméticos. El modelo 3D se administra por separado.</small>
+                <small>Guarda la combinación de marco, fondo, avatar, título y accesorios cosméticos. El perfil utiliza un avatar sencillo en 2D.</small>
               </div>
               {savedLookTemplates.length > 0 && (
                 <div className="youth-saved-templates">
@@ -1115,6 +1125,7 @@ export default function YouthPortalPage() {
 
           {soundError && <p className="youth-inline-warning">{soundError}</p>}
 
+          {activeYouthSection === 'activities' && (<div className="youth-tab-page youth-activities-tab">
           <section className="youth-activities">
             <header><div><span>AGENDA DE LA GENERACIÓN</span><h2>Actividades de esta semana</h2></div><CalendarDays size={22}/></header>
             {portalDataError && <p className="youth-inline-warning">{portalDataError}</p>}
@@ -1125,6 +1136,9 @@ export default function YouthPortalPage() {
             )}
           </section>
 
+          </div>)}
+
+          {activeYouthSection === 'ranking' && (<div className="youth-tab-page youth-ranking-tab">
           <HallOfFame topPlayers={topPlayersWithPhotos} faithful={faithfulWithPhotos} attendanceLimited={attendanceLimited}/>
 
 
@@ -1188,6 +1202,9 @@ export default function YouthPortalPage() {
             <p className="youth-ranking-footnote">Esta tabla usa exclusivamente los puntos públicos de Firebase. No muestra estadísticas inventadas ni modifica la puntuación oficial.</p>
           </section>
 
+          </div>)}
+
+          {activeYouthSection === 'activities' && (<div className="youth-tab-page youth-growth-tab">
           <section className="youth-growth-plan">
             <header><div><span>CRECIMIENTO PERSONAL</span><h2>Reto de 7 días</h2><p>Un pequeño paso cada día para crecer en la fe y servir a los demás.</p></div><strong>{growthDone.length}/7</strong></header>
             <div className="youth-growth-progress"><i style={{width:growthProgress + '%'}}/></div>
@@ -1203,6 +1220,20 @@ export default function YouthPortalPage() {
             <small className="youth-growth-local-note">Tu progreso se guarda solo en este dispositivo y puedes retomarlo cuando vuelvas a entrar.</small>
           </section>
 
+          </div>)}
+
+          {activeYouthSection === 'space' && (<div className="youth-tab-page youth-space-tab">
+          {!editingLook && <section className="youth-profile-editor">
+            <div className="youth-profile-editor-heading"><div><b>Mi perfil</b><span>Actualiza tus datos visibles en este dispositivo.</span></div><UserSearch size={20}/></div>
+            <div className="youth-profile-editor-grid">
+              <label>Nombre visible<input value={profileExtras.displayName} onChange={(event) => setProfileExtras((value) => ({...value,displayName:event.target.value}))} maxLength={60} placeholder={selectedProfile.name}/></label>
+              <label>Apodo<input value={profileExtras.nickname} onChange={(event) => setProfileExtras((value) => ({...value,nickname:event.target.value}))} maxLength={30} placeholder={selectedProfile.nick || 'Mi apodo'}/></label>
+              <label>Mi frase personal<input value={profileExtras.motto} onChange={(event) => setProfileExtras((value) => ({...value,motto:event.target.value}))} maxLength={100} placeholder="Una frase que me representa"/></label>
+              <label>Mi meta de esta semana<textarea value={profileExtras.weeklyGoal} onChange={(event) => setProfileExtras((value) => ({...value,weeklyGoal:event.target.value}))} maxLength={160} rows={2} placeholder="Ej. Leer un capítulo diario y servir en mi grupo"/></label>
+            </div>
+            <button type="button" onClick={saveProfileExtras}>Guardar mi perfil</button>
+            <button type="button" className="youth-open-customizer" onClick={() => setEditingLook(true)}><Palette size={16}/> Personalizar apariencia</button>
+          </section>}
           <section className="youth-journal-panel">
             <header><div><span>UN MOMENTO CON DIOS</span><h2>Mi bitácora personal</h2><p>Escribe una reflexión, algo por lo que agradeces o una oración para recordar.</p></div><BookMarked size={23}/></header>
             <label htmlFor="youth-journal-entry">Mi reflexión de hoy</label>
@@ -1212,6 +1243,9 @@ export default function YouthPortalPage() {
             <small className="youth-journal-privacy"><ShieldCheck size={13}/> Esta bitácora no se envía a Firebase ni la puede leer el equipo administrativo.</small>
           </section>
 
+          </div>)}
+
+          {activeYouthSection === 'games' && (<div className="youth-tab-page youth-games-tab">
           <section className="youth-game-hub">
             <header><div><span>ENTRENA Y APRENDE</span><h2>Zona de juegos bíblicos</h2></div><Gamepad2 size={22}/></header>
             <div className="youth-games-grid">
@@ -1224,8 +1258,7 @@ export default function YouthPortalPage() {
             </div>
           </section>
 
-          {(
-            <section className="youth-prayer-panel">
+          <section className="youth-prayer-panel">
               <header><HeartHandshake size={22}/><div><span>NO ESTÁS SOLO</span><h2>Comparte tu petición</h2><p>Tu mensaje llegará a la bandeja interna del equipo de oración.</p></div></header>
               <p className="youth-prayer-privacy"><ShieldCheck size={15}/> El formulario está preparado para la bandeja interna. El selector de perfiles es público y no verifica quién está usando la cuenta; evita compartir datos sensibles.</p>
               <form onSubmit={(event) => void handlePrayerSubmit(event)}>
@@ -1235,10 +1268,27 @@ export default function YouthPortalPage() {
                 <div className="youth-prayer-submit-row"><small>{prayerMessage.length}/500 caracteres. Evita compartir datos personales sensibles.</small><button type="submit" disabled={prayerBusy || prayerMessage.trim().length < 8}>{prayerBusy ? 'Enviando...' : 'Enviar petición'} <Send size={16}/></button></div>
                 {prayerStatus && <p className="youth-prayer-status" role="status">{prayerStatus}</p>}
               </form>
-            </section>
-          )}
+          </section>
+          </div>)}
           <div className="youth-security-note"><ShieldCheck size={17}/> Este acceso muestra únicamente información pública. No revela datos privados ni acredita la identidad; los puntos de partidas no se incorporan automáticamente al ranking oficial.</div>
         </div>
+        <nav className="youth-bottom-navigation" aria-label="Navegación de mi perfil">
+          {youthNavigation.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                type="button"
+                key={item.id}
+                className={activeYouthSection === item.id ? 'active' : ''}
+                aria-current={activeYouthSection === item.id ? 'page' : undefined}
+                onClick={() => {setActiveYouthSection(item.id);if(item.id !== 'space') setEditingLook(false);}}
+              >
+                <Icon size={20} strokeWidth={2}/>
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
         </motion.main>
     );
   }
