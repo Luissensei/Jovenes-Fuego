@@ -290,6 +290,13 @@ export const getMyApplicationProfile = onCall(async (request) => {
     };
   } catch (cause) {
     if (cause instanceof HttpsError) throw cause;
+    const error = cause instanceof Error ? cause : new Error(String(cause));
+    // Diagnóstico privado: nunca registrar tokens, credenciales ni datos del perfil.
+    console.error("getMyApplicationProfile Firestore read failed:", {
+      errorName: error.name.slice(0, 80),
+      errorMessage: error.message.slice(0, 500),
+      stack: error.stack?.slice(0, 3000),
+    });
     throw new HttpsError(
       "internal",
       "No se pudo consultar el perfil de aplicación.",
