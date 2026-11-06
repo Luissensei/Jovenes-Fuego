@@ -1,26 +1,44 @@
-import { useEffect } from 'react';
+import {useCallback, useEffect, useState} from 'react';
 
-/** La aplicación utiliza un único tema visual: Command Center oscuro. */
-export type ThemePreference = 'dark';
+export type ThemePreference = 'dark' | 'light';
 
+function readThemePreference(): ThemePreference {
+  try {
+    return window.localStorage.getItem('jf-theme') === 'light' ? 'light' : 'dark';
+  } catch {
+    return 'dark';
+  }
+}
+
+/** Tema persistente y compartido por el panel administrativo y el portal juvenil. */
 export function useThemePreference() {
+  const [theme, setTheme] = useState<ThemePreference>(readThemePreference);
+
   useEffect(() => {
-    document.documentElement.dataset.theme = 'dark';
-    document.documentElement.style.colorScheme = 'dark';
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#071326');
+    const root = document.documentElement;
+    root.dataset.theme = theme;
+    root.style.colorScheme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute(
+      'content',
+      theme === 'dark' ? '#07182b' : '#f3f7fc',
+    );
     try {
-      window.localStorage.removeItem('jf-theme');
+      window.localStorage.setItem('jf-theme', theme);
     } catch {
-      // El diseño único no depende del almacenamiento local.
+      // La aplicación sigue funcionando aunque el navegador bloquee el almacenamiento.
     }
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((current) => current === 'dark' ? 'light' : 'dark');
   }, []);
 
   return {
-    theme: 'dark' as const,
-    isDark: true,
-    isLight: false,
+    theme,
+    isDark: theme === 'dark',
+    isLight: theme === 'light',
     isRoyal: false,
-    nextThemeLabel: '',
-    toggleTheme: () => undefined,
+    nextThemeLabel: theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro',
+    toggleTheme,
   };
 }
