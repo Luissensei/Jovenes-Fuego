@@ -981,7 +981,7 @@ export default function YouthPortalPage() {
   if (selectedProfile) {
     return (
       <motion.main
-        className={`${styles.scope} ${dashboardStyles.dashboard} youth-portal youth-look-${look.background} ${portalExiting ? "youth-profile-exit" : ""}`}
+        className={`${styles.scope} ${dashboardStyles.dashboard} youth-portal ${portalExiting ? "youth-profile-exit" : ""}`}
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.28, ease: "easeOut" }}
@@ -1002,7 +1002,7 @@ export default function YouthPortalPage() {
           </div>
 
           {activeYouthSection === 'home' && (<div className="youth-tab-page youth-home-tab">
-          <section className={`youth-welcome youth-home youth-frame-${look.frame} youth-background-${look.background} youth-effect-${look.effects}`}>
+          <section className="youth-welcome youth-home">
             <div className="youth-welcome-decoration"><Sparkles size={24}/></div>
             <button type="button" className="youth-customize-trigger" onClick={() => {setActiveYouthSection('space');setEditingLook(true);}}>
               <Palette size={17}/> Personalizar perfil
