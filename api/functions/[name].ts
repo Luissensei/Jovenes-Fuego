@@ -1,6 +1,5 @@
-import {getAppCheck} from "../../functions/node_modules/firebase-admin/lib/app-check/index.js";
-import {getAuth} from "../../functions/node_modules/firebase-admin/lib/auth/index.js";
-import * as callableExports from "../../functions/lib/index.js";
+import {getAppCheck} from "firebase-admin/app-check";
+import {getAuth} from "firebase-admin/auth";
 
 type RequestLike = {
   method?: string;
@@ -124,16 +123,18 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
     return respondError(res, "not-found", "La operación solicitada no existe.");
   }
 
-  const callable = (callableExports as Record<string, unknown>)[name] as CallableLike | undefined;
-  if (typeof callable !== "function" || !callable.__vercelHandler) {
-    return respondError(res, "not-found", "La operación solicitada no existe.");
-  }
-
   if (!req.body || typeof req.body !== "object" || !("data" in req.body)) {
     return respondError(res, "invalid-argument", "El formato de la solicitud no es válido.");
   }
 
   try {
+    // Cargar las funciones dentro del try permite capturar fallos de inicialización
+    // de Firebase Admin (credencial, proyecto o módulos) y registrarlos en Vercel.
+    const callableExports = await import("../../functions/lib/index.js");
+    const callable = (callableExports as Record<string, unknown>)[name] as CallableLike | undefined;
+    if (typeof callable !== "function" || !callable.__vercelHandler) {
+      return respondError(res, "not-found", "La operación solicitada no existe.");
+    }
     if (callable.__vercelOptions?.enforceAppCheck) {
       const appCheckToken = header(req.headers["x-firebase-appcheck"]);
       if (!appCheckToken) {
