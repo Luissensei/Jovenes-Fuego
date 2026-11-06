@@ -1484,3 +1484,126 @@ body .youth-portal .youth-bottom-navigation button:hover {
   }
   body .youth-portal.dashboard .youth-security-note { padding-bottom: 10px; }
 }
+
+
+/* Ranking profile directory and selected profile details. */
+.main .ranking-hub .profile-search {
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  min-height: 44px;
+  margin: 16px 0 !important;
+  padding: 0 12px !important;
+  color: #708176 !important;
+  background: #fff !important;
+  border: 1px solid #e2e9e5 !important;
+  border-radius: 10px !important;
+}
+.main .ranking-hub .profile-search input {
+  width: 100% !important;
+  min-width: 0 !important;
+  color: #263d31 !important;
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+.main .ranking-hub .profiles-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin: 10px 0 13px;
+  color: #718176 !important;
+  font-size: 11px;
+}
+.main .ranking-hub .profiles-summary strong { color: #168957 !important; font-size: 22px; }
+.main .ranking-hub .profiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(min(100%,170px),1fr));
+  gap: 12px;
+}
+.main .ranking-hub .profile-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  padding: 17px 12px;
+  color: #293f33 !important;
+  background: #fff !important;
+  border: 1px solid #e2e9e5 !important;
+  border-radius: 13px !important;
+  box-shadow: var(--jf-shadow) !important;
+  text-align: center;
+}
+.main .ranking-hub .profile-card:hover,
+.main .ranking-hub .profile-card.selected {
+  color: #176b45 !important;
+  background: #f3faf5 !important;
+  border-color: #bfe4cd !important;
+  box-shadow: var(--jf-shadow-hover) !important;
+  transform: translateY(-2px) !important;
+}
+.main .ranking-hub .profile-avatar {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  margin-bottom: 11px;
+  overflow: hidden;
+  color: #168957 !important;
+  background: #e8f7ef !important;
+  border: 2px solid #cde8d8 !important;
+  border-radius: 50% !important;
+}
+.main .ranking-hub .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.main .ranking-hub .profile-card strong { color: #21392c !important; font-size: 12px; overflow-wrap: anywhere; }
+.main .ranking-hub .profile-card small { margin-top: 4px; color: #78887e !important; font-size: 10px; }
+.main .ranking-hub .profile-select { display: flex; align-items: center; gap: 5px; margin-top: 11px; color: #168957 !important; font-size: 10px; font-weight: 800; }
+.main .ranking-hub .selected-profile-panel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 16px;
+  color: #2b4335 !important;
+  background: #f7fbf8 !important;
+  border: 1px solid #dcebe1 !important;
+  border-radius: 13px !important;
+}
+.main .ranking-hub .selected-profile-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  overflow: hidden;
+  color: #168957 !important;
+  background: #e6f5eb !important;
+  border: 2px solid #cde8d8 !important;
+  border-radius: 50%;
+}
+.main .ranking-hub .selected-profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.main .ranking-hub .selected-profile-panel > div:nth-child(2) { flex: 1; min-width: 0; }
+.main .ranking-hub .selected-profile-panel h3 { margin: 4px 0; color: #20382b !important; }
+.main .ranking-hub .selected-profile-panel p,
+.main .ranking-hub .selected-profile-panel small { color: #718176 !important; }
+.main .ranking-hub .selected-profile-panel button {
+  padding: 8px 11px;
+  color: #176b45 !important;
+  background: #fff !important;
+  border: 1px solid #d8eade !important;
+  border-radius: 8px !important;
+}
+.main .ranking-hub .ranking-footer-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  color: #74857a !important;
+  font-size: 10px;
+}
+@media (max-width: 600px) {
+  .main .ranking-hub .profiles-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+  .main .ranking-hub .selected-profile-panel { align-items: flex-start; flex-wrap: wrap; }
+  .main .ranking-hub .selected-profile-panel button { margin-left: auto; }
+}
