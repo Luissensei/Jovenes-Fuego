@@ -274,7 +274,6 @@ export const getMyApplicationProfile = onCall(async (request) => {
 });
 
 
-
 const defaultLeaderPermissions = [
   "members", "attendance", "reports", "followups", "devotionals", "visitors",
   "events", "checkins", "turns", "ranking", "games", "profile",
@@ -1585,7 +1584,11 @@ export const getPublicWeeklyActivities = onCall(async () => {
       legacyRankingActivities.filter((item) => item.published),
       legacyEventActivities.filter((item) => item.published),
       modernActivities.filter((item) => item.published),
-    ]).map(({editable: _editable, ...activity}) => activity);
+    ]).map((item) => {
+      const {editable, ...activity} = item;
+      void editable;
+      return activity;
+    });
 
     return {activities};
   } catch (error) {
