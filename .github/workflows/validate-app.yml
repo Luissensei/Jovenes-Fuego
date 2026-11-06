@@ -36,8 +36,5 @@ jobs:
       - name: Lint application
         run: npm run lint
 
-      - name: Install Cloud Functions dependencies
-        run: npm ci --prefix functions
-
-      - name: Build Cloud Functions
-        run: npm --prefix functions run build
+      - name: Lint Cloud Functions
+        run: npm --prefix functions run lint

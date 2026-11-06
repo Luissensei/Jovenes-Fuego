@@ -1,13 +1,37 @@
 import {createHash} from "node:crypto";
 import {setGlobalOptions} from "firebase-functions";
-import {onCall, HttpsError} from "firebase-functions/v2/https";
-import {initializeApp, getApps} from "firebase-admin/app";
+import {onCall, HttpsError} from "./vercelAdapter.js";
+import {initializeApp, getApps, cert} from "firebase-admin/app";
 import {getFirestore, FieldValue} from "firebase-admin/firestore";
 import {getAuth as getAdminAuth} from "firebase-admin/auth";
 
 setGlobalOptions({maxInstances: 10});
 
-const app = getApps()[0] ?? initializeApp();
+function initializeFirebaseAdminApp() {
+  const existing = getApps()[0];
+  if (existing) return existing;
+
+  const rawCredential = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  if (!rawCredential) return initializeApp();
+
+  let serviceAccount: Record<string, unknown>;
+  try {
+    serviceAccount = JSON.parse(rawCredential) as Record<string, unknown>;
+  } catch {
+    throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON no contiene JSON válido.");
+  }
+
+  if (serviceAccount.project_id !== "jovenes-de-fuego") {
+    throw new Error("La credencial de Vercel no pertenece al proyecto Firebase original.");
+  }
+
+  return initializeApp({
+    credential: cert(serviceAccount as never),
+    projectId: "jovenes-de-fuego",
+  });
+}
+
+const app = initializeFirebaseAdminApp();
 const db = getFirestore(app);
 const adminAuth = getAdminAuth(app);
 

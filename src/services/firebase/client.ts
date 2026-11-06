@@ -1,8 +1,8 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
-import { getFunctions, type Functions } from 'firebase/functions';
-import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
+import type { Functions } from 'firebase/functions';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider, type AppCheck } from 'firebase/app-check';
 
 // Jóvenes de Fuego utiliza únicamente su proyecto Firebase original.
 // La configuración web es pública; las reglas de Firestore y Authentication
@@ -29,13 +29,14 @@ const appCheckSiteKey = (
 const firebaseApp: FirebaseApp = getApps()[0] ?? initializeApp(firebaseConfig);
 
 let appCheckReady = false;
+let appCheckInstance: AppCheck | null = null;
 let appCheckInitError = '';
 
 try {
   // App Check se inicializa antes de Auth, Firestore y Firebase AI Logic.
   // El SDK obtiene y renueva los tokens automáticamente; no se necesita
   // llamar manualmente a grecaptcha.enterprise.execute().
-  initializeAppCheck(firebaseApp, {
+  appCheckInstance = initializeAppCheck(firebaseApp, {
     provider: new ReCaptchaEnterpriseProvider(appCheckSiteKey),
     isTokenAutoRefreshEnabled: true,
   });
@@ -53,7 +54,7 @@ const dbInstance: Firestore = getFirestore(firebaseApp);
 // Las operaciones privilegiadas se ejecutan mediante Cloud Functions,
 // que validan identidad, rol y permisos en el servidor. La región coincide
 // con la configuración predeterminada de Functions v2.
-const functionsInstance: Functions = getFunctions(firebaseApp, 'us-central1');
+const functionsInstance = {} as Functions;
 
 export { firebaseApp };
 export const firebaseReadOnlyMode = false;
@@ -66,6 +67,7 @@ export const firebaseProjectId = firebaseConfig.projectId;
 export const auth: Auth | null = authInstance;
 export const db: Firestore | null = dbInstance;
 export const functions: Functions = functionsInstance;
+export const appCheck: AppCheck | null = appCheckInstance;
 
 /**
  * La aplicación puede solicitar escrituras en el proyecto Firebase original.

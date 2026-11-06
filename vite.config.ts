@@ -1,8 +1,17 @@
 import { defineConfig } from 'vite';
+import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: [
+      {
+        find: /^firebase\/functions$/,
+        replacement: fileURLToPath(new URL('./src/services/firebase/functionsShim.ts', import.meta.url)),
+      },
+    ],
+  },
   server: { host: '127.0.0.1' },
   preview: { host: '127.0.0.1' },
   build: {
