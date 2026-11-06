@@ -4,10 +4,10 @@ import {
   type CallableRequest,
 } from "firebase-functions/v2/https";
 
-type CallableHandler = (request: CallableRequest<any>) => unknown | Promise<unknown>;
+type CallableHandler = (request: CallableRequest<Record<string, unknown>>) => unknown | Promise<unknown>;
 type CallableOptions = Record<string, unknown>;
 
-export type RegisteredCallable = ((...args: any[]) => any) & {
+export type RegisteredCallable = ReturnType<typeof firebaseOnCall> & {
   __vercelHandler: CallableHandler;
   __vercelOptions: CallableOptions;
 };
