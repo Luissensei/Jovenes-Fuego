@@ -61,14 +61,32 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
       throw makeError("unavailable", "No se pudo conectar con el servidor.");
     }
 
-    const payload = await response.json().catch(() => null) as {
+    const responseText = await response.text().catch(() => "");
+    let payload: {
       data?: TResponse;
       result?: TResponse;
       error?: {status?: string; message?: string; details?: unknown};
-    } | null;
+    } | null = null;
+
+    if (responseText) {
+      try {
+        payload = JSON.parse(responseText) as typeof payload;
+      } catch {
+        payload = null;
+      }
+    }
 
     if (!payload) {
-      throw makeError("internal", "El servidor devolvió una respuesta no válida.");
+      const contentType = response.headers.get("content-type") || "tipo de contenido desconocido";
+      console.error("Firebase callable returned non-JSON response:", {
+        endpoint,
+        status: response.status,
+        contentType,
+      });
+      throw makeError(
+        "internal",
+        `El servidor devolvió una respuesta no válida (HTTP ${response.status}; ${contentType}).`,
+      );
     }
     if (!response.ok || payload.error) {
       const code = String(payload.error?.status ?? "internal")
