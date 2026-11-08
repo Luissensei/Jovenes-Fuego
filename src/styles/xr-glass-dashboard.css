@@ -1,0 +1,193 @@
+/* XR Glass Dashboard — capa visual global de Jóvenes de Fuego.
+   Inspirado en la referencia compartida: azul nocturno, brillo cyan y superficies premium.
+   Glass ligero sin backdrop-filter para mantener rendimiento en móviles. */
+
+:root {
+  --xr-blue: #55aaff;
+  --xr-cyan: #55d8f4;
+  --xr-orange: #ff7b42;
+  --xr-bg: #071426;
+  --xr-panel: rgba(14, 34, 59, .94);
+  --xr-panel-2: rgba(19, 45, 76, .92);
+  --xr-line: rgba(107, 174, 239, .23);
+  --xr-text: #eff7ff;
+  --xr-muted: #a8bfd8;
+  --xr-shadow: 0 18px 46px rgba(0, 7, 20, .28), inset 0 1px rgba(255,255,255,.055);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --jf-page: #071426;
+  --jf-card: #10233a;
+  --jf-ink: #eff7ff;
+  --jf-muted: #a8bfd8;
+  --jf-line: rgba(107,174,239,.23);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --jf-page: #edf4fb;
+  --jf-card: #ffffff;
+  --jf-ink: #12243a;
+  --jf-muted: #62768d;
+  --jf-line: #d5e3f2;
+}
+
+html, body, #root { min-height: 100%; }
+body {
+  background:
+    radial-gradient(ellipse at 85% 0%, rgba(35,119,218,.16), transparent 36%),
+    radial-gradient(ellipse at 0% 55%, rgba(18,91,163,.09), transparent 32%),
+    var(--jf-page) !important;
+}
+:root[data-theme="dark"] body { color: var(--xr-text); }
+.layout, .main, .youth-portal { background: transparent !important; }
+
+/* Navigation frame */
+.sidebar {
+  background: linear-gradient(160deg, #0d2340 0%, #071426 100%) !important;
+  color: #eaf4ff !important;
+  border-right: 1px solid var(--xr-line) !important;
+  box-shadow: 12px 0 40px rgba(0,8,24,.22), inset -1px 0 rgba(255,255,255,.035) !important;
+}
+.sidebar .brand strong, .mobile-header strong { color: #f3f8ff !important; }
+.sidebar .brand small, .sidebar .safe-note small { color: #9fb5ce !important; }
+.sidebar .brand-mark, .login-logo {
+  background: linear-gradient(135deg, #ff8a4c, #e94c32) !important;
+  box-shadow: 0 8px 24px rgba(255,105,54,.22), inset 0 1px rgba(255,255,255,.25) !important;
+}
+.sidebar .env-chip, .sidebar .safe-note, .sidebar .theme-toggle {
+  background: rgba(23,49,79,.8) !important;
+  border: 1px solid var(--xr-line) !important;
+  color: #d9eaff !important;
+}
+.sidebar .nav-item {
+  color: #a9bfd8 !important;
+  border: 1px solid transparent !important;
+  transition: background .18s ease, color .18s ease, border-color .18s ease !important;
+}
+.sidebar .nav-item:hover {
+  background: rgba(65,139,215,.14) !important;
+  color: #fff !important;
+}
+.sidebar .nav-item.active {
+  background: linear-gradient(105deg, rgba(42,135,226,.28), rgba(25,77,133,.24)) !important;
+  border-color: rgba(91,174,255,.34) !important;
+  color: #f2f9ff !important;
+  box-shadow: 0 8px 24px rgba(0,91,190,.16), inset 0 1px rgba(255,255,255,.07) !important;
+}
+.mobile-header {
+  background: linear-gradient(100deg, #0d2340, #071426) !important;
+  border-bottom: 1px solid var(--xr-line) !important;
+}
+.main > .topline {
+  background: rgba(10,28,49,.96) !important;
+  border-bottom: 1px solid var(--xr-line) !important;
+  box-shadow: 0 10px 28px rgba(0,8,24,.12) !important;
+  color: #b7cbe0 !important;
+}
+.project-label, .topline-status, .topline-theme-toggle, .topline-menu-button {
+  background: rgba(21,48,79,.78) !important;
+  border: 1px solid var(--xr-line) !important;
+  color: #dcecff !important;
+}
+
+/* Consistent premium cards across admin, youth portal and all modules */
+.main :is(.page-card, .panel, .card, .stat-card, .stat, article, .dashboard-stat,
+.dashboard-shortcut, .dashboard-community-stat, .dashboard-chart-card,
+.dashboard-bottom-note, .ranking-hero, .ranking-tabs, .ranking-content,
+.ranking-progress-panel, .ranking-player, .member-card, .members-total-card,
+.members-controls, .attendance-card, .followup-card, .visitor-card,
+.devotional-card, .photo-card, .reports-card, .managed-record, .management-record,
+.management-summary, .management-form, .management-records, .event-card,
+.prayer-card, .settings-card, .checkin-panel, .checkin-config, .youth-profile-card,
+.youth-activity-card, .youth-hall-card, .youth-game-tile, .mbg-game, .verse-game) {
+  border-color: var(--jf-line, var(--xr-line)) !important;
+  border-radius: 18px;
+  box-shadow: var(--xr-shadow) !important;
+}
+:root[data-theme="dark"] .main :is(.page-card, .panel, .card, .stat-card, .stat, article,
+.dashboard-stat, .dashboard-shortcut, .dashboard-community-stat, .dashboard-chart-card,
+.dashboard-bottom-note, .ranking-hero, .ranking-tabs, .ranking-content, .ranking-progress-panel,
+.ranking-player, .member-card, .members-total-card, .members-controls, .attendance-card,
+.followup-card, .visitor-card, .devotional-card, .photo-card, .reports-card, .managed-record,
+.management-record, .management-summary, .management-form, .management-records, .event-card,
+.prayer-card, .settings-card, .checkin-panel, .checkin-config, .youth-profile-card,
+.youth-activity-card, .youth-hall-card, .youth-game-tile, .mbg-game, .verse-game) {
+  background: linear-gradient(145deg, var(--xr-panel-2), var(--xr-panel)) !important;
+  color: var(--xr-text) !important;
+}
+:root[data-theme="light"] .main :is(.page-card, .panel, .card, .stat-card, .stat, article,
+.dashboard-stat, .dashboard-shortcut, .dashboard-community-stat, .dashboard-chart-card,
+.dashboard-bottom-note, .ranking-hero, .ranking-tabs, .ranking-content, .ranking-progress-panel,
+.ranking-player, .member-card, .members-total-card, .members-controls, .attendance-card,
+.followup-card, .visitor-card, .devotional-card, .photo-card, .reports-card, .managed-record,
+.management-record, .management-summary, .management-form, .management-records, .event-card,
+.prayer-card, .settings-card, .checkin-panel, .checkin-config, .youth-profile-card,
+.youth-activity-card, .youth-hall-card, .youth-game-tile, .mbg-game, .verse-game) {
+  background: linear-gradient(145deg, #fff, #f5f9ff) !important;
+  color: #12243a !important;
+  box-shadow: 0 12px 30px rgba(31,76,126,.08), inset 0 1px rgba(255,255,255,.8) !important;
+}
+.main :is(h1,h2,h3,h4) { letter-spacing: -.025em; }
+:root[data-theme="dark"] .main :is(h1,h2,h3,h4) { color: #f3f8ff !important; }
+.main :is(.eyebrow,.section-kicker,.dashboard-section-label) { color: var(--xr-blue) !important; }
+.main :is(button:not(.nav-item), .button, .login-submit) {
+  border-radius: 12px;
+  transition: box-shadow .18s ease, border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.main :is(button:not(:disabled), .button):hover {
+  box-shadow: 0 8px 22px rgba(32,126,222,.13);
+}
+.main :is(input,select,textarea) {
+  border-radius: 11px !important;
+}
+:root[data-theme="dark"] .main :is(input,select,textarea) {
+  background: rgba(5,18,33,.82) !important;
+  border-color: var(--xr-line) !important;
+  color: #eff7ff !important;
+}
+.main :is(table th, table thead) { background: rgba(34,75,119,.16) !important; }
+.main :is(table td, table th) { border-color: var(--jf-line) !important; }
+
+/* Youth portal surfaces and bottom mobile navigation */
+:root[data-theme="dark"] .youth-portal {
+  background: transparent !important;
+  color: #eff7ff !important;
+}
+:root[data-theme="dark"] .youth-portal :is(.youth-card,.portal-card,.activity-card,.profile-card,.game-card) {
+  background: linear-gradient(145deg, rgba(19,45,76,.94), rgba(10,27,49,.96)) !important;
+  border: 1px solid var(--xr-line) !important;
+  box-shadow: var(--xr-shadow) !important;
+}
+.jf-bottom-nav {
+  background: rgba(8,24,43,.98) !important;
+  border: 1px solid var(--xr-line) !important;
+  box-shadow: 0 14px 38px rgba(0,8,24,.4) !important;
+}
+.jf-bottom-nav-item.active {
+  color: #eaf6ff !important;
+  background: rgba(42,135,226,.22) !important;
+  border: 1px solid rgba(91,174,255,.3) !important;
+  border-radius: 12px !important;
+}
+.login-shell {
+  background: radial-gradient(ellipse at 20% 10%, rgba(38,126,218,.18), transparent 38%), var(--jf-page) !important;
+}
+:root[data-theme="dark"] .login-card {
+  background: linear-gradient(145deg, #122b48, #0b1c30) !important;
+  border-color: var(--xr-line) !important;
+  color: #eff7ff !important;
+}
+:root[data-theme="dark"] .login-card :is(label,p) { color: #b5c9df; }
+
+/* Accessible motion: subtle lift only, no card tilt or blur. */
+@media (hover:hover) and (pointer:fine) {
+  .main :is(.dashboard-stat,.dashboard-shortcut,.dashboard-chart-card,.ranking-player,.member-card,.attendance-card,.visitor-card,.devotional-card,.youth-activity-card):hover {
+    transform: translateY(-3px) !important;
+    border-color: rgba(85,170,255,.48) !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
