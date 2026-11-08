@@ -79,7 +79,7 @@ const allowedRoles = new Set([
 ]);
 
 async function loadCurrentApplicationProfile(): Promise<UserProfile> {
-  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  if (!functions) throw new Error('El cliente de conexión con el backend no está configurado.');
   const getProfile = httpsCallable<Record<string, never>, ApplicationProfileResponse>(
     functions,
     'getMyApplicationProfile',
@@ -164,17 +164,19 @@ export function AuthProvider({children}: {children: ReactNode}) {
         if (code === 'permission-denied') {
           setError(callableError.message || 'La cuenta no tiene un perfil autorizado en Firebase.');
         } else if (code === 'unavailable' || code === 'deadline-exceeded') {
-          setError('Firebase Functions no responde en este momento. Comprueba la conexión e inténtalo de nuevo.');
+          setError('El backend de Vercel no responde en este momento. Comprueba la conexión e inténtalo de nuevo.');
+        } else if (code === 'failed-precondition') {
+          setError('El backend de Vercel no tiene lista la conexión segura con el proyecto Firebase original. El administrador debe revisar FIREBASE_SERVICE_ACCOUNT_JSON en las variables de entorno de Vercel.');
         } else if (code === 'not-found') {
-          setError('La función getMyApplicationProfile no está desplegada en Firebase. Hay que desplegar las Cloud Functions del proyecto jovenes-de-fuego.');
+          setError('La operación de perfil no está disponible en el backend de Vercel. Revisa el despliegue de la aplicación.');
         } else if (code === 'unauthenticated') {
           setError('Firebase no pudo validar tu sesión. Cierra sesión, vuelve a ingresar e inténtalo otra vez.');
         } else if (code === 'internal' || code === 'unknown') {
-          setError('La función de Firebase falló en el servidor. Revisa los registros de Cloud Functions; no se modificó tu perfil.');
+          setError('El backend de Vercel falló al consultar tu perfil. Revisa los registros de ejecución; no se modificó tu perfil.');
         } else if (code) {
-          setError(`No se pudo validar el perfil (Firebase: ${code}). Revisa la configuración de Cloud Functions.`);
+          setError(`No se pudo validar el perfil (backend: ${code}). Revisa la configuración del backend de Vercel.`);
         } else {
-          setError('No se pudo validar el perfil de aplicación mediante Firebase Functions.');
+          setError('No se pudo validar el perfil de aplicación mediante el backend de Vercel.');
         }
         setProfile(null);
       } finally {
