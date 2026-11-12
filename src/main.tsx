@@ -7,6 +7,7 @@ import './styles/layout.css';
 import './styles/refinement.css';
 import './styles/xr-glass-dashboard.css';
 import './styles/portal-theme-fixes.css';
+import './styles/mobile-quality-system.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
