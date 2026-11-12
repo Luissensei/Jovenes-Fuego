@@ -289,6 +289,8 @@ const youthNavigation: Array<{id: YouthSection; label: string; icon: typeof Home
   {id: 'space', label: 'Mi espacio', icon: UserRound},
 ];
 
+const weeklyGrowthDayIds = ['day-1','day-2','day-3','day-4','day-5','day-6','day-7'];
+
 const defaultLook: ProfileLook = {frame: 'fuego', background: 'brasa', avatar: '', title: 'chispa', ownedItems: [], flames: 0, effects: 'ember', badge: 'flame', hair: 'natural', outfit: 'basic', accessory: 'none'};
 
 
@@ -590,7 +592,7 @@ export default function YouthPortalPage() {
       setExpandedRankId(null);
       try {
         const savedPlan = JSON.parse(window.localStorage.getItem(`jf-youth-growth-${selectedProfile.id}`) || '[]') as unknown;
-        setGrowthDone(Array.isArray(savedPlan) ? savedPlan.filter((item): item is string => typeof item === 'string' && weeklyGrowthPlan.some((day) => day.id === item)) : []);
+        setGrowthDone(Array.isArray(savedPlan) ? savedPlan.filter((item): item is string => typeof item === 'string' && weeklyGrowthDayIds.includes(item)) : []);
         setJournalEntry(window.localStorage.getItem(`jf-youth-journal-${selectedProfile.id}`) || '');
         setJournalStatus('');
         const templateData = JSON.parse(window.localStorage.getItem(`jf-youth-templates-${selectedProfile.id}`) || '[]') as unknown;
@@ -653,7 +655,7 @@ export default function YouthPortalPage() {
     : 0;
   const rankingLeaderPoints = communityRanking[0]?.points ?? 0;
   const visibleCommunityRanking = showAllRanking ? communityRanking : communityRanking.slice(0, 5);
-  const growthProgress = Math.round((growthDone.length / weeklyGrowthPlan.length) * 100);
+  const growthProgress = Math.round((growthDone.length / weeklyGrowthDayIds.length) * 100);
 
   const topPlayersWithPhotos = useMemo(() => topPlayers.map((player) => ({
     ...player,
