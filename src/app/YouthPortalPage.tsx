@@ -66,6 +66,8 @@ function readPortalCache<T>(key: string): T | null {
 function requestPortalCache<T>(key: string, loader: () => Promise<T>): Promise<T> {
   const pending = portalRequests.get(key) as Promise<T> | undefined;
   if (pending) return pending;
+  const cached = readPortalCache<T>(key);
+  if (cached !== null) return Promise.resolve(cached);
   const request = loader().then((data) => {
     const entry = {savedAt: Date.now(), data};
     portalMemoryCache.set(key, entry);
