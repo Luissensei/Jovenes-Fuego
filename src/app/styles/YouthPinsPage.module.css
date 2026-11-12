@@ -1,1 +1,44 @@
 .scope{display:grid;gap:18px;color:var(--text-primary,#f7f7fb)}.hero{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px;border:1px solid var(--border-subtle,rgba(255,255,255,.12));border-radius:22px;background:linear-gradient(125deg,rgba(249,115,22,.14),rgba(124,58,237,.10)),var(--surface-card,rgba(20,22,32,.86))}.hero h1{margin:7px 0;font-size:clamp(1.5rem,3vw,2.1rem)}.hero p{margin:0;color:var(--text-secondary,#a7aab8)}.kicker{display:flex;align-items:center;gap:7px;color:#fb923c;font-size:.72rem;font-weight:800;letter-spacing:.13em}.refresh,.issue,.issued button{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:11px 14px;font-weight:750;cursor:pointer}.refresh{background:var(--surface-elevated,#292d3a);color:var(--text-primary,#fff)}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.stats article{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:4px 10px;padding:16px;border:1px solid var(--border-subtle,rgba(255,255,255,.1));border-radius:17px;background:var(--surface-card,rgba(20,22,32,.8))}.stats article svg{grid-row:span 2;color:#fb923c}.stats strong{font-size:1.35rem}.stats span{font-size:.78rem;color:var(--text-secondary,#a7aab8)}.toolbar{display:flex;align-items:center;gap:12px}.toolbar input{flex:1;min-width:0;padding:13px 15px;border:1px solid var(--border-subtle,rgba(255,255,255,.14));border-radius:13px;background:var(--surface-card,rgba(20,22,32,.8));color:inherit}.toolbar span{font-size:.8rem;color:var(--text-secondary,#a7aab8)}.list{display:grid;gap:9px}.member{display:flex;align-items:center;gap:13px;padding:13px;border:1px solid var(--border-subtle,rgba(255,255,255,.1));border-radius:16px;background:var(--surface-card,rgba(20,22,32,.8))}.avatar{display:grid;place-items:center;flex:0 0 42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#f97316,#7c3aed);color:#fff;font-weight:850}.memberInfo{display:grid;gap:3px;flex:1;min-width:0}.memberInfo span,.memberInfo small{color:var(--text-secondary,#a7aab8);font-size:.8rem}.memberInfo small{font-size:.72rem}.issue{background:rgba(249,115,22,.14);color:#fb923c;white-space:nowrap}.issue:disabled,.refresh:disabled{opacity:.55;cursor:wait}.error,.notice{display:flex;align-items:center;gap:9px;padding:12px 14px;border-radius:13px}.error{background:rgba(239,68,68,.12);color:#fca5a5}.notice{background:rgba(34,197,94,.10);color:#86efac}.issued{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;padding:16px;border:1px solid rgba(249,115,22,.4);border-radius:17px;background:rgba(249,115,22,.1)}.issued div{display:grid;gap:4px}.issued div span{font-size:.68rem;letter-spacing:.1em;color:#fb923c;font-weight:850}.issued code{font-size:1.7rem;font-weight:900;letter-spacing:.16em;color:var(--text-primary,#fff)}.issued button{background:#f97316;color:#fff}.issued small{grid-column:1/-1;color:var(--text-secondary,#a7aab8)}.empty{display:flex;align-items:center;justify-content:center;gap:10px;padding:30px;color:var(--text-secondary,#a7aab8)}.privacy{display:flex;align-items:flex-start;gap:8px;color:var(--text-secondary,#a7aab8);font-size:.8rem}.privacy svg{flex:0 0 auto;color:#22c55e}@media(max-width:620px){.hero{align-items:flex-start;flex-direction:column}.stats{gap:7px}.stats article{padding:11px;gap:3px 7px}.stats strong{font-size:1.15rem}.stats span{font-size:.68rem}.member{align-items:flex-start;flex-wrap:wrap}.memberInfo{min-width:calc(100% - 60px)}.issue{margin-left:55px}.issued{grid-template-columns:1fr auto}.issued button{grid-column:1/-1}.issued code{font-size:1.35rem}}
+
+/* Tema claro: superficies uniformes y jerarquía verde consistente. */
+:global(:root[data-theme="light"]) .scope .hero,
+:global(:root:not([data-theme="dark"])) .scope .hero {
+  background: #168b5b;
+  border-color: #168b5b;
+  color: #fff;
+}
+:global(:root[data-theme="light"]) .scope .hero :is(h1,p),
+:global(:root:not([data-theme="dark"])) .scope .hero :is(h1,p) { color: #fff; }
+:global(:root[data-theme="light"]) .scope .stats article,
+:global(:root:not([data-theme="dark"])) .scope .stats article,
+:global(:root[data-theme="light"]) .scope .member,
+:global(:root:not([data-theme="dark"])) .scope .member,
+:global(:root[data-theme="light"]) .scope .toolbar input,
+:global(:root:not([data-theme="dark"])) .scope .toolbar input {
+  background: #fff;
+  color: #17271e;
+  border-color: #dce6df;
+  box-shadow: 0 2px 9px rgba(20,45,31,.045);
+}
+:global(:root[data-theme="light"]) .scope .stats span,
+:global(:root:not([data-theme="dark"])) .scope .stats span,
+:global(:root[data-theme="light"]) .scope .memberInfo span,
+:global(:root:not([data-theme="dark"])) .scope .memberInfo span,
+:global(:root[data-theme="light"]) .scope .memberInfo small,
+:global(:root:not([data-theme="dark"])) .scope .memberInfo small {
+  color: #617267;
+}
+:global(:root[data-theme="light"]) .scope .issued,
+:global(:root:not([data-theme="dark"])) .scope .issued {
+  background: #e7f5ec;
+  border-color: #b9dfc8;
+}
+:global(:root[data-theme="light"]) .scope .issued code,
+:global(:root:not([data-theme="dark"])) .scope .issued code { color: #17271e; }
+:global(:root[data-theme="dark"]) .scope .stats article,
+:global(:root[data-theme="dark"]) .scope .member,
+:global(:root[data-theme="dark"]) .scope .toolbar input {
+  background: #1a261f;
+  color: #edf5ef;
+  border-color: #34463a;
+}
