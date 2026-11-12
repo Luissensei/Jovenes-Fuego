@@ -9,6 +9,7 @@ import './styles/xr-glass-dashboard.css';
 import './styles/portal-theme-fixes.css';
 import './styles/mobile-quality-system.css';
 import './styles/portal-mobile-fix.css';
+import './styles/portal-complete-redesign.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
