@@ -239,7 +239,7 @@ function AdminApp() {
     // La visibilidad sigue dependiendo del perfil y del rol autenticado.
     if (item.id === 'assistant') return isAdmin;
     if (item.id === 'notifications') return isAdmin || isPastor;
-    if (item.id === 'youth-pins') return isAdmin || isPastor;
+    if (item.id === 'youth-pins') return isAdmin || isPastor || isLeader;
 
     if (isLeader) {
       // Las peticiones contienen información privada; su bandeja queda reservada
