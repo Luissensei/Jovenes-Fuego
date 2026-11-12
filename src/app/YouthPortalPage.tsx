@@ -40,6 +40,7 @@ const PORTAL_CACHE_TTL = 5 * 60 * 1000;
 type PortalCacheEntry<T> = { savedAt: number; data: T };
 const portalMemoryCache = new Map<string, PortalCacheEntry<unknown>>();
 const portalRequests = new Map<string, Promise<unknown>>();
+const portalLastRefresh = new Map<string, number>();
 
 function readPortalCache<T>(key: string): T | null {
   const memory = portalMemoryCache.get(key) as PortalCacheEntry<T> | undefined;
@@ -67,12 +68,17 @@ function requestPortalCache<T>(key: string, loader: () => Promise<T>): Promise<T
   const pending = portalRequests.get(key) as Promise<T> | undefined;
   if (pending) return pending;
   const cached = readPortalCache<T>(key);
-  if (cached !== null) return Promise.resolve(cached);
+  const lastRefresh = portalLastRefresh.get(key) ?? 0;
+  if (cached !== null && Date.now() - lastRefresh < 60_000) return Promise.resolve(cached);
+  portalLastRefresh.set(key, Date.now());
   const request = loader().then((data) => {
     const entry = {savedAt: Date.now(), data};
     portalMemoryCache.set(key, entry);
     try { window.sessionStorage.setItem(`jf-portal-cache:${key}`, JSON.stringify(entry)); } catch { /* caché opcional */ }
     return data;
+  }).catch((cause: unknown) => {
+    portalLastRefresh.delete(key);
+    throw cause;
   }).finally(() => portalRequests.delete(key));
   portalRequests.set(key, request);
   return request;
