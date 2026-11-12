@@ -578,3 +578,75 @@ html, body, #root {
     animation:none!important;transition:none!important;transform:none!important;
   }
 }
+
+
+/* Microinteracciones globales: respuesta inmediata al toque y transiciones coherentes. */
+:where(button,a,[role="button"],[role="tab"],.nav-item,.jf-bottom-nav-item,.theme-toggle){
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+:where(button,a,[role="button"],[role="tab"],.nav-item,.jf-bottom-nav-item,.theme-toggle){
+  transition:
+    color .18s ease,
+    background-color .2s ease,
+    border-color .2s ease,
+    box-shadow .22s ease,
+    opacity .18s ease,
+    transform .2s cubic-bezier(.2,.75,.25,1),
+    filter .2s ease;
+}
+:where(button,a,[role="button"],[role="tab"],.nav-item,.jf-bottom-nav-item,.theme-toggle):active{
+  transform:scale(.965);
+  filter:brightness(1.08);
+}
+:where(button,a,[role="button"],[role="tab"],.nav-item,.jf-bottom-nav-item,.theme-toggle):focus-visible{
+  outline:2px solid var(--accent,#f59e0b);
+  outline-offset:3px;
+}
+:where(.page-card,.card,.panel,.stat-card,.metric-card,.dashboard-card,.jf-nav-group,.access-denied-card){
+  transition:transform .24s cubic-bezier(.2,.75,.25,1),box-shadow .24s ease,border-color .2s ease,background-color .2s ease;
+}
+@media(hover:hover) and (pointer:fine){
+  :where(.page-card,.card,.panel,.stat-card,.metric-card,.dashboard-card):hover{
+    transform:translateY(-3px);
+    box-shadow:0 14px 30px rgba(8,18,35,.12);
+  }
+}
+.sidebar .nav-item:active,.jf-bottom-nav :active,.topline button:active{
+  transform:scale(.94)!important;
+}
+.sidebar .nav-item.active,.jf-bottom-nav .active{
+  transition:background .22s ease,color .22s ease,box-shadow .22s ease,transform .22s ease;
+}
+.jf-route-stage{
+  transform-origin:50% 12%;
+  will-change:opacity,transform;
+}
+.jf-bottom-nav{
+  transition:transform .28s cubic-bezier(.2,.8,.2,1),background .25s ease,box-shadow .25s ease;
+}
+.jf-bottom-nav a,.jf-bottom-nav button{
+  position:relative;
+  overflow:hidden;
+}
+.jf-bottom-nav a:active,.jf-bottom-nav button:active{
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);
+}
+:where(.sidebar,.main,.jf-bottom-nav) :where(input,textarea,select){
+  transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease;
+}
+:where(.sidebar,.main) :where(input,textarea,select):focus{
+  box-shadow:0 0 0 3px rgba(245,158,11,.12);
+}
+@keyframes jfSurfaceEnter{
+  from{opacity:0;transform:translateY(10px) scale(.992)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.jf-route-stage>*{animation:jfSurfaceEnter .32s cubic-bezier(.2,.8,.2,1) both;}
+@media(prefers-reduced-motion:reduce){
+  :where(button,a,[role="button"],[role="tab"],.nav-item,.jf-bottom-nav-item,.theme-toggle),
+  :where(.page-card,.card,.panel,.stat-card,.metric-card,.dashboard-card,.jf-nav-group,.access-denied-card),
+  .jf-bottom-nav,.jf-route-stage>*{
+    transition:none!important;animation:none!important;transform:none!important;filter:none!important;
+  }
+}
