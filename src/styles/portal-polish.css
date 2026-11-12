@@ -188,3 +188,9 @@ body .youth-portal .youth-tab-page {
 @media(prefers-reduced-motion:reduce) {
   .jf-skeleton-block { animation:none; }
 }
+
+.jf-module-loading { min-height:220px; width:100%; padding:16px; }
+.jf-sr-only {
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
