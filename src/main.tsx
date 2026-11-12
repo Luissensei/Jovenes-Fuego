@@ -16,9 +16,11 @@ import './styles/theme-performance-fix.css';
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
   document.documentElement.dataset.theme = initialTheme;
+  document.documentElement.classList.toggle('dark', initialTheme === 'dark');
   document.documentElement.style.colorScheme = initialTheme;
 } catch {
   document.documentElement.dataset.theme = 'light';
+  document.documentElement.classList.remove('dark');
   document.documentElement.style.colorScheme = 'light';
 }
 
