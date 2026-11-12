@@ -30,34 +30,39 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
       "Content-Type": "application/json",
     };
 
-    try {
-      const currentUser = auth?.currentUser;
-      if (currentUser) {
-        headers.Authorization = `Bearer ${await currentUser.getIdToken(true)}`;
-      }
-      if (!appCheck) {
-        throw makeError(
-          "failed-precondition",
-          "Firebase App Check no se inicializó. Verifica la clave de reCAPTCHA Enterprise y el dominio autorizado de la aplicación.",
-        );
-      }
+    const currentUser = auth?.currentUser;
+    if (currentUser) {
       try {
-        // Fuerza una renovación para evitar enviar una petición protegida
-        // con un token ausente o vencido después de recuperar la sesión.
-        const token = await getToken(appCheck, true);
-        if (!token.token) {
-          throw new Error("Firebase App Check devolvió un token vacío.");
-        }
-        headers["X-Firebase-AppCheck"] = token.token;
+        headers.Authorization = `Bearer ${await currentUser.getIdToken(true)}`;
       } catch (cause) {
-        const detail = cause instanceof Error ? cause.message : "Error desconocido";
+        const reason = cause instanceof Error ? cause.message.slice(0, 180) : "unknown";
         throw makeError(
-          "failed-precondition",
-          `No se pudo obtener el token de verificación de la aplicación: ${detail}`,
+          "unauthenticated",
+          `No se pudo renovar el token de sesión de Firebase: ${reason}`,
+          {reason: "client-id-token-refresh-failed"},
         );
       }
-    } catch {
-      throw makeError("unauthenticated", "No se pudo validar la sesión actual.");
+    }
+
+    if (!appCheck) {
+      throw makeError(
+        "failed-precondition",
+        "Firebase App Check no se inicializó. Verifica la clave de reCAPTCHA Enterprise y el dominio autorizado de la aplicación.",
+      );
+    }
+    try {
+      const token = await getToken(appCheck, true);
+      if (!token.token) {
+        throw new Error("Firebase App Check devolvió un token vacío.");
+      }
+      headers["X-Firebase-AppCheck"] = token.token;
+    } catch (cause) {
+      const detail = cause instanceof Error ? cause.message : "Error desconocido";
+      throw makeError(
+        "failed-precondition",
+        `No se pudo obtener el token de verificación de la aplicación: ${detail}`,
+        {reason: "app-check-token-failed"},
+      );
     }
 
     // El backend principal de producción es Vercel. Solo se usa Firebase
