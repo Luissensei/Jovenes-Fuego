@@ -33,6 +33,7 @@ import {
 } from '../services/firebase/client';
 import { AuthProvider, useAuth } from './AuthContext';
 import { useThemePreference } from './useThemePreference';
+import { SkeletonList } from './components/Skeleton';
 const FuegoFloatingAssistant = lazy(() => import('./components/FuegoFloatingAssistant'));
 
 const LoginPage = lazy(() => import('./LoginPage').then((module) => ({default: module.LoginPage})));
@@ -63,7 +64,16 @@ const AuditPage = lazy(() => import('./pages/ManagementPages').then((module) => 
 const SettingsPage = lazy(() => import('./pages/SettingsHubPage'));
 
 function PageLoading({label = 'Cargando módulo'}: {label?: string}) {
-  return <div className="jf-page-loading" role="status" aria-live="polite"><span/><strong>{label}</strong><small>Preparando esta sección...</small></div>;
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setVisible(true), 150);
+    return () => window.clearTimeout(timeout);
+  }, []);
+  return (
+    <div className="jf-module-loading" role="status" aria-live="polite" aria-label={label}>
+      {visible ? <SkeletonList count={2}/> : <span className="jf-sr-only">{label}</span>}
+    </div>
+  );
 }
 
 function ModulePage({
