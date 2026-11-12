@@ -538,8 +538,6 @@ export const adminUpdateLeader = onCall({enforceAppCheck: true}, async (request)
   return {success: true};
 });
 
-
-
 const youthPinPepper = createHash("sha256")
   .update(
     process.env.FIREBASE_SERVICE_ACCOUNT_JSON ??
