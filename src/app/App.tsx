@@ -63,6 +63,41 @@ const PastoralPage = lazy(() => import('./pages/ManagementPages').then((module) 
 const AuditPage = lazy(() => import('./pages/ManagementPages').then((module) => ({default: module.AuditPage})));
 const SettingsPage = lazy(() => import('./pages/SettingsHubPage'));
 
+const adminModulePreloaders: Record<string, () => Promise<unknown>> = {
+  dashboard: () => import('./DashboardPage'),
+  assistant: () => import('./pages/AdminAssistantPage'),
+  members: () => import('./MembersPage'),
+  attendance: () => import('./AttendancePage'),
+  followups: () => import('./FollowupPage'),
+  devotionals: () => import('./DevotionalsPage'),
+  visitors: () => import('./VisitorsPage'),
+  ranking: () => import('./RankingPage'),
+  games: () => import('./RankingPage'),
+  profile: () => import('./RankingPage'),
+  prayers: () => import('./pages/PrayersPage'),
+  events: () => import('./pages/EventsPage'),
+  inbox: () => import('./pages/InboxPage'),
+  notifications: () => import('./pages/NotificationsPage'),
+  turns: () => import('./pages/TurnsPage'),
+  checkins: () => import('./pages/CheckinPage'),
+  photos: () => import('./pages/PhotosPage'),
+  reports: () => import('./pages/ReportsPage'),
+  settings: () => import('./pages/SettingsHubPage'),
+  audit: () => import('./pages/ManagementPages'),
+  bonus: () => import('./pages/ManagementPages'),
+  pastoral: () => import('./pages/ManagementPages'),
+  leaders: () => import('./pages/LeadersAdminPage'),
+};
+const preloadedAdminModules = new Set<string>();
+function preloadAdminModule(id: string) {
+  const connection = (navigator as Navigator & {connection?: {saveData?: boolean}}).connection;
+  if (connection?.saveData || preloadedAdminModules.has(id)) return;
+  const preload = adminModulePreloaders[id];
+  if (!preload) return;
+  preloadedAdminModules.add(id);
+  void preload().catch(() => preloadedAdminModules.delete(id));
+}
+
 function PageLoading({label = 'Cargando módulo'}: {label?: string}) {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -427,7 +462,7 @@ function AdminApp() {
             return <details className="jf-nav-group" key={group.label} open={sidebarCollapsed || activeGroup || Boolean(moduleSearch.trim()) || false}>
               <summary><span>{group.label}</span><span className="jf-nav-count">{items.length}</span></summary>
               <div className="jf-nav-group-items">{items.map((item) => (
-                <NavLink key={item.id} to={item.path} end={item.path === '/'} title={sidebarCollapsed ? item.label : undefined} onClick={() => setMenuOpen(false)} className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+                <NavLink key={item.id} to={item.path} end={item.path === '/'} title={sidebarCollapsed ? item.label : undefined} onPointerEnter={() => preloadAdminModule(item.id)} onTouchStart={() => preloadAdminModule(item.id)} onClick={() => setMenuOpen(false)} className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
                   <span className="nav-item-icon" aria-hidden="true"><item.icon size={17} strokeWidth={1.9}/></span>
                   <span>{item.label}</span>
                 </NavLink>
