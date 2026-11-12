@@ -40,3 +40,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>,
 );
 import './styles/portal-polish.css';
+
+import './styles/theme-final-overrides.css';
