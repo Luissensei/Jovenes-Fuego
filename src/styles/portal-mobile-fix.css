@@ -1,0 +1,314 @@
+/* Correcciones específicas del portal joven. Esta capa se limita a .youth-portal. */
+body .youth-portal {
+  --portal-fix-green: #176b49;
+  --portal-fix-green-strong: #105638;
+  --portal-fix-green-soft: #e4f3e9;
+  --portal-fix-ink: #173528;
+  --portal-fix-muted: #526b5e;
+  --portal-fix-line: #d7e7dc;
+  padding-bottom: calc(102px + env(safe-area-inset-bottom)) !important;
+}
+body .youth-portal .youth-tab-page {
+  min-width: 0;
+  padding-bottom: calc(102px + env(safe-area-inset-bottom)) !important;
+}
+:root[data-theme="dark"] body .youth-portal {
+  --portal-fix-green: #8bd5a9;
+  --portal-fix-green-strong: #a5e5bc;
+  --portal-fix-green-soft: #203d2e;
+  --portal-fix-ink: #eff8f1;
+  --portal-fix-muted: #b5c9bb;
+  --portal-fix-line: #385343;
+}
+
+/* Hall of Fame: cada persona ocupa una tarjeta vertical, no una cuadrícula interna. */
+body .youth-portal .youth-podium-list {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: stretch;
+  gap: 10px !important;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+body .youth-portal .youth-podium-list > li,
+body .youth-portal .youth-podium-list > li.podium-place {
+  display: flex !important;
+  min-width: 0;
+  min-height: 172px;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start;
+  gap: 7px !important;
+  padding: 12px 7px !important;
+  text-align: center !important;
+  overflow: hidden;
+}
+body .youth-portal .youth-podium-list > li > img,
+body .youth-portal .youth-podium-list > li > b {
+  display: grid;
+  place-items: center;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  overflow: hidden;
+}
+body .youth-portal .youth-podium-list > li > b {
+  color: var(--portal-fix-green-strong) !important;
+  background: var(--portal-fix-green-soft) !important;
+  font-size: 17px;
+  font-weight: 850;
+}
+body .youth-portal .youth-podium-medal,
+body .youth-portal .youth-podium-rank,
+body .youth-portal .youth-podium-list > li > strong {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+body .youth-portal .youth-podium-rank {
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 850;
+  color: var(--portal-fix-muted) !important;
+}
+body .youth-portal .youth-podium-name {
+  display: -webkit-box;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--portal-fix-ink) !important;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+body .youth-portal .youth-podium-list > li > strong {
+  color: var(--portal-fix-green-strong) !important;
+  font-size: 12px;
+  font-weight: 850;
+}
+body .youth-portal .youth-podium-list > li > strong::first-letter { color: inherit; }
+
+/* Reto de crecimiento: estilos base completos y controles accesibles. */
+body .youth-portal .youth-growth-plan {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  padding: clamp(15px, 3vw, 22px);
+  color: var(--portal-fix-ink);
+  background: var(--jf-portal-surface, #fff);
+  border: 1px solid var(--portal-fix-line);
+  border-radius: 20px;
+}
+body .youth-portal .youth-growth-plan > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+body .youth-portal .youth-growth-plan > header > div { min-width: 0; }
+body .youth-portal .youth-growth-plan > header span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--portal-fix-green);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .1em;
+}
+body .youth-portal .youth-growth-plan > header h2 {
+  margin: 0;
+  color: var(--portal-fix-ink);
+  font-size: clamp(20px, 4vw, 26px);
+  line-height: 1.2;
+}
+body .youth-portal .youth-growth-plan > header p {
+  margin: 7px 0 0;
+  color: var(--portal-fix-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+body .youth-portal .youth-growth-plan > header > strong {
+  display: grid;
+  place-items: center;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  color: var(--portal-fix-green-strong);
+  background: var(--portal-fix-green-soft);
+  font-size: 15px;
+}
+body .youth-portal .youth-growth-progress {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--portal-fix-green-soft);
+}
+body .youth-portal .youth-growth-progress > i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--portal-fix-green);
+  transition: width .2s ease;
+}
+body .youth-portal .youth-growth-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+body .youth-portal .youth-growth-grid > article {
+  display: flex !important;
+  min-width: 0;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px !important;
+  color: var(--portal-fix-ink) !important;
+  background: var(--jf-portal-surface-soft, #f7fbf8) !important;
+  border: 1px solid var(--portal-fix-line) !important;
+  border-radius: 16px !important;
+}
+body .youth-portal .youth-growth-grid > article > div { min-width: 0; }
+body .youth-portal .youth-growth-grid > article span,
+body .youth-portal .youth-growth-grid > article b,
+body .youth-portal .youth-growth-grid > article small {
+  display: block;
+}
+body .youth-portal .youth-growth-grid > article span {
+  margin-bottom: 6px;
+  color: var(--portal-fix-muted) !important;
+  font-size: 11px;
+  font-weight: 750;
+}
+body .youth-portal .youth-growth-grid > article b {
+  color: var(--portal-fix-ink) !important;
+  font-size: 15px;
+  line-height: 1.35;
+}
+body .youth-portal .youth-growth-grid > article small {
+  width: fit-content;
+  margin-top: 8px;
+  padding: 4px 8px;
+  color: var(--portal-fix-green-strong) !important;
+  background: var(--portal-fix-green-soft);
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 750;
+}
+body .youth-portal .youth-growth-grid > article p {
+  margin: 9px 0 0;
+  color: var(--portal-fix-muted) !important;
+  font-size: 13px;
+  line-height: 1.55;
+}
+body .youth-portal .youth-growth-grid > article button {
+  display: inline-flex;
+  width: fit-content;
+  min-width: 142px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 13px;
+  color: #fff !important;
+  background: #176b49 !important;
+  border: 1px solid #176b49 !important;
+  border-radius: 12px !important;
+  font-size: 12px;
+  font-weight: 800;
+}
+body .youth-portal .youth-growth-grid > article button[aria-pressed="true"],
+body .youth-portal .youth-growth-grid > article.is-done button {
+  color: var(--portal-fix-green-strong) !important;
+  background: var(--portal-fix-green-soft) !important;
+  border-color: var(--portal-fix-line) !important;
+}
+body .youth-portal .youth-growth-local-note {
+  color: var(--portal-fix-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Iniciales legibles: evita blanco sobre el fondo blanco heredado. */
+body .youth-portal .youth-welcome .youth-avatar span {
+  color: #174b35 !important;
+  background: #d8f0e1 !important;
+  -webkit-text-fill-color: #174b35 !important;
+}
+:root[data-theme="dark"] body .youth-portal .youth-welcome .youth-avatar span {
+  color: #e8fff0 !important;
+  background: #28583d !important;
+  -webkit-text-fill-color: #e8fff0 !important;
+}
+
+/* Toolbar ordenada; en móvil compacto los controles se convierten en iconos. */
+body .youth-portal .youth-home-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  gap: 8px;
+  min-width: 0;
+}
+body .youth-portal .youth-home-toolbar > button {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+@media (max-width: 420px) {
+  body .youth-portal { padding-inline: 9px !important; }
+  body .youth-portal .youth-tab-page {
+    padding-bottom: calc(102px + env(safe-area-inset-bottom)) !important;
+  }
+  body .youth-portal .youth-home-toolbar {
+    justify-content: flex-end;
+    gap: 7px;
+    overflow: visible;
+  }
+  body .youth-portal .youth-home-toolbar > button {
+    flex: 0 0 44px;
+    width: 44px;
+    min-width: 44px;
+    max-width: 44px;
+    padding: 0 !important;
+    overflow: hidden;
+    font-size: 0 !important;
+    line-height: 0;
+  }
+  body .youth-portal .youth-home-toolbar > button svg {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+  }
+  body .youth-portal .youth-podium-list { gap: 7px !important; }
+  body .youth-portal .youth-podium-list > li {
+    min-height: 164px;
+    padding: 10px 4px !important;
+  }
+  body .youth-portal .youth-podium-list > li > img,
+  body .youth-portal .youth-podium-list > li > b {
+    flex-basis: 52px;
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+  }
+  body .youth-portal .youth-podium-name { font-size: 11px; }
+}
+@media (max-width: 360px) {
+  body .youth-portal .youth-podium-list { gap: 5px !important; }
+  body .youth-portal .youth-podium-list > li { padding-inline: 3px !important; }
+  body .youth-portal .youth-podium-list > li > strong { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body .youth-portal .youth-growth-progress > i { transition: none; }
+}
