@@ -15,11 +15,13 @@ export type PointsChartDatum = {
 type PointsChartProps = {
   data: PointsChartDatum[];
   ariaLabel?: string;
+  valueSuffix?: string;
 };
 
 export default function PointsChart({
   data,
   ariaLabel = 'Comparativo de puntuaciones de participantes',
+  valueSuffix = 'puntos',
 }: PointsChartProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
 
@@ -112,7 +114,7 @@ export default function PointsChart({
       if (!observer) window.removeEventListener('resize', handleResize);
       chart.dispose();
     };
-  }, [ariaLabel, data]);
+  }, [ariaLabel, data, valueSuffix]);
 
   return (
     <div
