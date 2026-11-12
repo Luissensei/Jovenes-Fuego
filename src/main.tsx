@@ -13,6 +13,7 @@ import './styles/portal-complete-redesign.css';
 import './styles/admin-module-system.css';
 import './styles/theme-performance-fix.css';
 import './styles/mobile-spacing-and-instant-sidebar.css';
+import './styles/unified-module-theme.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
