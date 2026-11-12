@@ -9,7 +9,7 @@ import {
   Gamepad2, RefreshCw, ChevronRight, ShieldCheck, Sparkles,
   CalendarDays, HeartHandshake, Send, Medal, Crown,
   Palette, Volume2, VolumeX, Star, X, WandSparkles,
-  BookMarked, Moon, Sun, UserSearch, Circle, CheckCircle2, UserRound, Save, Trash2, Home,
+  BookMarked, Moon, Sun, UserSearch, CheckCircle2, UserRound, Save, Trash2, Home,
 } from 'lucide-react';
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
 import {
