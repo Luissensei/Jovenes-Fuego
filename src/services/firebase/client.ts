@@ -16,15 +16,9 @@ const firebaseConfig = {
   appId: '1:222344810816:web:91898b0e914ce5f40b6aa5',
 };
 
-const env = import.meta.env;
-
-// Es una clave pública de sitio, no una clave secreta. Se permite sobrescribirla
-// desde Vercel, pero la app también funciona sin configurar otra variable.
-const appCheckSiteKey = (
-  typeof env.VITE_FIREBASE_APP_CHECK_SITE_KEY === 'string'
-    ? env.VITE_FIREBASE_APP_CHECK_SITE_KEY.trim()
-    : ''
-) || '6LeB0Q8uAAAAAEpam8URtnsLNVewLDlxYK5AYJqU';
+// Clave pública de reCAPTCHA Enterprise registrada para la aplicación web
+// del proyecto Firebase original "jovenes-de-fuego".
+const appCheckSiteKey = '6LeB0Q8uAAAAAN-rwuAIeKHEkDM5SKKgpueRl8GJ';
 
 const firebaseApp: FirebaseApp = getApps()[0] ?? initializeApp(firebaseConfig);
 
