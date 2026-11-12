@@ -6,6 +6,7 @@ import './styles/app.css';
 import './styles/layout.css';
 import './styles/refinement.css';
 import './styles/xr-glass-dashboard.css';
+import './styles/portal-theme-fixes.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
