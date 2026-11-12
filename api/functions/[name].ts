@@ -154,6 +154,14 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
     let auth: {uid: string; token: Record<string, unknown>} | null = null;
     const authorization = header(req.headers.authorization);
     const bearer = authorization.match(/^Bearer\s+(.+)$/i);
+    if (!bearer && name === "getMyApplicationProfile") {
+      return respondError(
+        res,
+        "unauthenticated",
+        "La solicitud de perfil llegó sin el token de sesión de Firebase.",
+        {reason: "missing-bearer-token"},
+      );
+    }
     if (bearer) {
       try {
         const decoded = await getAuth().verifyIdToken(bearer[1], true);
@@ -165,7 +173,13 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
           code: String(authError?.code ?? "unknown").slice(0, 100),
           message: String(authError?.message ?? "Unknown authentication error").slice(0, 500),
         });
-        return respondError(res, "unauthenticated", "La sesión de Firebase no es válida o ha caducado. Vuelve a iniciar sesión.");
+        const reason = String(authError?.code ?? "unknown").replace(/[^A-Za-z0-9_/-]/g, "").slice(0, 100) || "unknown";
+        return respondError(
+          res,
+          "unauthenticated",
+          "La sesión de Firebase no es válida o ha caducado. Vuelve a iniciar sesión.",
+          {reason},
+        );
       }
     }
 
