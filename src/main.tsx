@@ -44,3 +44,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 import './styles/portal-polish.css';
 
 import './styles/theme-final-overrides.css';
+
+import './styles/sidebar-transparent-redesign.css';
