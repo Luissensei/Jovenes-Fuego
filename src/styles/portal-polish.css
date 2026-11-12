@@ -160,3 +160,31 @@ body .youth-portal .youth-tab-page {
   body .youth-portal .youth-bottom-navigation button { transition:none; }
   body .youth-portal .youth-bottom-navigation button.active::after { transition:none; }
 }
+
+/* Skeletons con shimmer discreto; se desactivan con movimiento reducido. */
+.jf-skeleton-list { display:grid; gap:12px; width:100%; }
+.jf-skeleton-card {
+  display:grid; gap:11px; min-width:0; padding:16px;
+  border:1px solid var(--jf-ui-border,rgba(100,120,105,.16));
+  border-radius:16px; background:var(--jf-ui-surface,#fff);
+}
+.jf-skeleton-card-heading { display:flex; align-items:center; gap:12px; }
+.jf-skeleton-card-heading > div { display:grid; flex:1; gap:8px; min-width:0; }
+.jf-skeleton-block {
+  display:block; width:100%; height:11px; border-radius:8px;
+  background:linear-gradient(90deg,rgba(125,145,132,.10) 20%,rgba(125,145,132,.24) 42%,rgba(125,145,132,.10) 64%);
+  background-size:220% 100%;
+  animation:jf-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+.jf-skeleton-avatar { flex:0 0 auto; height:auto; aspect-ratio:1; border-radius:50%; }
+.jf-skeleton-podium { display:grid; gap:14px; }
+.jf-skeleton-podium-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); align-items:end; gap:10px; }
+.jf-skeleton-podium-card {
+  display:flex; min-width:0; flex-direction:column; align-items:center; gap:9px;
+  padding:12px 8px 0; border-radius:16px; background:var(--jf-ui-surface,#fff);
+}
+.jf-skeleton-podium-card .jf-skeleton-block:last-child { border-radius:12px 12px 0 0; }
+@keyframes jf-skeleton-shimmer { from {background-position:100% 0} to {background-position:-120% 0} }
+@media(prefers-reduced-motion:reduce) {
+  .jf-skeleton-block { animation:none; }
+}
