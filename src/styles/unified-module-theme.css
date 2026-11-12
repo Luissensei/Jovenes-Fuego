@@ -1,0 +1,170 @@
+/*
+ * Unified visual contract for every administration module.
+ * Loaded after legacy styles so both themes use the same semantic tokens.
+ */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --jf-page-bg: #f3f7f4;
+  --jf-surface: #ffffff;
+  --jf-surface-raised: #ffffff;
+  --jf-surface-soft: #f6faf7;
+  --jf-text: #17271f;
+  --jf-text-muted: #637469;
+  --jf-border: #dce7df;
+  --jf-accent: #16865b;
+  --jf-accent-strong: #106b47;
+  --jf-accent-soft: #e8f5ed;
+  --jf-danger: #b42318;
+  --jf-warning: #9a5a08;
+  --jf-control-shadow: 0 2px 8px rgba(20, 45, 30, .045);
+}
+:root[data-theme="dark"],
+:root.dark {
+  color-scheme: dark;
+  --jf-page-bg: #101813;
+  --jf-surface: #19251e;
+  --jf-surface-raised: #202d25;
+  --jf-surface-soft: #202d25;
+  --jf-text: #edf5ef;
+  --jf-text-muted: #adbbb1;
+  --jf-border: #34463a;
+  --jf-accent: #65d6a0;
+  --jf-accent-strong: #8ce5b8;
+  --jf-accent-soft: #203d2d;
+  --jf-danger: #ff9a91;
+  --jf-warning: #f4c36d;
+  --jf-control-shadow: 0 5px 18px rgba(0, 0, 0, .16);
+}
+html, body, #root, .layout, .main {
+  background-color: var(--jf-page-bg);
+  color: var(--jf-text);
+}
+.main { min-width: 0; }
+.main .jf-route-stage { min-width: 0; color: var(--jf-text); }
+.main .jf-route-stage :is(h1,h2,h3,h4,h5,strong,b,legend) {
+  color: var(--jf-text);
+}
+.main .jf-route-stage :is(p,small,label,.muted,.text-muted,.description,
+.subtitle,.helper-text,.field-hint,.empty-description) {
+  color: var(--jf-text-muted);
+}
+.main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,
+[class*="Card"],[class*="card"],[class*="Panel"],[class*="panel"],
+[class*="Surface"],[class*="surface"],[class*="Metric"],[class*="metric"]) {
+  border-color: var(--jf-border);
+}
+:root[data-theme="light"] .main .jf-route-stage :is(
+  .page-card,.panel,.card,.stat-card,.statCard,[class*="Card"],[class*="card"],
+  [class*="Panel"],[class*="panel"],[class*="Surface"],[class*="surface"],
+  [class*="Metric"],[class*="metric"]
+):not([class*="hero"]):not([class*="Hero"]):not([class*="gradient"]):not([class*="Gradient"]) {
+  color: var(--jf-text);
+  background-color: var(--jf-surface);
+  border-color: var(--jf-border);
+  box-shadow: var(--jf-control-shadow);
+}
+:root[data-theme="dark"] .main .jf-route-stage :is(
+  .page-card,.panel,.card,.stat-card,.statCard,[class*="Card"],[class*="card"],
+  [class*="Panel"],[class*="panel"],[class*="Surface"],[class*="surface"],
+  [class*="Metric"],[class*="metric"]
+):not([class*="hero"]):not([class*="Hero"]):not([class*="gradient"]):not([class*="Gradient"]) {
+  color: var(--jf-text);
+  background-color: var(--jf-surface);
+  border-color: var(--jf-border);
+  box-shadow: var(--jf-control-shadow);
+}
+/* Inputs and selects remain legible in every module, including CSS modules. */
+.main .jf-route-stage :is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,textarea
+) {
+  min-width: 0;
+  color: var(--jf-text);
+  background: var(--jf-surface);
+  border: 1px solid var(--jf-border);
+}
+.main .jf-route-stage :is(input,select,textarea)::placeholder {
+  color: var(--jf-text-muted);
+  opacity: .85;
+}
+.main .jf-route-stage :is(input,select,textarea):focus-visible {
+  outline: 2px solid var(--jf-accent);
+  outline-offset: 2px;
+  border-color: var(--jf-accent);
+}
+/* Neutral buttons get a readable surface; semantic actions keep their colors. */
+.main .jf-route-stage :is(button,.btn,[role="button"],[class*="button"],[class*="Button"]) {
+  font: inherit;
+}
+:root[data-theme="light"] .main .jf-route-stage button:not(
+  .primary,.btn-primary,.primary-button,.danger,.btn-danger,.success,
+  .btn-success,[data-variant="primary"],[data-variant="danger"],
+  [aria-pressed="true"],[class*="primary"],[class*="Primary"],
+  [class*="danger"],[class*="Danger"],[class*="success"],[class*="Success"]
+) {
+  color: var(--jf-text);
+  border-color: var(--jf-border);
+}
+:root[data-theme="dark"] .main .jf-route-stage button:not(
+  .primary,.btn-primary,.primary-button,.danger,.btn-danger,.success,
+  .btn-success,[data-variant="primary"],[data-variant="danger"],
+  [aria-pressed="true"],[class*="primary"],[class*="Primary"],
+  [class*="danger"],[class*="Danger"],[class*="success"],[class*="Success"]
+) {
+  color: var(--jf-text);
+  background-color: var(--jf-surface-raised);
+  border-color: var(--jf-border);
+}
+.main .jf-route-stage :is(button,.btn,[role="button"],a):focus-visible {
+  outline: 2px solid var(--jf-accent);
+  outline-offset: 2px;
+}
+.main .jf-route-stage :is(button,.btn):disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+.main .jf-route-stage :is(table,th,td) { border-color: var(--jf-border); }
+:root[data-theme="dark"] .main .jf-route-stage :is(th,td) {
+  color: var(--jf-text);
+}
+:root[data-theme="dark"] .main .jf-route-stage :is(
+  .empty-state,.empty,.notice,.info-box,.search-box,.toolbar,.filter-bar,
+  .table-wrap,.table-container,.table-wrapper
+) {
+  color: var(--jf-text);
+  background-color: var(--jf-surface-soft);
+  border-color: var(--jf-border);
+}
+:root[data-theme="light"] .main .jf-route-stage :is(
+  .empty-state,.empty,.notice,.info-box,.search-box,.toolbar,.filter-bar,
+  .table-wrap,.table-container,.table-wrapper
+) {
+  color: var(--jf-text);
+  background-color: var(--jf-surface-soft);
+  border-color: var(--jf-border);
+}
+/* Sidebar and top controls follow the selected theme without delaying navigation. */
+.sidebar {
+  color: var(--jf-text);
+  border-color: var(--jf-border);
+}
+.sidebar .nav-item { color: var(--jf-text-muted); }
+.sidebar .nav-item.active,
+.sidebar .nav-item[aria-current="page"] {
+  color: var(--jf-accent-strong);
+  background: var(--jf-accent-soft);
+}
+.main > .topline {
+  color: var(--jf-text);
+  border-color: var(--jf-border);
+}
+@media (prefers-reduced-motion: reduce) {
+  .main .jf-route-stage *, .main .jf-route-stage *::before,
+  .main .jf-route-stage *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
