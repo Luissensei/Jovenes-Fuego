@@ -1,0 +1,45 @@
+/* Final theme pass: keep every admin route aligned with the active theme. */
+:root { color-scheme: light; }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --app-bg: #101813;
+  --surface: #1a261f;
+  --text-primary: #edf5ef;
+  --text-secondary: #a9b9ae;
+  --border: #34463a;
+  --card: #1a261f;
+  --text: #edf5ef;
+  --muted: #a9b9ae;
+}
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] #root,
+:root[data-theme="dark"] .layout,
+:root[data-theme="dark"] .main {
+  background-color: #101813 !important;
+  color: #edf5ef !important;
+}
+:root[data-theme="dark"] .main :is(.topline,.topline-status,.project-label,.module-search,
+.search-box,.filter-bar,.toolbar,.empty-state,.empty-message,.table-wrap,.table-container) {
+  color: #edf5ef !important;
+  border-color: #34463a !important;
+}
+:root[data-theme="dark"] .main :is(.topline,.module-search,.search-box,.filter-bar,.toolbar,.table-wrap,.table-container) {
+  background-color: #1a261f !important;
+}
+:root[data-theme="dark"] .main :is(input,select,textarea),
+:root[data-theme="dark"] .main input::placeholder,
+:root[data-theme="dark"] .main textarea::placeholder {
+  color: #edf5ef !important;
+}
+:root[data-theme="dark"] .main :is(button:not(.primary):not(.btn-primary):not(.danger):not(.success),.secondary-button,.icon-button) {
+  border-color: #34463a;
+}
+:root[data-theme="dark"] .main :is(th,td) {
+  border-color: #34463a !important;
+}
+:root[data-theme="dark"] .main :is(.muted,.text-muted,.help-text,.field-hint,.subtitle,.description) {
+  color: #a9b9ae !important;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
