@@ -166,7 +166,14 @@ export function AuthProvider({children}: {children: ReactNode}) {
         } else if (code === 'unavailable' || code === 'deadline-exceeded') {
           setError('El backend de Vercel no responde en este momento. Comprueba la conexión e inténtalo de nuevo.');
         } else if (code === 'failed-precondition') {
-          setError('El backend de Vercel no tiene lista la conexión segura con el proyecto Firebase original. El administrador debe revisar FIREBASE_SERVICE_ACCOUNT_JSON en las variables de entorno de Vercel.');
+          const reason = typeof callableError.details?.reason === 'string'
+            ? callableError.details.reason
+            : '';
+          if (reason === 'app-check-token-failed') {
+            setError(callableError.message || 'Firebase App Check no pudo verificar esta aplicación. Revisa la clave reCAPTCHA Enterprise y el dominio autorizado.');
+          } else {
+            setError('El backend rechazó la solicitud por una condición de seguridad. Revisa los registros de Vercel y la configuración de Firebase App Check.');
+          }
         } else if (code === 'not-found') {
           setError('La operación de perfil no está disponible en el backend de Vercel. Revisa el despliegue de la aplicación.');
         } else if (code === 'unauthenticated') {
