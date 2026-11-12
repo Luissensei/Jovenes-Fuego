@@ -71,7 +71,9 @@ html, body, #root, .layout, .main {
 :root[data-theme="dark"] .main .jf-route-stage :is(
   .page-card,.panel,.card,.stat-card,.statCard,[class*="Card"],[class*="card"],
   [class*="Panel"],[class*="panel"],[class*="Surface"],[class*="surface"],
-  [class*="Metric"],[class*="metric"]
+  [class*="Metric"],[class*="metric"],[class*="record"],[class*="Record"],
+  [class*="summary"],[class*="Summary"],[class*="toolbar"],[class*="Toolbar"],
+  [class*="filter"],[class*="Filter"]
 ):not([class*="hero"]):not([class*="Hero"]):not([class*="gradient"]):not([class*="Gradient"]) {
   color: var(--jf-text);
   background-color: var(--jf-surface);
