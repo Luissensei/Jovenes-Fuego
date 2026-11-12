@@ -69,7 +69,10 @@ async function requireAdminOrPastor(uid: string): Promise<AuthorizedRole> {
   return role;
 }
 
-/** Gestión de PIN juvenil: administración, pastoral y líderes activos. */
+/** Gestión de PIN juvenil: administración, pastoral y líderes activos.
+ * @param {string} uid UID del usuario que solicita gestionar los PIN.
+ * @return {Promise<AuthorizedRole>} Rol autorizado del solicitante.
+ */
 async function requireYouthPinManager(uid: string): Promise<AuthorizedRole> {
   return requireAuthorizedRole(uid);
 }
