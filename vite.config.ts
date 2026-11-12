@@ -19,6 +19,9 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('/node_modules/html5-qrcode/')) return 'qr-scanner';
+          if (id.includes('/node_modules/echarts/')) return 'charts-vendor';
+          if (id.includes('/node_modules/motion/') || id.includes('/node_modules/framer-motion/')) return 'motion-vendor';
+          if (id.includes('/node_modules/qrcode.react/')) return 'qr-renderer';
           if (
             id.includes('/node_modules/@firebase/firestore/') ||
             id.includes('/node_modules/firebase/firestore/')
