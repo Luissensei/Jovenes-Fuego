@@ -82,13 +82,6 @@ body, .main, .sidebar, .youth-portal,
   border-color: var(--jf-ui-border) !important;
 }
 .scrim { background: rgba(8, 18, 12, .48) !important; }
-.main :is(h1,h2,h3,h4,h5), .youth-portal :is(h1,h2,h3,h4,h5) {
-  color: var(--jf-ui-text);
-  text-wrap: balance;
-}
-.main :is(p, small, .muted, .description), .youth-portal :is(p, small) {
-  color: var(--jf-ui-muted);
-}
 .main :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea),
 .youth-portal :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
   min-width: 0;
