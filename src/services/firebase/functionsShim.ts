@@ -33,7 +33,7 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
     const currentUser = auth?.currentUser;
     if (currentUser) {
       try {
-        headers.Authorization = `Bearer ${await currentUser.getIdToken(true)}`;
+        headers.Authorization = `Bearer ${await currentUser.getIdToken()}`;
       } catch (cause) {
         const reason = cause instanceof Error ? cause.message.slice(0, 180) : "unknown";
         throw makeError(
@@ -44,28 +44,18 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
       }
     }
 
-    if (!appCheck) {
-      throw makeError(
-        "failed-precondition",
-        "Firebase App Check no se inicializó. Verifica la clave de reCAPTCHA Enterprise y el dominio autorizado de la aplicación.",
-      );
-    }
-    try {
-      // Reuse the cached App Check token when valid. App Check manages
-      // automatic refresh; forcing a fresh attestation on every callable
-      // request can trigger unnecessary reCAPTCHA assessments.
-      const token = await getToken(appCheck);
-      if (!token.token) {
-        throw new Error("Firebase App Check devolvió un token vacío.");
+    // App Check es obligatorio solo para las operaciones que lo declaran
+    // con enforceAppCheck en el backend. No bloqueamos la lectura inicial del
+    // perfil ni otras llamadas autenticadas cuando el SDK está temporalmente
+    // limitado (por ejemplo, appCheck/throttled); el servidor seguirá
+    // rechazando sin token las operaciones que sí exigen App Check.
+    if (appCheck) {
+      try {
+        const token = await getToken(appCheck);
+        if (token.token) headers["X-Firebase-AppCheck"] = token.token;
+      } catch (cause) {
+        console.warn("App Check no entregó token para esta llamada; el backend aplicará su política:", cause);
       }
-      headers["X-Firebase-AppCheck"] = token.token;
-    } catch (cause) {
-      const detail = cause instanceof Error ? cause.message : "Error desconocido";
-      throw makeError(
-        "failed-precondition",
-        `No se pudo obtener el token de verificación de la aplicación: ${detail}`,
-        {reason: "app-check-token-failed"},
-      );
     }
 
     // El backend principal de producción es Vercel. Solo se usa Firebase
