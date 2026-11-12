@@ -33,7 +33,48 @@ const DuelGame = lazy(() => import('./MoreBibleGames').then((module) => ({defaul
 const OrderVerseGame = lazy(() => import('./MoreBibleGames').then((module) => ({default: module.OrderVerseGame})));
 
 import { useThemePreference } from './useThemePreference';
+import { SkeletonList, SkeletonPodium } from './components/Skeleton';
 
+
+const PORTAL_CACHE_TTL = 5 * 60 * 1000;
+type PortalCacheEntry<T> = { savedAt: number; data: T };
+const portalMemoryCache = new Map<string, PortalCacheEntry<unknown>>();
+const portalRequests = new Map<string, Promise<unknown>>();
+
+function readPortalCache<T>(key: string): T | null {
+  const memory = portalMemoryCache.get(key) as PortalCacheEntry<T> | undefined;
+  if (memory) {
+    if (Date.now() - memory.savedAt < PORTAL_CACHE_TTL) return memory.data;
+    portalMemoryCache.delete(key);
+  }
+  try {
+    const raw = window.sessionStorage.getItem(`jf-portal-cache:${key}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<PortalCacheEntry<T>>;
+    if (typeof parsed.savedAt !== 'number' || Date.now() - parsed.savedAt >= PORTAL_CACHE_TTL || !('data' in parsed)) {
+      window.sessionStorage.removeItem(`jf-portal-cache:${key}`);
+      return null;
+    }
+    const entry = {savedAt: parsed.savedAt, data: parsed.data as T};
+    portalMemoryCache.set(key, entry);
+    return entry.data;
+  } catch {
+    return null;
+  }
+}
+
+function requestPortalCache<T>(key: string, loader: () => Promise<T>): Promise<T> {
+  const pending = portalRequests.get(key) as Promise<T> | undefined;
+  if (pending) return pending;
+  const request = loader().then((data) => {
+    const entry = {savedAt: Date.now(), data};
+    portalMemoryCache.set(key, entry);
+    try { window.sessionStorage.setItem(`jf-portal-cache:${key}`, JSON.stringify(entry)); } catch { /* caché opcional */ }
+    return data;
+  }).finally(() => portalRequests.delete(key));
+  portalRequests.set(key, request);
+  return request;
+}
 
 type ProfileLook = {
   frame: string;
@@ -306,7 +347,7 @@ function YouthAvatar({profile, large = false}: {profile: PublicProfile; large?: 
   return (
     <div className={`youth-avatar youth-avatar-frame-${profile.frame || 'fuego'} ${large ? 'large' : ''}`}>
       {profile.pic && !imageFailed ? (
-        <img src={profile.pic} alt={`Fotografía de ${profile.name}`} onError={() => setImageFailed(true)} />
+        <img src={profile.pic} alt={`Fotografía de ${profile.name}`} loading="lazy" decoding="async" width={large ? 128 : 56} height={large ? 128 : 56} onError={() => setImageFailed(true)} />
       ) : <span className={profile.avatar ? 'youth-avatar-symbol' : ''}>{profile.avatar ? ({paloma:'🕊️',leon:'🦁',aguila:'🦅',cordero:'🐑',mariposa:'🦋',lobo:'🐺',estrella:'🌟',guerrero:'🛡️',dragon:'🐉',cohete:'🚀',rey:'👑',volcan:'🌋',fenix:'🔥','fenix-real':'🔥',delfin:'🐬',zorro:'🦊',pantera:'🐆',tigre:'🐯'} as Record<string,string>)[profile.avatar] ?? getInitials(profile.name) : getInitials(profile.name)}</span>}
     </div>
   );
@@ -419,7 +460,7 @@ function HallOfFame({topPlayers, faithful, attendanceLimited}: {
               <li key={player.id} className={`podium-place place-${index + 1}`}>
                 <span className="youth-podium-medal">{index === 0 ? <Crown size={17}/> : <Medal size={17}/>}</span>
                 <span className="youth-podium-rank">0{index + 1}</span>
-                {player.pic ? <img src={player.pic} alt="" /> : <b>{getInitials(player.name)}</b>}
+                {player.pic ? <img src={player.pic} alt="" loading="lazy" decoding="async" width={48} height={48} /> : <b>{getInitials(player.name)}</b>}
                 <span className="youth-podium-name">{player.name}</span>
                 <strong>{player.points} pts</strong>
               </li>
@@ -463,8 +504,10 @@ export default function YouthPortalPage() {
   const [topPlayers, setTopPlayers] = useState<HallOfFamePlayer[]>([]);
   const [faithful, setFaithful] = useState<FaithfulPlayer[]>([]);
   const [attendanceLimited, setAttendanceLimited] = useState(false);
-  const [portalDataError, setPortalDataError] = useState('');
-  const [portalDataLoading, setPortalDataLoading] = useState(true);
+  const [activitiesError, setActivitiesError] = useState('');
+  const [activitiesLoading, setActivitiesLoading] = useState(false);
+  const [rankingError, setRankingError] = useState('');
+  const [rankingLoading, setRankingLoading] = useState(false);
 
   const [look, setLook] = useState<ProfileLook>(defaultLook);
   const [profileExtras, setProfileExtras] = useState<ProfileExtras>(defaultProfileExtras);
@@ -495,7 +538,6 @@ export default function YouthPortalPage() {
   const audioMasterRef = useRef<GainNode | null>(null);
 
   const profileRequestRef = useRef(0);
-  const portalDataRequestRef = useRef(0);
 
   const loadProfiles = useCallback(async () => {
     const requestId = ++profileRequestRef.current;
@@ -514,45 +556,61 @@ export default function YouthPortalPage() {
     }
   }, []);
 
-  const loadPortalData = useCallback(async () => {
-    const requestId = ++portalDataRequestRef.current;
-    setPortalDataLoading(true);
-    setPortalDataError('');
-    const results = await Promise.allSettled([getWeeklyActivities(), getHallOfFame()]);
-    if (requestId !== portalDataRequestRef.current) return;
+  const loadActivities = useCallback(async () => {
+    const cached = readPortalCache<WeeklyActivity[]>('weekly-activities');
+    if (cached) setActivities(cached);
+    setActivitiesLoading(!cached);
+    setActivitiesError('');
+    try {
+      const result = await requestPortalCache('weekly-activities', getWeeklyActivities);
+      setActivities(result);
+    } catch (cause) {
+      console.error('Error cargando actividades del portal joven:', cause);
+      setActivitiesError(cause instanceof Error ? cause.message : 'No se pudieron cargar las actividades.');
+    } finally {
+      setActivitiesLoading(false);
+    }
+  }, []);
 
-    const errors: string[] = [];
-    if (results[0].status === 'fulfilled') {
-      setActivities(results[0].value);
-    } else {
-      console.error('Error cargando actividades del portal joven:', results[0].reason);
-      errors.push('No se pudieron cargar las actividades.');
+  const loadRanking = useCallback(async () => {
+    const cached = readPortalCache<Awaited<ReturnType<typeof getHallOfFame>>>('hall-of-fame');
+    if (cached) {
+      setTopPlayers(cached.topPlayers ?? []);
+      setFaithful(cached.faithful ?? []);
+      setAttendanceLimited(cached.attendanceLimited === true);
     }
-    if (results[1].status === 'fulfilled') {
-      setTopPlayers(results[1].value.topPlayers ?? []);
-      setFaithful(results[1].value.faithful ?? []);
-      setAttendanceLimited(results[1].value.attendanceLimited === true);
-    } else {
-      console.error('Error cargando clasificaciones del portal joven:', results[1].reason);
-      errors.push('No se pudieron cargar las clasificaciones.');
+    setRankingLoading(!cached);
+    setRankingError('');
+    try {
+      const result = await requestPortalCache('hall-of-fame', getHallOfFame);
+      setTopPlayers(result.topPlayers ?? []);
+      setFaithful(result.faithful ?? []);
+      setAttendanceLimited(result.attendanceLimited === true);
+    } catch (cause) {
+      console.error('Error cargando clasificaciones del portal joven:', cause);
+      setRankingError(cause instanceof Error ? cause.message : 'No se pudieron cargar las clasificaciones.');
+    } finally {
+      setRankingLoading(false);
     }
-    setPortalDataError(errors.length ? `${errors.join(' ')} Comprueba la conexión e inténtalo de nuevo.` : '');
-    setPortalDataLoading(false);
   }, []);
 
   useEffect(() => {
     void loadProfiles();
-    void loadPortalData();
     return () => {
       profileRequestRef.current += 1;
-      portalDataRequestRef.current += 1;
       if (audioRef.current) {
         void audioRef.current.close().catch(() => undefined);
         audioRef.current = null;
         audioMasterRef.current = null;
       }
     };
-  }, [loadProfiles, loadPortalData]);
+  }, [loadProfiles]);
+
+  useEffect(() => {
+    if (!selectedProfile) return;
+    if (activeYouthSection === 'activities') void loadActivities();
+    if (activeYouthSection === 'ranking') void loadRanking();
+  }, [selectedProfile, activeYouthSection, loadActivities, loadRanking]);
 
   useEffect(() => {
     if (selectedProfile) {
@@ -1132,11 +1190,12 @@ export default function YouthPortalPage() {
           {activeYouthSection === 'activities' && (<div className="youth-tab-page youth-activities-tab">
           <section className="youth-activities">
             <header><div><span>AGENDA DE LA GENERACIÓN</span><h2>Actividades de esta semana</h2></div><CalendarDays size={22}/></header>
-            {portalDataLoading && <div className="youth-loading" role="status"><RefreshCw size={20}/><strong>Cargando agenda y clasificaciones…</strong></div>}
-            {!portalDataLoading && publishedActivities.length > 0 && (
+            {activitiesLoading && <SkeletonList />}
+            {activitiesError && <div className="youth-data-alert" role="alert"><AlertCircle size={17}/><span>{activitiesError}</span><button type="button" onClick={() => void loadActivities()}><RefreshCw size={15}/> Reintentar</button></div>}
+            {!activitiesLoading && publishedActivities.length > 0 && (
               <div className="youth-activities-grid">{publishedActivities.map((activity) => <ActivityCard key={activity.id} activity={activity}/>)}</div>
             )}
-            {!portalDataLoading && !portalDataError && publishedActivities.length === 0 && (
+            {!activitiesLoading && !activitiesError && publishedActivities.length === 0 && (
               <div className="youth-empty-activities"><CalendarDays size={25}/><strong>No hay actividades publicadas por ahora</strong><span>Cuando el equipo publique la agenda, aparecerá aquí al entrar.</span></div>
             )}
           </section>
@@ -1144,7 +1203,9 @@ export default function YouthPortalPage() {
           </div>)}
 
           {activeYouthSection === 'ranking' && (<div className="youth-tab-page youth-ranking-tab">
-          <HallOfFame topPlayers={topPlayersWithPhotos} faithful={faithfulWithPhotos} attendanceLimited={attendanceLimited}/>
+          {rankingLoading && <SkeletonPodium />}
+          {rankingError && <div className="youth-data-alert" role="alert"><AlertCircle size={17}/><span>{rankingError}</span><button type="button" onClick={() => void loadRanking()}><RefreshCw size={15}/> Reintentar</button></div>}
+          {!rankingLoading && <HallOfFame topPlayers={topPlayersWithPhotos} faithful={faithfulWithPhotos} attendanceLimited={attendanceLimited}/>}
 
 
           <section className="youth-immersive-ranking">
@@ -1174,7 +1235,7 @@ export default function YouthPortalPage() {
                   {communityRanking.slice(0,3).map((player,index) => (
                     <article key={player.id} className={'youth-ranking-podium-card place-' + (index + 1)}>
                       <span className="youth-ranking-podium-place"><small>PUESTO {player.position}</small></span>
-                      <div className="youth-ranking-podium-avatar">{player.pic ? <img src={player.pic} alt={'Foto de ' + player.name} loading="lazy"/> : player.name.trim().split(/\s+/).slice(0,2).map((part) => part[0] ?? '').join('').toUpperCase()}</div>
+                      <div className="youth-ranking-podium-avatar">{player.pic ? <img src={player.pic} alt={'Foto de ' + player.name} loading="lazy" decoding="async" width={48} height={48}/> : player.name.trim().split(/\s+/).slice(0,2).map((part) => part[0] ?? '').join('').toUpperCase()}</div>
                       <b>{player.name}</b><strong>{(player.points ?? 0).toLocaleString('es-CO')} <small>PTS</small></strong>
                       <div className="youth-ranking-meter"><i style={{width: (rankingLeaderPoints > 0 ? Math.max(4,((player.points ?? 0)/rankingLeaderPoints)*100) : 0) + '%' }}/></div>
                     </article>
@@ -1190,7 +1251,7 @@ export default function YouthPortalPage() {
                       <article key={player.id} className={'youth-ranking-row' + (player.id === selectedProfile.id ? ' is-me' : '')}>
                         <button type="button" className="youth-ranking-row-main" aria-expanded={expanded} onClick={() => setExpandedRankId(expanded ? null : player.id)}>
                           <span className="youth-ranking-row-position">#{player.position}</span>
-                          <span className="youth-ranking-row-avatar">{player.pic ? <img src={player.pic} alt="" loading="lazy"/> : player.name.trim().split(/\s+/).slice(0,2).map((part) => part[0] ?? '').join('').toUpperCase()}</span>
+                          <span className="youth-ranking-row-avatar">{player.pic ? <img src={player.pic} alt="" loading="lazy" decoding="async" width={40} height={40}/> : player.name.trim().split(/\s+/).slice(0,2).map((part) => part[0] ?? '').join('').toUpperCase()}</span>
                           <span className="youth-ranking-row-name"><b>{player.name}</b>{player.id === selectedProfile.id && <small>ESTE ERES TÚ</small>}</span>
                           <span className="youth-ranking-row-points">{(player.points ?? 0).toLocaleString('es-CO')} <small>PTS</small></span>
                           <span className="youth-ranking-row-chevron"><ChevronRight size={15}/></span>
@@ -1288,6 +1349,14 @@ export default function YouthPortalPage() {
                 key={item.id}
                 className={activeYouthSection === item.id ? 'active' : ''}
                 aria-current={activeYouthSection === item.id ? 'page' : undefined}
+                onPointerEnter={() => {
+                  if (item.id === 'activities') void loadActivities();
+                  if (item.id === 'ranking') void loadRanking();
+                }}
+                onTouchStart={() => {
+                  if (item.id === 'activities') void loadActivities();
+                  if (item.id === 'ranking') void loadRanking();
+                }}
                 onClick={() => {setActiveYouthSection(item.id);if(item.id !== 'space') setEditingLook(false);}}
               >
                 <Icon size={20} strokeWidth={2}/>
