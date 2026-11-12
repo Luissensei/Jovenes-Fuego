@@ -88,9 +88,9 @@ export const modules: ModuleDefinition[] = [
   {
     id: 'ranking',
     icon: Trophy,
-    label: 'Clasificación',
+    label: 'Ranking',
     path: '/ranking',
-    description: 'Puntos, rachas y ranking público.',
+    description: 'Posiciones, puntos, podio y cuadro de honor.'
   },
   {
     id: 'games',
