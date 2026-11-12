@@ -464,6 +464,7 @@ export default function YouthPortalPage() {
   const [faithful, setFaithful] = useState<FaithfulPlayer[]>([]);
   const [attendanceLimited, setAttendanceLimited] = useState(false);
   const [portalDataError, setPortalDataError] = useState('');
+  const [portalDataLoading, setPortalDataLoading] = useState(true);
 
   const [look, setLook] = useState<ProfileLook>(defaultLook);
   const [profileExtras, setProfileExtras] = useState<ProfileExtras>(defaultProfileExtras);
@@ -494,6 +495,7 @@ export default function YouthPortalPage() {
   const audioMasterRef = useRef<GainNode | null>(null);
 
   const profileRequestRef = useRef(0);
+  const portalDataRequestRef = useRef(0);
 
   const loadProfiles = useCallback(async () => {
     const requestId = ++profileRequestRef.current;
@@ -512,34 +514,45 @@ export default function YouthPortalPage() {
     }
   }, []);
 
+  const loadPortalData = useCallback(async () => {
+    const requestId = ++portalDataRequestRef.current;
+    setPortalDataLoading(true);
+    setPortalDataError('');
+    const results = await Promise.allSettled([getWeeklyActivities(), getHallOfFame()]);
+    if (requestId !== portalDataRequestRef.current) return;
+
+    const errors: string[] = [];
+    if (results[0].status === 'fulfilled') {
+      setActivities(results[0].value);
+    } else {
+      console.error('Error cargando actividades del portal joven:', results[0].reason);
+      errors.push('No se pudieron cargar las actividades.');
+    }
+    if (results[1].status === 'fulfilled') {
+      setTopPlayers(results[1].value.topPlayers ?? []);
+      setFaithful(results[1].value.faithful ?? []);
+      setAttendanceLimited(results[1].value.attendanceLimited === true);
+    } else {
+      console.error('Error cargando clasificaciones del portal joven:', results[1].reason);
+      errors.push('No se pudieron cargar las clasificaciones.');
+    }
+    setPortalDataError(errors.length ? `${errors.join(' ')} Comprueba la conexión e inténtalo de nuevo.` : '');
+    setPortalDataLoading(false);
+  }, []);
+
   useEffect(() => {
-    let active = true;
     void loadProfiles();
-    Promise.allSettled([getWeeklyActivities(), getHallOfFame()]).then((results) => {
-      if (!active) return;
-      if (results[0].status === 'fulfilled') {
-        setActivities(results[0].value);
-      } else {
-        setPortalDataError('No se pudieron consultar las actividades publicadas en el ranking original.');
-      }
-      if (results[1].status === 'fulfilled') {
-        setTopPlayers(results[1].value.topPlayers ?? []);
-        setFaithful(results[1].value.faithful ?? []);
-        setAttendanceLimited(results[1].value.attendanceLimited === true);
-      } else {
-        setPortalDataError((previous) => previous || 'Las clasificaciones estarán disponibles cuando se publiquen los datos del ranking original.');
-      }
-    });
+    void loadPortalData();
     return () => {
-      active = false;
       profileRequestRef.current += 1;
+      portalDataRequestRef.current += 1;
       if (audioRef.current) {
         void audioRef.current.close().catch(() => undefined);
         audioRef.current = null;
         audioMasterRef.current = null;
       }
     };
-  }, [loadProfiles]);
+  }, [loadProfiles, loadPortalData]);
 
   useEffect(() => {
     if (selectedProfile) {
@@ -1000,6 +1013,15 @@ export default function YouthPortalPage() {
               <span>{nextThemeLabel}</span>
             </button>
           </div>
+          {portalDataError && (
+            <div className="youth-data-alert" role="alert">
+              <AlertCircle size={17}/>
+              <span>{portalDataError}</span>
+              <button type="button" onClick={() => void loadPortalData()} disabled={portalDataLoading}>
+                <RefreshCw size={15}/> {portalDataLoading ? 'Actualizando…' : 'Reintentar'}
+              </button>
+            </div>
+          )}
 
           {activeYouthSection === 'home' && (<div className="youth-tab-page youth-home-tab">
           <section className="youth-welcome youth-home">
@@ -1110,10 +1132,11 @@ export default function YouthPortalPage() {
           {activeYouthSection === 'activities' && (<div className="youth-tab-page youth-activities-tab">
           <section className="youth-activities">
             <header><div><span>AGENDA DE LA GENERACIÓN</span><h2>Actividades de esta semana</h2></div><CalendarDays size={22}/></header>
-            {portalDataError && <p className="youth-inline-warning">{portalDataError}</p>}
-            {publishedActivities.length ? (
+            {portalDataLoading && <div className="youth-loading" role="status"><RefreshCw size={20}/><strong>Cargando agenda y clasificaciones…</strong></div>}
+            {!portalDataLoading && publishedActivities.length > 0 && (
               <div className="youth-activities-grid">{publishedActivities.map((activity) => <ActivityCard key={activity.id} activity={activity}/>)}</div>
-            ) : (
+            )}
+            {!portalDataLoading && !portalDataError && publishedActivities.length === 0 && (
               <div className="youth-empty-activities"><CalendarDays size={25}/><strong>No hay actividades publicadas por ahora</strong><span>Cuando el equipo publique la agenda, aparecerá aquí al entrar.</span></div>
             )}
           </section>
