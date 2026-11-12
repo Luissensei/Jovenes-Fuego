@@ -43,3 +43,76 @@
 :root[data-theme="light"] {
   color-scheme: light;
 }
+
+
+/* Compactación de cabeceras del panel administrativo: menos aire vertical. */
+.main > .topline {
+  min-height: 56px !important;
+  height: auto !important;
+  gap: 10px !important;
+  margin-bottom: 14px !important;
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+}
+.main > .topline .topline-status { gap: 9px !important; min-width: 0; }
+.main > .topline .topline-status-environment,
+.main > .topline .topline-status-module { gap: 6px !important; }
+.main > .topline .project-label { padding: 6px 9px !important; }
+.main > .topline .topline-theme-toggle { min-height: 34px !important; padding: 6px 10px !important; }
+.main :is(.members-hero,.attendance-header,.followup-header,.visitors-header,
+.devotionals-header,.reports-hero,.checkin-hero,.managed-hero,.management-header,
+.settings-hero,.photos-hero,.leaders-hero,.ranking-hero) {
+  min-height: 0 !important;
+  margin: 0 0 14px !important;
+  padding: clamp(15px, 2vw, 22px) !important;
+  border-radius: 15px !important;
+}
+.main :is(.members-hero,.attendance-header,.followup-header,.visitors-header,
+.devotionals-header,.reports-hero,.checkin-hero,.managed-hero,.management-header,
+.settings-hero,.photos-hero,.leaders-hero,.ranking-hero) :is(h1,h2) {
+  margin: 0 0 5px !important;
+  line-height: 1.15 !important;
+}
+.main :is(.members-hero,.attendance-header,.followup-header,.visitors-header,
+.devotionals-header,.reports-hero,.checkin-hero,.managed-hero,.management-header,
+.settings-hero,.photos-hero,.leaders-hero,.ranking-hero) p {
+  margin: 3px 0 0 !important;
+  line-height: 1.45 !important;
+}
+.main [class*="DashboardPage_welcome"] {
+  min-height: 0 !important;
+  margin-bottom: 14px !important;
+  padding: clamp(17px, 2vw, 24px) !important;
+}
+.main :is(.page-header,.page-hero,.section-header,.module-header,.module-hero,
+.members-page-header,.attendance-page-header,.reports-page-header) {
+  min-height: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 14px !important;
+  padding-top: clamp(12px, 1.8vw, 20px) !important;
+  padding-bottom: clamp(12px, 1.8vw, 20px) !important;
+}
+.main :is(.page-header,.page-hero,.section-header,.module-header,.module-hero,
+.members-page-header,.attendance-page-header,.reports-page-header) :is(h1,h2,h3,p) {
+  margin-top: 0 !important;
+  margin-bottom: 6px !important;
+}
+@media (max-width: 900px) {
+  .main > .topline {
+    top: 58px !important;
+    min-height: 50px !important;
+    margin-bottom: 12px !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+  .main > .topline .topline-status-environment { display: none !important; }
+  .main > .topline .project-label { max-width: 34vw !important; }
+  .main > .topline .topline-theme-toggle span { display: none !important; }
+  .main > .topline .topline-theme-toggle { width: 36px !important; min-width: 36px !important; padding: 6px !important; }
+  .main :is(.members-hero,.attendance-header,.followup-header,.visitors-header,
+  .devotionals-header,.reports-hero,.checkin-hero,.managed-hero,.management-header,
+  .settings-hero,.photos-hero,.leaders-hero,.ranking-hero) {
+    margin-bottom: 11px !important;
+    padding: 15px !important;
+  }
+}
