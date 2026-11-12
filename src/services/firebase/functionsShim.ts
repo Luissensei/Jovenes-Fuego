@@ -51,7 +51,10 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
       );
     }
     try {
-      const token = await getToken(appCheck, true);
+      // Reuse the cached App Check token when valid. App Check manages
+      // automatic refresh; forcing a fresh attestation on every callable
+      // request can trigger unnecessary reCAPTCHA assessments.
+      const token = await getToken(appCheck);
       if (!token.token) {
         throw new Error("Firebase App Check devolvió un token vacío.");
       }
