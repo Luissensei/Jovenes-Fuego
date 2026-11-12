@@ -1,4 +1,4 @@
-import {httpsCallable} from 'firebase/functions';
+import {httpsCallable} from './firebase/functionsShim';
 import {functions} from './firebase/client';
 
 export type LeaderRecord = {
