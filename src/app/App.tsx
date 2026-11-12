@@ -164,12 +164,10 @@ function AdminApp() {
             </button>
           </div>
           <p className="access-denied-help">
-            Si el error persiste y menciona que la función no está desplegada, un administrador debe publicar
-            las Cloud Functions del proyecto Firebase original.
+            El acceso se valida mediante el backend de Vercel conectado al proyecto Firebase original.
+            Revisa los registros de Vercel y la variable FIREBASE_SERVICE_ACCOUNT_JSON; no es necesario crear Cloud Functions para este flujo.
           </p>
-          <a className="access-denied-deploy-link" href="https://github.com/Luissensei/Jovenes-Fuego/actions/workflows/deploy-firebase-original.yml" target="_blank" rel="noreferrer">
-            Revisar despliegue de Firebase Functions
-          </a>
+
         </div>
       </main>
     );
