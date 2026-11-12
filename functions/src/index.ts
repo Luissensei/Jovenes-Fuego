@@ -69,6 +69,11 @@ async function requireAdminOrPastor(uid: string): Promise<AuthorizedRole> {
   return role;
 }
 
+/** Gestión de PIN juvenil: administración, pastoral y líderes activos. */
+async function requireYouthPinManager(uid: string): Promise<AuthorizedRole> {
+  return requireAuthorizedRole(uid);
+}
+
 
 async function recordAudit(
   action: string,
@@ -772,7 +777,7 @@ export const adminListYouthPins = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  await requireAdminOrPastor(request.auth.uid);
+  await requireYouthPinManager(request.auth.uid);
 
   const [membersSnapshot, pinsSnapshot] = await Promise.all([
     db.collection("members").limit(500).get(),
@@ -805,7 +810,7 @@ export const adminIssueYouthPin = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  await requireAdminOrPastor(request.auth.uid);
+  await requireYouthPinManager(request.auth.uid);
 
   const memberId = validYouthMemberId(request.data?.memberId);
   const memberSnapshot = await db.collection("members").doc(memberId).get();
