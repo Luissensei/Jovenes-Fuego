@@ -969,7 +969,7 @@ export const adminGetMemberHistory = onCall(async (request) => {
     if (!value || typeof value !== "object") return;
     const statusCode = text((value as Record<string, unknown>).s, 10);
     const statusMap: Record<string, string> = {
-      P: "Presente", T: "Tarde", F: "Falta", J: "Justificada",
+      P: "Presente", T: "Tarde", F: "Falta", J: "Justificada", A: "Ausente",
     };
     const status = statusMap[statusCode];
     if (!status) return;
@@ -2485,15 +2485,57 @@ export const saveMeetingAttendance = onCall(async (request) => {
 
   const meetingRef = db.collection("attendanceMeetings").doc(meetingId);
   const meetingSnapshot = await meetingRef.get();
-  if (!meetingSnapshot.exists) {
-    throw new HttpsError("not-found", "No se encontró la reunión seleccionada.");
-  }
 
-  await meetingRef.update({
-    participants,
-    updatedAt: new Date().toISOString(),
-    updatedBy: request.auth.uid,
-  });
+  if (meetingSnapshot.exists) {
+    await meetingRef.update({
+      participants,
+      updatedAt: new Date().toISOString(),
+      updatedBy: request.auth.uid,
+    });
+  } else {
+    // Los eventos históricos usan IDs con formato YYYY-MM-DD_codigo
+    // y guardan los estados en attendance/{id}.r. No deben tratarse
+    // como reuniones nuevas de attendanceMeetings.
+    const legacyIdMatch = /^(\\d{4}-\\d{2}-\\d{2})_(dis|mie|vie|ayj|ayc|esc|otr|gen)$/.exec(meetingId);
+    if (!legacyIdMatch || !isValidDate(legacyIdMatch[1])) {
+      throw new HttpsError("not-found", "No se encontró el evento seleccionado.");
+    }
+
+    const legacyRef = db.collection("attendance").doc(meetingId);
+    await db.runTransaction(async (transaction) => {
+      const legacySnapshot = await transaction.get(legacyRef);
+      if (!legacySnapshot.exists) {
+        throw new HttpsError("not-found", "El evento histórico ya no existe.");
+      }
+      const legacyData = legacySnapshot.data() ?? {};
+      const previousRecords = legacyData.r && typeof legacyData.r === "object"
+        ? legacyData.r as Record<string, unknown>
+        : {};
+      const statusCodes: Record<string, string> = {
+        Presente: "P",
+        Tarde: "T",
+        Falta: "F",
+        Justificada: "J",
+        Ausente: "A",
+      };
+      const nextRecords: Record<string, unknown> = {...previousRecords};
+      participants.forEach((participant) => {
+        const previous = previousRecords[participant.memberId];
+        const previousRecord = previous && typeof previous === "object"
+          ? previous as Record<string, unknown>
+          : {};
+        nextRecords[participant.memberId] = {
+          ...previousRecord,
+          s: statusCodes[participant.status],
+        };
+      });
+      transaction.update(legacyRef, {
+        r: nextRecords,
+        updatedAt: new Date().toISOString(),
+        updatedBy: request.auth!.uid,
+      });
+    });
+  }
   await recordAudit("attendance.saved", request.auth.uid, meetingId, {participants: participants.length});
   return {success: true};
 });
