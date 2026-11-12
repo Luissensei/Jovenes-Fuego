@@ -103,6 +103,21 @@ export default function DashboardPage() {
     [ranked],
   );
   const maxPoints = Math.max(1, ...chartData.map((person) => person.value));
+  const attendanceChartData = useMemo(
+    () => [...attendanceMeetings]
+      .filter((meeting) => meeting.participants.length > 0)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(-6)
+      .map((meeting) => {
+        const total = meeting.participants.length;
+        const present = meeting.participants.filter((person) => person.status === 'Presente' || person.status === 'Tarde').length;
+        return {
+          name: new Date(meeting.date + 'T12:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: 'short' }),
+          value: Math.round((present / total) * 100),
+        };
+      }),
+    [attendanceMeetings],
+  );
   const metricCards = [
     { label: 'PERFILES PÚBLICOS', value: loading ? '…' : configured ? String(people.length) : '—', note: 'Perfiles visibles del ranking', icon: Users },
     { label: 'ACTIVIDADES PRÓXIMAS', value: loading ? '…' : configured ? String(upcoming.length) : '—', note: 'Eventos publicados desde hoy', icon: CalendarDays },
@@ -197,6 +212,21 @@ export default function DashboardPage() {
           <div className={styles.shortcuts}>{availableShortcuts.map((item) => { const Icon = item.icon; return <NavLink to={item.path} key={item.path}><i><Icon size={17} /></i><span><b>{item.label}</b><small>{item.detail}</small></span><ArrowUpRight size={15} /></NavLink>; })}</div>
         </article>
 
+        {canReadAttendance && (
+          <article className={styles.panel + ' ' + styles.attendanceChartPanel}>
+            <div className={styles.panelHeading}>
+              <div><span className={styles.kicker}>PARTICIPACIÓN</span><h2>Asistencia por reunión</h2><p>Porcentaje de presentes y llegadas tarde en las últimas reuniones registradas.</p></div>
+              <ClipboardCheck size={20} />
+            </div>
+            {attendanceChartData.length ? (
+              <div className={styles.chart}>
+                <Suspense fallback={<div className={styles.empty} role="status">Preparando gráfico…</div>}>
+                  <PointsChart data={attendanceChartData} valueSuffix="%" ariaLabel="Porcentaje de asistencia en las últimas reuniones registradas" />
+                </Suspense>
+              </div>
+            ) : <div className={styles.empty}><ClipboardCheck size={24} /><b>{loading ? 'Consultando asistencia…' : 'Aún no hay reuniones con registros'}</b><span>La gráfica aparecerá cuando existan registros de asistencia.</span></div>}
+          </article>
+        )}
         <article className={styles.assistantCard}><div className={styles.assistantIcon}><Sparkles size={22} /></div><div><span className={styles.kicker}>ASISTENTE</span><h2>Fuego AI</h2><p>Apoyo para preparar actividades, comunicaciones e informes.</p></div>{isAdmin ? <NavLink to="/asistente">Abrir asistente <ArrowUpRight size={14} /></NavLink> : <small>Acceso administrativo</small>}</article>
 
         <article className={styles.systemCard}><span className={styles.kicker}>ESTADO DEL SISTEMA</span><div><ShieldCheck size={18} /><b>{firebaseReadOnlyMode ? 'Base original protegida' : 'Firebase original conectado'}</b></div><p>{configured ? (firebaseReadOnlyMode ? 'Las operaciones de escritura están bloqueadas.' : `Proyecto conectado: ${firebaseProjectId}`) : 'Vista previa sin conexión a Firebase.'}</p><small><UserRound size={13} /> Sesión: {String(profile?.name ?? user?.email ?? 'sin identificar')}</small></article>
