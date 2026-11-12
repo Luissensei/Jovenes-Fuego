@@ -1,0 +1,342 @@
+/* Jóvenes de Fuego — responsive quality layer.
+   Loaded last so screen styles cannot reintroduce overflow, inaccessible controls or theme drift. */
+
+:root {
+  --jf-ui-bg: #f4f7f5;
+  --jf-ui-surface: #ffffff;
+  --jf-ui-surface-muted: #f7faf8;
+  --jf-ui-text: #18271f;
+  --jf-ui-muted: #64756a;
+  --jf-ui-border: #dfe8e2;
+  --jf-ui-accent: #16865b;
+  --jf-ui-accent-strong: #106b47;
+  --jf-ui-accent-soft: #e8f5ed;
+  --jf-ui-danger: #b42318;
+  --jf-ui-shadow: 0 4px 16px rgba(24, 48, 34, .055);
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --jf-ui-bg: #101a15;
+  --jf-ui-surface: #19251e;
+  --jf-ui-surface-muted: #202d25;
+  --jf-ui-text: #edf5ef;
+  --jf-ui-muted: #adbbb1;
+  --jf-ui-border: #34463a;
+  --jf-ui-accent: #65d6a0;
+  --jf-ui-accent-strong: #8ce5b8;
+  --jf-ui-accent-soft: #203d2d;
+  --jf-ui-danger: #ff9a91;
+  --jf-ui-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+  color-scheme: dark;
+}
+
+/* One source of truth for both themes; no glass, blur or decorative gradients. */
+html, body, #root { width: 100%; max-width: 100%; min-width: 320px; }
+html { background: var(--jf-ui-bg); }
+body, #root, .layout, .main, .youth-portal {
+  color: var(--jf-ui-text) !important;
+  background: var(--jf-ui-bg) !important;
+}
+body, .main, .sidebar, .youth-portal,
+.main *, .sidebar *, .youth-portal * {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.main { min-width: 0 !important; overflow-x: clip !important; }
+.main > .topline {
+  color: var(--jf-ui-text) !important;
+  background: var(--jf-ui-surface) !important;
+  border-bottom: 1px solid var(--jf-ui-border) !important;
+  box-shadow: 0 2px 8px rgba(20, 40, 28, .035) !important;
+}
+.project-label, .topline-status, .topline-theme-toggle, .topline-menu-button {
+  color: var(--jf-ui-muted) !important;
+  background: var(--jf-ui-surface-muted) !important;
+  border-color: var(--jf-ui-border) !important;
+}
+.sidebar {
+  color: var(--jf-ui-text) !important;
+  background: var(--jf-ui-surface) !important;
+  border-color: var(--jf-ui-border) !important;
+  box-shadow: 8px 0 24px rgba(15, 30, 20, .08) !important;
+}
+.sidebar .brand strong, .mobile-header strong { color: var(--jf-ui-text) !important; }
+.sidebar .brand small, .sidebar .safe-note small { color: var(--jf-ui-muted) !important; }
+.sidebar .nav-item { color: var(--jf-ui-muted) !important; }
+.sidebar .nav-item:hover:not(.active) { color: var(--jf-ui-text) !important; background: var(--jf-ui-surface-muted) !important; }
+.sidebar .nav-item.active, .sidebar .nav-item[aria-current="page"] {
+  color: var(--jf-ui-accent-strong) !important;
+  background: var(--jf-ui-accent-soft) !important;
+  border-color: var(--jf-ui-border) !important;
+  box-shadow: none !important;
+}
+.sidebar .env-chip, .sidebar .module-search, .sidebar .safe-note,
+.sidebar .sidebar-collapse-toggle, .sidebar .theme-toggle {
+  color: var(--jf-ui-muted) !important;
+  background: var(--jf-ui-surface-muted) !important;
+  border-color: var(--jf-ui-border) !important;
+}
+.mobile-header {
+  color: var(--jf-ui-text) !important;
+  background: var(--jf-ui-surface) !important;
+  border-color: var(--jf-ui-border) !important;
+}
+.scrim { background: rgba(8, 18, 12, .48) !important; }
+.main :is(h1,h2,h3,h4,h5), .youth-portal :is(h1,h2,h3,h4,h5) {
+  color: var(--jf-ui-text);
+  text-wrap: balance;
+}
+.main :is(p, small, .muted, .description), .youth-portal :is(p, small) {
+  color: var(--jf-ui-muted);
+}
+.main :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea),
+.youth-portal :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  min-width: 0;
+  max-width: 100%;
+  color: var(--jf-ui-text) !important;
+  background: var(--jf-ui-surface) !important;
+  border: 1px solid var(--jf-ui-border) !important;
+  box-shadow: none !important;
+}
+.main :is(input,select,textarea)::placeholder,
+.youth-portal :is(input,select,textarea)::placeholder { color: var(--jf-ui-muted) !important; opacity: .82; }
+.main :is(.page-card,.panel,.card,.stat-card,.dashboard-stat,.dashboard-shortcut,
+.dashboard-community-stat,.dashboard-chart-card,.dashboard-bottom-note,.ranking-hero,
+.ranking-tabs,.ranking-content,.ranking-progress-panel,.ranking-player,.member-card,
+.members-total-card,.members-controls,.attendance-card,.followup-card,.visitor-card,
+.devotional-card,.photo-card,.reports-card,.managed-record,.management-record,
+.management-summary,.management-form,.management-records,.event-card,.prayer-card,
+.settings-card,.checkin-panel,.checkin-config,.youth-profile-card,.youth-activity-card,
+.youth-hall-card,.youth-game-tile,.mbg-game,.verse-game,
+[class*="DashboardPage_metricCard__"],[class*="DashboardPage_panel__"]) {
+  color: var(--jf-ui-text);
+  border-color: var(--jf-ui-border);
+  box-shadow: var(--jf-ui-shadow);
+}
+:root[data-theme="light"] .main :is(.page-card,.panel,.card,.stat-card,.dashboard-stat,
+.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,.dashboard-bottom-note,
+.ranking-hero,.ranking-tabs,.ranking-content,.ranking-progress-panel,.ranking-player,
+.member-card,.members-total-card,.members-controls,.attendance-card,.followup-card,
+.visitor-card,.devotional-card,.photo-card,.reports-card,.managed-record,.management-record,
+.management-summary,.management-form,.management-records,.event-card,.prayer-card,
+.settings-card,.checkin-panel,.checkin-config,.youth-profile-card,.youth-activity-card,
+.youth-hall-card,.youth-game-tile,.mbg-game,.verse-game,
+[class*="DashboardPage_metricCard__"],[class*="DashboardPage_panel__"]) {
+  background: var(--jf-ui-surface) !important;
+}
+:root[data-theme="dark"] .main :is(.page-card,.panel,.card,.stat-card,.dashboard-stat,
+.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,.dashboard-bottom-note,
+.ranking-hero,.ranking-tabs,.ranking-content,.ranking-progress-panel,.ranking-player,
+.member-card,.members-total-card,.members-controls,.attendance-card,.followup-card,
+.visitor-card,.devotional-card,.photo-card,.reports-card,.managed-record,.management-record,
+.management-summary,.management-form,.management-records,.event-card,.prayer-card,
+.settings-card,.checkin-panel,.checkin-config,.youth-profile-card,.youth-activity-card,
+.youth-hall-card,.youth-game-tile,.mbg-game,.verse-game,
+[class*="DashboardPage_metricCard__"],[class*="DashboardPage_panel__"]) {
+  background: var(--jf-ui-surface) !important;
+}
+.main :is(button,a,[role="button"]), .youth-portal :is(button,a,[role="button"]) {
+  -webkit-tap-highlight-color: transparent;
+}
+.main :is(button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible),
+.youth-portal :is(button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible) {
+  outline: 2px solid var(--jf-ui-accent) !important;
+  outline-offset: 3px !important;
+}
+.main :is(button,a), .youth-portal :is(button,a) { touch-action: manipulation; }
+.main img, .main video, .main canvas, .youth-portal img, .youth-portal video {
+  max-width: 100%;
+}
+.main :is(.table-wrapper,[class*="table-wrapper"],[class*="TableWrapper"],.table-scroll),
+.youth-portal :is(.table-wrapper,[class*="table-wrapper"],[class*="TableWrapper"],.table-scroll) {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.main table { max-width: 100%; }
+.jf-bottom-nav, .youth-portal .youth-bottom-navigation {
+  padding-bottom: max(7px, env(safe-area-inset-bottom)) !important;
+}
+.main > footer { color: var(--jf-ui-muted) !important; border-color: var(--jf-ui-border) !important; }
+
+/* Mobile-first reflow: let content determine height; never squeeze desktop columns. */
+@media (max-width: 900px) {
+  html, body, #root { overflow-x: clip; }
+  .layout { min-height: 100dvh !important; }
+  .mobile-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 80 !important;
+    min-height: 58px !important;
+    height: auto !important;
+    padding: 8px 14px !important;
+  }
+  .sidebar {
+    inset: 58px auto 0 0 !important;
+    width: min(320px, calc(100vw - 32px)) !important;
+    min-width: 0 !important;
+    max-width: 320px !important;
+    max-height: calc(100dvh - 58px) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    transform: translateX(-105%) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+  .sidebar.open {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+  .main, .layout.sidebar-collapsed .main {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 16px calc(104px + env(safe-area-inset-bottom)) !important;
+  }
+  .main > .topline {
+    position: relative !important;
+    top: auto !important;
+    min-height: 52px !important;
+    height: auto !important;
+    margin: 0 -16px 18px !important;
+    padding: 9px 16px !important;
+    flex-wrap: wrap;
+  }
+  .main .app-page, .main > * { min-width: 0; max-width: 100%; }
+  .main :is(.featureGrid,.lowerGrid,.feature-grid,.lower-grid) {
+    grid-template-columns: minmax(0,1fr) !important;
+  }
+  .main :is(.members-grid,.profiles-grid,.metrics,.dashboard-metrics,.ranking-info-grid,
+  .reports-stats,.photos-stats,.management-summary,.checkin-summary,.visitors-stats,
+  .followup-stats) {
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+  }
+  .main :is(.members-heading,.members-controls,.members-toolbar,.attendance-header,
+  .followup-header,.visitors-header,.managed-hero,.management-header,.reports-hero,
+  .photos-hero,.settings-hero) {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .main :is(.members-toolbar,.members-controls,.managed-toolbar,.devotionals-controls,
+  .visitors-search,.followup-search) { align-items: stretch; }
+  .main :is(.members-search,.member-search,.visitors-search input,.followup-search input) {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .main :is(.management-form,.management-summary,.management-records) { min-width: 0; }
+  .main :is(.management-form form,.management-form .form-grid,.management-form .fields-grid) {
+    grid-template-columns: minmax(0,1fr) !important;
+  }
+  .main :is(.member-row,.attendance-card,.followup-card,.visitor-card,.managed-record,
+  .management-record,.eventRow,.assistantCard,.systemCard) { min-width: 0; }
+  .main :is(.member-meta,.member-actions,.attendance-actions,.visitor-actions) { flex-wrap: wrap; }
+  .main :is(.ranking-content,.ranking-progress-panel,.ranking-info-grid) { min-width: 0; }
+  .main :is(.ranking-table-wrapper,.leaders-table-wrapper,.table-wrapper) {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .jf-bottom-nav {
+    left: 10px !important;
+    right: 10px !important;
+    bottom: max(8px, env(safe-area-inset-bottom)) !important;
+    width: auto !important;
+  }
+  body .youth-portal {
+    min-height: 100dvh !important;
+    padding: 14px 14px calc(112px + env(safe-area-inset-bottom)) !important;
+  }
+  body .youth-portal :is(.youth-container,.youth-tab-page,.youth-home-enter) {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+@media (max-width: 600px) {
+  .main, .layout.sidebar-collapsed .main { padding-inline: 12px !important; }
+  .main > .topline { margin-inline: -12px !important; padding-inline: 12px !important; }
+  .main :is(h1) { font-size: clamp(1.55rem, 6vw, 2rem) !important; line-height: 1.15; }
+  .main :is(h2) { font-size: clamp(1.15rem, 4.5vw, 1.45rem); }
+  .main :is(.members-grid,.profiles-grid,.metrics,.dashboard-metrics,.ranking-info-grid,
+  .reports-stats,.photos-stats,.management-summary,.checkin-summary,.visitors-stats,
+  .followup-stats,.shortcuts,.youth-portal .youth-games-grid,.youth-portal .youth-activities-grid) {
+    grid-template-columns: minmax(0,1fr) !important;
+  }
+  .main :is(.welcome,.members-hero,.managed-hero,.reports-hero,.photos-hero,.settings-hero) {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+    padding: 18px !important;
+  }
+  .main :is(.welcomeVisual) { display: none; }
+  .main :is(.panel,.page-card,.card,.stat-card,.management-form,.management-records,
+  .ranking-hero,.ranking-content,.attendance-card,.followup-card,.visitor-card) {
+    padding: 14px !important;
+    border-radius: 13px !important;
+  }
+  .main :is(.members-heading,.panelHeading,.panel-heading,.section-heading) {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .main :is(.members-toolbar,.members-controls,.managed-toolbar,.devotionals-controls,
+  .visitors-search,.followup-search) {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .main :is(.members-toolbar > *, .members-controls > *, .managed-toolbar > *,
+  .devotionals-controls > *, .visitors-search > *, .followup-search > *) {
+    width: 100%;
+    max-width: 100%;
+  }
+  .main :is(button,a[role="button"],[role="button"]) { min-height: 44px; }
+  .main :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea),
+  .youth-portal :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) {
+    min-height: 44px;
+    font-size: 16px !important;
+  }
+  .main :is(.member-row) { align-items: flex-start; flex-wrap: wrap; padding: 12px !important; }
+  .main :is(.member-meta) { max-width: none; align-items: flex-start; text-align: left; }
+  .main :is(.chartRow) { grid-template-columns: minmax(0,1fr) 52px; gap: 8px; }
+  .main :is(.chartRow > span) { grid-column: 1 / -1; }
+  .main :is(.podium) { gap: 6px; padding-inline: 0; }
+  .main :is(.podiumPerson > b) { max-width: 100%; font-size: 10px; }
+  body .youth-portal { padding-inline: 10px !important; }
+  body .youth-portal .youth-header { padding: 10px 2px 16px; }
+  body .youth-portal .youth-bottom-navigation {
+    left: 8px !important;
+    right: 8px !important;
+    bottom: max(7px, env(safe-area-inset-bottom)) !important;
+    width: auto !important;
+    grid-template-columns: repeat(5,minmax(0,1fr)) !important;
+    gap: 2px !important;
+    padding: 6px 4px !important;
+  }
+  body .youth-portal .youth-bottom-navigation button {
+    min-height: 48px;
+    padding-inline: 1px !important;
+    font-size: 9px !important;
+  }
+  body .youth-portal :is(.youth-games-grid,.youth-activities-grid) {
+    grid-template-columns: minmax(0,1fr) !important;
+  }
+}
+@media (max-width: 360px) {
+  .main { padding-inline: 9px !important; }
+  .main > .topline { margin-inline: -9px !important; padding-inline: 9px !important; }
+  body .youth-portal .youth-bottom-navigation button { font-size: 8px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
