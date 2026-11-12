@@ -287,3 +287,40 @@ body .youth-portal .youth-security-note {
     scroll-behavior: auto !important;
   }
 }
+
+body .youth-portal .youth-data-alert {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  color: #8b4c18 !important;
+  background: #fff7e9 !important;
+  border: 1px solid #f1d7ae !important;
+  border-radius: 12px;
+}
+body .youth-portal .youth-data-alert span { flex: 1 1 220px; color: inherit !important; }
+body .youth-portal .youth-data-alert button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 7px 11px;
+  color: #805019 !important;
+  background: #fff !important;
+  border: 1px solid #e9c991 !important;
+  border-radius: 9px;
+  font-weight: 750;
+}
+:root[data-theme="dark"] body .youth-portal .youth-data-alert {
+  color: #f3cf91 !important;
+  background: #3a2c18 !important;
+  border-color: #73562d !important;
+}
+:root[data-theme="dark"] body .youth-portal .youth-data-alert button {
+  color: #f3cf91 !important;
+  background: #4a381f !important;
+  border-color: #73562d !important;
+}
