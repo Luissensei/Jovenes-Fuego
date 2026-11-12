@@ -20,7 +20,7 @@ export function useThemePreference() {
     root.style.colorScheme = theme;
     document.querySelector('meta[name="theme-color"]')?.setAttribute(
       'content',
-      theme === 'dark' ? '#07182b' : '#f3f7fc',
+      theme === 'dark' ? '#101a15' : '#f4f7f6',
     );
     try {
       window.localStorage.setItem('jf-theme', theme);
