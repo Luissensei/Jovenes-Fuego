@@ -1,0 +1,144 @@
+/* Stable opaque themes + lightweight rendering overrides. */
+:root {
+  --jf-ui-bg: #f3f6f4;
+  --jf-ui-surface: #ffffff;
+  --jf-ui-surface-muted: #f7faf8;
+  --jf-ui-text: #17271e;
+  --jf-ui-muted: #617267;
+  --jf-ui-border: #dce6df;
+  --jf-ui-accent: #16865b;
+  --jf-ui-accent-soft: #e7f5ec;
+  --jf-ui-shadow: 0 2px 9px rgba(20, 45, 31, .045);
+}
+:root[data-theme="dark"] {
+  --jf-ui-bg: #101813;
+  --jf-ui-surface: #1a261f;
+  --jf-ui-surface-muted: #202e25;
+  --jf-ui-text: #edf5ef;
+  --jf-ui-muted: #a9b9ae;
+  --jf-ui-border: #34463a;
+  --jf-ui-accent: #70d9a4;
+  --jf-ui-accent-soft: #203d2d;
+  --jf-ui-shadow: 0 3px 12px rgba(0,0,0,.16);
+}
+html, body, #root, .layout, .main {
+  background: var(--jf-ui-bg) !important;
+  color: var(--jf-ui-text) !important;
+}
+.main .jf-route-stage { min-width: 0; }
+
+/* Opaque surfaces: prevent headings and title containers showing through. */
+.main :is(.page-card,.panel,.card,.stat-card,.dashboard-stat,.dashboard-shortcut,
+.dashboard-community-stat,.dashboard-chart-card,.dashboard-bottom-note,.members-controls,
+.member-card,.attendance-card,.attendance-member,.followup-stat,.followup-content,
+.followup-card,.visitors-stat,.visitors-content,.visitor-card,.devotionals-feature,
+.devotionals-controls,.devotional-card,.reports-card,.reports-stats article,
+.checkin-config,.checkin-panel,.checkin-summary article,.management-summary,
+.management-form,.management-records,.management-record,.managed-stat,.managed-record,
+.youth-hall-card,.youth-activity-card,.youth-store-item,.youth-profile-card,
+.weekly-admin-item,.photos-stats article,.photo-card,.settings-card,.settings-section,
+.inbox-panel,.prayer-card,.event-card,.ranking-content,.ranking-tabs,.ranking-progress-panel,
+.ranking-player-card,.ranking-info-grid article,
+[class*="DashboardPage_metricCard__"],[class*="DashboardPage_panel__"],
+[class*="DashboardPage_assistantCard__"],[class*="DashboardPage_systemCard__"]) {
+  background: var(--jf-ui-surface) !important;
+  color: var(--jf-ui-text) !important;
+  border-color: var(--jf-ui-border) !important;
+  box-shadow: var(--jf-ui-shadow) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.main :is(.members-hero,.attendance-header,.followup-header,.visitors-header,
+.devotionals-header,.reports-hero,.checkin-hero,.managed-hero,.management-header,
+.settings-hero,.photos-hero,.leaders-hero,.ranking-hero) {
+  background: #168b5b !important;
+  color: #fff !important;
+  border-color: #168b5b !important;
+  opacity: 1 !important;
+}
+.main :is(.members-hero,.attendance-header,.followup-header,.visitors-header,
+.devotionals-header,.reports-hero,.checkin-hero,.managed-hero,.management-header,
+.settings-hero,.photos-hero,.leaders-hero,.ranking-hero) :is(h1,h2,h3,h4,strong,p,small,span) {
+  color: #fff !important;
+}
+.main :is(.members-hero,.attendance-header,.followup-header,.visitors-header,
+.devotionals-header,.reports-hero,.checkin-hero,.managed-hero,.management-header,
+.settings-hero,.photos-hero,.leaders-hero,.ranking-hero) :is(button,a) {
+  color: #126c48 !important;
+  background: #fff !important;
+  border-color: #fff !important;
+}
+
+/* Dark mode overrides hard-coded light surfaces from individual screens. */
+:root[data-theme="dark"] .main :is(.page-card,.panel,.card,.stat-card,.dashboard-stat,
+.dashboard-shortcut,.dashboard-community-stat,.dashboard-chart-card,.dashboard-bottom-note,
+.members-controls,.member-card,.attendance-card,.attendance-member,.followup-stat,
+.followup-content,.followup-card,.visitors-stat,.visitors-content,.visitor-card,
+.devotionals-feature,.devotionals-controls,.devotional-card,.reports-card,.reports-stats article,
+.checkin-config,.checkin-panel,.checkin-summary article,.management-summary,.management-form,
+.management-records,.management-record,.managed-stat,.managed-record,.youth-hall-card,
+.youth-activity-card,.youth-store-item,.youth-profile-card,.weekly-admin-item,
+.photos-stats article,.photo-card,.settings-card,.settings-section,.inbox-panel,
+.prayer-card,.event-card,.ranking-content,.ranking-tabs,.ranking-progress-panel,
+.ranking-player-card,.ranking-info-grid article,
+[class*="DashboardPage_metricCard__"],[class*="DashboardPage_panel__"],
+[class*="DashboardPage_assistantCard__"],[class*="DashboardPage_systemCard__"]) {
+  background: var(--jf-ui-surface) !important;
+  color: var(--jf-ui-text) !important;
+  border-color: var(--jf-ui-border) !important;
+}
+:root[data-theme="dark"] .main :is(.ranking-tabs button,.ranking-view-filters button,
+.profile-search,.ranking-search,.profile-card,.selected-profile-panel,
+.ranking-podium-player,.youth-faithful-list li) {
+  background: var(--jf-ui-surface-muted) !important;
+  color: var(--jf-ui-text) !important;
+  border-color: var(--jf-ui-border) !important;
+}
+:root[data-theme="dark"] .main :is(h1,h2,h3,h4,strong,b) { color: #edf5ef; }
+:root[data-theme="dark"] .main :is(p,small,label,.muted,.description) { color: #a9b9ae; }
+:root[data-theme="dark"] .main :is(input,select,textarea) {
+  color: var(--jf-ui-text) !important;
+  background: var(--jf-ui-surface-muted) !important;
+  border-color: var(--jf-ui-border) !important;
+}
+:root[data-theme="dark"] .main table th {
+  color: #dce9df !important;
+  background: #223128 !important;
+  border-color: var(--jf-ui-border) !important;
+}
+:root[data-theme="dark"] .main table td {
+  color: #d0ded4 !important;
+  border-color: var(--jf-ui-border) !important;
+}
+:root[data-theme="dark"] .main table tr:hover td { background: #202e25 !important; }
+
+/* Reduce expensive decorative paints and transitions on every route. */
+html { scroll-behavior: auto !important; }
+body::before { display: none !important; }
+.sidebar, .main > .topline, .mobile-header {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.main *, .sidebar * {
+  scroll-behavior: auto;
+}
+.main :is(.page-card,.panel,.card,.stat-card,.member-card,.attendance-card,
+.visitor-card,.devotional-card,.reports-card,.ranking-player-card,.profile-card),
+.sidebar .nav-item {
+  transition: background-color .12s ease, border-color .12s ease, color .12s ease !important;
+}
+.main :is(.page-card,.panel,.card,.stat-card,.member-card,.attendance-card,
+.visitor-card,.devotional-card,.reports-card,.ranking-player-card,.profile-card):hover {
+  transform: none !important;
+}
+body::after, .brand-mark::after, .topline .dot, .dashboard-live-dot,
+.sidebar .env-chip .pulse {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
