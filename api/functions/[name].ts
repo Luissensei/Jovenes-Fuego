@@ -158,8 +158,14 @@ export default async function handler(req: RequestLike, res: ResponseLike) {
       try {
         const decoded = await getAuth().verifyIdToken(bearer[1], true);
         auth = {uid: decoded.uid, token: decoded as unknown as Record<string, unknown>};
-      } catch {
-        return respondError(res, "unauthenticated", "La sesión de Firebase no es válida o ha caducado.");
+      } catch (cause) {
+        const authError = cause as {code?: string; message?: string};
+        // Diagnóstico privado sin registrar el token, UID ni encabezados.
+        console.error("Vercel Firebase ID token verification failed:", {
+          code: String(authError?.code ?? "unknown").slice(0, 100),
+          message: String(authError?.message ?? "Unknown authentication error").slice(0, 500),
+        });
+        return respondError(res, "unauthenticated", "La sesión de Firebase no es válida o ha caducado. Vuelve a iniciar sesión.");
       }
     }
 
