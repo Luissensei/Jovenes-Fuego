@@ -539,99 +539,325 @@ export const adminUpdateLeader = onCall({enforceAppCheck: true}, async (request)
 });
 
 
-const youthPinPepper = createHash("sha256").update(process.env.FIREBASE_SERVICE_ACCOUNT_JSON ?? "jovenes-de-fuego-backend").digest();
-function youthPinDigest(memberId:string,pin:string):string{return createHmac("sha256",youthPinPepper).update(memberId+":"+pin).digest("hex");}
-function matchesYouthPin(memberId:string,pin:string,stored:unknown):boolean{
- if(typeof stored!=="string"||!/^[a-f0-9]{64}$/i.test(stored))return false;
- const a=Buffer.from(youthPinDigest(memberId,pin),"hex"),b=Buffer.from(stored,"hex");
- return a.length===b.length&&timingSafeEqual(a,b);
+
+const youthPinPepper = createHash("sha256")
+  .update(
+    process.env.FIREBASE_SERVICE_ACCOUNT_JSON ??
+      "jovenes-de-fuego-backend",
+  )
+  .digest();
+
+/**
+ * Creates a server-only digest for a youth PIN.
+ * @param {string} memberId The member document ID.
+ * @param {string} pin The PIN supplied by the user.
+ * @return {string} The keyed digest.
+ */
+function youthPinDigest(memberId: string, pin: string): string {
+  return createHmac("sha256", youthPinPepper)
+    .update(memberId + ":" + pin)
+    .digest("hex");
 }
-function validYouthMemberId(value:unknown):string{
- const id=text(value,150);
- if(!id||id.length>=40||id.startsWith("public-profile-")||!/^[A-Za-z0-9_-]+$/.test(id))throw new HttpsError("invalid-argument","Selecciona un perfil juvenil válido.");
- return id;
+
+/**
+ * Compares a submitted PIN with its stored keyed digest.
+ * @param {string} memberId The member document ID.
+ * @param {string} pin The submitted PIN.
+ * @param {unknown} stored The stored digest.
+ * @return {boolean} Whether the PIN matches.
+ */
+function matchesYouthPin(
+  memberId: string,
+  pin: string,
+  stored: unknown,
+): boolean {
+  if (typeof stored !== "string" || !/^[a-f0-9]{64}$/i.test(stored)) {
+    return false;
+  }
+  const supplied = Buffer.from(youthPinDigest(memberId, pin), "hex");
+  const expected = Buffer.from(stored, "hex");
+  return supplied.length === expected.length &&
+    timingSafeEqual(supplied, expected);
 }
-const youthPinLockMessage="Se bloquearon temporalmente los intentos. Espera 15 minutos y vuelve a intentarlo.";
-export const getYouthProfilePinStatus=onCall(async(request)=>{
- const memberId=validYouthMemberId(request.data?.memberId),snap=await db.collection("youthProfilePins").doc(memberId).get(),data=snap.data()??{};
- return {configured:typeof data.pinHash==="string",activationPending:typeof data.activationHash==="string"&&Number(data.activationExpiresAt??0)>Date.now()};
-});
-export const activateYouthProfilePin=onCall(async(request)=>{
- const memberId=validYouthMemberId(request.data?.memberId),activationPin=text(request.data?.activationPin,8),newPin=text(request.data?.newPin,4);
- if(!/^\d{8}$/.test(activationPin)||!/^\d{4}$/.test(newPin))throw new HttpsError("invalid-argument","El PIN temporal debe tener 8 dígitos y el PIN personal 4.");
- if(["0000","1111","2222","3333","4444","5555","6666","7777","8888","9999","1234","4321"].includes(newPin))throw new HttpsError("invalid-argument","Elige un PIN personal menos predecible.");
- const ref=db.collection("youthProfilePins").doc(memberId),now=Date.now();
- const result=await db.runTransaction(async(transaction)=>{
-  const snap=await transaction.get(ref),data=snap.data()??{};
-  if(typeof data.pinHash==="string")return "already-configured";
-  if(typeof data.activationHash!=="string")return "no-activation";
-  if(Number(data.lockedUntil??0)>now)return "locked";
-  if(Number(data.activationExpiresAt??0)<=now)return "expired";
-  if(!matchesYouthPin(memberId,activationPin,data.activationHash)){
-   const attempts=Number(data.attempts??0)+1;
-   transaction.set(ref,{attempts,lockedUntil:attempts>=5?now+15*60*1000:0,lastAttemptAt:now},{merge:true});
-   return attempts>=5?"locked":"invalid";
+
+/**
+ * Validates a public portal member identifier.
+ * @param {unknown} value The requested identifier.
+ * @return {string} A validated member ID.
+ */
+function validYouthMemberId(value: unknown): string {
+  const memberId = text(value, 150);
+  if (
+    !memberId ||
+    memberId.length >= 40 ||
+    memberId.startsWith("public-profile-") ||
+    !/^[A-Za-z0-9_-]+$/.test(memberId)
+  ) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Selecciona un perfil juvenil válido.",
+    );
   }
-  transaction.set(ref,{pinHash:youthPinDigest(memberId,newPin),pinConfiguredAt:new Date(now).toISOString(),attempts:0,lockedUntil:0,activationHash:FieldValue.delete(),activationExpiresAt:FieldValue.delete(),updatedAt:new Date(now).toISOString()},{merge:true});
-  return "ok";
- });
- if(result==="already-configured")throw new HttpsError("failed-precondition","Este perfil ya tiene un PIN personal. Ingresa con él.");
- if(result==="no-activation")throw new HttpsError("failed-precondition","Solicita a administración un PIN temporal para activar tu perfil.");
- if(result==="expired")throw new HttpsError("failed-precondition","El PIN temporal venció. Solicita uno nuevo a administración.");
- if(result==="locked")throw new HttpsError("resource-exhausted",youthPinLockMessage);
- if(result!=="ok")throw new HttpsError("permission-denied","El PIN temporal no es correcto.");
- const profile=(await loadVisiblePublicProfiles()).find(item=>item.id===memberId);
- if(!profile)throw new HttpsError("not-found","No se encontró un perfil público para este joven.");
- return {profile};
+  return memberId;
+}
+
+const youthPinLockMessage =
+  "Se bloquearon temporalmente los intentos. Espera 15 minutos y vuelve a intentarlo.";
+
+export const getYouthProfilePinStatus = onCall(async (request) => {
+  const memberId = validYouthMemberId(request.data?.memberId);
+  const snapshot = await db.collection("youthProfilePins").doc(memberId).get();
+  const data = snapshot.data() ?? {};
+  return {
+    configured: typeof data.pinHash === "string",
+    activationPending: typeof data.activationHash === "string" &&
+      Number(data.activationExpiresAt ?? 0) > Date.now(),
+  };
 });
-export const verifyYouthProfilePin=onCall(async(request)=>{
- const memberId=validYouthMemberId(request.data?.memberId),pin=text(request.data?.pin,4);
- if(!/^\d{4}$/.test(pin))throw new HttpsError("invalid-argument","Escribe tu PIN personal de 4 dígitos.");
- const ref=db.collection("youthProfilePins").doc(memberId),now=Date.now();
- const result=await db.runTransaction(async(transaction)=>{
-  const snap=await transaction.get(ref),data=snap.data()??{};
-  if(typeof data.pinHash!=="string")return "not-configured";
-  if(Number(data.lockedUntil??0)>now)return "locked";
-  if(!matchesYouthPin(memberId,pin,data.pinHash)){
-   const attempts=Number(data.attempts??0)+1;
-   transaction.set(ref,{attempts,lockedUntil:attempts>=5?now+15*60*1000:0,lastAttemptAt:now},{merge:true});
-   return attempts>=5?"locked":"invalid";
+
+export const activateYouthProfilePin = onCall(async (request) => {
+  const memberId = validYouthMemberId(request.data?.memberId);
+  const activationPin = text(request.data?.activationPin, 8);
+  const newPin = text(request.data?.newPin, 4);
+  if (!/^\d{8}$/.test(activationPin) || !/^\d{4}$/.test(newPin)) {
+    throw new HttpsError(
+      "invalid-argument",
+      "El PIN temporal debe tener 8 dígitos y el PIN personal 4.",
+    );
   }
-  transaction.set(ref,{attempts:0,lockedUntil:0,lastVerifiedAt:new Date(now).toISOString()},{merge:true});
-  return "ok";
- });
- if(result==="not-configured")throw new HttpsError("failed-precondition","Este perfil todavía no tiene PIN. Solicita el PIN temporal a administración.");
- if(result==="locked")throw new HttpsError("resource-exhausted",youthPinLockMessage);
- if(result!=="ok")throw new HttpsError("permission-denied","El PIN personal no es correcto.");
- const profile=(await loadVisiblePublicProfiles()).find(item=>item.id===memberId);
- if(!profile)throw new HttpsError("not-found","No se encontró un perfil público para este joven.");
- return {profile};
+  const weakPins = [
+    "0000", "1111", "2222", "3333", "4444", "5555",
+    "6666", "7777", "8888", "9999", "1234", "4321",
+  ];
+  if (weakPins.includes(newPin)) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Elige un PIN personal menos predecible.",
+    );
+  }
+
+  const ref = db.collection("youthProfilePins").doc(memberId);
+  const now = Date.now();
+  const result = await db.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    const data = snapshot.data() ?? {};
+    if (typeof data.pinHash === "string") return "already-configured";
+    if (typeof data.activationHash !== "string") return "no-activation";
+    if (Number(data.lockedUntil ?? 0) > now) return "locked";
+    if (Number(data.activationExpiresAt ?? 0) <= now) return "expired";
+
+    if (!matchesYouthPin(memberId, activationPin, data.activationHash)) {
+      const attempts = Number(data.attempts ?? 0) + 1;
+      transaction.set(ref, {
+        attempts,
+        lockedUntil: attempts >= 5 ? now + 15 * 60 * 1000 : 0,
+        lastAttemptAt: now,
+      }, {merge: true});
+      return attempts >= 5 ? "locked" : "invalid";
+    }
+
+    transaction.set(ref, {
+      pinHash: youthPinDigest(memberId, newPin),
+      pinConfiguredAt: new Date(now).toISOString(),
+      attempts: 0,
+      lockedUntil: 0,
+      activationHash: FieldValue.delete(),
+      activationExpiresAt: FieldValue.delete(),
+      updatedAt: new Date(now).toISOString(),
+    }, {merge: true});
+    return "ok";
+  });
+
+  if (result === "already-configured") {
+    throw new HttpsError(
+      "failed-precondition",
+      "Este perfil ya tiene un PIN personal. Ingresa con él.",
+    );
+  }
+  if (result === "no-activation") {
+    throw new HttpsError(
+      "failed-precondition",
+      "Solicita a administración un PIN temporal para activar tu perfil.",
+    );
+  }
+  if (result === "expired") {
+    throw new HttpsError(
+      "failed-precondition",
+      "El PIN temporal venció. Solicita uno nuevo a administración.",
+    );
+  }
+  if (result === "locked") {
+    throw new HttpsError("resource-exhausted", youthPinLockMessage);
+  }
+  if (result !== "ok") {
+    throw new HttpsError(
+      "permission-denied",
+      "El PIN temporal no es correcto.",
+    );
+  }
+
+  const profiles = await loadVisiblePublicProfiles();
+  const profile = profiles.find((item) => item.id === memberId);
+  if (!profile) {
+    throw new HttpsError(
+      "not-found",
+      "No se encontró un perfil público para este joven.",
+    );
+  }
+  return {profile};
 });
-export const adminListYouthPins=onCall(async(request)=>{
- if(!request.auth)throw new HttpsError("unauthenticated","Debes iniciar sesión.");
- await requireAdminOrPastor(request.auth.uid);
- const [membersSnap,pinsSnap]=await Promise.all([db.collection("members").limit(500).get(),db.collection("youthProfilePins").limit(500).get()]);
- const pins=new Map(pinsSnap.docs.map(doc=>[doc.id,doc.data()]));
- const members=membersSnap.docs.map(doc=>{
-  const pin=pins.get(doc.id)??{};
-  return {id:doc.id,name:text(doc.data().name,120)||"Joven sin nombre",configured:typeof pin.pinHash==="string",activationPending:typeof pin.activationHash==="string"&&Number(pin.activationExpiresAt??0)>Date.now(),locked:Number(pin.lockedUntil??0)>Date.now(),configuredAt:text(pin.pinConfiguredAt,40)};
- }).sort((a,b)=>a.name.localeCompare(b.name,"es"));
- return {members};
+
+export const verifyYouthProfilePin = onCall(async (request) => {
+  const memberId = validYouthMemberId(request.data?.memberId);
+  const pin = text(request.data?.pin, 4);
+  if (!/^\d{4}$/.test(pin)) {
+    throw new HttpsError(
+      "invalid-argument",
+      "Escribe tu PIN personal de 4 dígitos.",
+    );
+  }
+
+  const ref = db.collection("youthProfilePins").doc(memberId);
+  const now = Date.now();
+  const result = await db.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    const data = snapshot.data() ?? {};
+    if (typeof data.pinHash !== "string") return "not-configured";
+    if (Number(data.lockedUntil ?? 0) > now) return "locked";
+
+    if (!matchesYouthPin(memberId, pin, data.pinHash)) {
+      const attempts = Number(data.attempts ?? 0) + 1;
+      transaction.set(ref, {
+        attempts,
+        lockedUntil: attempts >= 5 ? now + 15 * 60 * 1000 : 0,
+        lastAttemptAt: now,
+      }, {merge: true});
+      return attempts >= 5 ? "locked" : "invalid";
+    }
+
+    transaction.set(ref, {
+      attempts: 0,
+      lockedUntil: 0,
+      lastVerifiedAt: new Date(now).toISOString(),
+    }, {merge: true});
+    return "ok";
+  });
+
+  if (result === "not-configured") {
+    throw new HttpsError(
+      "failed-precondition",
+      "Este perfil todavía no tiene PIN. Solicita el PIN temporal a administración.",
+    );
+  }
+  if (result === "locked") {
+    throw new HttpsError("resource-exhausted", youthPinLockMessage);
+  }
+  if (result !== "ok") {
+    throw new HttpsError(
+      "permission-denied",
+      "El PIN personal no es correcto.",
+    );
+  }
+
+  const profiles = await loadVisiblePublicProfiles();
+  const profile = profiles.find((item) => item.id === memberId);
+  if (!profile) {
+    throw new HttpsError(
+      "not-found",
+      "No se encontró un perfil público para este joven.",
+    );
+  }
+  return {profile};
 });
-export const adminIssueYouthPin=onCall(async(request)=>{
- if(!request.auth)throw new HttpsError("unauthenticated","Debes iniciar sesión.");
- await requireAdminOrPastor(request.auth.uid);
- const memberId=validYouthMemberId(request.data?.memberId),member=await db.collection("members").doc(memberId).get();
- if(!member.exists)throw new HttpsError("not-found","No se encontró el joven seleccionado.");
- const temporaryPin=String(randomInt(10000000,100000000)),now=Date.now(),expiresAt=now+48*60*60*1000;
- await db.collection("youthProfilePins").doc(memberId).set({activationHash:youthPinDigest(memberId,temporaryPin),activationExpiresAt:expiresAt,pinHash:FieldValue.delete(),pinConfiguredAt:FieldValue.delete(),attempts:0,lockedUntil:0,updatedAt:new Date(now).toISOString(),updatedBy:request.auth.uid},{merge:true});
- await recordAudit("youth.pin.reset",request.auth.uid,memberId,{activationExpiresAt:expiresAt});
- return {success:true,temporaryPin,expiresAt:new Date(expiresAt).toISOString()};
+
+export const adminListYouthPins = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAdminOrPastor(request.auth.uid);
+
+  const [membersSnapshot, pinsSnapshot] = await Promise.all([
+    db.collection("members").limit(500).get(),
+    db.collection("youthProfilePins").limit(500).get(),
+  ]);
+  const pins = new Map<string, Record<string, unknown>>(
+    pinsSnapshot.docs.map((document) => [
+      document.id,
+      document.data() as Record<string, unknown>,
+    ]),
+  );
+
+  const members = membersSnapshot.docs.map((document) => {
+    const pin: Record<string, unknown> = pins.get(document.id) ?? {};
+    return {
+      id: document.id,
+      name: text(document.data().name, 120) || "Joven sin nombre",
+      configured: typeof pin.pinHash === "string",
+      activationPending: typeof pin.activationHash === "string" &&
+        Number(pin.activationExpiresAt ?? 0) > Date.now(),
+      locked: Number(pin.lockedUntil ?? 0) > Date.now(),
+      configuredAt: text(pin.pinConfiguredAt, 40),
+    };
+  }).sort((left, right) => left.name.localeCompare(right.name, "es"));
+
+  return {members};
+});
+
+export const adminIssueYouthPin = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  await requireAdminOrPastor(request.auth.uid);
+
+  const memberId = validYouthMemberId(request.data?.memberId);
+  const memberSnapshot = await db.collection("members").doc(memberId).get();
+  if (!memberSnapshot.exists) {
+    throw new HttpsError("not-found", "No se encontró el joven seleccionado.");
+  }
+
+  const temporaryPin = String(randomInt(10000000, 100000000));
+  const now = Date.now();
+  const expiresAt = now + 48 * 60 * 60 * 1000;
+  await db.collection("youthProfilePins").doc(memberId).set({
+    activationHash: youthPinDigest(memberId, temporaryPin),
+    activationExpiresAt: expiresAt,
+    pinHash: FieldValue.delete(),
+    pinConfiguredAt: FieldValue.delete(),
+    attempts: 0,
+    lockedUntil: 0,
+    updatedAt: new Date(now).toISOString(),
+    updatedBy: request.auth.uid,
+  }, {merge: true});
+
+  await recordAudit(
+    "youth.pin.reset",
+    request.auth.uid,
+    memberId,
+    {activationExpiresAt: expiresAt},
+  );
+  return {
+    success: true,
+    temporaryPin,
+    expiresAt: new Date(expiresAt).toISOString(),
+  };
 });
 
 export const getPublicProfiles = onCall(async () => {
   try {
-    return {profiles:(await loadVisiblePublicProfiles()).map(({id,name,nick,pic,points,frame,avatar,background,title})=>({id,name,nick,pic,points,frame,avatar,background,title}))};
+    const profiles = await loadVisiblePublicProfiles();
+    return {
+      profiles: profiles.map((profile) => ({
+        id: profile.id,
+        name: profile.name,
+        nick: profile.nick,
+        pic: profile.pic,
+        points: profile.points,
+        frame: profile.frame,
+        avatar: profile.avatar,
+        background: profile.background,
+        title: profile.title,
+      })),
+    };
   } catch {
     throw new HttpsError("internal", "No se pudieron consultar los perfiles públicos.");
   }
