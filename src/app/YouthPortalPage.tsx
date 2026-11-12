@@ -22,6 +22,8 @@ import {
   type FaithfulPlayer,
 } from '../services/youthPortal';
 
+const ActivitiesTab = lazy(() => import('./portal/ActivitiesTab'));
+const GamesTab = lazy(() => import('./portal/GamesTab'));
 const TriviaGame = lazy(() => import('./TriviaGame'));
 const VerseGame = lazy(() => import('./VerseGame'));
 const TrueFalseGame = lazy(() => import('./QuickBibleGames').then((module) => ({default: module.TrueFalseGame})));
@@ -33,7 +35,8 @@ const DuelGame = lazy(() => import('./MoreBibleGames').then((module) => ({defaul
 const OrderVerseGame = lazy(() => import('./MoreBibleGames').then((module) => ({default: module.OrderVerseGame})));
 
 import { useThemePreference } from './useThemePreference';
-import { SkeletonList, SkeletonPodium } from './components/Skeleton';
+import { SkeletonCard, SkeletonList, SkeletonPodium } from './components/Skeleton';
+import type { MiniGame } from './portal/GamesTab';
 
 
 const PORTAL_CACHE_TTL = 5 * 60 * 1000;
@@ -277,7 +280,6 @@ const lookCategoryStorage: Record<LookShopCategory, string> = {
   accessories: 'accessories',
 };
 
-type MiniGame = 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami';
 type YouthSection = 'home' | 'activities' | 'ranking' | 'games' | 'space';
 
 const youthNavigation: Array<{id: YouthSection; label: string; icon: typeof Home}> = [
@@ -322,27 +324,9 @@ function isSavedLookTemplate(value: unknown): value is SavedLookTemplate {
     && lookShop.outfits.some((entry) => entry.key === preset.outfit)
     && lookShop.accessories.some((entry) => entry.key === preset.accessory);
 }
-const weeklyGrowthPlan = [
-  {id:'day-1',day:'Día 1',title:'Una fe firme',reference:'Hebreos 11:1',challenge:'Escribe una situación en la que quieras confiar más en Dios.'},
-  {id:'day-2',day:'Día 2',title:'Valor para avanzar',reference:'Josué 1:9',challenge:'Da hoy un paso que has estado posponiendo por temor.'},
-  {id:'day-3',day:'Día 3',title:'Una vida de oración',reference:'1 Tesalonicenses 5:17',challenge:'Aparta unos minutos para orar por otra persona.'},
-  {id:'day-4',day:'Día 4',title:'Amar al prójimo',reference:'Juan 13:34-35',challenge:'Haz un acto de servicio sin esperar reconocimiento.'},
-  {id:'day-5',day:'Día 5',title:'Palabras que edifican',reference:'Efesios 4:29',challenge:'Anima a alguien con palabras sinceras.'},
-  {id:'day-6',day:'Día 6',title:'Luz en tu entorno',reference:'Mateo 5:14-16',challenge:'Comparte una buena acción y sé ejemplo con respeto.'},
-  {id:'day-7',day:'Día 7',title:'Gratitud',reference:'1 Tesalonicenses 5:18',challenge:'Anota tres motivos por los que estás agradecido.'},
-];
 
-const games: {id: MiniGame; title: string; subtitle: string; icon: typeof Trophy; color: string}[] = [
-  {id: 'trivia', title: 'Trivia bíblica', subtitle: 'Preguntas y conocimiento', icon: BookOpen, color: 'orange'},
-  {id: 'verse', title: 'Completa el versículo', subtitle: 'Memoria de las Escrituras', icon: BookMarked, color: 'violet'},
-  {id: 'memory', title: 'Memoria bíblica', subtitle: 'Encuentra las parejas', icon: Brain, color: 'cyan'},
-  {id: 'challenge', title: 'Reto de 60 segundos', subtitle: 'Rapidez y precisión', icon: Timer, color: 'green'},
-  {id: 'survival', title: 'Supervivencia', subtitle: 'No pierdas tus tres vidas', icon: Flame, color: 'rose'},
-  {id: 'duel', title: 'Duelo 1 contra 1', subtitle: 'Juega por turnos en el mismo móvil', icon: Swords, color: 'gold'},
-  {id: 'order', title: 'Ordena el versículo', subtitle: 'Reconstruye las palabras', icon: Layers, color: 'blue'},
-  {id: 'truefalse', title: 'Verdadero o falso', subtitle: 'Detecta afirmaciones bíblicas', icon: BadgeCheck, color: 'green'},
-  {id: 'whoami', title: '¿Quién soy?', subtitle: 'Descubre el personaje con pistas', icon: UserSearch, color: 'violet'},
-];
+
+
 
 function getInitials(name: string): string {
   const cleanName = name.trim();
@@ -429,28 +413,6 @@ function readProfileExtras(profileId: string): ProfileExtras {
   } catch {
     return defaultProfileExtras;
   }
-}
-
-function formatActivityDate(value: string): string {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return value || 'Fecha por confirmar';
-  const [year, month, day] = value.split('-').map(Number);
-  return new Date(year, month - 1, day).toLocaleDateString('es-CO', {
-    weekday: 'long', day: 'numeric', month: 'long',
-  });
-}
-
-function ActivityCard({activity}: {activity: WeeklyActivity}) {
-  return (
-    <article className="youth-activity-card">
-      <div className="youth-activity-date"><CalendarDays size={17} /><span>{formatActivityDate(activity.date)}</span></div>
-      <h3>{activity.title}</h3>
-      {activity.description && <p>{activity.description}</p>}
-      <div className="youth-activity-meta">
-        {activity.time && <span><Clock3 size={14} /> {activity.time}</span>}
-        {activity.location && <span><MapPin size={14} /> {activity.location}</span>}
-      </div>
-    </article>
-  );
 }
 
 function HallOfFame({topPlayers, faithful, attendanceLimited}: {
@@ -704,19 +666,6 @@ export default function YouthPortalPage() {
     pic: player.pic || profiles.find((profile) => profile.id === player.id)?.pic || '',
   })), [faithful, profiles]);
 
-
-  const publishedActivities = useMemo(() => {
-    const today = new Date();
-    const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const day = (start.getDay() + 6) % 7;
-    start.setDate(start.getDate() - day);
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-    const key = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    const weekStart = key(start);
-    const weekEnd = key(end);
-    return activities.filter((activity) => activity.date >= weekStart && activity.date <= weekEnd);
-  }, [activities]);
 
   async function persistLook(next: ProfileLook, successMessage: string) {
     if (!selectedProfile) return;
@@ -1185,20 +1134,19 @@ export default function YouthPortalPage() {
 
           {soundError && <p className="youth-inline-warning">{soundError}</p>}
 
-          {activeYouthSection === 'activities' && (<div className="youth-tab-page youth-activities-tab">
-          <section className="youth-activities">
-            <header><div><span>AGENDA DE LA GENERACIÓN</span><h2>Actividades de esta semana</h2></div><CalendarDays size={22}/></header>
-            {activitiesLoading && <SkeletonList />}
-            {activitiesError && <div className="youth-data-alert" role="alert"><AlertCircle size={17}/><span>{activitiesError}</span><button type="button" onClick={() => void loadActivities()}><RefreshCw size={15}/> Reintentar</button></div>}
-            {!activitiesLoading && publishedActivities.length > 0 && (
-              <div className="youth-activities-grid">{publishedActivities.map((activity) => <ActivityCard key={activity.id} activity={activity}/>)}</div>
-            )}
-            {!activitiesLoading && !activitiesError && publishedActivities.length === 0 && (
-              <div className="youth-empty-activities"><CalendarDays size={25}/><strong>No hay actividades publicadas por ahora</strong><span>Cuando el equipo publique la agenda, aparecerá aquí al entrar.</span></div>
-            )}
-          </section>
-
-          </div>)}
+          {activeYouthSection === 'activities' && (
+            <Suspense fallback={<SkeletonList/>}>
+              <ActivitiesTab
+                activities={activities}
+                loading={activitiesLoading}
+                error={activitiesError}
+                growthDone={growthDone}
+                growthProgress={growthProgress}
+                onToggleGrowthDay={toggleGrowthDay}
+                onRetry={() => void loadActivities()}
+              />
+            </Suspense>
+          )}
 
           {activeYouthSection === 'ranking' && (<div className="youth-tab-page youth-ranking-tab">
           {rankingLoading && <SkeletonPodium />}
@@ -1268,24 +1216,6 @@ export default function YouthPortalPage() {
 
           </div>)}
 
-          {activeYouthSection === 'activities' && (<div className="youth-tab-page youth-growth-tab">
-          <section className="youth-growth-plan">
-            <header><div><span>CRECIMIENTO PERSONAL</span><h2>Reto de 7 días</h2><p>Un pequeño paso cada día para crecer en la fe y servir a los demás.</p></div><strong>{growthDone.length}/7</strong></header>
-            <div className="youth-growth-progress"><i style={{width:growthProgress + '%'}}/></div>
-            <div className="youth-growth-grid">
-              {weeklyGrowthPlan.map((day) => {
-                const done = growthDone.includes(day.id);
-                return <article key={day.id} className={done ? 'is-done' : ''}>
-                  <div><span>{day.day}</span><b>{day.title}</b><small>{day.reference}</small><p>{day.challenge}</p></div>
-                  <button type="button" aria-pressed={done} onClick={() => toggleGrowthDay(day.id)}>{done ? <CheckCircle2 size={16}/> : <Circle size={16}/>} {done ? 'Completado' : 'Marcar leído'}</button>
-                </article>;
-              })}
-            </div>
-            <small className="youth-growth-local-note">Tu progreso se guarda solo en este dispositivo y puedes retomarlo cuando vuelvas a entrar.</small>
-          </section>
-
-          </div>)}
-
           {activeYouthSection === 'space' && (<div className="youth-tab-page youth-space-tab">
           {!editingLook && <section className="youth-profile-editor">
             <div className="youth-profile-editor-heading"><div><b>Mi perfil</b><span>Actualiza tus datos visibles en este dispositivo.</span></div><UserSearch size={20}/></div>
@@ -1309,19 +1239,11 @@ export default function YouthPortalPage() {
 
           </div>)}
 
-          {activeYouthSection === 'games' && (<div className="youth-tab-page youth-games-tab">
-          <section className="youth-game-hub">
-            <header><div><span>ENTRENA Y APRENDE</span><h2>Zona de juegos bíblicos</h2></div><Gamepad2 size={22}/></header>
-            <div className="youth-games-grid">
-              {games.map((game) => {
-                const Icon = game.icon;
-                return <button type="button" key={game.id} className="youth-game-tile" onClick={() => setActiveGame(game.id)}>
-                  <span><Icon size={23}/></span><b>{game.title}</b><small>{game.subtitle}</small><i>JUGAR <ChevronRight size={14}/></i>
-                </button>;
-              })}
-            </div>
-          </section>
-          </div>)}
+          {activeYouthSection === 'games' && (
+            <Suspense fallback={<SkeletonCard/>}>
+              <GamesTab onStartGame={setActiveGame}/>
+            </Suspense>
+          )}
 
           {activeYouthSection === 'space' && (<div className="youth-tab-page youth-space-tab">
           <section className="youth-prayer-panel">
