@@ -5,11 +5,11 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import type {FormEvent} from 'react';
 
 import {
-  Search, Users, AlertCircle, ArrowLeft, Flame, Trophy, BookOpen,
+  Search, Users, AlertCircle, ArrowLeft, Flame, Trophy, ,
   Gamepad2, RefreshCw, ChevronRight, ShieldCheck, Sparkles,
-  CalendarDays, Clock3, MapPin, HeartHandshake, Send, Medal, Crown,
+  CalendarDays, , , HeartHandshake, Send, Medal, Crown,
   Palette, Volume2, VolumeX, Star, X, WandSparkles,
-  BookMarked, Timer, Swords, Brain, Layers, Moon, Sun, BadgeCheck, UserSearch, Circle, CheckCircle2, UserRound, Save, Trash2, Home,
+  BookMarked, , , , , Moon, Sun, , UserSearch, Circle, CheckCircle2, UserRound, Save, Trash2, Home,
 } from 'lucide-react';
 
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
