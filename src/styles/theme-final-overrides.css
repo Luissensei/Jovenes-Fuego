@@ -201,3 +201,80 @@
   .sidebar, .sidebar *, .topline-menu-button { transition-duration: .01ms !important; animation-duration: .01ms !important; }
   .sidebar .nav-item:hover, .sidebar .nav-item:hover .nav-item-icon { transform: none !important; }
 }
+
+
+/* Corrección definitiva del espacio fantasma en la cabecera móvil. */
+@media (max-width: 900px) {
+  .main > .topline {
+    position: relative !important;
+    top: auto !important;
+    inset-block-start: auto !important;
+    min-height: 48px !important;
+    height: auto !important;
+    margin: 0 -14px 14px !important;
+    padding: 7px 14px !important;
+    border-top: 0 !important;
+    box-shadow: none !important;
+    background: var(--jf-ui-bg, #f3f6f4) !important;
+  }
+  .mobile-header {
+    position: sticky !important;
+    top: 0 !important;
+    min-height: 58px !important;
+    margin: 0 !important;
+  }
+  .main {
+    padding-top: 0 !important;
+  }
+}
+
+/* Transiciones cortas y fluidas: sin esperas ni animaciones pesadas. */
+.sidebar {
+  transition:
+    transform .22s cubic-bezier(.2,.75,.25,1),
+    opacity .18s ease,
+    visibility .18s ease,
+    box-shadow .2s ease !important;
+}
+.sidebar .nav-item,
+.sidebar .nav-item-icon,
+.sidebar .jf-nav-group > summary,
+.sidebar .module-search,
+.topline button,
+.main :is(button,a,[role="button"],[role="tab"]) {
+  transition:
+    color .18s ease,
+    background-color .18s ease,
+    border-color .18s ease,
+    box-shadow .2s ease,
+    opacity .16s ease,
+    transform .18s cubic-bezier(.2,.75,.25,1) !important;
+}
+.main :is(.page-card,.panel,.card,.stat-card,.member-card,.attendance-card,
+.visitor-card,.devotional-card,.reports-card,.ranking-player-card,.profile-card) {
+  transition:
+    background-color .18s ease,
+    border-color .18s ease,
+    box-shadow .2s ease,
+    transform .2s cubic-bezier(.2,.75,.25,1) !important;
+}
+.jf-route-stage,
+.jf-route-stage > * {
+  animation-duration: .22s !important;
+  animation-timing-function: cubic-bezier(.2,.75,.25,1) !important;
+}
+@media (max-width: 900px) {
+  .sidebar {
+    transition:
+      transform .22s cubic-bezier(.2,.75,.25,1),
+      opacity .18s ease,
+      visibility .18s ease,
+      box-shadow .2s ease !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar, .sidebar *, .main *, .mobile-header {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
