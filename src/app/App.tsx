@@ -455,7 +455,7 @@ function AdminApp() {
             {label:'Personas', ids:['members','leaders','visitors','followups']},
             {label:'Actividades', ids:['attendance','devotionals','events','prayers','checkins','turns']},
             {label:'Comunidad', ids:['ranking','games','profile','photos']},
-            {label:'Gestión', ids:['notifications','bonus','pastoral','inbox','reports','audit','settings']},
+            {label:'Gestión', ids:['youth-pins','notifications','bonus','pastoral','inbox','reports','audit','settings']},
           ].map((group) => {
             const items = filteredModules.filter((item) => group.ids.includes(item.id));
             if (!items.length) return null;
