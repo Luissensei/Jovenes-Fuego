@@ -1,0 +1,91 @@
+/* Ajustes visuales móviles y respuesta inmediata del menú lateral. */
+:root[data-theme="light"] .main .jf-youth-pins-surface,
+:root:not([data-theme="dark"]) .main .jf-youth-pins-surface {
+  background: var(--jf-ui-surface, #fff) !important;
+  color: var(--jf-ui-text, #17271e) !important;
+  border-color: var(--jf-ui-border, #dce6df) !important;
+}
+.main .jf-youth-pins-hero {
+  background: #168b5b !important;
+  border-color: #168b5b !important;
+  color: #fff !important;
+}
+.main .jf-youth-pins-hero :is(h1, p, span, strong) { color: #fff !important; }
+.main .jf-youth-pins-hero .jf-youth-pins-kicker { color: #ffe0bd !important; }
+.main .jf-youth-pins-issued {
+  background: #e7f5ec !important;
+  border-color: #b9dfc8 !important;
+  color: #17271e !important;
+}
+.main .jf-youth-pins-issued :is(strong, code, small) { color: #17271e !important; }
+:root[data-theme="dark"] .main .jf-youth-pins-issued {
+  background: #203d2d !important;
+  border-color: #42634d !important;
+  color: #edf5ef !important;
+}
+:root[data-theme="dark"] .main .jf-youth-pins-issued :is(strong, code, small) { color: #edf5ef !important; }
+
+/* En móvil, la barra secundaria solo ocupa el espacio de sus controles. */
+@media (max-width: 900px) {
+  .main > .topline {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    width: auto !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    margin: 0 -14px 10px !important;
+    padding: 4px 14px !important;
+    overflow: hidden !important;
+    gap: 0 !important;
+  }
+  .main > .topline .topline-status,
+  .main > .topline .project-label,
+  .main > .topline .topline-menu-button { display: none !important; }
+  .main > .topline .topline-theme-toggle {
+    display: grid !important;
+    place-items: center !important;
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    margin: 0 !important;
+  }
+}
+
+/* El menú lateral abre/cierra sin animaciones ni retraso de los enlaces. */
+.sidebar,
+.sidebar.open,
+.sidebar *,
+.sidebar .nav-item,
+.sidebar .nav-item::before,
+.sidebar .nav-item-icon,
+.sidebar .jf-nav-group,
+.sidebar .jf-nav-group > summary,
+.sidebar .jf-nav-group-items > .nav-item,
+.sidebar .jf-nav-group-items > .nav-item:hover {
+  animation: none !important;
+  transition: none !important;
+}
+.sidebar {
+  transition: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.sidebar .nav-item:hover,
+.sidebar .nav-item:hover .nav-item-icon,
+.sidebar .nav-item:active {
+  transform: none !important;
+  filter: none !important;
+}
+.sidebar .jf-nav-group[open] .jf-nav-group-items > .nav-item {
+  animation: none !important;
+}
+.scrim { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+
+/* Evita que el contenido de cada pantalla empiece con un hueco innecesario. */
+@media (max-width: 900px) {
+  .jf-route-stage { margin-top: 0 !important; padding-top: 0 !important; }
+  .jf-route-stage > * { margin-top: 0 !important; }
+}
