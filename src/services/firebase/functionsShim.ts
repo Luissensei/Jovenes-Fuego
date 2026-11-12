@@ -33,7 +33,7 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
     try {
       const currentUser = auth?.currentUser;
       if (currentUser) {
-        headers.Authorization = `Bearer ${await currentUser.getIdToken()}`;
+        headers.Authorization = `Bearer ${await currentUser.getIdToken(true)}`;
       }
       if (!appCheck) {
         throw makeError(
