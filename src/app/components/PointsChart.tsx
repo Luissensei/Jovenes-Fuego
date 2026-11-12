@@ -49,7 +49,7 @@ export default function PointsChart({
         backgroundColor: '#ffffff',
         borderColor: '#dce9e1',
         textStyle: { color: '#263d31', fontSize: 11 },
-        valueFormatter: (value) => `${Number(value).toLocaleString('es-CO')} puntos`,
+        valueFormatter: (value) => `${Number(value).toLocaleString('es-CO')} ${valueSuffix}`,
       },
       xAxis: {
         type: 'value',
