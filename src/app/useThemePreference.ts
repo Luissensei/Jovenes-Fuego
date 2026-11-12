@@ -17,6 +17,7 @@ export function useThemePreference() {
   useEffect(() => {
     const root = document.documentElement;
     root.dataset.theme = theme;
+    root.classList.toggle('dark', theme === 'dark');
     root.style.colorScheme = theme;
     document.querySelector('meta[name="theme-color"]')?.setAttribute(
       'content',
