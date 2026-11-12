@@ -153,7 +153,7 @@ export function AuthProvider({children}: {children: ReactNode}) {
         setError(null);
       } catch (cause) {
         if (!active || currentEvent !== authEvent) return;
-        const callableError = cause as {code?: string; message?: string};
+        const callableError = cause as {code?: string; message?: string; details?: {reason?: string}};
         console.error(
           'Error consultando el perfil de aplicación:',
           callableError.code,
@@ -170,7 +170,13 @@ export function AuthProvider({children}: {children: ReactNode}) {
         } else if (code === 'not-found') {
           setError('La operación de perfil no está disponible en el backend de Vercel. Revisa el despliegue de la aplicación.');
         } else if (code === 'unauthenticated') {
-          setError('Firebase no pudo validar tu sesión. Cierra sesión, vuelve a ingresar e inténtalo otra vez.');
+          const reason = typeof callableError.details?.reason === 'string'
+            ? callableError.details.reason
+            : '';
+          console.error('Diagnóstico de validación de sesión:', reason || 'sin detalle del servidor');
+          setError(reason
+            ? `Firebase no pudo validar tu sesión (diagnóstico: ${reason}). Cierra sesión y vuelve a ingresar.`
+            : 'Firebase no pudo validar tu sesión. Cierra sesión, vuelve a ingresar e inténtalo otra vez.');
         } else if (code === 'internal' || code === 'unknown') {
           setError('El backend de Vercel falló al consultar tu perfil. Revisa los registros de ejecución; no se modificó tu perfil.');
         } else if (code) {
