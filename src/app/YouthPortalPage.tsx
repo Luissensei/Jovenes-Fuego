@@ -584,6 +584,23 @@ export default function YouthPortalPage() {
   }, [selectedProfile, activeYouthSection, loadActivities, loadRanking]);
 
   useEffect(() => {
+    if (!selectedProfile) return;
+    const connection = (navigator as Navigator & {connection?: {saveData?: boolean}}).connection;
+    if (connection?.saveData) return;
+    const preload = () => {
+      void import('./portal/ActivitiesTab');
+      void import('./portal/GamesTab');
+    };
+    const idleWindow = window as Window & {requestIdleCallback?: (callback: () => void, options?: {timeout: number}) => number; cancelIdleCallback?: (id: number) => void};
+    if (idleWindow.requestIdleCallback) {
+      const id = idleWindow.requestIdleCallback(preload, {timeout: 1800});
+      return () => idleWindow.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(preload, 900);
+    return () => window.clearTimeout(id);
+  }, [selectedProfile]);
+
+  useEffect(() => {
     if (selectedProfile) {
       setActiveYouthSection('home');
       setLook(readLook(selectedProfile));
@@ -1271,10 +1288,20 @@ export default function YouthPortalPage() {
                 className={activeYouthSection === item.id ? 'active' : ''}
                 aria-current={activeYouthSection === item.id ? 'page' : undefined}
                 onPointerEnter={() => {
+                  const connection = (navigator as Navigator & {connection?: {saveData?: boolean}}).connection;
+                  if (!connection?.saveData) {
+                    if (item.id === 'activities') void import('./portal/ActivitiesTab');
+                    if (item.id === 'games') void import('./portal/GamesTab');
+                  }
                   if (item.id === 'activities') void loadActivities();
                   if (item.id === 'ranking') void loadRanking();
                 }}
                 onTouchStart={() => {
+                  const connection = (navigator as Navigator & {connection?: {saveData?: boolean}}).connection;
+                  if (!connection?.saveData) {
+                    if (item.id === 'activities') void import('./portal/ActivitiesTab');
+                    if (item.id === 'games') void import('./portal/GamesTab');
+                  }
                   if (item.id === 'activities') void loadActivities();
                   if (item.id === 'ranking') void loadRanking();
                 }}
