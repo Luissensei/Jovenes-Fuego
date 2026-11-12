@@ -159,7 +159,7 @@ function AdminApp() {
   useEffect(() => { setMenuOpen(false); setBottomMenuOpen(false); }, [location.pathname]);
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMenuOpen(false);
+      if (event.key === 'Escape') { setMenuOpen(false); setBottomMenuOpen(false); }
     };
     window.addEventListener('keydown', closeOnEscape);
     return () => window.removeEventListener('keydown', closeOnEscape);
