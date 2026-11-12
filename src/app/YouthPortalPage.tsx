@@ -1079,16 +1079,6 @@ export default function YouthPortalPage() {
               <span>{nextThemeLabel}</span>
             </button>
           </div>
-          {portalDataError && (
-            <div className="youth-data-alert" role="alert">
-              <AlertCircle size={17}/>
-              <span>{portalDataError}</span>
-              <button type="button" onClick={() => void loadPortalData()} disabled={portalDataLoading}>
-                <RefreshCw size={15}/> {portalDataLoading ? 'Actualizando…' : 'Reintentar'}
-              </button>
-            </div>
-          )}
-
           {activeYouthSection === 'home' && (<div className="youth-tab-page youth-home-tab">
           <section className="youth-welcome youth-home">
             <div className="youth-welcome-decoration"><Sparkles size={24}/></div>
