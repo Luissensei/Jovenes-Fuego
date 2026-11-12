@@ -35,13 +35,26 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
       if (currentUser) {
         headers.Authorization = `Bearer ${await currentUser.getIdToken()}`;
       }
-      if (appCheck) {
-        try {
-          const token = await getToken(appCheck);
-          if (token.token) headers["X-Firebase-AppCheck"] = token.token;
-        } catch (cause) {
-          console.warn("No se pudo obtener el token App Check:", cause);
+      if (!appCheck) {
+        throw makeError(
+          "failed-precondition",
+          "Firebase App Check no se inicializó. Verifica la clave de reCAPTCHA Enterprise y el dominio autorizado de la aplicación.",
+        );
+      }
+      try {
+        // Fuerza una renovación para evitar enviar una petición protegida
+        // con un token ausente o vencido después de recuperar la sesión.
+        const token = await getToken(appCheck, true);
+        if (!token.token) {
+          throw new Error("Firebase App Check devolvió un token vacío.");
         }
+        headers["X-Firebase-AppCheck"] = token.token;
+      } catch (cause) {
+        const detail = cause instanceof Error ? cause.message : "Error desconocido";
+        throw makeError(
+          "failed-precondition",
+          `No se pudo obtener el token de verificación de la aplicación: ${detail}`,
+        );
       }
     } catch {
       throw makeError("unauthenticated", "No se pudo validar la sesión actual.");
