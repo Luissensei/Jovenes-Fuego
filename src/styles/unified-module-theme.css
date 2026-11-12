@@ -42,11 +42,11 @@ html, body, #root, .layout, .main {
 }
 .main { min-width: 0; }
 .main .jf-route-stage { min-width: 0; color: var(--jf-text); }
-.main .jf-route-stage :is(h1,h2,h3,h4,h5,strong,b,legend) {
+.main .jf-route-stage :is(h1,h2,h3,h4,h5,strong,b,legend):not([class*="hero"] *):not(.welcome *):not([class*="Hero"] *) {
   color: var(--jf-text);
 }
 .main .jf-route-stage :is(p,small,label,.muted,.text-muted,.description,
-.subtitle,.helper-text,.field-hint,.empty-description) {
+.subtitle,.helper-text,.field-hint,.empty-description):not([class*="hero"] *):not(.welcome *):not([class*="Hero"] *) {
   color: var(--jf-text-muted);
 }
 .main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,
@@ -127,6 +127,28 @@ html, body, #root, .layout, .main {
 .main .jf-route-stage :is(table,th,td) { border-color: var(--jf-border); }
 :root[data-theme="dark"] .main .jf-route-stage :is(th,td) {
   color: var(--jf-text);
+}
+:root[data-theme="light"] .main .jf-route-stage :is(
+  [class*="metrics"] > *,[class*="Metrics"] > *,
+  [class*="summary"] > *,[class*="Summary"] > *,
+  [class*="stats"] > *,[class*="Stats"] > *,
+  [class*="metric"] > *,[class*="Metric"] > *
+):not([class*="hero"]):not([class*="Hero"]) {
+  color: var(--jf-text);
+  background-color: var(--jf-surface);
+  border-color: var(--jf-border);
+  box-shadow: var(--jf-control-shadow);
+}
+:root[data-theme="dark"] .main .jf-route-stage :is(
+  [class*="metrics"] > *,[class*="Metrics"] > *,
+  [class*="summary"] > *,[class*="Summary"] > *,
+  [class*="stats"] > *,[class*="Stats"] > *,
+  [class*="metric"] > *,[class*="Metric"] > *
+):not([class*="hero"]):not([class*="Hero"]) {
+  color: var(--jf-text);
+  background-color: var(--jf-surface);
+  border-color: var(--jf-border);
+  box-shadow: var(--jf-control-shadow);
 }
 :root[data-theme="dark"] .main .jf-route-stage :is(
   .empty-state,.empty,.notice,.info-box,.search-box,.toolbar,.filter-bar,
