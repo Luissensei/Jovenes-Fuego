@@ -838,3 +838,38 @@
 .historyList li p{margin:4px 0;color:#aebfd3;font-size:10px;line-height:1.5;overflow-wrap:anywhere}
 .historyList li small{display:inline-block;padding:3px 7px;border-radius:20px;background:#1d3552;color:#c8dcf8;font-size:9px}
 @media(max-width:560px){.historyPanel{padding:13px}.historyPanel>header h3{font-size:14px}}
+
+
+/* Fix: la ficha completa y el historial deben desplazarse juntos.
+   Antes el formulario era el único contenedor scrollable y el historial
+   quedaba recortado por el overflow:hidden del modal. */
+.portalScope :global(.member-detail-modal){
+  display:flex!important;
+  flex-direction:column!important;
+  max-height:calc(100dvh - max(24px,env(safe-area-inset-top) + env(safe-area-inset-bottom)))!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  scrollbar-gutter:stable;
+}
+.portalScope :global(.member-detail-modal) > form{
+  display:flex!important;
+  flex:0 0 auto!important;
+  flex-direction:column!important;
+  min-height:0!important;
+  overflow:visible!important;
+  overscroll-behavior:auto!important;
+}
+.portalScope :global(.member-detail-modal) > .historyPanel{
+  flex:0 0 auto!important;
+  min-width:0;
+  margin:0 18px 18px;
+}
+@media(max-width:700px){
+  .portalScope :global(.member-detail-modal){
+    max-height:calc(100dvh - max(20px,env(safe-area-inset-top) + env(safe-area-inset-bottom)))!important;
+  }
+  .portalScope :global(.member-detail-modal) > .historyPanel{
+    margin:0 12px 12px;
+  }
+}
