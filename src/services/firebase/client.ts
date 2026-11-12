@@ -16,9 +16,9 @@ const firebaseConfig = {
   appId: '1:222344810816:web:91898b0e914ce5f40b6aa5',
 };
 
-// Clave pública de reCAPTCHA Enterprise registrada para la aplicación web
-// del proyecto Firebase original "jovenes-de-fuego".
-const appCheckSiteKey = '6LeB0Q8uAAAAAN-rwuAIeKHEkDM5SKKgpueRl8GJ';
+// Clave pública Site Key de reCAPTCHA Enterprise registrada en Firebase App Check
+// para la aplicación web del proyecto original "jovenes-de-fuego".
+const appCheckSiteKey = '6LeB0Q8uAAAAAEpam8URtnsLNVewLDlxYK5AYJqU';
 
 const firebaseApp: FirebaseApp = getApps()[0] ?? initializeApp(firebaseConfig);
 
