@@ -2391,8 +2391,8 @@ export const getAttendanceMeetings = onCall(async (request) => {
     const participants = Object.entries(records).flatMap(([memberId, value]) => {
       if (!value || typeof value !== "object") return [];
       const statusCode = text((value as Record<string, unknown>).s, 10);
-      const statusMap: Record<string, "Presente" | "Tarde" | "Falta" | "Justificada"> = {
-        P: "Presente", T: "Tarde", F: "Falta", J: "Justificada",
+      const statusMap: Record<string, "Presente" | "Tarde" | "Falta" | "Justificada" | "Ausente"> = {
+        P: "Presente", T: "Tarde", F: "Falta", J: "Justificada", A: "Ausente",
       };
       const status = statusMap[statusCode];
       return status ? [{
@@ -2496,7 +2496,7 @@ export const saveMeetingAttendance = onCall(async (request) => {
     // Los eventos históricos usan IDs con formato YYYY-MM-DD_codigo
     // y guardan los estados en attendance/{id}.r. No deben tratarse
     // como reuniones nuevas de attendanceMeetings.
-    const legacyIdMatch = /^(\\d{4}-\\d{2}-\\d{2})_(dis|mie|vie|ayj|ayc|esc|otr|gen)$/.exec(meetingId);
+    const legacyIdMatch = /^(\d{4}-\d{2}-\d{2})_(dis|mie|vie|ayj|ayc|esc|otr|gen)$/.exec(meetingId);
     if (!legacyIdMatch || !isValidDate(legacyIdMatch[1])) {
       throw new HttpsError("not-found", "No se encontró el evento seleccionado.");
     }
