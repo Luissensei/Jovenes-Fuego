@@ -11,6 +11,7 @@ import './styles/mobile-quality-system.css';
 import './styles/portal-mobile-fix.css';
 import './styles/portal-complete-redesign.css';
 import './styles/admin-module-system.css';
+import './styles/theme-performance-fix.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
