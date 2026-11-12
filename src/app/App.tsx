@@ -38,6 +38,7 @@ const FuegoFloatingAssistant = lazy(() => import('./components/FuegoFloatingAssi
 
 const LoginPage = lazy(() => import('./LoginPage').then((module) => ({default: module.LoginPage})));
 const MembersPage = lazy(() => import('./MembersPage').then((module) => ({default: module.MembersPage})));
+const YouthPinsPage = lazy(() => import('./YouthPinsPage'));
 
 const DashboardPage = lazy(() => import('./DashboardPage'));
 const AttendancePage = lazy(() => import('./AttendancePage'));
@@ -67,6 +68,7 @@ const adminModulePreloaders: Record<string, () => Promise<unknown>> = {
   dashboard: () => import('./DashboardPage'),
   assistant: () => import('./pages/AdminAssistantPage'),
   members: () => import('./MembersPage'),
+  'youth-pins': () => import('./YouthPinsPage'),
   attendance: () => import('./AttendancePage'),
   followups: () => import('./FollowupPage'),
   devotionals: () => import('./DevotionalsPage'),
@@ -237,6 +239,7 @@ function AdminApp() {
     // La visibilidad sigue dependiendo del perfil y del rol autenticado.
     if (item.id === 'assistant') return isAdmin;
     if (item.id === 'notifications') return isAdmin || isPastor;
+    if (item.id === 'youth-pins') return isAdmin || isPastor;
 
     if (isLeader) {
       // Las peticiones contienen información privada; su bandeja queda reservada
@@ -316,6 +319,9 @@ function AdminApp() {
 
       case 'members':
         return <MembersPage canEdit={isAdmin || isPastor} />;
+
+      case 'youth-pins':
+        return <YouthPinsPage />;
 
       case 'attendance':
         return <AttendancePage />;

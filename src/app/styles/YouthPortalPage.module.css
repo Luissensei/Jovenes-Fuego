@@ -30,3 +30,23 @@
     transition: none !important;
   }
 }
+
+
+:global(.youth-pin-backdrop){position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:18px;background:rgba(7,9,17,.78);backdrop-filter:blur(8px);animation:youth-pin-fade .18s ease-out}
+:global(.youth-pin-dialog){position:relative;width:min(100%,430px);display:grid;gap:13px;padding:28px;border:1px solid rgba(249,115,22,.28);border-radius:24px;background:var(--surface-card,#171923);color:var(--text-primary,#fff);box-shadow:0 24px 80px rgba(0,0,0,.42);animation:youth-pin-rise .22s ease-out}
+:global(.youth-pin-close){position:absolute;top:12px;right:14px;width:34px;height:34px;border:0;border-radius:50%;background:var(--surface-elevated,rgba(255,255,255,.08));color:inherit;font-size:24px;cursor:pointer}
+:global(.youth-pin-icon){display:grid;place-items:center;width:54px;height:54px;border-radius:17px;background:linear-gradient(135deg,#f97316,#7c3aed);color:white}
+:global(.youth-pin-kicker){color:#fb923c;font-size:.7rem;font-weight:850;letter-spacing:.14em}
+:global(.youth-pin-dialog h2){margin:0;font-size:1.55rem}
+:global(.youth-pin-dialog p){margin:0;color:var(--text-secondary,#a7aab8);line-height:1.55}
+:global(.youth-pin-form){display:grid;gap:12px}
+:global(.youth-pin-form label){display:grid;gap:6px;font-size:.83rem;font-weight:700}
+:global(.youth-pin-form input){width:100%;box-sizing:border-box;padding:13px 14px;border:1px solid var(--border-subtle,rgba(255,255,255,.15));border-radius:12px;background:var(--surface-elevated,rgba(255,255,255,.06));color:inherit;font-size:1rem;letter-spacing:.16em}
+:global(.youth-pin-form button){border:0;border-radius:13px;padding:14px;background:linear-gradient(100deg,#f97316,#ea580c);color:white;font-weight:850;cursor:pointer}
+:global(.youth-pin-form button:disabled){opacity:.55;cursor:not-allowed}
+:global(.youth-pin-error){padding:10px 12px;border-radius:10px;background:rgba(239,68,68,.12);color:#fca5a5!important;font-size:.82rem}
+:global(.youth-pin-dialog small){display:flex;align-items:center;gap:6px;color:var(--text-secondary,#a7aab8);font-size:.72rem}
+:global(.youth-pin-cancel){border:0;background:transparent;color:var(--text-secondary,#a7aab8);padding:8px;cursor:pointer}
+:global(.youth-pin-loading){display:flex;align-items:center;gap:9px;padding:15px 0;color:var(--text-secondary,#a7aab8)}
+@keyframes youth-pin-fade{from{opacity:0}to{opacity:1}}@keyframes youth-pin-rise{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:480px){:global(.youth-pin-dialog){padding:23px 19px;border-radius:20px}}

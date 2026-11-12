@@ -1,6 +1,16 @@
 import {httpsCallable} from 'firebase/functions';
 import {assertFirebaseWritesAllowed, functions} from './firebase/client';
 
+
+import type {PublicProfile} from "./publicProfiles";
+export type YouthPinStatus={configured:boolean;activationPending:boolean};
+export type YouthPinAdminRecord={id:string;name:string;configured:boolean;activationPending:boolean;locked:boolean;configuredAt:string};
+async function youthPinCall<I,O>(name:string,input:I):Promise<O>{if(!functions)throw new Error("El backend de Firebase no está configurado.");const r=await httpsCallable<I,O>(functions,name)(input);return r.data;}
+export async function getYouthProfilePinStatus(memberId:string):Promise<YouthPinStatus>{return youthPinCall("getYouthProfilePinStatus",{memberId});}
+export async function activateYouthProfilePin(memberId:string,activationPin:string,newPin:string):Promise<PublicProfile>{const r=await youthPinCall<{memberId:string;activationPin:string;newPin:string},{profile:PublicProfile}>("activateYouthProfilePin",{memberId,activationPin,newPin});return r.profile;}
+export async function verifyYouthProfilePin(memberId:string,pin:string):Promise<PublicProfile>{const r=await youthPinCall<{memberId:string;pin:string},{profile:PublicProfile}>("verifyYouthProfilePin",{memberId,pin});return r.profile;}
+export async function getYouthPinAdministration():Promise<YouthPinAdminRecord[]>{const r=await youthPinCall<Record<string,never>,{members:YouthPinAdminRecord[]}>("adminListYouthPins",{});return Array.isArray(r.members)?r.members:[];}
+export async function issueYouthActivationPin(memberId:string):Promise<{temporaryPin:string;expiresAt:string}>{const r=await youthPinCall<{memberId:string},{success:boolean;temporaryPin:string;expiresAt:string}>("adminIssueYouthPin",{memberId});if(!r.success||!r.temporaryPin)throw new Error("No se pudo generar el PIN temporal.");return {temporaryPin:r.temporaryPin,expiresAt:r.expiresAt};}
 export type WeeklyActivity = {
   id: string;
   title: string;

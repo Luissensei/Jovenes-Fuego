@@ -16,6 +16,9 @@ import {
   getWeeklyActivities,
   getHallOfFame,
   sendPrayerRequest,
+  getYouthProfilePinStatus,
+  activateYouthProfilePin,
+  verifyYouthProfilePin,
   type WeeklyActivity,
   type HallOfFamePlayer,
   type FaithfulPlayer,
@@ -468,6 +471,14 @@ export default function YouthPortalPage() {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [selectedProfile, setSelectedProfile] = useState<PublicProfile | null>(null);
+  const [pendingProfile, setPendingProfile] = useState<PublicProfile | null>(null);
+  const [pinMode, setPinMode] = useState<'loading' | 'activate' | 'verify'>('loading');
+  const [pinStatus, setPinStatus] = useState('');
+  const [pinBusy, setPinBusy] = useState(false);
+  const [activationPin, setActivationPin] = useState('');
+  const [personalPin, setPersonalPin] = useState('');
+  const [newPersonalPin, setNewPersonalPin] = useState('');
+  const [confirmPersonalPin, setConfirmPersonalPin] = useState('');
   const [activeYouthSection, setActiveYouthSection] = useState<YouthSection>('home');
   const [openingProfileId, setOpeningProfileId] = useState<string | null>(null);
 
@@ -855,14 +866,34 @@ export default function YouthPortalPage() {
     }
   }
 
-  function enterProfile(profile: PublicProfile) {
-    if (openingProfileId) return;
+  async function enterProfile(profile: PublicProfile) {
+    if (openingProfileId || pendingProfile) return;
     setOpeningProfileId(profile.id);
-    window.setTimeout(() => {
-      setSelectedProfile(profile);
+    window.setTimeout(async () => {
+      setPendingProfile(profile);setPinMode('loading');setPinStatus('');
+      setActivationPin('');setPersonalPin('');setNewPersonalPin('');setConfirmPersonalPin('');
       setOpeningProfileId(null);
-    }, 260);
+      try {
+        const status=await getYouthProfilePinStatus(profile.id);
+        setPinMode(status.configured?'verify':'activate');
+        if(!status.configured&&!status.activationPending)setPinStatus('Este perfil todavía no tiene un PIN temporal. Solicítalo al equipo de administración.');
+      } catch(cause){setPinMode('verify');setPinStatus(cause instanceof Error?cause.message:'No se pudo comprobar el acceso. Intenta de nuevo.');}
+    },260);
   }
+  async function submitYouthPin(event:FormEvent<HTMLFormElement>){
+    event.preventDefault();if(!pendingProfile||pinBusy)return;setPinStatus('');
+    if(pinMode==='activate'&&newPersonalPin!==confirmPersonalPin){setPinStatus('Los dos PIN personales no coinciden.');return;}
+    if(pinMode==='activate'&&!/^\d{8}$/.test(activationPin)){setPinStatus('Escribe el PIN temporal de 8 dígitos.');return;}
+    if(pinMode==='activate'&&!/^\d{4}$/.test(newPersonalPin)){setPinStatus('Tu PIN personal debe tener exactamente 4 dígitos.');return;}
+    if(pinMode==='verify'&&!/^\d{4}$/.test(personalPin)){setPinStatus('Escribe tu PIN personal de 4 dígitos.');return;}
+    setPinBusy(true);
+    try{
+      const profile=pinMode==='activate'?await activateYouthProfilePin(pendingProfile.id,activationPin,newPersonalPin):await verifyYouthProfilePin(pendingProfile.id,personalPin);
+      setPendingProfile(null);setSelectedProfile(profile);setActivationPin('');setPersonalPin('');setNewPersonalPin('');setConfirmPersonalPin('');
+    }catch(cause){setPinStatus(cause instanceof Error?cause.message:'No se pudo validar el PIN.');}
+    finally{setPinBusy(false);}
+  }
+  function cancelYouthPin(){setPendingProfile(null);setPinStatus('');setActivationPin('');setPersonalPin('');setNewPersonalPin('');setConfirmPersonalPin('');}
 
   function leaveProfile() {
     setPortalExiting(true);
@@ -1371,6 +1402,31 @@ export default function YouthPortalPage() {
             </>
           )}
         </section>
+
+        {pendingProfile && (
+          <div className="youth-pin-backdrop" role="presentation">
+            <section className="youth-pin-dialog" role="dialog" aria-modal="true" aria-labelledby="youth-pin-title">
+              <button type="button" className="youth-pin-close" onClick={cancelYouthPin} aria-label="Cerrar">×</button>
+              <div className="youth-pin-icon"><ShieldCheck size={26}/></div><span className="youth-pin-kicker">ACCESO PROTEGIDO</span>
+              <h2 id="youth-pin-title">{pinMode==='activate'?'Activa tu perfil':'Bienvenido de nuevo'}</h2>
+              <p>Perfil de <strong>{pendingProfile.name}</strong>. {pinMode==='activate'?'Usa el PIN temporal que te entregó administración y crea tu clave personal.':'Ingresa tu PIN personal para abrir tu espacio.'}</p>
+              {pinMode==='loading'?<div className="youth-pin-loading"><RefreshCw size={18}/> Comprobando acceso...</div>:(
+                <form onSubmit={submitYouthPin} className="youth-pin-form">
+                  {pinMode==='activate'?<>
+                    <label>PIN temporal de activación<input autoFocus inputMode="numeric" type="password" autoComplete="one-time-code" maxLength={8} value={activationPin} onChange={e=>setActivationPin(e.target.value.replace(/\D/g,'').slice(0,8))} placeholder="8 dígitos"/></label>
+                    <label>Crea tu PIN personal<input inputMode="numeric" type="password" maxLength={4} autoComplete="new-password" value={newPersonalPin} onChange={e=>setNewPersonalPin(e.target.value.replace(/\D/g,'').slice(0,4))} placeholder="4 dígitos"/></label>
+                    <label>Confirma tu PIN personal<input inputMode="numeric" type="password" maxLength={4} autoComplete="new-password" value={confirmPersonalPin} onChange={e=>setConfirmPersonalPin(e.target.value.replace(/\D/g,'').slice(0,4))} placeholder="Repite los 4 dígitos"/></label>
+                  </>:<label>Tu PIN personal<input autoFocus inputMode="numeric" type="password" autoComplete="current-password" maxLength={4} value={personalPin} onChange={e=>setPersonalPin(e.target.value.replace(/\D/g,'').slice(0,4))} placeholder="••••"/></label>}
+                  {pinStatus&&<p className="youth-pin-error" role="alert">{pinStatus}</p>}
+                  <button type="submit" disabled={pinBusy||(pinMode==='activate'&&!/^\d{8}$/.test(activationPin))||(pinMode==='verify'&&!/^\d{4}$/.test(personalPin))}>{pinBusy?'Validando...':pinMode==='activate'?'Activar y entrar':'Entrar a mi perfil'}</button>
+                </form>
+              )}
+              {pinStatus&&pinMode==='loading'&&<p className="youth-pin-error" role="alert">{pinStatus}</p>}
+              <small><ShieldCheck size={13}/> El PIN no se muestra ni se envía a administración.</small>
+              <button type="button" className="youth-pin-cancel" onClick={cancelYouthPin}>Volver a los perfiles</button>
+            </section>
+          </div>
+        )}
         <footer className="youth-security-note"><ShieldCheck size={17}/> Seleccionar un perfil no verifica la identidad de la persona. No introduzcas información privada en este acceso.</footer>
       </div>
     </main>
