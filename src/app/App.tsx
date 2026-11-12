@@ -151,11 +151,12 @@ function AdminApp() {
 
   const {theme, toggleTheme, nextThemeLabel} = useThemePreference();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [bottomMenuOpen, setBottomMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [moduleSearch, setModuleSearch] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  useEffect(() => { setMenuOpen(false); }, [location.pathname]);
+  useEffect(() => { setMenuOpen(false); setBottomMenuOpen(false); }, [location.pathname]);
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setMenuOpen(false);
@@ -611,19 +612,49 @@ function AdminApp() {
         </footer>
       </div>
       {user && (
-        <nav className="jf-bottom-nav" aria-label="Navegación principal">
-          {mobileNavItems.map((item) => (
-            <NavLink
-              key={item.id}
-              to={item.path}
-              end={item.path === '/'}
-              title={item.label}
-              className={({ isActive }) => `jf-bottom-nav-item ${isActive ? 'active' : ''}`}
-            >
-              <span className="jf-bottom-nav-icon"><item.icon size={20} strokeWidth={2.1} /></span>
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
+        <nav className={`jf-bottom-nav ${bottomMenuOpen ? 'is-open' : ''}`} aria-label="Navegación principal">
+          <AnimatePresence>
+            {bottomMenuOpen && (
+              <motion.div
+                className="jf-bottom-nav-menu"
+                initial={{ opacity: 0, y: 22, scale: .94 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 16, scale: .96 }}
+                transition={{ duration: .22, ease: 'easeOut' }}
+              >
+                {mobileNavItems.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    transition={{ delay: index * .035, duration: .18 }}
+                  >
+                    <NavLink
+                      to={item.path}
+                      end={item.path === '/'}
+                      title={item.label}
+                      className={({ isActive }) => `jf-bottom-nav-item ${isActive ? 'active' : ''}`}
+                    >
+                      <span className="jf-bottom-nav-icon"><item.icon size={19} strokeWidth={2.1} /></span>
+                      <span>{item.label}</span>
+                    </NavLink>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <button
+            type="button"
+            className="jf-bottom-nav-toggle"
+            aria-expanded={bottomMenuOpen}
+            aria-label={bottomMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
+            onClick={() => setBottomMenuOpen((open) => !open)}
+          >
+            <span className="jf-bottom-nav-toggle-icon">{bottomMenuOpen ? <X size={21}/> : <Menu size={21}/>}</span>
+            <span>{bottomMenuOpen ? 'Cerrar' : 'Menú'}</span>
+            <span className={`jf-bottom-nav-chevron ${bottomMenuOpen ? 'turned' : ''}`}>⌃</span>
+          </button>
         </nav>
       )}
       {user && profile && (
