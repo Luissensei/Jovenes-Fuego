@@ -55,35 +55,33 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
     let appCheckFailure = "";
 
     if (appCheck) {
+      let tokenResult: Awaited<ReturnType<typeof getToken>> | null = null;
+      let initialFailure = "";
       try {
-        let tokenResult = await getToken(appCheck);
-        if (!tokenResult.token && appCheckRequired) {
-          tokenResult = await getToken(appCheck, true);
-        }
-        if (tokenResult.token) {
-          headers["X-Firebase-AppCheck"] = tokenResult.token;
-        } else if (appCheckRequired) {
-          appCheckFailure = "El SDK de Firebase devolvió un token vacío.";
-        }
+        tokenResult = await getToken(appCheck);
       } catch (cause) {
-        const firstReason = cause instanceof Error ? cause.message : "Error desconocido";
-        if (appCheckRequired) {
-          try {
-            const refreshed = await getToken(appCheck, true);
-            if (refreshed.token) {
-              headers["X-Firebase-AppCheck"] = refreshed.token;
-            } else {
-              appCheckFailure = "La renovación forzada también devolvió un token vacío.";
-            }
-          } catch (refreshCause) {
-            const refreshReason = refreshCause instanceof Error
-              ? refreshCause.message
-              : "Error desconocido";
-            appCheckFailure = `Obtención inicial: ${firstReason}. Renovación: ${refreshReason}`;
-          }
-        } else {
-          console.warn("App Check no entregó token para esta llamada:", firstReason);
+        initialFailure = cause instanceof Error ? cause.message : "Error desconocido";
+      }
+
+      // Solo para operaciones protegidas: si no hay token, forzar una
+      // renovación una vez. No se envía ninguna de estas operaciones sin él.
+      if (appCheckRequired && !tokenResult?.token) {
+        try {
+          tokenResult = await getToken(appCheck, true);
+        } catch (cause) {
+          const refreshFailure = cause instanceof Error
+            ? cause.message
+            : "Error desconocido";
+          appCheckFailure = `Obtención inicial: ${initialFailure || "no se recibió token"}. Renovación: ${refreshFailure}`;
         }
+      }
+
+      if (tokenResult?.token) {
+        headers["X-Firebase-AppCheck"] = tokenResult.token;
+      } else if (appCheckRequired && !appCheckFailure) {
+        appCheckFailure = initialFailure || "El SDK de Firebase devolvió un token vacío.";
+      } else if (!appCheckRequired && initialFailure) {
+        console.warn("App Check no entregó token para esta llamada:", initialFailure);
       }
     } else if (appCheckRequired) {
       appCheckFailure = firebaseAppCheckError || "Firebase App Check no se inicializó en este navegador.";
