@@ -383,7 +383,8 @@ export const adminListLeaders = onCall({enforceAppCheck: true}, async (request) 
   // históricos guardados como "Líder", "LIDER", " Lider " u otras variantes.
   const leaderDocuments: QueryDocumentSnapshot[] = [];
   let cursor: QueryDocumentSnapshot | undefined;
-  while (true) {
+  let hasMorePages = true;
+  while (hasMorePages) {
     let query = db.collection("users")
       .orderBy(FieldPath.documentId())
       .limit(500);
@@ -397,8 +398,8 @@ export const adminListLeaders = onCall({enforceAppCheck: true}, async (request) 
         .replace(/[\u0300-\u036f]/g, "");
       return ["lider", "pastor", "admin", "administrador"].includes(role);
     }));
-    if (page.size < 500) break;
-    cursor = page.docs[page.docs.length - 1];
+    hasMorePages = page.size === 500;
+    if (hasMorePages) cursor = page.docs[page.docs.length - 1];
   }
   const visible = leaderDocuments.slice(0, 200);
 
