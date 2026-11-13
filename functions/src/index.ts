@@ -394,7 +394,7 @@ export const adminListLeaders = onCall({enforceAppCheck: true}, async (request) 
         .trim()
         .toLowerCase()
         .normalize("NFD")
-        .replace(/[\\u0300-\\u036f]/g, "");
+        .replace(/[\u0300-\u036f]/g, "");
       return ["lider", "pastor", "admin", "administrador"].includes(role);
     }));
     if (page.size < 500) break;
