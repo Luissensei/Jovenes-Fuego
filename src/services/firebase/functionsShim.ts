@@ -44,18 +44,57 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
       }
     }
 
-    // App Check es obligatorio solo para las operaciones que lo declaran
-    // con enforceAppCheck en el backend. No bloqueamos la lectura inicial del
-    // perfil ni otras llamadas autenticadas cuando el SDK está temporalmente
-    // limitado (por ejemplo, appCheck/throttled); el servidor seguirá
-    // rechazando sin token las operaciones que sí exigen App Check.
+    // Solo estas operaciones administrativas exigen App Check en el backend.
+    // Si el SDK entrega un token vacío o falla al obtenerlo, intentamos una
+    // renovación forzada una vez y nunca enviamos la operación protegida sin token.
+    const appCheckRequired = [
+      "adminListLeaders",
+      "adminCreateLeader",
+      "adminUpdateLeader",
+    ].includes(name);
+    let appCheckFailure = "";
+
     if (appCheck) {
       try {
-        const token = await getToken(appCheck);
-        if (token.token) headers["X-Firebase-AppCheck"] = token.token;
+        let tokenResult = await getToken(appCheck);
+        if (!tokenResult.token && appCheckRequired) {
+          tokenResult = await getToken(appCheck, true);
+        }
+        if (tokenResult.token) {
+          headers["X-Firebase-AppCheck"] = tokenResult.token;
+        } else if (appCheckRequired) {
+          appCheckFailure = "El SDK de Firebase devolvió un token vacío.";
+        }
       } catch (cause) {
-        console.warn("App Check no entregó token para esta llamada; el backend aplicará su política:", cause);
+        const firstReason = cause instanceof Error ? cause.message : "Error desconocido";
+        if (appCheckRequired) {
+          try {
+            const refreshed = await getToken(appCheck, true);
+            if (refreshed.token) {
+              headers["X-Firebase-AppCheck"] = refreshed.token;
+            } else {
+              appCheckFailure = "La renovación forzada también devolvió un token vacío.";
+            }
+          } catch (refreshCause) {
+            const refreshReason = refreshCause instanceof Error
+              ? refreshCause.message
+              : "Error desconocido";
+            appCheckFailure = `Obtención inicial: ${firstReason}. Renovación: ${refreshReason}`;
+          }
+        } else {
+          console.warn("App Check no entregó token para esta llamada:", firstReason);
+        }
       }
+    } else if (appCheckRequired) {
+      appCheckFailure = "Firebase App Check no se inicializó en este navegador.";
+    }
+
+    if (appCheckRequired && !headers["X-Firebase-AppCheck"]) {
+      throw makeError(
+        "failed-precondition",
+        `Firebase App Check no pudo generar el token requerido. ${appCheckFailure || "Comprueba la clave Enterprise y el dominio autorizado."}`,
+        {reason: "app-check-token-failed"},
+      );
     }
 
     // El backend principal de producción es Vercel. Solo se usa Firebase
