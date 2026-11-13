@@ -1,6 +1,6 @@
 import {getToken} from "firebase/app-check";
 import type {Functions} from "firebase/functions";
-import {appCheck, auth} from "./client";
+import {appCheck, auth, firebaseAppCheckError} from "./client";
 
 type CallableError = Error & {code: string; details?: unknown};
 
@@ -86,7 +86,7 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
         }
       }
     } else if (appCheckRequired) {
-      appCheckFailure = "Firebase App Check no se inicializó en este navegador.";
+      appCheckFailure = firebaseAppCheckError || "Firebase App Check no se inicializó en este navegador.";
     }
 
     if (appCheckRequired && !headers["X-Firebase-AppCheck"]) {
