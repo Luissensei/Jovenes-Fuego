@@ -378,11 +378,13 @@ export const adminListLeaders = onCall({enforceAppCheck: true}, async (request) 
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireAdmin(request.auth.uid);
 
-  const snapshot = await db.collection("users").limit(400).get();
-  const visible = snapshot.docs.filter((document) => {
-    const role = String(document.data().role ?? "").trim().toLowerCase();
-    return leaderRoles.includes(role);
-  }).slice(0, 200);
+  // Consultar por rol evita que los primeros 400 perfiles juveniles de la
+  // colección oculten a los líderes que aparecen más adelante en users.
+  const snapshot = await db.collection("users")
+    .where("role", "in", leaderRoles)
+    .limit(400)
+    .get();
+  const visible = snapshot.docs.slice(0, 200);
 
   const leaders = await Promise.all(visible.map(async (document) => {
     const data = document.data();
