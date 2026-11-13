@@ -2,7 +2,7 @@ import {createHash, createHmac, randomInt, timingSafeEqual} from "node:crypto";
 import {setGlobalOptions} from "firebase-functions";
 import {onCall, HttpsError} from "./vercelAdapter.js";
 import {initializeApp, getApps, cert} from "firebase-admin/app";
-import {getFirestore, FieldValue} from "firebase-admin/firestore";
+import {getFirestore, FieldValue, FieldPath, type QueryDocumentSnapshot} from "firebase-admin/firestore";
 import {getAuth as getAdminAuth} from "firebase-admin/auth";
 
 setGlobalOptions({maxInstances: 10});
@@ -378,13 +378,29 @@ export const adminListLeaders = onCall({enforceAppCheck: true}, async (request) 
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireAdmin(request.auth.uid);
 
-  // Consultar por rol evita que los primeros 400 perfiles juveniles de la
-  // colección oculten a los líderes que aparecen más adelante en users.
-  const snapshot = await db.collection("users")
-    .where("role", "in", leaderRoles)
-    .limit(400)
-    .get();
-  const visible = snapshot.docs.slice(0, 200);
+  // Firestore distingue mayúsculas, tildes y espacios en los valores de role.
+  // Escaneamos users por páginas y normalizamos el rol para no ocultar líderes
+  // históricos guardados como "Líder", "LIDER", " Lider " u otras variantes.
+  const leaderDocuments: QueryDocumentSnapshot[] = [];
+  let cursor: QueryDocumentSnapshot | undefined;
+  while (true) {
+    let query = db.collection("users")
+      .orderBy(FieldPath.documentId())
+      .limit(500);
+    if (cursor) query = query.startAfter(cursor);
+    const page = await query.get();
+    leaderDocuments.push(...page.docs.filter((document) => {
+      const role = String(document.data().role ?? "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\\u0300-\\u036f]/g, "");
+      return ["lider", "pastor", "admin", "administrador"].includes(role);
+    }));
+    if (page.size < 500) break;
+    cursor = page.docs[page.docs.length - 1];
+  }
+  const visible = leaderDocuments.slice(0, 200);
 
   const leaders = await Promise.all(visible.map(async (document) => {
     const data = document.data();
