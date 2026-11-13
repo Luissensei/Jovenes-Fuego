@@ -62,6 +62,7 @@ export const auth: Auth | null = authInstance;
 export const db: Firestore | null = dbInstance;
 export const functions: Functions = functionsInstance;
 export const appCheck: AppCheck | null = appCheckInstance;
+export const firebaseAppCheckError = appCheckInitError;
 
 /**
  * La aplicación puede solicitar escrituras en el proyecto Firebase original.
