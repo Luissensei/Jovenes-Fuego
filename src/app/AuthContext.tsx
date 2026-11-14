@@ -10,6 +10,7 @@ import {
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithCustomToken,
   signOut,
   type User,
 } from 'firebase/auth';
@@ -51,9 +52,8 @@ type ApplicationProfileResponse = {
   };
 };
 
-type UsernameLookupResponse = {
-  found?: boolean;
-  email?: string;
+type UsernameLoginResponse = {
+  customToken?: string;
 };
 
 type AuthContextValue = {
