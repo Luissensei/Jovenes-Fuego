@@ -30,8 +30,8 @@ export async function createLeader(input: {
   role: string;
   groups: string[];
   permissions: string[];
-}): Promise<{uid: string; setupLink: string}> {
-  const result = await callable<typeof input, {uid: string; setupLink: string}>('adminCreateLeader')(input);
+}): Promise<{uid: string; setupLink: string; linkedExistingAccount: boolean; accountDisabled: boolean}> {
+  const result = await callable<typeof input, {uid: string; setupLink: string; linkedExistingAccount: boolean; accountDisabled: boolean}>('adminCreateLeader')(input);
   return result.data;
 }
 
