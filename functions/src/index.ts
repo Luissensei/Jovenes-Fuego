@@ -2443,17 +2443,44 @@ export const getAttendanceMeetings = onCall(async (request) => {
   const moduleId = requestedModule === "reports" ? "reports" : "attendance";
   await requireModulePermission(request.auth.uid, moduleId);
 
-  const [modernSnapshot, legacySnapshot, membersSnapshot] = await Promise.all([
+  const [modernSnapshot, legacySnapshot] = await Promise.all([
     db.collection("attendanceMeetings").orderBy("date", "desc").limit(300).get(),
     db.collection("attendance").limit(1000).get(),
-    db.collection("members").limit(1000).get(),
   ]);
 
+  // Resolve only member documents whose names are actually needed by this
+  // attendance page; modern rows already carry their display name.
+  const memberIds = new Set<string>();
+  modernSnapshot.docs.forEach((document) => {
+    const participants = document.data().participants;
+    if (!Array.isArray(participants)) return;
+    participants.forEach((item) => {
+      if (typeof item !== "object" || item === null) return;
+      const row = item as Record<string, unknown>;
+      if (typeof row.memberId === "string" && !text(row.name, 120)) {
+        const memberId = text(row.memberId, 150);
+        if (memberId) memberIds.add(memberId);
+      }
+    });
+  });
+  legacySnapshot.docs.forEach((document) => {
+    const records = document.data().r;
+    if (!records || typeof records !== "object" || Array.isArray(records)) return;
+    Object.keys(records as Record<string, unknown>).forEach((memberId) => {
+      const id = text(memberId, 150);
+      if (id) memberIds.add(id);
+    });
+  });
+  const memberSnapshots = memberIds.size
+    ? await db.getAll(...[...memberIds].map((memberId) => db.collection("members").doc(memberId)))
+    : [];
   const memberNames = new Map(
-    membersSnapshot.docs.map((document) => [
-      document.id,
-      text(document.data().name, 120) || document.id,
-    ]),
+    memberSnapshots
+      .filter((document) => document.exists)
+      .map((document) => [
+        document.id,
+        text(document.data()?.name, 120) || document.id,
+      ]),
   );
   const validStatuses = ["Presente", "Ausente", "Tarde", "Falta", "Justificada", "Justificado"];
   const modern = modernSnapshot.docs.map((document) => {
@@ -2524,7 +2551,7 @@ export const getAttendanceMeetings = onCall(async (request) => {
   [...legacy, ...modern].forEach((meeting) => merged.set(meeting.id, meeting));
   return {
     meetings: [...merged.values()].sort((left, right) => right.date.localeCompare(left.date)),
-    historyLimited: legacySnapshot.size >= 1000 || membersSnapshot.size >= 1000,
+    historyLimited: legacySnapshot.size >= 1000,
   };
 });
 
