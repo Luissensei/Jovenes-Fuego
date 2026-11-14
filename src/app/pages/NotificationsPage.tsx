@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {NavLink} from 'react-router-dom';
 import {Bell, RefreshCw, ArrowUpRight, Inbox, HeartHandshake, Users, Image, ClipboardList} from 'lucide-react';
 import {getAdminNotifications, type AdminNotification} from '../../services/notifications';
@@ -16,20 +16,36 @@ export default function NotificationsPage() {
   const [items, setItems] = useState<AdminNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const mountedRef = useRef(false);
+  const requestSequenceRef = useRef(0);
 
   const refresh = useCallback(async () => {
-    setLoading(true);
-    setError('');
+    const sequence = ++requestSequenceRef.current;
+    if (mountedRef.current) {
+      setLoading(true);
+      setError('');
+    }
     try {
-      setItems(await getAdminNotifications());
+      const notifications = await getAdminNotifications();
+      if (!mountedRef.current || sequence !== requestSequenceRef.current) return;
+      setItems(notifications);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'No se pudieron consultar las notificaciones.');
+      if (mountedRef.current && sequence === requestSequenceRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudieron consultar las notificaciones.');
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current && sequence === requestSequenceRef.current) setLoading(false);
     }
   }, []);
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    mountedRef.current = true;
+    void refresh();
+    return () => {
+      mountedRef.current = false;
+      requestSequenceRef.current += 1;
+    };
+  }, [refresh]);
 
   const urgentCount = items.filter((item) => item.priority === 'high').length;
 
