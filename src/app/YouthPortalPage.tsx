@@ -42,10 +42,26 @@ import type { MiniGame } from './portal/GamesTab';
 
 
 const PORTAL_CACHE_TTL = 5 * 60 * 1000;
+const PORTAL_REFRESH_INTERVAL = 60 * 1000;
+const PORTAL_CACHE_MAX_ENTRIES = 6;
+const PORTAL_CACHE_MAX_BYTES = 180_000;
 type PortalCacheEntry<T> = { savedAt: number; data: T };
 const portalMemoryCache = new Map<string, PortalCacheEntry<unknown>>();
 const portalRequests = new Map<string, Promise<unknown>>();
 const portalLastRefresh = new Map<string, number>();
+
+function rememberPortalCache(key: string, entry: PortalCacheEntry<unknown>) {
+  // Mantiene una caché pequeña para evitar crecimiento ilimitado en sesiones largas.
+  portalMemoryCache.delete(key);
+  portalMemoryCache.set(key, entry);
+  while (portalMemoryCache.size > PORTAL_CACHE_MAX_ENTRIES) {
+    const oldestKey = portalMemoryCache.keys().next().value;
+    if (!oldestKey) break;
+    portalMemoryCache.delete(oldestKey);
+    portalLastRefresh.delete(oldestKey);
+    try { window.sessionStorage.removeItem(`jf-portal-cache:${oldestKey}`); } catch { /* almacenamiento opcional */ }
+  }
+}
 
 function readPortalCache<T>(key: string): T | null {
   const memory = portalMemoryCache.get(key) as PortalCacheEntry<T> | undefined;
@@ -62,7 +78,7 @@ function readPortalCache<T>(key: string): T | null {
       return null;
     }
     const entry = {savedAt: parsed.savedAt, data: parsed.data as T};
-    portalMemoryCache.set(key, entry);
+    rememberPortalCache(key, entry);
     return entry.data;
   } catch {
     return null;
@@ -74,12 +90,18 @@ function requestPortalCache<T>(key: string, loader: () => Promise<T>): Promise<T
   if (pending) return pending;
   const cached = readPortalCache<T>(key);
   const lastRefresh = portalLastRefresh.get(key) ?? 0;
-  if (cached !== null && Date.now() - lastRefresh < 60_000) return Promise.resolve(cached);
+  if (cached !== null && Date.now() - lastRefresh < PORTAL_REFRESH_INTERVAL) return Promise.resolve(cached);
   portalLastRefresh.set(key, Date.now());
   const request = loader().then((data) => {
     const entry = {savedAt: Date.now(), data};
-    portalMemoryCache.set(key, entry);
-    try { window.sessionStorage.setItem(`jf-portal-cache:${key}`, JSON.stringify(entry)); } catch { /* caché opcional */ }
+    rememberPortalCache(key, entry);
+    try {
+      const serialized = JSON.stringify(entry);
+      // Evita serializar o persistir respuestas grandes en sessionStorage.
+      if (serialized.length <= PORTAL_CACHE_MAX_BYTES) {
+        window.sessionStorage.setItem(`jf-portal-cache:${key}`, serialized);
+      }
+    } catch { /* caché opcional */ }
     return data;
   }).catch((cause: unknown) => {
     portalLastRefresh.delete(key);
