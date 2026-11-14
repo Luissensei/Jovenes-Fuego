@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './app/App';
+
 import './styles/app.css';
 import './styles/layout.css';
 import './styles/refinement.css';
@@ -14,6 +15,10 @@ import './styles/admin-module-system.css';
 import './styles/theme-performance-fix.css';
 import './styles/mobile-spacing-and-instant-sidebar.css';
 import './styles/unified-module-theme.css';
+import './styles/portal-polish.css';
+import './styles/theme-final-overrides.css';
+import './styles/sidebar-transparent-redesign.css';
+import './styles/visual-refresh-2026.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
@@ -41,9 +46,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </BrowserRouter>
   </React.StrictMode>,
 );
-import './styles/portal-polish.css';
 
-import './styles/theme-final-overrides.css';
 
-import './styles/sidebar-transparent-redesign.css';
-import './styles/visual-refresh-2026.css';
