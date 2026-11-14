@@ -477,7 +477,7 @@ export const adminCreateLeader = onCall({enforceAppCheck: true}, async (request)
   const groups = cleanStringArray(request.data?.groups);
   const permissions = cleanStringArray(request.data?.permissions, manageablePermissions);
 
-  if (name.length < 2 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+  if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw new HttpsError("invalid-argument", "Indica un nombre y un correo electrónico válidos.");
   }
   if (!["lider", "líder", "pastor"].includes(role)) {
@@ -527,7 +527,7 @@ export const adminCreateLeader = onCall({enforceAppCheck: true}, async (request)
   const existingRole = String(existingProfile.data()?.role ?? "")
     .trim().toLowerCase()
     .normalize("NFD")
-    .replace(/[\\u0300-\\u036f]/g, "");
+    .replace(/[\u0300-\u036f]/g, "");
   if (["admin", "administrador"].includes(existingRole)) {
     if (createdAuthAccount) await adminAuth.deleteUser(userRecord.uid).catch(() => undefined);
     throw new HttpsError("failed-precondition", "Este correo ya pertenece a una cuenta administradora. No se puede convertir desde la gestión de líderes.");
