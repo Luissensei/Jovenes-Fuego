@@ -1372,18 +1372,25 @@ export const adminListManagedRecords = onCall(async (request) => {
   else await requireModulePermission(request.auth.uid, definition.permission);
 
   const collectionRef = db.collection(definition.collection);
-  const snapshotPromise = collectionRef.limit(400).get();
-  const membersPromise = module === "followups" ? db.collection("members").limit(700).get() : null;
-  const [snapshot, membersSnapshot] = await Promise.all([
-    snapshotPromise,
-    membersPromise ?? Promise.resolve(null),
-  ]);
+  const snapshot = await collectionRef.limit(400).get();
 
+  // Legacy follow-ups store only the member ID. Fetch names only for members
+  // referenced by this page instead of scanning up to 700 member documents.
+  const referencedMemberIds = module === "followups"
+    ? [...new Set(snapshot.docs
+      .map((document) => text(document.data().m, 150))
+      .filter(Boolean))]
+    : [];
+  const memberSnapshots = referencedMemberIds.length
+    ? await db.getAll(...referencedMemberIds.map((id) => db.collection("members").doc(id)))
+    : [];
   const members = new Map(
-    (membersSnapshot?.docs ?? []).map((document) => [
-      document.id,
-      text(document.data().name, 120) || document.id,
-    ]),
+    memberSnapshots
+      .filter((document) => document.exists)
+      .map((document) => [
+        document.id,
+        text(document.data()?.name, 120) || document.id,
+      ]),
   );
 
   const records = snapshot.docs.flatMap<{id: string; createdAt: string; updatedAt: string; editable: boolean; [key: string]: unknown}>((document) => {
