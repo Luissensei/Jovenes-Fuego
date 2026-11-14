@@ -87,7 +87,11 @@ export default function LeadersAdminPage(){
         if (!mountedRef.current) return;
         setSetupLink(result.setupLink);
         setShowCreate(false);
-        setNotice('La cuenta fue creada. Copia y entrega el enlace de activación al nuevo líder.');
+        setNotice(result.linkedExistingAccount
+          ? (result.accountDisabled
+            ? 'La cuenta existente fue vinculada, pero está deshabilitada en Firebase Authentication. Actívala en Firebase para que el líder pueda ingresar.'
+            : 'La cuenta existente de Firebase fue vinculada correctamente. Ya aparece en el directorio y conserva su contraseña.')
+          : 'La cuenta fue creada. Copia y entrega el enlace de activación al nuevo líder.');
       }
       await refresh();
       if(editing && mountedRef.current){setShowCreate(false);}
@@ -150,10 +154,10 @@ export default function LeadersAdminPage(){
       {(showCreate||editing)&&(
         <div className={styles.backdrop} role="presentation" onMouseDown={(event)=>{if(event.target===event.currentTarget&&!saving){setShowCreate(false);setEditing(null);}}}>
           <section className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="leader-modal-title">
-            <header><div><span>GESTIÓN AVANZADA</span><h2 id="leader-modal-title">{editing?'Editar líder y permisos':'Crear cuenta de líder'}</h2></div><button type="button" onClick={()=>{setShowCreate(false);setEditing(null);}} disabled={saving} aria-label="Cerrar"><X size={19}/></button></header>
+            <header><div><span>GESTIÓN AVANZADA</span><h2 id="leader-modal-title">{editing?'Editar líder y permisos':'Vincular cuenta existente o crear líder'}</h2></div><button type="button" onClick={()=>{setShowCreate(false);setEditing(null);}} disabled={saving} aria-label="Cerrar"><X size={19}/></button></header>
             <form onSubmit={(event)=>void submit(event)}>
               <label>Nombre completo<input value={draft.name} onChange={(event)=>setDraft({...draft,name:event.target.value})} required minLength={2} maxLength={100} disabled={Boolean(editing)}/></label>
-              <label>Correo electrónico<input type="email" value={draft.email} onChange={(event)=>setDraft({...draft,email:event.target.value})} required disabled={Boolean(editing)}/></label>
+              <label>Correo electrónico<input type="email" value={draft.email} onChange={(event)=>setDraft({...draft,email:event.target.value})} required disabled={Boolean(editing)}/>{!editing&&<small>Si este correo ya tiene una cuenta en Firebase, se vinculará esa misma cuenta y conservará su contraseña.</small>}</label>
               <label>Rol<select value={draft.role} onChange={(event)=>setDraft({...draft,role:event.target.value})}><option value="lider">Líder</option><option value="pastor">Pastor</option><option value="administrador" disabled={!editing || !['admin', 'administrador'].includes(editing.role.toLowerCase())}>Administrador</option></select></label>
               <label>Grupos asignados<input value={draft.groups} onChange={(event)=>setDraft({...draft,groups:event.target.value})} placeholder="Ej. Jóvenes mayores, Alabanza"/></label>
               <fieldset><legend>Permisos por módulo</legend><div className={styles.permissionGrid}>{permissionOptions.map((permission)=><label key={permission.id}><input type="checkbox" checked={draft.permissions.includes(permission.id)} onChange={()=>togglePermission(permission.id)}/><span>{permission.label}</span></label>)}</div></fieldset>
