@@ -204,16 +204,24 @@ async function loadVisiblePublicProfiles(includeAppearance = true) {
   const memberIds = candidates
     .map((item) => item.id)
     .filter((id) => !id.startsWith("public-profile-"));
-  const memberSnapshots = memberIds.length
-    ? await db.getAll(...memberIds.map((id) => db.collection("members").doc(id)))
-    : [];
+  // Reuse the first 500 legacy member documents already loaded above.
+  // Only fetch candidates from the ranking/public profiles that were not in
+  // that page, avoiding a second read of the same member documents.
+  const members = new Map(
+    membersSnapshot.docs.map((snapshot) => [snapshot.id, snapshot.data() ?? {}]),
+  );
+  const missingMemberIds = memberIds.filter((id) => !members.has(id));
+  if (missingMemberIds.length) {
+    const missingMemberSnapshots = await db.getAll(
+      ...missingMemberIds.map((id) => db.collection("members").doc(id)),
+    );
+    missingMemberSnapshots.forEach((snapshot) => {
+      if (snapshot.exists) members.set(snapshot.id, snapshot.data() ?? {});
+    });
+  }
   const photoSnapshots = includeAppearance && memberIds.length
     ? await db.getAll(...memberIds.map((id) => db.collection("photos").doc(id)))
     : [];
-
-  const members = new Map(
-    memberSnapshots.map((snapshot) => [snapshot.id, snapshot.data() ?? {}]),
-  );
   const photos = new Map(
     photoSnapshots.map((snapshot) => [snapshot.id, snapshot.data() ?? {}]),
   );
