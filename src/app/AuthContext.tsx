@@ -228,47 +228,47 @@ export function AuthProvider({children}: {children: ReactNode}) {
 
       setError(null);
       const identifier = email.trim().toLowerCase();
-      let signInEmail = identifier;
-
-      if (!identifier.includes('@')) {
-        signInEmail = `${identifier}@jovenesdefuego.app`;
-
-        if (functions) {
-          try {
-            const resolveUsername = httpsCallable<
-              {username: string},
-              UsernameLookupResponse
-            >(functions, 'resolveUsernameLogin');
-            const lookup = await resolveUsername({username: identifier});
-            const mappedEmail = lookup.data.email;
-            if (lookup.data.found && typeof mappedEmail === 'string' && mappedEmail.includes('@')) {
-              signInEmail = mappedEmail.trim().toLowerCase();
-            }
-          } catch (cause) {
-            // Preserve the original username@domain fallback if the public alias
-            // resolver is temporarily unavailable.
-            console.warn('No se pudo resolver el alias de usuario:', cause);
-          }
-        }
-      }
 
       try {
-        await signInWithEmailAndPassword(auth, signInEmail, password);
+        if (identifier.includes('@')) {
+          await signInWithEmailAndPassword(auth, identifier, password);
+          return;
+        }
+
+        if (!functions) {
+          throw new Error('El servicio seguro de inicio de sesión por usuario no está disponible.');
+        }
+
+        const signInUsername = httpsCallable<
+          {username: string; password: string},
+          UsernameLoginResponse
+        >(functions, 'signInWithUsername');
+        const response = await signInUsername({username: identifier, password});
+        const customToken = response.data.customToken;
+        if (typeof customToken !== 'string' || !customToken) {
+          throw new Error('No se pudo iniciar sesión. Comprueba tus credenciales.');
+        }
+        await signInWithCustomToken(auth, customToken);
       } catch (cause) {
         const firebaseError = cause as {code?: string; message?: string};
-        console.error('Error de inicio de sesión:', firebaseError.code, firebaseError.message);
-
+        const code = String(firebaseError.code ?? '');
         if (
-          firebaseError.code === 'auth/invalid-credential' ||
-          firebaseError.code === 'auth/wrong-password' ||
-          firebaseError.code === 'auth/user-not-found'
+          code === 'auth/invalid-credential' ||
+          code === 'auth/wrong-password' ||
+          code === 'auth/user-not-found' ||
+          code === 'functions/unauthenticated' ||
+          code === 'functions/invalid-argument'
         ) {
           throw new Error('Usuario/correo o contraseña incorrectos.');
         }
-        if (firebaseError.code === 'auth/too-many-requests') {
+        if (code === 'auth/too-many-requests' || code === 'functions/resource-exhausted') {
           throw new Error('Demasiados intentos. Espera un momento y vuelve a intentar.');
         }
-        throw new Error('No se pudo iniciar sesión. Comprueba Firebase Authentication.');
+        console.error('Error de inicio de sesión:', code);
+        if (cause instanceof Error && cause.message.startsWith('El servicio seguro')) {
+          throw cause;
+        }
+        throw new Error('No se pudo iniciar sesión. Comprueba tu conexión e inténtalo de nuevo.');
       }
     },
 
