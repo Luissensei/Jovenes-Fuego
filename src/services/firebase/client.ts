@@ -19,7 +19,7 @@ const firebaseConfig = {
 // Clave pública Site Key de reCAPTCHA Enterprise registrada en Firebase App Check
 // para la aplicación web del proyecto original "jovenes-de-fuego".
 const appCheckSiteKey = import.meta.env.VITE_FIREBASE_APP_CHECK_SITE_KEY?.trim() ||
-  '6LeB0Q8uAAAAAEpam8URtnsLNVewLDlxYK5AYJqU';
+  '6LeB0Q8uAAAAAN-rwuAIeKHEkDM5SKKgpueRl8GJ';
 
 const firebaseApp: FirebaseApp = getApps()[0] ?? initializeApp(firebaseConfig);
 
