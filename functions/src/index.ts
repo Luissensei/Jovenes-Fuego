@@ -477,36 +477,68 @@ export const adminCreateLeader = onCall({enforceAppCheck: true}, async (request)
   const groups = cleanStringArray(request.data?.groups);
   const permissions = cleanStringArray(request.data?.permissions, manageablePermissions);
 
-  if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (name.length < 2 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
     throw new HttpsError("invalid-argument", "Indica un nombre y un correo electrónico válidos.");
   }
   if (!["lider", "líder", "pastor"].includes(role)) {
-    throw new HttpsError("invalid-argument", "Las cuentas nuevas deben crearse como líder o pastor. La administración se asigna por separado.");
+    throw new HttpsError("invalid-argument", "Las cuentas deben asignarse como líder o pastor. La administración se asigna por separado.");
   }
   if (permissions.length === 0) {
     throw new HttpsError("invalid-argument", "Asigna al menos un permiso de módulo.");
   }
 
-  let userRecord: Awaited<ReturnType<typeof adminAuth.createUser>>;
+  // Primero buscamos la cuenta de Firebase Authentication. Si ya existe,
+  // vinculamos su UID al perfil de la aplicación en lugar de intentar crearla
+  // otra vez (lo que provocaba auth/email-already-exists).
+  let userRecord: Awaited<ReturnType<typeof adminAuth.getUserByEmail>>;
+  let createdAuthAccount = false;
   try {
-    userRecord = await adminAuth.createUser({
-      email,
-      displayName: name,
-      emailVerified: false,
-      disabled: false,
-    });
+    userRecord = await adminAuth.getUserByEmail(email);
   } catch (cause) {
     const code = (cause as {code?: string})?.code;
-    if (code === "auth/email-already-exists") {
-      throw new HttpsError("already-exists", "Ya existe una cuenta con ese correo.");
+    if (code !== "auth/user-not-found") {
+      throw new HttpsError("internal", "No se pudo comprobar la cuenta de Firebase.");
     }
-    throw new HttpsError("internal", "No se pudo crear la cuenta de autenticación.");
+    try {
+      userRecord = await adminAuth.createUser({
+        email,
+        displayName: name,
+        emailVerified: false,
+        disabled: false,
+      });
+      createdAuthAccount = true;
+    } catch (createCause) {
+      const createCode = (createCause as {code?: string})?.code;
+      if (createCode === "auth/email-already-exists") {
+        // Una creación simultánea pudo ganar la carrera: recuperamos esa cuenta.
+        try {
+          userRecord = await adminAuth.getUserByEmail(email);
+        } catch {
+          throw new HttpsError("already-exists", "Ya existe una cuenta con ese correo, pero no se pudo recuperar.");
+        }
+      } else {
+        throw new HttpsError("internal", "No se pudo crear la cuenta de autenticación.");
+      }
+    }
+  }
+
+  const userRef = db.collection("users").doc(userRecord.uid);
+  const existingProfile = await userRef.get();
+  const existingRole = String(existingProfile.data()?.role ?? "")
+    .trim().toLowerCase()
+    .normalize("NFD")
+    .replace(/[\\u0300-\\u036f]/g, "");
+  if (["admin", "administrador"].includes(existingRole)) {
+    if (createdAuthAccount) await adminAuth.deleteUser(userRecord.uid).catch(() => undefined);
+    throw new HttpsError("failed-precondition", "Este correo ya pertenece a una cuenta administradora. No se puede convertir desde la gestión de líderes.");
   }
 
   let setupLink = "";
   try {
-    setupLink = await adminAuth.generatePasswordResetLink(email);
-    const userRef = db.collection("users").doc(userRecord.uid);
+    if (createdAuthAccount) {
+      setupLink = await adminAuth.generatePasswordResetLink(email);
+    }
+    const now = new Date().toISOString();
     const auditRef = db.collection("audit").doc();
     const batch = db.batch();
     batch.set(userRef, {
@@ -516,24 +548,35 @@ export const adminCreateLeader = onCall({enforceAppCheck: true}, async (request)
       role,
       groups,
       permissions,
-      status: "active",
-      createdAt: new Date().toISOString(),
-      createdBy: request.auth.uid,
-      updatedAt: new Date().toISOString(),
-    });
+      status: userRecord.disabled ? "inactive" : "active",
+      ...(existingProfile.exists ? {} : {
+        createdAt: now,
+        createdBy: request.auth.uid,
+      }),
+      updatedAt: now,
+      updatedBy: request.auth.uid,
+    }, {merge: true});
     batch.set(auditRef, {
-      action: "leader.created",
+      action: existingProfile.exists ? "leader.updated-from-admin" : (createdAuthAccount ? "leader.created" : "leader.linked"),
       actorUid: request.auth.uid,
       targetUid: userRecord.uid,
-      createdAt: new Date().toISOString(),
+      createdAt: now,
+      metadata: {email, role, linkedExistingAuthAccount: !createdAuthAccount},
     });
     await batch.commit();
   } catch {
-    await adminAuth.deleteUser(userRecord.uid).catch(() => undefined);
-    throw new HttpsError("internal", "No se pudo completar el registro. La cuenta temporal fue retirada.");
+    if (createdAuthAccount) {
+      await adminAuth.deleteUser(userRecord.uid).catch(() => undefined);
+    }
+    throw new HttpsError("internal", "No se pudo guardar el perfil del líder. La cuenta existente de Firebase se conservó.");
   }
 
-  return {uid: userRecord.uid, setupLink};
+  return {
+    uid: userRecord.uid,
+    setupLink,
+    linkedExistingAccount: !createdAuthAccount,
+    accountDisabled: userRecord.disabled,
+  };
 });
 
 export const adminUpdateLeader = onCall({enforceAppCheck: true}, async (request) => {
