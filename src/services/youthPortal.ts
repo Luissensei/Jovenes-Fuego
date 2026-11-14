@@ -195,12 +195,19 @@ export async function sendPrayerRequest(input: PrayerRequestInput): Promise<void
   }
 }
 
-export async function getMembersForAdministration(
+const pendingMemberRequests = new Map<string, Promise<MemberAdminRecord[]>>();
+
+export function getMembersForAdministration(
   module: 'members' | 'attendance' | 'checkins' | 'reports' | 'followups' = 'members',
 ): Promise<MemberAdminRecord[]> {
   if (!functions) {
-    throw new Error('Firebase Functions no está configurado.');
+    return Promise.reject(new Error('Firebase Functions no está configurado.'));
   }
+
+  // Comparte únicamente solicitudes simultáneas del mismo módulo. No conserva
+  // datos en caché: cada nueva carga vuelve a consultar el estado actualizado.
+  const pending = pendingMemberRequests.get(module);
+  if (pending) return pending;
 
   // Las fichas privadas se consultan en el servidor: las reglas de Firestore
   // no deben permitir que el navegador descargue el directorio completo.
@@ -208,14 +215,24 @@ export async function getMembersForAdministration(
     functions,
     'getPrivateMembers',
   );
-  const response = await loadMembers({module});
-  return Array.isArray(response.data.members)
-    ? response.data.members.map((member) => ({
-      ...member,
-      id: String(member.id ?? ''),
-      pic: typeof member.pic === 'string' ? member.pic : '',
-    })).filter((member) => member.id)
-    : [];
+  const request = loadMembers({module}).then(({data}) =>
+    Array.isArray(data.members)
+      ? data.members.map((member) => ({
+        ...member,
+        id: String(member.id ?? ''),
+        pic: typeof member.pic === 'string' ? member.pic : '',
+      })).filter((member) => member.id)
+      : [],
+  );
+
+  pendingMemberRequests.set(module, request);
+  const clearPending = () => {
+    if (pendingMemberRequests.get(module) === request) {
+      pendingMemberRequests.delete(module);
+    }
+  };
+  request.then(clearPending, clearPending);
+  return request;
 }
 
 
