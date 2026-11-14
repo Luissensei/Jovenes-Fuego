@@ -245,33 +245,74 @@ async function loadVisiblePublicProfiles(includeAppearance = true) {
   });
 }
 
-export const resolveUsernameLogin = onCall(async (request) => {
+/**
+ * Authenticates a username without disclosing the email address mapped to it.
+ * The Firebase Identity Toolkit verifies the password; Admin SDK then issues
+ * a short-lived custom sign-in token for the verified UID.
+ */
+export const signInWithUsername = onCall(async (request) => {
   const username = text(request.data?.username, 60).toLowerCase();
-  if (!/^[a-z0-9._-]{1,60}$/.test(username)) {
-    return {found: false};
+  const password = typeof request.data?.password === "string"
+    ? request.data.password
+    : "";
+
+  if (!/^[a-z0-9._-]{1,60}$/.test(username) || !password || password.length > 4096) {
+    throw new HttpsError("unauthenticated", "Usuario o contraseña incorrectos.");
   }
 
   const ip = String(request.rawRequest.ip ?? "unknown").slice(0, 100);
-  const day = new Date().toISOString().slice(0, 10);
-  const rateKey = createHash("sha256").update(ip + "|" + day).digest("hex");
-  const rateRef = db.collection("publicUsernameLookupRateLimits").doc(rateKey);
+  const window = Math.floor(Date.now() / (15 * 60 * 1000));
+  const rateKey = createHash("sha256").update(ip + "|" + window).digest("hex");
+  const rateRef = db.collection("publicUsernameLoginRateLimits").doc(rateKey);
   await db.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(rateRef);
     const count = Number(snapshot.data()?.count ?? 0);
-    if (count >= 500) {
-      throw new HttpsError("resource-exhausted", "Se alcanzó el límite diario de consultas de usuario. Intenta más tarde.");
+    if (count >= 30) {
+      throw new HttpsError(
+        "resource-exhausted",
+        "Demasiados intentos. Espera 15 minutos y vuelve a intentarlo.",
+      );
     }
     transaction.set(rateRef, {
       count: FieldValue.increment(1),
-      day,
-      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
+      window,
+      expiresAt: new Date((window + 2) * 15 * 60 * 1000),
     }, {merge: true});
   });
 
   const lookup = await db.collection("public").doc(`al_${username}`).get();
-  const email = text(lookup.data()?.e, 180).toLowerCase();
-  if (!lookup.exists || !email.includes("@")) return {found: false};
-  return {found: true, email};
+  const mappedEmail = text(lookup.data()?.e, 180).toLowerCase();
+  const email = lookup.exists && mappedEmail.includes("@")
+    ? mappedEmail
+    : `${username}@jovenesdefuego.app`;
+  const apiKey = process.env.FIREBASE_WEB_API_KEY ??
+    "AIzaSyA3jQcyTX6q1D5ior7j3zJUfaQy_31RQ88";
+
+  try {
+    const identityResponse = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({email, password, returnSecureToken: true}),
+      },
+    );
+    if (!identityResponse.ok) {
+      throw new HttpsError("unauthenticated", "Usuario o contraseña incorrectos.");
+    }
+
+    const identity = await identityResponse.json() as {idToken?: string};
+    if (!identity.idToken) {
+      throw new HttpsError("unauthenticated", "Usuario o contraseña incorrectos.");
+    }
+
+    const decoded = await adminAuth.verifyIdToken(identity.idToken, true);
+    const customToken = await adminAuth.createCustomToken(decoded.uid);
+    return {customToken};
+  } catch (cause) {
+    if (cause instanceof HttpsError) throw cause;
+    throw new HttpsError("unauthenticated", "Usuario o contraseña incorrectos.");
+  }
 });
 
 export const getMyApplicationProfile = onCall(async (request) => {
