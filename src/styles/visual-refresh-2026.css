@@ -1,0 +1,201 @@
+/* Jóvenes de Fuego — visual refresh 2026
+   Shared presentation layer for administration and youth portal.
+   Keeps existing React behavior, routes, data contracts and component logic intact. */
+:root,
+:root[data-theme="light"] {
+  --jf-page-bg: #f4f1fb;
+  --jf-surface: #ffffff;
+  --jf-surface-raised: #fbf9ff;
+  --jf-surface-soft: #f2edfb;
+  --jf-text: #28203d;
+  --jf-text-muted: #625a78;
+  --jf-border: #e2daf2;
+  --jf-accent: #8243c5;
+  --jf-accent-strong: #6731a4;
+  --jf-accent-soft: #f0e7fb;
+  --jf-fire: #e85c2a;
+  --jf-fire-soft: #fff0e8;
+  --jf-blue: #2368b7;
+  --jf-teal: #147b78;
+  --jf-gold: #946400;
+  --jf-danger: #b42335;
+  --jf-shadow: 0 5px 20px rgba(45, 29, 75, .055);
+}
+:root[data-theme="dark"],
+:root.dark {
+  color-scheme: dark;
+  --jf-page-bg: #111126;
+  --jf-surface: #1d1a3a;
+  --jf-surface-raised: #252047;
+  --jf-surface-soft: #29234b;
+  --jf-text: #f7f4ff;
+  --jf-text-muted: #c7bfdf;
+  --jf-border: #403765;
+  --jf-accent: #b58aef;
+  --jf-accent-strong: #d0b2ff;
+  --jf-accent-soft: #342653;
+  --jf-fire: #ff8558;
+  --jf-fire-soft: #482a2a;
+  --jf-blue: #72baff;
+  --jf-teal: #54d6c6;
+  --jf-gold: #ffd45e;
+  --jf-danger: #ff929c;
+  --jf-shadow: 0 8px 26px rgba(0, 0, 0, .2);
+}
+html, body, #root, .layout, .main, .youth-portal {
+  background: var(--jf-page-bg) !important;
+  color: var(--jf-text);
+}
+body { font-family: "DM Sans", system-ui, sans-serif; }
+.main { padding-bottom: max(28px, env(safe-area-inset-bottom)); }
+.main .jf-route-stage { max-width: 1440px; margin-inline: auto; }
+.main .jf-route-stage :is(h1,h2,h3,h4) {
+  color: var(--jf-text);
+  letter-spacing: -.035em;
+  line-height: 1.16;
+}
+.main .jf-route-stage :is(p,small,.muted,.text-muted,.description,.subtitle,.helper-text,.field-hint) {
+  color: var(--jf-text-muted);
+}
+.main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,
+[class*="Card"],[class*="card"],[class*="Panel"],[class*="panel"],
+[class*="Surface"],[class*="surface"],[class*="Metric"],[class*="metric"],
+[class*="record"],[class*="Record"],[class*="summary"],[class*="Summary"],
+[class*="toolbar"],[class*="Toolbar"],[class*="filter"],[class*="Filter"]) {
+  border: 1px solid var(--jf-border);
+  border-radius: 14px;
+  box-shadow: var(--jf-shadow);
+}
+.main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,
+[class*="Card"],[class*="card"],[class*="Panel"],[class*="panel"],
+[class*="Surface"],[class*="surface"],[class*="Metric"],[class*="metric"],
+[class*="record"],[class*="Record"],[class*="summary"],[class*="Summary"],
+[class*="toolbar"],[class*="Toolbar"],[class*="filter"],[class*="Filter"]):not([class*="hero"]):not([class*="Hero"]):not([class*="gradient"]):not([class*="Gradient"]) {
+  background-color: var(--jf-surface);
+}
+.main .jf-route-stage :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea),
+.youth-portal :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea) {
+  min-height: 42px;
+  min-width: 0;
+  border: 1px solid var(--jf-border) !important;
+  border-radius: 9px !important;
+  background: var(--jf-surface) !important;
+  color: var(--jf-text) !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage textarea, .youth-portal textarea { min-height: 96px; }
+.main .jf-route-stage :is(input,select,textarea):focus-visible,
+.youth-portal :is(input,select,textarea):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--jf-accent) 22%, transparent);
+  border-color: var(--jf-accent) !important;
+}
+.main .jf-route-stage :is(button,.btn,[role="button"]), .youth-portal :is(button,.btn,[role="button"]) {
+  border-radius: 9px;
+  font-weight: 650;
+  transition: background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease;
+}
+.main .jf-route-stage :is(button,a,[role="button"]):focus-visible,
+.youth-portal :is(button,a,[role="button"]):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--jf-accent) 35%, transparent);
+  outline-offset: 2px;
+}
+.main .jf-route-stage :is(table,th,td) { border-color: var(--jf-border); }
+.main .jf-route-stage th { color: var(--jf-text-muted); font-size: .76rem; font-weight: 750; }
+.main .jf-route-stage td { color: var(--jf-text); }
+.main .jf-route-stage :is(.empty,.empty-state,.empty-state-card,.notice,.info-box,.search-box,.toolbar,.filter-bar,.table-wrap,.table-container) {
+  border-color: var(--jf-border);
+  border-radius: 12px;
+  background: var(--jf-surface-raised);
+  color: var(--jf-text);
+}
+/* Consistent admin navigation */
+.sidebar {
+  background: #25164c !important;
+  color: #f7f4ff !important;
+  border-right: 1px solid rgba(255,255,255,.1) !important;
+  box-shadow: 8px 0 28px rgba(31,17,62,.12) !important;
+}
+.sidebar .brand-mark { border-radius: 11px !important; }
+.sidebar .nav-item { border-radius: 9px !important; }
+.sidebar .nav-item.active, .sidebar .nav-item[aria-current="page"] {
+  background: rgba(255,255,255,.14) !important;
+  color: #fff !important;
+  box-shadow: inset 3px 0 #ff8558 !important;
+}
+.main > .topline {
+  background: var(--jf-surface) !important;
+  border-bottom: 1px solid var(--jf-border) !important;
+  box-shadow: 0 2px 10px rgba(35,20,60,.035) !important;
+}
+/* Page headers and data cards across all admin modules */
+.main .jf-route-stage :is(.members-hero,.attendance-header,.followup-header,.visitors-header,
+.devotionals-header,.reports-hero,.checkin-hero,.managed-hero,.management-header,
+.settings-hero,.photos-hero,.leaders-hero,.ranking-hero,.page-header,.page-hero,.module-hero) {
+  border-radius: 15px !important;
+  box-shadow: none;
+}
+.main .jf-route-stage :is(.primaryAction,.primary-action,.primary-button,.btn-primary,[data-variant="primary"]) {
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--jf-accent) 20%, transparent);
+}
+/* Youth portal identity: energetic hero, calm readable content surfaces */
+.youth-portal {
+  --youth-bg: var(--jf-page-bg);
+  --youth-card: var(--jf-surface);
+  --youth-text: var(--jf-text);
+  --youth-muted: var(--jf-text-muted);
+  --youth-border: var(--jf-border);
+  color: var(--jf-text) !important;
+}
+.youth-portal :is(h1,h2,h3,h4,strong,b) { color: var(--jf-text); }
+.youth-portal :is(p,small,.muted,.description,.subtitle) { color: var(--jf-text-muted); }
+.youth-portal :is(.youth-container,.youth-tab-page) { min-width: 0; }
+.youth-portal :is(.youth-profile-card,.youth-activity-card,.youth-hall-card,.youth-game-tile,
+.youth-ranking-card,.youth-section-card,.youth-card,.youth-panel,.youth-tab-page > section) {
+  border: 1px solid var(--jf-border);
+  border-radius: 15px;
+  background: var(--jf-surface);
+  box-shadow: var(--jf-shadow);
+}
+.youth-portal :is(.youth-bottom-navigation,.youth-bottom-nav) {
+  background: var(--jf-surface) !important;
+  border-top: 1px solid var(--jf-border) !important;
+  box-shadow: 0 -5px 22px rgba(35,20,60,.07) !important;
+}
+.youth-portal :is(.youth-tab,.youth-tab-button,[role="tab"]) {
+  border-radius: 10px;
+}
+.youth-portal :is(.youth-tab[aria-selected="true"],[role="tab"][aria-selected="true"],.active) {
+  color: var(--jf-accent-strong);
+}
+.youth-portal :is(button,a) { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.youth-portal img { max-width: 100%; }
+@media (max-width: 900px) {
+  .main { padding-inline: 14px !important; }
+  .main .jf-route-stage { width: 100%; }
+  .main .jf-route-stage :is(.featureGrid,.lowerGrid,.feature-grid,.lower-grid) {
+    grid-template-columns: minmax(0,1fr) !important;
+  }
+  .main .jf-route-stage :is(.page-card,.panel,.card,[class*="Card"],[class*="Panel"]) {
+    min-width: 0;
+  }
+  .youth-portal { padding-inline: 0 !important; }
+  .youth-portal .youth-container { width: 100% !important; padding-inline: 14px; }
+  .youth-portal :is(.youth-tab-page,.youth-home-enter) { gap: 12px; }
+}
+@media (max-width: 480px) {
+  .main .jf-route-stage :is(h1) { font-size: clamp(1.45rem, 7vw, 2rem); }
+  .main .jf-route-stage :is(h2) { font-size: clamp(1.12rem, 5vw, 1.45rem); }
+  .main .jf-route-stage :is(.page-card,.panel,.card,[class*="Card"],[class*="Panel"]) {
+    border-radius: 12px;
+  }
+  .youth-portal :is(.youth-profile-card,.youth-activity-card,.youth-hall-card,.youth-game-tile,
+  .youth-ranking-card,.youth-section-card,.youth-card,.youth-panel) { border-radius: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .main .jf-route-stage *, .youth-portal *, .sidebar * {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
