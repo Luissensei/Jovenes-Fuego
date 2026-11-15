@@ -1,4 +1,4 @@
-import {readdir, stat} from 'node:fs/promises';
+import {readdir, stat, readFile} from 'node:fs/promises';
 import {join, relative} from 'node:path';
 import {gzipSync} from 'node:zlib';
 
@@ -8,9 +8,9 @@ async function walk(directory) {
   for (const entry of await readdir(directory, {withFileTypes: true})) {
     const path = join(directory, entry.name);
     if (entry.isDirectory()) await walk(path);
-    else if (/\\.js$/.test(entry.name)) {
-      const [info, content] = await Promise.all([stat(path), import('node:fs/promises').then(fs => fs.readFile(path))]);
-      rows.push({name: relative(new URL('../dist/', import.meta.url).pathname, path), bytes: info.size, gzip: gzipSync(content).length});
+    else if (/\.js$/.test(entry.name)) {
+      const [info, source] = await Promise.all([stat(path), readFile(path)]);
+      rows.push({name: relative(root.pathname, path), bytes: info.size, gzip: gzipSync(source).length});
     }
   }
 }
