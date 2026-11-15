@@ -948,3 +948,108 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
   .main .jf-route-stage [class*="YouthPinsPage_scope"] { gap: 13px !important; }
   .main .jf-route-stage .trivia-options { grid-template-columns: 1fr !important; }
 }
+
+/* Final theme contract for route-level CSS modules.
+   Explicit component classes prevent legacy module palettes from leaking into either theme. */
+.main .jf-route-stage :is(
+  .management-summary,.management-form,.management-records,.management-record,
+  .reports-card,.reports-table-wrapper,.reports-filter,.reports-stats article,
+  .photo-card,.photos-tabs,.photos-modal,
+  .settings-card,.settings-group,
+  .attendance-card,.attendance-member,.attendance-summary,
+  .member-card,.member-row,.member-count,.member-search,.members-controls,.members-total-card,
+  .followup-stat,.followup-card,.followup-content,.followup-search,
+  .visitor-card,.visitors-stat,.visitors-content,.visitors-search,
+  .devotional-card,.devotionals-controls,.devotionals-search,
+  .checkin-panel,.checkin-config,.checkin-summary,
+  .notifications-card,.notification-item,.notification-list,
+  .shared-stat-card,.shared-empty-state,.shared-table-wrapper
+) {
+  color: var(--jf-ink) !important;
+  background: var(--jf-surface) !important;
+  border-color: var(--jf-line) !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main .jf-route-stage :is(
+  .management-header,.reports-hero,.photos-hero,.settings-hero,
+  .attendance-header,.members-hero,.followup-header,.visitors-header,
+  .devotionals-header,.checkin-hero,.leaders-hero,.page-hero,.module-hero
+) {
+  color: var(--jf-sidebar-text) !important;
+  background: var(--jf-sidebar) !important;
+  border: 1px solid var(--jf-sidebar-hover) !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage :is(
+  .management-header,.reports-hero,.photos-hero,.settings-hero,
+  .attendance-header,.members-hero,.followup-header,.visitors-header,
+  .devotionals-header,.checkin-hero,.leaders-hero,.page-hero,.module-hero
+) :is(h1,h2,h3,h4,p,small,strong,label) {
+  color: var(--jf-sidebar-text) !important;
+}
+.main .jf-route-stage :is(
+  .management-kicker,.reports-eyebrow,.photos-eyebrow,.settings-kicker,
+  .attendance-kicker,.members-kicker,.followup-kicker,.visitors-kicker,
+  .devotionals-kicker,.checkin-kicker,.leaders-kicker
+) { color: #e7a181 !important; }
+.main .jf-route-stage :is(
+  .management-form,.reports-filter,.photos-modal,.settings-card,.settings-group,
+  .attendance-card,.member-search,.members-controls,.followup-search,.visitors-search,
+  .devotionals-search,.checkin-config,.checkin-panel
+) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea) {
+  color: var(--jf-ink) !important;
+  background: var(--jf-surface) !important;
+  border-color: var(--jf-line-strong) !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage :is(
+  .management-form,.reports-filter,.photos-modal,.settings-card,.settings-group,
+  .attendance-card,.member-search,.members-controls,.followup-search,.visitors-search,
+  .devotionals-search,.checkin-config,.checkin-panel
+) :is(input,select,textarea)::placeholder { color: var(--jf-muted) !important; opacity: .9; }
+.main .jf-route-stage :is(
+  .management-form,.reports-filter,.photos-modal,.settings-card,.settings-group,
+  .attendance-card,.member-search,.members-controls,.followup-search,.visitors-search,
+  .devotionals-search,.checkin-config,.checkin-panel
+) :is(input,select,textarea):focus-visible {
+  outline: 2px solid var(--jf-focus) !important;
+  outline-offset: 2px !important;
+  border-color: var(--jf-focus) !important;
+}
+.main .jf-route-stage :is(
+  .reports-section-heading h2,.reports-rate strong,.reports-table td,
+  .photo-card-content h2,.photo-card-content h3,.management-record,
+  .management-record p,.settings-card h2,.settings-group h3,
+  .member-card-info h2,.followup-content,.visitor-card,.devotional-card h2,
+  .devotional-card h3,.attendance-member strong,.notifications-card h2
+) { color: var(--jf-ink) !important; }
+.main .jf-route-stage :is(
+  .reports-section-heading span,.reports-rate span,.reports-table th,
+  .photo-card-content p,.photo-card-content small,.management-record small,
+  .settings-card p,.settings-group p,.followup-content p,.visitor-card p,
+  .devotional-preview,.devotional-reference,.attendance-member small
+) { color: var(--jf-muted) !important; }
+.main .jf-route-stage :is(
+  .photos-tabs button,.reports-view-filter,.reports-filter button,
+  .members-filter button,.followup-filter button,.visitors-filter button
+) {
+  color: var(--jf-muted);
+  border-color: var(--jf-line);
+}
+.main .jf-route-stage :is(.photos-tabs button.active,.reports-view-filter.active,.members-filter button.active) {
+  color: var(--jf-brand-ink) !important;
+  background: var(--jf-brand-soft) !important;
+  border-color: var(--jf-line) !important;
+}
+.main .jf-route-stage :is(.attendance-member,.member-row,.management-record,.photo-card,.reports-table tbody tr) {
+  border-color: var(--jf-line) !important;
+}
+.main .jf-route-stage :is(.attendance-member,.member-row,.management-record,.photo-card,.reports-table tbody tr):hover {
+  border-color: var(--jf-line-strong) !important;
+}
+@media (max-width: 650px) {
+  .main .jf-route-stage :is(.management-header,.reports-hero,.photos-hero,.settings-hero) {
+    border-radius: var(--jf-radius-lg) !important;
+  }
+}
+
