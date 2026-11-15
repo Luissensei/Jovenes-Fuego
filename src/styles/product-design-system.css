@@ -1513,3 +1513,18 @@ body .youth-portal .youth-bottom-navigation button span {
 .jf-community-chat-note { display:flex;align-items:flex-start;gap:6px;padding:0 16px 13px;color:var(--text-secondary);font-size:10px;line-height:1.5; }
 .jf-community-chat-note svg { flex:0 0 auto; }
 @media(max-width:520px){.jf-community-chat-head{align-items:flex-start;flex-direction:column;padding:14px}.jf-community-chat-messages{max-height:310px;padding:12px}.jf-community-chat-form{padding:10px}.jf-community-chat-note{padding:0 12px 12px}}
+
+/* Avisos oficiales dentro de Comunidad JDF */
+.jf-community-announcements{margin:0 0 18px;padding:17px 19px;border:1px solid var(--jf-line);border-radius:var(--jf-radius-lg);background:var(--jf-surface);box-shadow:var(--jf-shadow)}
+.jf-community-announcements>header{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.jf-community-announcements-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:var(--jf-brand-soft);color:var(--jf-brand)}
+.jf-community-announcements>header>div>span{color:var(--jf-ember);font-size:9px;font-weight:850;letter-spacing:.12em}
+.jf-community-announcements h3{margin:2px 0 0;color:var(--jf-ink);font-size:16px}
+.jf-community-announcements-empty{margin:0;color:var(--jf-muted);font-size:12px}
+.jf-community-announcements-empty button{margin-left:8px;border:0;background:none;color:var(--jf-brand);font-weight:700}
+.jf-community-announcements-list{display:grid;gap:9px}
+.jf-community-announcements-list article{padding:12px 13px;border:1px solid var(--jf-line);border-radius:11px;background:var(--jf-surface-2)}
+.jf-community-announcements-list article>div{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.jf-community-announcements-list b{color:var(--jf-ink);font-size:13px}
+.jf-community-announcements-list time{color:var(--jf-muted);font-size:10px}
+.jf-community-announcements-list p{margin:6px 0 0;color:var(--jf-muted);font-size:12px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
