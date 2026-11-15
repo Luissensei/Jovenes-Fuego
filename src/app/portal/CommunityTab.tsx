@@ -1,8 +1,8 @@
 import {useCallback,useEffect,useState} from "react";
-import {BookOpen,Heart,Link2,MessageCircle,Music2,RefreshCw,Send,Sparkles,Users,Quote,Flag} from "lucide-react";
+import {BookOpen,Heart,Link2,MessageCircle,Music2,RefreshCw,Send,Sparkles,Users,Quote,Flag,ShieldCheck,Clock3} from "lucide-react";
 import {
-  createYouthCommunityComment,createYouthCommunityPost,getYouthCommunityFeed,reportYouthCommunityPost,toggleYouthCommunityReaction,
-  type YouthCommunityPost,type YouthCommunityPostInput,
+  createYouthCommunityComment,createYouthCommunityPost,getYouthCommunityFeed,getYouthCommunityChat,reportYouthCommunityChatMessage,reportYouthCommunityPost,sendYouthCommunityChatMessage,toggleYouthCommunityReaction,
+  type YouthCommunityPost,type YouthCommunityPostInput,type YouthCommunityChatMessage,
 } from "../../services/youthPortal";
 
 type Props={memberName:string;communitySession:string};
@@ -32,7 +32,7 @@ export default function CommunityTab({memberName,communitySession}:Props){
   const [publishing,setPublishing]=useState(false);
   const [commentDrafts,setCommentDrafts]=useState<Record<string,string>>({});
   const [busyPost,setBusyPost]=useState("");
-  const [reportedPosts,setReportedPosts]=useState<string[]>([]);
+  const [reportedPosts,setReportedPosts]=useState<string[]>([]);\n  const [chatMessages,setChatMessages]=useState<YouthCommunityChatMessage[]>([]);\n  const [chatDraft,setChatDraft]=useState("");\n  const [chatLoading,setChatLoading]=useState(true);\n  const [chatSending,setChatSending]=useState(false);\n  const [chatError,setChatError]=useState("");\n  const [reportedChatMessages,setReportedChatMessages]=useState<string[]>([]);
 
   const load=useCallback(async(showRefresh=false)=>{
     if(showRefresh)setRefreshing(true);else setLoading(true);
@@ -42,7 +42,47 @@ export default function CommunityTab({memberName,communitySession}:Props){
     finally{setLoading(false);setRefreshing(false);}
   },[communitySession]);
 
-  useEffect(()=>{void load();},[load]);
+  useEffect(()=>{void load();},[load]);\n\n  const loadChat=useCallback(async()=>{
+    try{setChatMessages(await getYouthCommunityChat(communitySession));setChatError("");}
+    catch(cause){setChatError(cause instanceof Error?cause.message:"No se pudo cargar el chat.");}
+    finally{setChatLoading(false);}
+  },[communitySession]);
+
+  useEffect(()=>{
+    void loadChat();
+    const interval=window.setInterval(()=>void loadChat(),12000);
+    return ()=>window.clearInterval(interval);
+  },[loadChat]);
+
+  async function sendChat(event:React.FormEvent<HTMLFormElement>){
+    event.preventDefault();
+    const message=chatDraft.trim();
+    if(!message||chatSending)return;
+    setChatSending(true);setChatError("");
+    try{
+      await sendYouthCommunityChatMessage(communitySession,message);
+      setChatDraft("");
+      await loadChat();
+    }catch(cause){setChatError(cause instanceof Error?cause.message:"No se pudo enviar el mensaje.");}
+    finally{setChatSending(false);}
+  }
+
+  async function reportChatMessage(messageId:string){
+    if(reportedChatMessages.includes(messageId))return;
+    const reason=window.prompt("Motivo del reporte: inapropiado, acoso, privacidad, spam u otro.");
+    if(!reason)return;
+    const reasons:Record<string,"inappropriate"|"bullying"|"privacy"|"spam"|"other">={
+      "inapropiado":"inappropriate","acoso":"bullying","privacidad":"privacy","spam":"spam","otro":"other",
+    };
+    const selected=reasons[reason.trim().toLowerCase()];
+    if(!selected){setChatError("Escribe: inapropiado, acoso, privacidad, spam u otro.");return;}
+    try{
+      await reportYouthCommunityChatMessage(communitySession,messageId,selected);
+      setReportedChatMessages(current=>[...current,messageId]);
+    }catch(cause){setChatError(cause instanceof Error?cause.message:"No se pudo reportar el mensaje.");}
+  }
+
+
 
   async function publish(event:React.FormEvent<HTMLFormElement>){
     event.preventDefault();
@@ -116,6 +156,19 @@ export default function CommunityTab({memberName,communitySession}:Props){
 
     <div className="jf-community-layout">
       <div className="jf-community-main">
+        <section className="jf-community-chat">
+          <header className="jf-community-chat-head"><div><span className="jf-community-chat-kicker"><MessageCircle size={14}/> CONVERSACIÓN GRUPAL</span><h3>Chat JDF</h3><p>Conversemos, animémonos y crezcamos juntos.</p></div><span className="jf-community-chat-safe"><ShieldCheck size={14}/> Espacio supervisado</span></header>
+          {chatError&&<div className="jf-community-error" role="alert">{chatError}</div>}
+          <div className="jf-community-chat-messages" aria-live="polite">
+            {chatLoading?<p className="jf-community-chat-empty">Cargando conversación...</p>:chatMessages.length===0?<p className="jf-community-chat-empty">Aún no hay mensajes. ¡Saluda a todos!</p>:chatMessages.map(message=><article className="jf-community-chat-message" key={message.id}>
+              <span className="jf-community-chat-avatar">{message.author.split(/\s+/).slice(0,2).map(part=>part[0]??"").join("").toUpperCase()}</span>
+              <div className="jf-community-chat-bubble"><header><b>{message.author}</b><time><Clock3 size={11}/>{formatDate(message.createdAt)}</time><button type="button" onClick={()=>void reportChatMessage(message.id)} disabled={reportedChatMessages.includes(message.id)}>{reportedChatMessages.includes(message.id)?"Reportado":"Reportar"}</button></header><p>{message.content}</p></div>
+            </article>)}
+          </div>
+          <form className="jf-community-chat-form" onSubmit={sendChat}><input aria-label="Mensaje para el chat grupal" value={chatDraft} onChange={event=>setChatDraft(event.target.value)} maxLength={500} placeholder="Escribe un mensaje para todos..."/><button type="submit" disabled={chatSending||!chatDraft.trim()} aria-label="Enviar mensaje">{chatSending?"Enviando...":<Send size={16}/>}</button></form>
+          <small className="jf-community-chat-note"><ShieldCheck size={13}/> No compartas datos personales. Los mensajes reportados pueden ser revisados por el equipo pastoral.</small>
+        </section>
+
         <section className="jf-community-composer">
           <div className="jf-community-composer-head"><span className="jf-community-avatar">{memberName.split(/\s+/).slice(0,2).map(part=>part[0]??"").join("").toUpperCase()}</span><div><b>Comparte con la comunidad</b><small>Una palabra puede animar el día de alguien.</small></div></div>
           <div className="jf-community-kind-picker" role="group" aria-label="Tipo de publicación">
