@@ -205,7 +205,7 @@ export default function DashboardPage() {
                 <div className={styles.podiumBase}><strong>{position === 1 ? '1º' : position === 2 ? '2º' : '3º'}</strong></div>
               </div>;
             })}
-          </div> : <div className={styles.empty}><Trophy size={25} /><b>{loading ? 'Consultando el ranking…' : 'Aún no hay posiciones publicadas'}</b><span>Los datos aparecerán cuando existan perfiles con puntuación.</span></div>}
+          </div> : <div className={styles.empty}><Trophy size={25} /><b>{peopleLoading ? 'Consultando el ranking…' : 'Aún no hay posiciones publicadas'}</b><span>Los datos aparecerán cuando existan perfiles con puntuación.</span></div>}
         </article>
 
         <article className={styles.panel + ' ' + styles.chartPanel}>
@@ -218,14 +218,14 @@ export default function DashboardPage() {
                 <span>Mayor puntuación: {maxPoints.toLocaleString('es-CO')}</span>
               </div>
             </div>
-          ) : <div className={styles.empty}><ChartNoAxesCombined size={25} /><b>{loading ? 'Preparando estadísticas…' : 'No hay datos para graficar'}</b><span>El gráfico utiliza las puntuaciones reales del ranking.</span></div>}
+          ) : <div className={styles.empty}><ChartNoAxesCombined size={25} /><b>{peopleLoading ? 'Preparando estadísticas…' : 'No hay datos para graficar'}</b><span>El gráfico utiliza las puntuaciones reales del ranking.</span></div>}
         </article>
       </section>
 
       <section className={styles.lowerGrid}>
         <article className={styles.panel}>
           <div className={styles.panelHeading}><div><span className={styles.kicker}>CALENDARIO</span><h2>Próximas actividades</h2><p>Agenda publicada para la comunidad.</p></div><NavLink to="/eventos">Ver todas <ArrowRight size={14} /></NavLink></div>
-          {upcoming.length ? upcoming.map((item) => <div className={styles.eventRow} key={item.id}><div className={styles.dateTile}><b>{item.date.slice(8, 10)}</b><span>{new Date(item.date + 'T12:00:00').toLocaleDateString('es-CO', { month: 'short' }).toUpperCase()}</span></div><div className={styles.eventInfo}><b>{item.title}</b><p>{item.description || 'Actividad publicada'}</p><small>{item.time && <><Clock3 size={12} /> {item.time}</>}{item.location && <><MapPin size={12} /> {item.location}</>}</small></div></div>) : <div className={styles.empty}><CalendarDays size={24} /><b>{loading ? 'Consultando agenda…' : 'No hay actividades próximas'}</b><span>Las actividades publicadas aparecerán aquí.</span></div>}
+          {upcoming.length ? upcoming.map((item) => <div className={styles.eventRow} key={item.id}><div className={styles.dateTile}><b>{item.date.slice(8, 10)}</b><span>{new Date(item.date + 'T12:00:00').toLocaleDateString('es-CO', { month: 'short' }).toUpperCase()}</span></div><div className={styles.eventInfo}><b>{item.title}</b><p>{item.description || 'Actividad publicada'}</p><small>{item.time && <><Clock3 size={12} /> {item.time}</>}{item.location && <><MapPin size={12} /> {item.location}</>}</small></div></div>) : <div className={styles.empty}><CalendarDays size={24} /><b>{activitiesLoading ? 'Consultando agenda…' : 'No hay actividades próximas'}</b><span>Las actividades publicadas aparecerán aquí.</span></div>}
         </article>
 
         <article className={styles.panel}>
@@ -245,7 +245,7 @@ export default function DashboardPage() {
                   <PointsChart data={attendanceChartData} valueSuffix="%" ariaLabel="Porcentaje de asistencia en las últimas reuniones registradas" />
                 </Suspense>
               </div>
-            ) : <div className={styles.empty}><ClipboardCheck size={24} /><b>{loading ? 'Consultando asistencia…' : 'Aún no hay reuniones con registros'}</b><span>La gráfica aparecerá cuando existan registros de asistencia.</span></div>}
+            ) : <div className={styles.empty}><ClipboardCheck size={24} /><b>{attendanceLoading ? 'Consultando asistencia…' : 'Aún no hay reuniones con registros'}</b><span>La gráfica aparecerá cuando existan registros de asistencia.</span></div>}
           </article>
         )}
         <article className={styles.assistantCard}><div className={styles.assistantIcon}><Sparkles size={22} /></div><div><span className={styles.kicker}>ASISTENTE</span><h2>Fuego AI</h2><p>Apoyo para preparar actividades, comunicaciones e informes.</p></div>{isAdmin ? <NavLink to="/asistente">Abrir asistente <ArrowUpRight size={14} /></NavLink> : <small>Acceso administrativo</small>}</article>
