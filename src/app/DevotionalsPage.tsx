@@ -11,6 +11,7 @@ import {
   X,
   Flame,
   Heart,
+  ImagePlus,
 } from 'lucide-react';
 
 import {
@@ -41,6 +42,8 @@ export default function DevotionalsPage() {
   const [author, setAuthor] = useState('');
   const [newCategory, setNewCategory] = useState('Fe');
   const [content, setContent] = useState('');
+  const [flyerDataUrl, setFlyerDataUrl] = useState('');
+  const [flyerError, setFlyerError] = useState('');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -96,6 +99,59 @@ export default function DevotionalsPage() {
     setAuthor('');
     setNewCategory('Fe');
     setContent('');
+    setFlyerDataUrl('');
+    setFlyerError('');
+  }
+
+  async function handleFlyerChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    setFlyerError('');
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setFlyerError('Selecciona una imagen JPG, PNG o WebP.');
+      event.target.value = '';
+      return;
+    }
+    if (file.size > 12 * 1024 * 1024) {
+      setFlyerError('La imagen original no puede superar 12 MB.');
+      event.target.value = '';
+      return;
+    }
+    try {
+      const source = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => typeof reader.result === 'string' ? resolve(reader.result) : reject(new Error('No se pudo leer la imagen.'));
+        reader.onerror = () => reject(new Error('No se pudo leer la imagen.'));
+        reader.readAsDataURL(file);
+      });
+      const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const element = new Image();
+        element.onload = () => resolve(element);
+        element.onerror = () => reject(new Error('El archivo de imagen no es válido.'));
+        element.src = source;
+      });
+      const scale = Math.min(1, 1440 / Math.max(image.naturalWidth, image.naturalHeight));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error('No se pudo preparar la imagen.');
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      let quality = 0.78;
+      let compressed = canvas.toDataURL('image/jpeg', quality);
+      while (compressed.length > 660000 && quality > 0.42) {
+        quality -= 0.08;
+        compressed = canvas.toDataURL('image/jpeg', quality);
+      }
+      if (compressed.length > 680000) throw new Error('El flyer sigue siendo muy pesado. Prueba con una imagen más ligera.');
+      setFlyerDataUrl(compressed);
+    } catch (cause) {
+      setFlyerError(cause instanceof Error ? cause.message : 'No se pudo procesar el flyer.');
+      setFlyerDataUrl('');
+    }
+    event.target.value = '';
   }
 
   async function handleCreate(event: React.FormEvent<HTMLFormElement>) {
@@ -113,6 +169,7 @@ export default function DevotionalsPage() {
         category: newCategory,
         date: getLocalDate(),
         content,
+        ...(flyerDataUrl ? {flyerDataUrl} : {}),
       });
 
       if (!mountedRef.current) return;
@@ -355,6 +412,21 @@ export default function DevotionalsPage() {
                 <option key={item} value={item}>{item}</option>
               ))}
             </select>
+
+            <label htmlFor="devotional-flyer">Flyer del devocional (opcional)</label>
+            <div className="devotional-flyer-upload">
+              <label className="devotional-flyer-picker" htmlFor="devotional-flyer">
+                <ImagePlus size={18} />
+                <span>{flyerDataUrl ? 'Cambiar flyer' : 'Seleccionar flyer'}</span>
+                <small>JPG, PNG o WebP · se optimiza automáticamente</small>
+              </label>
+              <input id="devotional-flyer" type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => void handleFlyerChange(event)} />
+              {flyerDataUrl && <div className="devotional-flyer-preview">
+                <img src={flyerDataUrl} alt="Vista previa del flyer" />
+                <button type="button" onClick={() => setFlyerDataUrl('')}>Quitar imagen</button>
+              </div>}
+              {flyerError && <p role="alert" className="devotional-flyer-error">{flyerError}</p>}
+            </div>
 
             <label htmlFor="devotional-content">Reflexión</label>
             <textarea
