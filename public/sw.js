@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jdf-shell-v1';
+const CACHE_NAME = 'jdf-shell-v2';
 const SHELL_URLS = ['/', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
 
 // Solo cacheamos el shell estático. No interceptamos ni guardamos llamadas a Firebase,
@@ -27,11 +27,28 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (['script', 'style', 'image', 'font'].includes(request.destination)) {
+    // Vite emite assets con hash: son inmutables y seguros para cache-first.
+    // Esto acelera módulos y estilos ya visitados sin guardar respuestas privadas.
+    if (url.pathname.startsWith('/assets/')) {
+      event.respondWith(
+        caches.match(request).then((cached) => {
+          if (cached) return cached;
+          return fetch(request).then((response) => {
+            if (response.ok) {
+              const copy = response.clone();
+              void caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+            }
+            return response;
+          });
+        })
+      );
+      return;
+    }
     event.respondWith(
       fetch(request).then((response) => {
         if (response.ok) {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          void caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
         }
         return response;
       }).catch(() => caches.match(request))
