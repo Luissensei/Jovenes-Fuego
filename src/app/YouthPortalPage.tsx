@@ -1221,6 +1221,7 @@ export default function YouthPortalPage() {
           {activeYouthSection === 'activities' && (
             <Suspense fallback={<SkeletonList/>}>
               <ActivitiesTab
+                communitySession={communitySession}
                 activities={activities}
                 loading={activitiesLoading}
                 error={activitiesError}
