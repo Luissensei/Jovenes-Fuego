@@ -19,6 +19,7 @@ import './styles/portal-polish.css';
 import './styles/theme-final-overrides.css';
 import './styles/sidebar-transparent-redesign.css';
 import './styles/visual-refresh-2026.css';
+import './styles/product-design-system.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
