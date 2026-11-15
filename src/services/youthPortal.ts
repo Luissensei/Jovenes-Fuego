@@ -82,19 +82,21 @@ export type AdminPrayerRequest = {
 /**
  * Reads upcoming activities already published by the original app.
  */
-export async function getWeeklyActivities(): Promise<WeeklyActivity[]> {
-  if (!functions) throw new Error('Firebase Functions no está configurado.');
-  const loadActivities = httpsCallable<
-    Record<string, never>,
-    {activities: WeeklyActivity[]}
-  >(functions, 'getPublicWeeklyActivities');
-  const response = await loadActivities({});
-  return Array.isArray(response.data.activities)
-    ? response.data.activities.map((item) => ({
-      ...item,
-      editable: item.editable === true,
-    }))
-    : [];
+export function getWeeklyActivities(): Promise<WeeklyActivity[]> {
+  return cachedRequest('public-weekly-activities', 20_000, async () => {
+    if (!functions) throw new Error('Firebase Functions no está configurado.');
+    const loadActivities = httpsCallable<
+      Record<string, never>,
+      {activities: WeeklyActivity[]}
+    >(functions, 'getPublicWeeklyActivities');
+    const response = await loadActivities({});
+    return Array.isArray(response.data.activities)
+      ? response.data.activities.map((item) => ({
+        ...item,
+        editable: item.editable === true,
+      }))
+      : [];
+  });
 }
 
 /**
