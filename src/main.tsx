@@ -10,6 +10,8 @@ import './styles/layout.css';
 import './styles/mobile-quality-system.css';
 import './styles/mobile-spacing-and-instant-sidebar.css';
 import './styles/admin-module-system.css';
+import './styles/portal-complete-redesign.css';
+import './styles/portal-mobile-fix.css';
 // Single final visual contract: keep this last to avoid competing theme layers.
 import './styles/product-design-system.css';
 import './styles/navigation-performance-polish.css';
