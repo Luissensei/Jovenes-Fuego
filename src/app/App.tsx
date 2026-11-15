@@ -93,8 +93,8 @@ const adminModulePreloaders: Record<string, () => Promise<unknown>> = {
 };
 const preloadedAdminModules = new Set<string>();
 function preloadAdminModule(id: string) {
-  const connection = (navigator as Navigator & {connection?: {saveData?: boolean}}).connection;
-  if (connection?.saveData || preloadedAdminModules.has(id)) return;
+  const connection = (navigator as Navigator & {connection?: {saveData?: boolean; effectiveType?: string}}).connection;
+  if (connection?.saveData || connection?.effectiveType === 'slow-2g' || connection?.effectiveType === '2g' || preloadedAdminModules.has(id)) return;
   const preload = adminModulePreloaders[id];
   if (!preload) return;
   preloadedAdminModules.add(id);
