@@ -291,6 +291,7 @@ export default function DevotionalsPage() {
               <Heart size={18} />
             </div>
 
+            {item.flyerDataUrl && <img className="devotional-admin-flyer" src={item.flyerDataUrl} alt={`Flyer de ${item.title}`} loading="lazy" />}
             <h3>{item.title}</h3>
             <blockquote>“{item.verse}”</blockquote>
             <strong className="devotional-reference">{item.reference}</strong>
@@ -331,6 +332,7 @@ export default function DevotionalsPage() {
             </div>
 
             <h2 id="devotional-detail-title">{selected.title}</h2>
+            {selected.flyerDataUrl && <img className="devotional-admin-flyer devotional-admin-flyer-detail" src={selected.flyerDataUrl} alt={`Flyer de ${selected.title}`} />}
             <blockquote>“{selected.verse}”</blockquote>
             <strong>{selected.reference}</strong>
             <p className="devotional-full-content">{selected.content}</p>
@@ -414,7 +416,7 @@ export default function DevotionalsPage() {
               ))}
             </select>
 
-            <label htmlFor="devotional-flyer">Flyer del devocional (opcional)</label>
+            <div className="devotional-flyer-heading"><label htmlFor="devotional-flyer">Imagen del devocional para los jóvenes</label><p>Sube aquí el flyer que aparecerá en el Portal Jóvenes junto con esta reflexión.</p></div>
             <div className="devotional-flyer-upload">
               <label className="devotional-flyer-picker" htmlFor="devotional-flyer">
                 <ImagePlus size={18} />
