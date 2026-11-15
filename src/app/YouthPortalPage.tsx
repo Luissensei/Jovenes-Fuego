@@ -1,6 +1,5 @@
 import styles from './styles/YouthPortalPage.module.css';
 import dashboardStyles from './styles/YouthPortalDashboard.module.css';
-import { motion } from 'motion/react';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {FormEvent} from 'react';
 
@@ -1100,11 +1099,8 @@ export default function YouthPortalPage() {
 
   if (selectedProfile) {
     return (
-      <motion.main
+      <main
         className={`${styles.scope} ${dashboardStyles.dashboard} youth-portal ${portalExiting ? "youth-profile-exit" : ""}`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.22, ease: "easeOut" }}
       >
         <div className="youth-container youth-home-enter">
           <div className="youth-home-toolbar">
@@ -1416,7 +1412,7 @@ export default function YouthPortalPage() {
             );
           })}
         </nav>
-        </motion.main>
+        </main>
     );
   }
 
