@@ -825,3 +825,126 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
   .main .jf-route-stage :is(.managed-record,.photos-hero) { align-items: flex-start !important; }
   .main .jf-route-stage .managed-toolbar { flex-wrap: wrap; }
 }
+
+
+/* Assistant and youth utilities: remove competing violet/blue/orange visual identities. */
+.main .jf-route-stage [class*="FuegoAssistant_panel"],
+.main .jf-route-stage [class*="FuegoAssistant_composer"] {
+  border-color: var(--jf-line) !important;
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main .jf-route-stage [class*="FuegoAssistant_header"] {
+  border-color: var(--jf-line) !important;
+  background: var(--jf-surface-2) !important;
+}
+.main .jf-route-stage [class*="FuegoAssistant_heading"] :is(h2,p),
+.main .jf-route-stage [class*="FuegoAssistant_footer"] { color: var(--jf-ink) !important; }
+.main .jf-route-stage [class*="FuegoAssistant_heading"] > span,
+.main .jf-route-stage [class*="FuegoAssistant_status"],
+.main .jf-route-stage [class*="FuegoAssistant_footer"] button { color: var(--jf-brand) !important; }
+.main .jf-route-stage [class*="FuegoAssistant_emblem"],
+.main .jf-route-stage [class*="FuegoAssistant_messageAvatar"],
+.main .jf-route-stage [class*="FuegoAssistant_welcome"] > span {
+  background: var(--jf-brand-soft) !important;
+  color: var(--jf-brand) !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage [class*="FuegoAssistant_prompts"] button {
+  border-color: var(--jf-line) !important;
+  background: var(--jf-surface-2) !important;
+  color: var(--jf-ink) !important;
+}
+.main .jf-route-stage [class*="FuegoAssistant_userMessage"] [class*="messageContent"] {
+  background: var(--jf-brand) !important;
+  color: #fff !important;
+}
+.main .jf-route-stage [class*="FuegoAssistant_composer"] textarea { color: var(--jf-ink) !important; }
+.main .jf-route-stage [class*="FuegoAssistant_composer"] button,
+.main .jf-route-stage [class*="FuegoAssistant_devotionalCard"] button {
+  background: var(--jf-brand) !important;
+  color: #fff !important;
+}
+.main .jf-route-stage [class*="FuegoFloatingAssistant_launcher"] {
+  border-color: var(--jf-brand) !important;
+  background: var(--jf-brand) !important;
+  box-shadow: 0 8px 24px rgba(23,42,32,.24) !important;
+}
+.main .jf-route-stage [class*="FuegoFloatingAssistant_launcherAura"] {
+  border-color: var(--jf-brand) !important;
+  box-shadow: 0 0 0 5px color-mix(in srgb,var(--jf-brand) 12%,transparent) !important;
+}
+.main .jf-route-stage [class*="FuegoFloatingAssistant_window"] {
+  border-color: var(--jf-line) !important;
+  background: var(--jf-surface) !important;
+  box-shadow: 0 18px 50px rgba(0,0,0,.2) !important;
+}
+.main .jf-route-stage [class*="YouthPinsPage_hero"] {
+  border-color: var(--jf-line) !important;
+  border-radius: 12px !important;
+  background: #1b3024 !important;
+  color: #f3f5ed !important;
+}
+.main .jf-route-stage [class*="YouthPinsPage_hero"] :is(h1,p) { color: #f3f5ed !important; }
+.main .jf-route-stage [class*="YouthPinsPage_kicker"],
+.main .jf-route-stage [class*="YouthPinsPage_stats"] svg { color: #e9a181 !important; }
+.main .jf-route-stage [class*="YouthPinsPage_stats"] article,
+.main .jf-route-stage [class*="YouthPinsPage_member"],
+.main .jf-route-stage [class*="YouthPinsPage_toolbar"] input {
+  border-color: var(--jf-line) !important;
+  border-radius: 10px !important;
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main .jf-route-stage [class*="YouthPinsPage_memberInfo"] :is(span,small),
+.main .jf-route-stage [class*="YouthPinsPage_stats"] span { color: var(--jf-muted) !important; }
+.main .jf-route-stage [class*="YouthPinsPage_issue"],
+.main .jf-route-stage [class*="YouthPinsPage_issued"] button {
+  border-radius: 8px !important;
+  background: var(--jf-brand) !important;
+  color: #fff !important;
+}
+.main .jf-route-stage .trivia-intro,
+.main .jf-route-stage .trivia-result,
+.main .jf-route-stage .trivia-question-card {
+  border-color: var(--jf-line) !important;
+  border-radius: 12px !important;
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main .jf-route-stage :is(.trivia-main-icon,.trivia-result-icon,.trivia-rules > div,.trivia-result-stats > div,.trivia-timer,.trivia-option > span) {
+  background: var(--jf-brand-soft) !important;
+  color: var(--jf-brand) !important;
+}
+.main .jf-route-stage :is(.trivia-eyebrow,.trivia-final-score strong) { color: var(--jf-brand) !important; }
+.main .jf-route-stage :is(.trivia-primary,.trivia-progress > div) {
+  background: var(--jf-brand) !important;
+  color: #fff !important;
+}
+.main .jf-route-stage .trivia-secondary {
+  background: var(--jf-surface-2) !important;
+  color: var(--jf-ink) !important;
+}
+.main .jf-route-stage .trivia-option {
+  border-color: var(--jf-line) !important;
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+}
+.main .jf-route-stage .trivia-option.correct {
+  border-color: #23834f !important;
+  background: #e8f4ec !important;
+  color: #17643b !important;
+}
+.main .jf-route-stage .trivia-option.incorrect {
+  border-color: var(--jf-danger) !important;
+  background: var(--jf-danger-soft) !important;
+  color: var(--jf-danger) !important;
+}
+@media (max-width: 600px) {
+  .main .jf-route-stage [class*="FuegoAssistant_panel"] { border-radius: 12px !important; }
+  .main .jf-route-stage [class*="YouthPinsPage_scope"] { gap: 13px !important; }
+  .main .jf-route-stage .trivia-options { grid-template-columns: 1fr !important; }
+}
