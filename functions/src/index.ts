@@ -956,6 +956,41 @@ export const verifyYouthProfilePin = onCall(async (request) => {
 
 /** Private community feed: every read requires a recent youth PIN session. */
 /** Chat grupal supervisable de la comunidad juvenil. */
+/** Avisos oficiales publicados por el equipo pastoral para todos los jóvenes. */
+export const adminPublishYouthCommunityAnnouncement = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdminOrPastor(request.auth.uid);
+  const title = text(request.data?.title, 100);
+  const message = text(request.data?.message, 800);
+  if (title.length < 4 || message.length < 8) {
+    throw new HttpsError("invalid-argument", "El título debe tener al menos 4 caracteres y el aviso 8.");
+  }
+  const ref = db.collection("youthCommunityAnnouncements").doc();
+  const createdAt = new Date().toISOString();
+  await ref.set({
+    title, message, createdAt, createdBy: request.auth.uid,
+    status: "published",
+  });
+  return {success: true, id: ref.id};
+});
+
+export const getYouthCommunityAnnouncements = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const snapshot = await db.collection("youthCommunityAnnouncements")
+    .where("status", "==", "published")
+    .orderBy("createdAt", "desc").limit(20).get();
+  return {announcements: snapshot.docs.map((document) => {
+    const data = document.data();
+    return {
+      id: document.id,
+      title: text(data.title, 100),
+      message: text(data.message, 800),
+      createdAt: text(data.createdAt, 40),
+    };
+  })};
+});
+
 export const getYouthCommunityChat = onCall(async (request) => {
   const memberId = requireYouthCommunitySession(request.data?.communitySession);
   await getCommunityMember(memberId);
