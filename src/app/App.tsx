@@ -39,6 +39,7 @@ const FuegoFloatingAssistant = lazy(() => import('./components/FuegoFloatingAssi
 const LoginPage = lazy(() => import('./LoginPage').then((module) => ({default: module.LoginPage})));
 const MembersPage = lazy(() => import('./MembersPage').then((module) => ({default: module.MembersPage})));
 const YouthPinsPage = lazy(() => import('./YouthPinsPage'));
+const CommunityModerationPage = lazy(() => import('./pages/CommunityModerationPage'));
 
 const DashboardPage = lazy(() => import('./DashboardPage'));
 const AttendancePage = lazy(() => import('./AttendancePage'));
@@ -69,6 +70,7 @@ const adminModulePreloaders: Record<string, () => Promise<unknown>> = {
   assistant: () => import('./pages/AdminAssistantPage'),
   members: () => import('./MembersPage'),
   'youth-pins': () => import('./YouthPinsPage'),
+  'community-moderation': () => import('./pages/CommunityModerationPage'),
   attendance: () => import('./AttendancePage'),
   followups: () => import('./FollowupPage'),
   devotionals: () => import('./DevotionalsPage'),
@@ -240,6 +242,7 @@ function AdminApp() {
     if (item.id === 'assistant') return isAdmin;
     if (item.id === 'notifications') return isAdmin || isPastor;
     if (item.id === 'youth-pins') return isAdmin || isPastor || isLeader;
+    if (item.id === 'community-moderation') return isAdmin || isPastor;
 
     if (isLeader) {
       // Las peticiones contienen información privada; su bandeja queda reservada
@@ -322,6 +325,9 @@ function AdminApp() {
 
       case 'youth-pins':
         return <YouthPinsPage />;
+
+      case 'community-moderation':
+        return <CommunityModerationPage />;
 
       case 'attendance':
         return <AttendancePage />;
@@ -455,7 +461,7 @@ function AdminApp() {
             {label:'Personas', ids:['members','leaders','visitors','followups']},
             {label:'Actividades', ids:['attendance','devotionals','events','prayers','checkins','turns']},
             {label:'Comunidad', ids:['ranking','games','profile','photos']},
-            {label:'Gestión', ids:['youth-pins','notifications','bonus','pastoral','inbox','reports','audit','settings']},
+            {label:'Gestión', ids:['youth-pins','community-moderation','notifications','bonus','pastoral','inbox','reports','audit','settings']},
           ].map((group) => {
             const items = filteredModules.filter((item) => group.ids.includes(item.id));
             if (!items.length) return null;
