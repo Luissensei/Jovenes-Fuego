@@ -12,6 +12,7 @@ export type DevotionalRecord = {
   date: string;
   content: string;
   flyerDataUrl?: string;
+  flyerDataUrls?: string[];
   createdAt: string;
 };
 
@@ -35,11 +36,11 @@ function validateDevotional(data: CreateDevotionalInput) {
   if (fields.some((value) => typeof value !== 'string' || !value.trim())) {
     throw new Error('Completa todos los campos del devocional.');
   }
-  if (data.flyerDataUrl && (
-    data.flyerDataUrl.length > 700000 ||
-    !/^data:image\/(jpeg|png|webp);base64,/.test(data.flyerDataUrl)
-  )) {
-    throw new Error('El flyer debe ser una imagen JPG, PNG o WebP de tamaño reducido.');
+  const flyers = data.flyerDataUrls ?? (data.flyerDataUrl ? [data.flyerDataUrl] : []);
+  if (flyers.length > 5 || flyers.some((image) =>
+    image.length > 130000 || !/^data:image\/(jpeg|png|webp);base64,/.test(image)
+  ) || flyers.reduce((total, image) => total + image.length, 0) > 620000) {
+    throw new Error('Puedes publicar hasta 5 imágenes optimizadas por historia.');
   }
   if (data.title.trim().length > 120 || data.verse.trim().length > 2000 ||
     data.content.trim().length > 10000 || data.reference.trim().length > 120 ||
@@ -81,7 +82,9 @@ export async function createDevotional(input: CreateDevotionalInput): Promise<st
       category: input.category.trim(),
       date: input.date,
       content: input.content.trim(),
-      ...(input.flyerDataUrl ? {flyerDataUrl: input.flyerDataUrl} : {}),
+      ...(input.flyerDataUrls?.length
+        ? {flyerDataUrls: input.flyerDataUrls}
+        : input.flyerDataUrl ? {flyerDataUrl: input.flyerDataUrl} : {}),
     },
   );
   if (!response.success || !response.id) {
