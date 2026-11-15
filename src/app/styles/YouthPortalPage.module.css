@@ -1,5 +1,5 @@
 /* Portal juvenil: módulo de estilos reducido.
-   El sistema visual compartido vive en src/styles/refinement.css. */
+   Los tokens visuales compartidos viven en src/styles/product-design-system.css. */
 .scope {
   width: 100%;
   min-width: 0;
