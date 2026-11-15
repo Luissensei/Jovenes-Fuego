@@ -1,8 +1,8 @@
 import {useCallback,useEffect,useState} from "react";
-import {BookOpen,Heart,Link2,MessageCircle,Music2,RefreshCw,Send,Sparkles,Users,Quote,Flag,ShieldCheck,Clock3} from "lucide-react";
+import {BookOpen,Heart,Link2,MessageCircle,Music2,RefreshCw,Send,Sparkles,Users,Quote,Flag,ShieldCheck,Clock3,Bell} from "lucide-react";
 import {
-  createYouthCommunityComment,createYouthCommunityPost,getYouthCommunityFeed,getYouthCommunityChat,reportYouthCommunityChatMessage,reportYouthCommunityPost,sendYouthCommunityChatMessage,toggleYouthCommunityReaction,
-  type YouthCommunityPost,type YouthCommunityPostInput,type YouthCommunityChatMessage,
+  createYouthCommunityComment,createYouthCommunityPost,getYouthCommunityFeed,getYouthCommunityChat,getYouthCommunityAnnouncements,reportYouthCommunityChatMessage,reportYouthCommunityPost,sendYouthCommunityChatMessage,toggleYouthCommunityReaction,
+  type YouthCommunityPost,type YouthCommunityPostInput,type YouthCommunityChatMessage,type YouthCommunityAnnouncement,
 } from "../../services/youthPortal";
 
 type Props={memberName:string;communitySession:string};
@@ -38,7 +38,7 @@ export default function CommunityTab({memberName,communitySession}:Props){
   const [chatLoading,setChatLoading]=useState(true);
   const [chatSending,setChatSending]=useState(false);
   const [chatError,setChatError]=useState("");
-  const [reportedChatMessages,setReportedChatMessages]=useState<string[]>([]);
+  const [reportedChatMessages,setReportedChatMessages]=useState<string[]>([]);\n  const [announcements,setAnnouncements]=useState<YouthCommunityAnnouncement[]>([]);\n  const [announcementsLoading,setAnnouncementsLoading]=useState(true);\n  const [announcementsError,setAnnouncementsError]=useState("");
 
   const load=useCallback(async(showRefresh=false)=>{
     if(showRefresh)setRefreshing(true);else setLoading(true);
@@ -49,6 +49,18 @@ export default function CommunityTab({memberName,communitySession}:Props){
   },[communitySession]);
 
   useEffect(()=>{void load();},[load]);
+
+  const loadAnnouncements=useCallback(async()=>{
+    try{setAnnouncements(await getYouthCommunityAnnouncements(communitySession));setAnnouncementsError("");}
+    catch(cause){setAnnouncementsError(cause instanceof Error?cause.message:"No se pudieron cargar los avisos.");}
+    finally{setAnnouncementsLoading(false);}
+  },[communitySession]);
+
+  useEffect(()=>{
+    void loadAnnouncements();
+    const interval=window.setInterval(()=>void loadAnnouncements(),60000);
+    return ()=>window.clearInterval(interval);
+  },[loadAnnouncements]);
 
   const loadChat=useCallback(async()=>{
     try{setChatMessages(await getYouthCommunityChat(communitySession));setChatError("");}
@@ -160,6 +172,11 @@ export default function CommunityTab({memberName,communitySession}:Props){
         <div className="jf-community-hero-meta"><span><i/> Comunidad activa</span><span>Bienvenido, {memberName.split(" ")[0]}</span></div>
       </div>
       <div className="jf-community-hero-mark" aria-hidden="true"><span>✦</span><b>JDF</b><small>FE · AMOR · UNIDAD</small></div>
+    </section>
+
+    <section className="jf-community-announcements" aria-labelledby="jf-community-announcements-title">
+      <header><span className="jf-community-announcements-icon"><Bell size={17}/></span><div><span>COMUNICADOS OFICIALES</span><h3 id="jf-community-announcements-title">Avisos del equipo</h3></div></header>
+      {announcementsLoading?<p className="jf-community-announcements-empty">Consultando avisos...</p>:announcementsError?<p className="jf-community-announcements-empty" role="alert">{announcementsError}<button type="button" onClick={()=>void loadAnnouncements()}>Reintentar</button></p>:announcements.length===0?<p className="jf-community-announcements-empty">Por ahora no hay avisos nuevos.</p>:<div className="jf-community-announcements-list">{announcements.map(item=><article key={item.id}><div><b>{item.title}</b><time>{formatDate(item.createdAt)}</time></div><p>{item.message}</p></article>)}</div>}
     </section>
 
     <div className="jf-community-layout">
