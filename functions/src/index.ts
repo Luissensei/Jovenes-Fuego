@@ -1110,7 +1110,7 @@ export const adminListYouthCommunityReports = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireAdminOrPastor(request.auth.uid);
   const snapshot = await db.collection("youthCommunityReports")
-    .where("status", "==", "pending").orderBy("createdAt", "desc").limit(100).get();
+    .where("status", "==", "pending").limit(100).get();
   return {reports: snapshot.docs.map((document) => {
     const data = document.data();
     return {
@@ -1118,7 +1118,7 @@ export const adminListYouthCommunityReports = onCall(async (request) => {
       details: text(data.details, 500), postAuthor: text(data.postAuthor, 120),
       postContent: text(data.postContent, 2000), createdAt: text(data.createdAt, 40),
     };
-  })};
+  }).sort((left, right) => right.createdAt.localeCompare(left.createdAt))};
 });
 
 export const adminModerateYouthCommunityPost = onCall(async (request) => {
