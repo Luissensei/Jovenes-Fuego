@@ -33,7 +33,7 @@ export function cachedRequest<T>(key: string, ttlMs: number, load: () => Promise
       if (oldestKey === undefined) break;
       values.delete(oldestKey);
     }
-    if (ttlMs > 0 && generations.get(key) === generation) values.set(key, {value, expiresAt});
+    if (ttlMs > 0 && (generations.get(key) ?? 0) === generation) values.set(key, {value, expiresAt});
     return value;
   }).finally(() => {
     if (pending.get(key) === request) pending.delete(key);
