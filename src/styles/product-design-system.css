@@ -1407,3 +1407,28 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
 :root[data-theme="dark"] .main .jf-route-stage [class*="YouthPinsPage_issued"] button,
 :root[data-theme="dark"] .main .jf-route-stage [class*="YouthPinsPage_issue"] { color: #102117 !important; }
 
+/* Game-specific surfaces that are not ordinary answer buttons. */
+.main .jf-route-stage :is(.mbg-memory-card,.mbg-duel-scores>div,.mbg-arranged,.qbg-progress,.verse-progress) {
+  border-color: var(--jf-line) !important;
+  background: var(--jf-surface-2) !important;
+  color: var(--jf-ink) !important;
+}
+.main .jf-route-stage .mbg-memory-card:not(.revealed):not(.matched) {
+  border-color: var(--jf-brand) !important;
+  background: var(--jf-brand) !important;
+  color: #fff !important;
+}
+:root[data-theme="dark"] .main .jf-route-stage .mbg-memory-card:not(.revealed):not(.matched) { color: #102117 !important; }
+.main .jf-route-stage .mbg-memory-card.revealed,
+.main .jf-route-stage .mbg-memory-card.matched {
+  background: var(--jf-brand-soft) !important;
+  color: var(--jf-brand-ink) !important;
+  border-color: var(--jf-brand) !important;
+}
+.main .jf-route-stage :is(.mbg-progress>div,.qbg-progress i,.verse-progress-fill) { background: var(--jf-brand) !important; }
+.main .jf-route-stage .mbg-duel-scores>div.turn-active {
+  border-color: var(--jf-brand) !important;
+  background: var(--jf-brand-soft) !important;
+}
+.main .jf-route-stage .mbg-arranged { border-style: dashed !important; }
+
