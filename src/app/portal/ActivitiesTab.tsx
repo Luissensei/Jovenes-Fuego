@@ -1,4 +1,4 @@
-import { AlertCircle, CalendarDays, CheckCircle2, Circle, Clock3, MapPin, RefreshCw, Users } from 'lucide-react';
+import { AlertCircle, CalendarDays, CheckCircle2, Circle, Clock3, MapPin, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { getYouthWeeklyActivityAttendance, setYouthWeeklyActivityAttendance } from '../../services/youthPortal';
 import type { WeeklyActivityAttendanceResponse } from '../../services/youthPortal';
