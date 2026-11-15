@@ -1411,14 +1411,20 @@ export const purchaseYouthLookItem = onCall(async (request) => {
       !Object.prototype.hasOwnProperty.call(youthLookCatalog[category], itemKey)) {
     throw new HttpsError("invalid-argument", "El artículo solicitado no existe.");
   }
-  const cost = youthLookCatalog[category][itemKey as keyof typeof youthLookCatalog[typeof category]] as number;
+  const cost = (youthLookCatalog as unknown as Record<string, Record<string, number>>)[category][itemKey];
   const storageKey = `${youthLookStoragePrefix[category]}:${itemKey}`;
   const photoRef = db.collection("photos").doc(memberId);
   let result: {flames: number; ownedItems: string[]};
   await db.runTransaction(async (transaction) => {
-    const snapshot = await transaction.get(photoRef);
+    const [snapshot, publicSnapshot, memberSnapshot] = await Promise.all([
+      transaction.get(photoRef),
+      transaction.get(db.collection("publicProfiles").doc(memberId)),
+      transaction.get(db.collection("members").doc(memberId)),
+    ]);
     const data = snapshot.data() ?? {};
-    const balanceValue = Number(data.w ?? 0);
+    const publicData = publicSnapshot.data() ?? {};
+    const memberData = memberSnapshot.data() ?? {};
+    const balanceValue = Number(data.w ?? publicData.flames ?? memberData.flames ?? 0);
     const balance = Number.isFinite(balanceValue) ? Math.max(0, Math.min(100000, Math.floor(balanceValue))) : 0;
     const owned = Array.isArray(data.u)
       ? data.u.filter((value): value is string => typeof value === "string").slice(0, 400)
@@ -1470,15 +1476,21 @@ export const purchaseYouthLookBundle = onCall(async (request) => {
     }
     if (seen.has(category)) throw new HttpsError("invalid-argument", "La plantilla repite categorías.");
     seen.add(category);
-    const cost = youthLookCatalog[category][key as keyof typeof youthLookCatalog[typeof category]] as number;
+    const cost = (youthLookCatalog as unknown as Record<string, Record<string, number>>)[category][key];
     selections.push({category, key, cost});
   }
   const photoRef = db.collection("photos").doc(memberId);
   let result: {flames: number; ownedItems: string[]} | undefined;
   await db.runTransaction(async (transaction) => {
-    const snapshot = await transaction.get(photoRef);
+    const [snapshot, publicSnapshot, memberSnapshot] = await Promise.all([
+      transaction.get(photoRef),
+      transaction.get(db.collection("publicProfiles").doc(memberId)),
+      transaction.get(db.collection("members").doc(memberId)),
+    ]);
     const data = snapshot.data() ?? {};
-    const rawBalance = Number(data.w ?? 0);
+    const publicData = publicSnapshot.data() ?? {};
+    const memberData = memberSnapshot.data() ?? {};
+    const rawBalance = Number(data.w ?? publicData.flames ?? memberData.flames ?? 0);
     const balance = Number.isFinite(rawBalance) ? Math.max(0, Math.min(100000, Math.floor(rawBalance))) : 0;
     const owned = Array.isArray(data.u)
       ? data.u.filter((value): value is string => typeof value === "string").slice(0, 400)
