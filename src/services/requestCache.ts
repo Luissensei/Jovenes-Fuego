@@ -1,5 +1,6 @@
 const values = new Map<string, {expiresAt: number; value: unknown}>();
 const pending = new Map<string, Promise<unknown>>();
+const generations = new Map<string, number>();
 const MAX_CACHE_ENTRIES = 100;
 
 /** Caché efímera en memoria: evita lecturas repetidas al volver a un módulo.
@@ -19,6 +20,7 @@ export function cachedRequest<T>(key: string, ttlMs: number, load: () => Promise
   const inFlight = pending.get(key);
   if (inFlight) return inFlight as Promise<T>;
 
+  const generation = generations.get(key) ?? 0;
   const request = load().then((value) => {
     const expiresAt = Date.now() + Math.max(0, ttlMs);
     // Limpia entradas vencidas antes de insertar una nueva.
@@ -31,7 +33,7 @@ export function cachedRequest<T>(key: string, ttlMs: number, load: () => Promise
       if (oldestKey === undefined) break;
       values.delete(oldestKey);
     }
-    if (ttlMs > 0) values.set(key, {value, expiresAt});
+    if (ttlMs > 0 && generations.get(key) === generation) values.set(key, {value, expiresAt});
     return value;
   }).finally(() => {
     if (pending.get(key) === request) pending.delete(key);
@@ -42,4 +44,6 @@ export function cachedRequest<T>(key: string, ttlMs: number, load: () => Promise
 
 export function invalidateRequestCache(key: string): void {
   values.delete(key);
+  generations.set(key, (generations.get(key) ?? 0) + 1);
+  pending.delete(key);
 }
