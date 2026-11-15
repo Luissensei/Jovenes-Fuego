@@ -1333,12 +1333,7 @@ export const adminIssueYouthPin = onCall(async (request) => {
   };
 });
 
-const youthAppearanceOptions = {
-  frame: ["fuego","neon","cielo","hielo","arco","esmeralda","rayo","oro","galaxia","corona","prisma","obsidiana","solar","cristal","emperador","filigrana","bronce","runa"],
-  avatar: ["","paloma","leon","aguila","cordero","mariposa","lobo","estrella","guerrero","dragon","cohete","rey","volcan","fenix","delfin","zorro","pantera","tigre","fenix-real"],
-  background: ["brasa","ocaso","aurora","noche","volcan","galaxia","oceano","bosque","aurora-boreal","atardecer","cosmos","imperial","amatista","santuario","aurum","seda"],
-  title: ["chispa","valiente","guerrero","intercesor","adorador","sabio","leyenda"],
-} as const;
+
 
 /** Guarda únicamente la apariencia equipada por el joven autenticado con su PIN. */
 export const saveYouthProfileAppearance = onCall(async (request) => {
