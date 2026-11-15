@@ -978,17 +978,20 @@ export const getYouthCommunityAnnouncements = onCall(async (request) => {
   const memberId = requireYouthCommunitySession(request.data?.communitySession);
   await getCommunityMember(memberId);
   const snapshot = await db.collection("youthCommunityAnnouncements")
-    .where("status", "==", "published")
-    .orderBy("createdAt", "desc").limit(20).get();
-  return {announcements: snapshot.docs.map((document) => {
-    const data = document.data();
-    return {
-      id: document.id,
-      title: text(data.title, 100),
-      message: text(data.message, 800),
-      createdAt: text(data.createdAt, 40),
-    };
-  })};
+    .orderBy("createdAt", "desc").limit(100).get();
+  const announcements = snapshot.docs
+    .filter((document) => document.data().status === "published")
+    .slice(0, 20)
+    .map((document) => {
+      const data = document.data();
+      return {
+        id: document.id,
+        title: text(data.title, 100),
+        message: text(data.message, 800),
+        createdAt: text(data.createdAt, 40),
+      };
+    });
+  return {announcements};
 });
 
 export const getYouthCommunityChat = onCall(async (request) => {
