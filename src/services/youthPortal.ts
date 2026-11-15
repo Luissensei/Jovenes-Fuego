@@ -39,6 +39,25 @@ export async function toggleYouthCommunityReaction(communitySession:string,postI
   if(!result.success)throw new Error("No se pudo actualizar la reacción.");
   return result.reacted;
 }
+export async function reportYouthCommunityPost(
+  communitySession:string,postId:string,reason:"inappropriate"|"bullying"|"privacy"|"spam"|"other",details="",
+):Promise<void>{
+  const result=await youthPinCall<{communitySession:string;postId:string;reason:string;details:string},{success:boolean}>(
+    "reportYouthCommunityPost",{communitySession,postId,reason,details},
+  );
+  if(!result.success)throw new Error("No se pudo enviar el reporte.");
+}
+export type AdminYouthCommunityReport = {
+  id:string;postId:string;reason:string;details:string;postAuthor:string;postContent:string;createdAt:string;
+};
+export async function getAdminYouthCommunityReports():Promise<AdminYouthCommunityReport[]>{
+  const result=await youthPinCall<Record<string,never>,{reports:AdminYouthCommunityReport[]}>("adminListYouthCommunityReports",{});
+  return Array.isArray(result.reports)?result.reports:[];
+}
+export async function moderateYouthCommunityPost(postId:string,action:"hide"|"restore"):Promise<void>{
+  const result=await youthPinCall<{postId:string;action:string},{success:boolean}>("adminModerateYouthCommunityPost",{postId,action});
+  if(!result.success)throw new Error("No se pudo actualizar la moderación.");
+}
 export async function getYouthPinAdministration():Promise<YouthPinAdminRecord[]>{const r=await youthPinCall<Record<string,never>,{members:YouthPinAdminRecord[]}>("adminListYouthPins",{});return Array.isArray(r.members)?r.members:[];}
 export async function issueYouthActivationPin(memberId:string):Promise<{temporaryPin:string;expiresAt:string}>{const r=await youthPinCall<{memberId:string},{success:boolean;temporaryPin:string;expiresAt:string}>("adminIssueYouthPin",{memberId});if(!r.success||!r.temporaryPin)throw new Error("No se pudo generar el PIN temporal.");return {temporaryPin:r.temporaryPin,expiresAt:r.expiresAt};}
 export type WeeklyActivity = {
