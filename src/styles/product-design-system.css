@@ -1325,3 +1325,51 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
   }
 }
 
+/* Quick Bible Games: finish the semantic result and action states. */
+.main .jf-route-stage :is(.qbg-result,.qbg-feedback,.qbg-stats,.qbg-clues) {
+  color: var(--jf-ink) !important;
+}
+.main .jf-route-stage .qbg-result {
+  border: 1px solid var(--jf-line) !important;
+  border-radius: var(--jf-radius-lg);
+  background: var(--jf-surface) !important;
+  box-shadow: var(--jf-shadow);
+}
+.main .jf-route-stage .qbg-result :is(h3,p) { color: var(--jf-ink) !important; }
+.main .jf-route-stage .qbg-result>svg,
+.main .jf-route-stage .qbg-result>strong { color: var(--jf-ember) !important; }
+.main .jf-route-stage .qbg-actions button:not(.secondary) {
+  color: #fff !important;
+  background: var(--jf-brand) !important;
+  border: 1px solid var(--jf-brand) !important;
+}
+:root[data-theme="dark"] .main .jf-route-stage .qbg-actions button:not(.secondary) { color: #102117 !important; }
+.main .jf-route-stage .qbg-feedback.correct {
+  color: var(--jf-success) !important;
+  background: var(--jf-success-soft) !important;
+  border-color: color-mix(in srgb,var(--jf-success) 25%,var(--jf-line)) !important;
+}
+.main .jf-route-stage .qbg-feedback.incorrect {
+  color: var(--jf-danger) !important;
+  background: var(--jf-danger-soft) !important;
+  border-color: color-mix(in srgb,var(--jf-danger) 25%,var(--jf-line)) !important;
+}
+.main .jf-route-stage .qbg-feedback :is(p,small) { color: inherit !important; }
+.main .jf-route-stage .qbg-choice-row button.selected,
+.main .jf-route-stage .qbg-character-options button.selected {
+  border-color: var(--jf-brand) !important;
+  background: var(--jf-brand-soft) !important;
+}
+.main .jf-route-stage :is(.mbg-options button.correct,.verse-option.correct) {
+  color: var(--jf-success) !important;
+  border-color: var(--jf-success) !important;
+  background: var(--jf-success-soft) !important;
+}
+.main .jf-route-stage :is(.mbg-options button.incorrect,.verse-option.incorrect) {
+  color: var(--jf-danger) !important;
+  border-color: var(--jf-danger) !important;
+  background: var(--jf-danger-soft) !important;
+}
+.main .jf-route-stage :is(.mbg-options button.correct,.verse-option.correct) svg { color: var(--jf-success) !important; }
+.main .jf-route-stage :is(.mbg-options button.incorrect,.verse-option.incorrect) svg { color: var(--jf-danger) !important; }
+
