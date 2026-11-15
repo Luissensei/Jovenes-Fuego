@@ -1620,6 +1620,73 @@ export const getPublicDevotionals = onCall(async () => {
   }
 });
 
+export const submitYouthDevotional = onCall(async (request) => {
+  const memberId = text(request.data?.memberId, 150);
+  const message = text(request.data?.message, 5000);
+  const imageDataUrl = text(request.data?.imageDataUrl, 420000);
+  if (!memberId || memberId.length >= 40 || memberId.startsWith("public-profile-")) {
+    throw new HttpsError("invalid-argument", "No se pudo identificar tu perfil juvenil.");
+  }
+  if (message.length < 20) {
+    throw new HttpsError("invalid-argument", "Escribe al menos 20 caracteres sobre tu devocional.");
+  }
+  if (imageDataUrl && !/^data:image\\/jpeg;base64,[A-Za-z0-9+/]+=*$/.test(imageDataUrl)) {
+    throw new HttpsError("invalid-argument", "Adjunta una imagen JPG válida.");
+  }
+  const [memberSnapshot, publicSnapshot] = await Promise.all([
+    db.collection("members").doc(memberId).get(),
+    db.collection("publicProfiles").doc(memberId).get(),
+  ]);
+  const member = memberSnapshot.data() ?? {};
+  const profile = publicSnapshot.data() ?? {};
+  if (!memberSnapshot.exists || member.nopub === true ||
+      (publicSnapshot.exists && profile.nopub === true)) {
+    throw new HttpsError("failed-precondition", "Tu perfil no está disponible para entregar el devocional.");
+  }
+  const memberName = text(member.name, 120) || text(profile.name, 120) || "Joven";
+  const ip = String(request.rawRequest.ip ?? "unknown").slice(0, 100);
+  const day = new Date().toISOString().slice(0, 10);
+  const rateKey = createHash("sha256").update(ip + "|" + memberId + "|" + day).digest("hex");
+  const rateRef = db.collection("publicDevotionalSubmissionRateLimits").doc(rateKey);
+  const submissionRef = db.collection("devotionalSubmissions").doc();
+  await db.runTransaction(async (transaction) => {
+    const rate = await transaction.get(rateRef);
+    const count = Number(rate.data()?.count ?? 0);
+    if (count >= 3) throw new HttpsError("resource-exhausted", "Ya enviaste el máximo de 3 entregas hoy. Intenta mañana.");
+    transaction.set(rateRef, {
+      count: FieldValue.increment(1),
+      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
+    }, {merge: true});
+    transaction.create(submissionRef, {
+      memberId, memberName, message,
+      ...(imageDataUrl ? {imageDataUrl} : {}),
+      status: "Pendiente",
+      createdAt: new Date().toISOString(),
+      source: "portal-joven",
+    });
+  });
+  return {success: true, id: submissionRef.id};
+});
+
+export const adminListYouthDevotionalSubmissions = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireModulePermission(request.auth.uid, "devotionals");
+  const snapshot = await db.collection("devotionalSubmissions").limit(250).get();
+  const submissions = snapshot.docs.map((document) => {
+    const data = document.data();
+    return {
+      id: document.id,
+      memberId: text(data.memberId, 150),
+      memberName: text(data.memberName, 120),
+      message: text(data.message, 5000),
+      imageDataUrl: text(data.imageDataUrl, 420000),
+      status: text(data.status, 30) || "Pendiente",
+      createdAt: text(data.createdAt, 40),
+    };
+  }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return {submissions};
+});
+
 export const adminListDevotionals = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireModulePermission(request.auth.uid, "devotionals");
