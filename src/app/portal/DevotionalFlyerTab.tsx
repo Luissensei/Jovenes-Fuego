@@ -1,5 +1,7 @@
 import {useCallback, useEffect, useState} from 'react';
-import {BookOpen, CalendarDays, Flame, RefreshCw} from 'lucide-react';
+import {useRef} from 'react';
+import {BookOpen, CalendarDays, Flame, RefreshCw, Send, ImagePlus, X, CheckCircle2} from 'lucide-react';
+import {submitYouthDevotional} from '../../services/youthDevotionalSubmissions';
 import {getPublicDevotionals, type DevotionalRecord} from '../../services/repositories/devotionals';
 import styles from '../styles/DevotionalFlyerTab.module.css';
 
@@ -11,10 +13,17 @@ function formatDate(value: string) {
   });
 }
 
-export default function DevotionalFlyerTab() {
+export default function DevotionalFlyerTab({memberId, memberName}: {memberId: string; memberName: string}) {
   const [items, setItems] = useState<DevotionalRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [submission, setSubmission] = useState('');
+  const [photo, setPhoto] = useState('');
+  const [photoError, setPhotoError] = useState('');
+  const [sending, setSending] = useState(false);
+  const [success, setSuccess] = useState('');
+  const photoInput = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -29,6 +38,67 @@ export default function DevotionalFlyerTab() {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
+
+  async function handlePhoto(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    setPhotoError('');
+    if (!file) return;
+    if (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) {
+      setPhotoError('Selecciona una foto JPG, PNG o WebP de máximo 10 MB.');
+      event.target.value = '';
+      return;
+    }
+    try {
+      const source = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => typeof reader.result === 'string' ? resolve(reader.result) : reject(new Error('No se pudo leer la foto.'));
+        reader.onerror = () => reject(new Error('No se pudo leer la foto.'));
+        reader.readAsDataURL(file);
+      });
+      const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const element = new Image();
+        element.onload = () => resolve(element);
+        element.onerror = () => reject(new Error('La imagen no es válida.'));
+        element.src = source;
+      });
+      const scale = Math.min(1, 1100 / Math.max(image.naturalWidth, image.naturalHeight));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error('No se pudo preparar la imagen.');
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      let quality = 0.68;
+      let output = canvas.toDataURL('image/jpeg', quality);
+      while (output.length > 390000 && quality > 0.4) {
+        quality -= 0.07;
+        output = canvas.toDataURL('image/jpeg', quality);
+      }
+      if (output.length > 410000) throw new Error('La foto pesa demasiado. Prueba con otra imagen.');
+      setPhoto(output);
+    } catch (cause) {
+      setPhotoError(cause instanceof Error ? cause.message : 'No se pudo procesar la foto.');
+      setPhoto('');
+    }
+    event.target.value = '';
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSuccess('');
+    setMessage('');
+    setSending(true);
+    try {
+      await submitYouthDevotional({memberId, message: submission, ...(photo ? {imageDataUrl: photo} : {})});
+      setSubmission('');
+      setPhoto('');
+      setSuccess('¡Tu devocional fue entregado! El equipo podrá revisarlo.');
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : 'No se pudo enviar tu devocional.');
+    } finally {
+      setSending(false);
+    }
+  }
 
   return (
     <section className={styles.page}>
@@ -48,6 +118,29 @@ export default function DevotionalFlyerTab() {
       {!loading && !error && items.length === 0 && (
         <div className={styles.empty}><BookOpen size={32}/><strong>Aún no hay devocionales publicados</strong><span>Cuando el equipo comparta uno, aparecerá aquí.</span></div>
       )}
+
+      <section className={styles.submitCard}>
+        <div className={styles.submitHeading}>
+          <span>MI RESPUESTA</span>
+          <h2>Entregar mi devocional</h2>
+          <p>Comparte lo que Dios habló a tu vida. También puedes adjuntar una foto de tu cuaderno o reflexión.</p>
+        </div>
+        <form onSubmit={(event) => void handleSubmit(event)}>
+          <label htmlFor="youth-devotional-response">Mi reflexión</label>
+          <textarea id="youth-devotional-response" value={submission} onChange={(event) => setSubmission(event.target.value)} minLength={20} maxLength={5000} rows={5} placeholder="Hoy aprendí que..." required />
+          <div className={styles.formFooter}>
+            <small>{submission.length}/5000 caracteres · Mínimo 20</small>
+            <label className={styles.photoButton} htmlFor="youth-devotional-photo"><ImagePlus size={17}/> {photo ? 'Cambiar foto' : 'Adjuntar foto'}</label>
+            <input ref={photoInput} id="youth-devotional-photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => void handlePhoto(event)} />
+          </div>
+          {photo && <div className={styles.photoPreview}><img src={photo} alt="Vista previa de tu evidencia"/><button type="button" onClick={() => setPhoto('')} aria-label="Quitar foto"><X size={16}/></button></div>}
+          {photoError && <p className={styles.formError} role="alert">{photoError}</p>}
+          {message && <p className={styles.formError} role="alert">{message}</p>}
+          {success && <p className={styles.formSuccess} role="status"><CheckCircle2 size={17}/>{success}</p>}
+          <button className={styles.submitButton} type="submit" disabled={sending || submission.trim().length < 20}><Send size={17}/>{sending ? 'Enviando...' : 'Enviar devocional'}</button>
+        </form>
+        <small className={styles.privacyNote}>Tu entrega será visible para el equipo de liderazgo, no para los demás jóvenes.</small>
+      </section>
 
       <div className={styles.list}>
         {items.map((item) => (
