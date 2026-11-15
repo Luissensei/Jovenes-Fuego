@@ -2331,6 +2331,7 @@ export const getPublicDevotionals = onCall(async () => {
         date: text(data.date, 10),
         content: text(data.content, 10000),
         flyerDataUrl: text(data.flyerDataUrl, 700000),
+        flyerDataUrls: Array.isArray(data.flyerDataUrls) ? data.flyerDataUrls.filter((image: unknown) => typeof image === "string").map((image: string) => text(image, 130000)).slice(0, 5) : [],
       };
     }).filter((item) => item.flyerDataUrl || item.title);
     return {devotionals};
@@ -2423,6 +2424,7 @@ export const adminListDevotionals = onCall(async (request) => {
       date: text(data.date, 10),
       content: text(data.content, 10000),
       flyerDataUrl: text(data.flyerDataUrl, 700000),
+      flyerDataUrls: Array.isArray(data.flyerDataUrls) ? data.flyerDataUrls.filter((image: unknown) => typeof image === "string").map((image: string) => text(image, 130000)).slice(0, 5) : [],
       createdAt: photoDate(data.createdAt),
     };
   }).sort((left, right) =>
@@ -2444,8 +2446,13 @@ export const adminCreateDevotional = onCall(async (request) => {
   const date = text(data.date, 10);
   const content = text(data.content, 10000);
   const flyerDataUrl = text(data.flyerDataUrl, 700000);
-  if (flyerDataUrl && !/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/.test(flyerDataUrl)) {
-    throw new HttpsError("invalid-argument", "El flyer debe ser una imagen JPG, PNG o WebP válida.");
+  const flyerDataUrls = Array.isArray(data.flyerDataUrls)
+    ? data.flyerDataUrls.filter((image: unknown): image is string => typeof image === "string").slice(0, 5).map((image: string) => text(image, 130000))
+    : flyerDataUrl ? [flyerDataUrl] : [];
+  const totalFlyerSize = flyerDataUrls.reduce((total: number, image: string) => total + image.length, 0);
+  if (flyerDataUrls.length > 5 || totalFlyerSize > 620000 ||
+      flyerDataUrls.some((image: string) => !/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/.test(image))) {
+    throw new HttpsError("invalid-argument", "La historia admite hasta 5 imágenes JPG, PNG o WebP optimizadas.");
   }
 
   if (!title || !verse || !reference || !author || !category || !content || !isValidDate(date)) {
@@ -2454,7 +2461,7 @@ export const adminCreateDevotional = onCall(async (request) => {
 
   const result = await db.collection("devotionals").add({
     title, verse, reference, author, category, date, content,
-    ...(flyerDataUrl ? {flyerDataUrl} : {}),
+    ...(flyerDataUrls.length ? {flyerDataUrls, flyerDataUrl: flyerDataUrls[0]} : {}),
     createdAt: new Date().toISOString(),
     createdBy: request.auth.uid,
   });
