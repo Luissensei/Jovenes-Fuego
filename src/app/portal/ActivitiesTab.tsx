@@ -1,8 +1,11 @@
-import { AlertCircle, CalendarDays, CheckCircle2, Circle, Clock3, MapPin, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { getYouthWeeklyActivityAttendance, setYouthWeeklyActivityAttendance } from '../../services/youthPortal';
-import type { WeeklyActivityAttendanceResponse } from '../../services/youthPortal';
-import type { WeeklyActivity } from '../../services/youthPortal';
+import { AlertCircle, CalendarDays, CheckCircle2, Circle, Clock3, MapPin, RefreshCw } from 'lucide-react';
+import {
+  getYouthWeeklyActivityAttendance,
+  setYouthWeeklyActivityAttendance,
+  type WeeklyActivityAttendanceResponse,
+  type WeeklyActivity,
+} from '../../services/youthPortal';
 import { SkeletonList } from '../components/Skeleton';
 
 const weeklyGrowthPlan = [
