@@ -607,3 +607,118 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
 .youth-pin-icon { border-radius: 10px !important; background: var(--jf-brand-soft) !important; color: var(--jf-brand) !important; }
 .youth-pin-kicker { color: var(--jf-brand) !important; }
 .youth-pin-form button { border-radius: 8px !important; background: var(--jf-brand) !important; }
+
+
+/* Remaining administrative modules: consistent surfaces, accents and interaction states. */
+.main .jf-route-stage :is(.checkin-hero,.devotionals-feature,.followup-header,.visitors-header) {
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage :is(.checkin-hero,.devotionals-feature) {
+  background: #1b3024 !important;
+}
+.main .jf-route-stage :is(.checkin-hero,.devotionals-feature) :is(h1,h2,h3,p,span,small) { color: #f3f5ed !important; }
+.main .jf-route-stage :is(.checkin-panel-heading > svg,.checkin-camera-placeholder > svg,
+.devotionals-eyebrow,.followup-eyebrow,.visitors-eyebrow) { color: var(--jf-brand) !important; }
+.main .jf-route-stage :is(.checkin-primary,.devotionals-primary,.followup-primary,.visitors-primary,
+.management-primary,.management-header button) {
+  background: var(--jf-brand) !important;
+  border: 1px solid var(--jf-brand) !important;
+  border-radius: 8px !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage :is(.checkin-primary,.devotionals-primary,.followup-primary,.visitors-primary,
+.management-primary,.management-header button):hover:not(:disabled) {
+  background: var(--jf-brand-strong) !important;
+  border-color: var(--jf-brand-strong) !important;
+  transform: none !important;
+}
+.main .jf-route-stage :is(.followup-stat,.followup-card,.visitor-card,.visitors-stat,
+.management-summary,.management-form,.management-records) {
+  border-color: var(--jf-line) !important;
+  border-radius: 10px !important;
+  background: var(--jf-surface) !important;
+  box-shadow: var(--jf-shadow) !important;
+  color: var(--jf-ink) !important;
+}
+.main .jf-route-stage :is(.followup-stat-icon,.followup-avatar,.visitors-stat > div,.management-icon,.management-summary-icon) {
+  background: var(--jf-brand-soft) !important;
+  color: var(--jf-brand) !important;
+}
+.main .jf-route-stage :is(.followup-stat,.visitors-stat) :is(strong,span),
+.main .jf-route-stage :is(.followup-card,.visitor-card,.management-records) :is(strong,h2,h3) {
+  color: var(--jf-ink) !important;
+}
+.main .jf-route-stage :is(.checkin-search,.devotionals-search,.followup-search,.visitors-search) {
+  border-color: var(--jf-line) !important;
+  border-radius: 8px !important;
+  background: var(--jf-surface) !important;
+}
+.main .jf-route-stage :is(.checkin-list article,.followup-card,.visitor-card) {
+  border-color: var(--jf-line) !important;
+}
+.main .jf-route-stage .devotionals-categories button {
+  color: var(--jf-muted) !important;
+  border-color: var(--jf-line) !important;
+  background: var(--jf-surface-2) !important;
+}
+.main .jf-route-stage .devotionals-categories button.active {
+  color: var(--jf-brand-ink) !important;
+  border-color: var(--jf-brand) !important;
+  background: var(--jf-brand-soft) !important;
+}
+.main .jf-route-stage .devotionals-feature span { color: #e9a181 !important; }
+.main .jf-route-stage [class*="LeadersAdminPage_hero"] {
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 12px !important;
+  background: var(--jf-surface-2) !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage [class*="LeadersAdminPage_hero"] :is(h1,p,span) { color: var(--jf-ink) !important; }
+.main .jf-route-stage [class*="LeadersAdminPage_heroIcon"] {
+  border-radius: 9px !important;
+  background: var(--jf-brand-soft) !important;
+  color: var(--jf-brand) !important;
+}
+.main .jf-route-stage [class*="LeadersAdminPage_hero"] button,
+.main .jf-route-stage [class*="LeadersAdminPage_inviteLink"] button,
+.main .jf-route-stage [class*="LeadersAdminPage_modal"] footer button:last-child {
+  background: var(--jf-brand) !important;
+  border: 1px solid var(--jf-brand) !important;
+  border-radius: 8px !important;
+  color: #fff !important;
+}
+.main .jf-route-stage [class*="LeadersAdminPage_summary"] article,
+.main .jf-route-stage [class*="LeadersAdminPage_listPanel"] {
+  border-color: var(--jf-line) !important;
+  border-radius: 10px !important;
+  background: var(--jf-surface) !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main .jf-route-stage [class*="SettingsHubPage_hero"] {
+  border-color: var(--jf-line) !important;
+  border-radius: 12px !important;
+  background: var(--jf-surface-2) !important;
+}
+.main .jf-route-stage [class*="SettingsHubPage_hero"] :is(h1,p,span) { color: var(--jf-ink) !important; }
+.main .jf-route-stage [class*="SettingsHubPage_heroIcon"],
+.main .jf-route-stage [class*="SettingsHubPage_themeIcon"],
+.main .jf-route-stage [class*="SettingsHubPage_areaIcon"] {
+  border-radius: 9px !important;
+  background: var(--jf-brand-soft) !important;
+  color: var(--jf-brand) !important;
+}
+.main .jf-route-stage [class*="SettingsHubPage_areaCard"],
+.main .jf-route-stage [class*="SettingsHubPage_themeCard"] {
+  border-color: var(--jf-line) !important;
+  border-radius: 10px !important;
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+@media (max-width: 700px) {
+  .main .jf-route-stage :is(.followup-stats,.visitors-stats) { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+  .main .jf-route-stage :is(.followup-header,.visitors-header,.checkin-hero,.devotionals-feature) { align-items: flex-start !important; padding: 18px !important; }
+}
