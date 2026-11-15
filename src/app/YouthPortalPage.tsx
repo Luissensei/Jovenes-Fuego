@@ -8,8 +8,8 @@ import {
   Search, Users, AlertCircle, ArrowLeft, Flame, Trophy,
   Gamepad2, RefreshCw, ChevronRight, ShieldCheck, Sparkles,
   CalendarDays, HeartHandshake, Send, Medal, Crown,
-  Palette, Volume2, VolumeX, Star, X, WandSparkles,
-  BookMarked, Moon, Sun, UserSearch, CheckCircle2, UserRound, Save, Trash2, Home, MessageCircle,
+  Palette, Volume2, VolumeX, Star, X,
+  BookMarked, Moon, Sun, CheckCircle2, UserRound, Save, Trash2, Home, MessageCircle,
 } from 'lucide-react';
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
 import {
