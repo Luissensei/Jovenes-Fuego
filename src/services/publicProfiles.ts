@@ -77,3 +77,24 @@ export async function saveYouthProfileAppearance(
   const response = await callable({communitySession, appearance});
   if (!response.data.success) throw new Error('No se pudo sincronizar la apariencia.');
 }
+
+/** Compra y equipa un cosmético; el saldo y el precio se calculan en servidor. */
+export async function purchaseYouthLookItem(
+  communitySession: string,
+  category: string,
+  itemKey: string,
+): Promise<{flames: number; ownedItems: string[]}> {
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const callable = httpsCallable<
+    {communitySession: string; category: string; itemKey: string},
+    {success: boolean; flames: number; ownedItems: string[]}
+  >(functions, 'purchaseYouthLookItem');
+  const response = await callable({communitySession, category, itemKey});
+  if (!response.data.success || !Number.isFinite(response.data.flames)) {
+    throw new Error('No se pudo completar la compra.');
+  }
+  return {
+    flames: Math.max(0, response.data.flames),
+    ownedItems: Array.isArray(response.data.ownedItems) ? response.data.ownedItems : [],
+  };
+}
