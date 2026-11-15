@@ -61,7 +61,11 @@ export default function DevotionalsPage() {
     }
     try {
       const items = await listDevotionals();
-      if (mountedRef.current) setDevotionals(items);
+      // No mostrar documentos antiguos/vacíos como tarjetas sin título ni reflexión.
+      const usableItems = items.filter((item) => Boolean(
+        item.title?.trim() || item.verse?.trim() || item.content?.trim() || item.flyerDataUrl,
+      ));
+      if (mountedRef.current) setDevotionals(usableItems);
     } catch (cause) {
       if (mountedRef.current) {
         setError(cause instanceof Error ? cause.message : 'No se pudieron cargar los devocionales.');
