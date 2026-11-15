@@ -1,4 +1,5 @@
 import styles from './styles/DevotionalsPage.module.css';
+import YouthDevotionalInbox from './YouthDevotionalInbox';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -454,6 +455,7 @@ export default function DevotionalsPage() {
       <p className="devotionals-notice">
         Los devocionales se consultan y administran en el proyecto Firebase original.
       </p>
-    </main>
+          <YouthDevotionalInbox />
+</main>
   );
 }
