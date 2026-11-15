@@ -697,7 +697,11 @@ function matchesYouthPin(
     timingSafeEqual(supplied, expected);
 }
 
-/** Short-lived signed identity for youth profiles authenticated with their PIN. */
+/**
+ * Creates a short-lived signed session for a youth profile.
+ * @param {string} memberId The authenticated member identifier.
+ * @return {string} A signed session token valid for 24 hours.
+ */
 function createYouthCommunitySession(memberId: string): string {
   const payload = Buffer.from(JSON.stringify({
     memberId,
@@ -707,6 +711,11 @@ function createYouthCommunitySession(memberId: string): string {
   return payload + "." + signature;
 }
 
+/**
+ * Validates a signed youth session and returns its member identifier.
+ * @param {unknown} value The submitted community session token.
+ * @return {string} The authenticated member identifier.
+ */
 function requireYouthCommunitySession(value: unknown): string {
   const token = text(value, 1200);
   const [payload, signature, extra] = token.split(".");
@@ -715,14 +724,20 @@ function requireYouthCommunitySession(value: unknown): string {
   }
   const expected = createHmac("sha256", youthPinPepper).update(payload).digest();
   let supplied: Buffer;
-  try { supplied = Buffer.from(signature, "base64url"); } catch {
+  try {
+    supplied = Buffer.from(signature, "base64url");
+  } catch {
     throw new HttpsError("unauthenticated", "La sesión juvenil no es válida.");
   }
   if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) {
     throw new HttpsError("unauthenticated", "La sesión juvenil no es válida.");
   }
   let decoded: {memberId?: unknown; expiresAt?: unknown};
-  try { decoded = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as typeof decoded; } catch {
+  try {
+    decoded = JSON.parse(
+      Buffer.from(payload, "base64url").toString("utf8"),
+    ) as typeof decoded;
+  } catch {
     throw new HttpsError("unauthenticated", "La sesión juvenil no es válida.");
   }
   const memberId = validYouthMemberId(decoded.memberId);
