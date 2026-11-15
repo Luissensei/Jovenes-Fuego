@@ -1,7 +1,8 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {NavLink} from 'react-router-dom';
 import {Bell, RefreshCw, ArrowUpRight, Inbox, HeartHandshake, Users, Image, ClipboardList, Send} from 'lucide-react';
-import {getAdminNotifications, type AdminNotification} from '../../services/notifications';\nimport {publishYouthCommunityAnnouncement} from '../../services/youthPortal';
+import {getAdminNotifications, type AdminNotification} from '../../services/notifications';
+import {publishYouthCommunityAnnouncement} from '../../services/youthPortal';
 import styles from '../styles/NotificationsPage.module.css';
 
 const icons: Record<string, typeof Bell> = {
@@ -15,7 +16,11 @@ const icons: Record<string, typeof Bell> = {
 export default function NotificationsPage() {
   const [items, setItems] = useState<AdminNotification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');\n  const [announcementTitle, setAnnouncementTitle] = useState('');\n  const [announcementMessage, setAnnouncementMessage] = useState('');\n  const [publishingAnnouncement, setPublishingAnnouncement] = useState(false);\n  const [announcementStatus, setAnnouncementStatus] = useState('');
+  const [error, setError] = useState('');
+  const [announcementTitle, setAnnouncementTitle] = useState('');
+  const [announcementMessage, setAnnouncementMessage] = useState('');
+  const [publishingAnnouncement, setPublishingAnnouncement] = useState(false);
+  const [announcementStatus, setAnnouncementStatus] = useState('');
   const mountedRef = useRef(false);
   const requestSequenceRef = useRef(0);
 
