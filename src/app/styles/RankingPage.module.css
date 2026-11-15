@@ -7,3 +7,26 @@
   padding: clamp(10px, 2vw, 24px);
   box-sizing: border-box;
 }
+
+.scope :global(.ranking-podium-player),
+.scope :global(.ranking-player-card) {
+  animation: ranking-card-enter 220ms ease-out both;
+}
+.scope :global(.ranking-player-card) {
+  animation-delay: calc(min(var(--card-order, 0), 10) * 20ms);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.scope :global(.ranking-player-card:hover) {
+  transform: translateY(-3px);
+}
+@keyframes ranking-card-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scope :global(.ranking-podium-player),
+  .scope :global(.ranking-player-card) {
+    animation: none;
+    transition: none;
+  }
+}
