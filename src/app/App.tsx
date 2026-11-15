@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { AnimatePresence, MotionConfig, motion } from 'motion/react';
+import { MotionConfig } from 'motion/react';
 import {
   NavLink,
   Navigate,
@@ -574,39 +574,30 @@ function AdminApp() {
           </div>
         )}
 
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            className="jf-route-stage"
-            key={location.pathname}
-            initial={{ opacity: 0, y: 7 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.1, ease: 'easeOut' }}
-          >
-            <Routes>
-              {visibleModules.map((item) => (
-                <Route
-                  key={item.id}
-                  path={item.path}
-                  element={<Suspense fallback={<PageLoading label={item.label}/>}>{renderModule(
-                    item.id,
-                    item.label,
-                    item.description,
-                  )}</Suspense>}
-                />
-              ))}
+        <div className="jf-route-stage">
+          <Routes>
+            {visibleModules.map((item) => (
               <Route
-                path="*"
-                element={
-                  <Navigate
-                    to={firebaseReadOnlyMode ? '/ranking' : '/'}
-                    replace
-                  />
-                }
+                key={item.id}
+                path={item.path}
+                element={<Suspense fallback={<PageLoading label={item.label}/>}>{renderModule(
+                  item.id,
+                  item.label,
+                  item.description,
+                )}</Suspense>}
               />
-            </Routes>
-          </motion.div>
-        </AnimatePresence>
+            ))}
+            <Route
+              path="*"
+              element={
+                <Navigate
+                  to={firebaseReadOnlyMode ? '/ranking' : '/'}
+                  replace
+                />
+              }
+            />
+          </Routes>
+        </div>
 
         <footer>
           Jóvenes de Fuego · reconstrucción independiente ·{' '}
