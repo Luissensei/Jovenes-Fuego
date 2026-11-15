@@ -1630,7 +1630,7 @@ export const submitYouthDevotional = onCall(async (request) => {
   if (message.length < 20) {
     throw new HttpsError("invalid-argument", "Escribe al menos 20 caracteres sobre tu devocional.");
   }
-  if (imageDataUrl && !/^data:image\\/jpeg;base64,[A-Za-z0-9+/]+=*$/.test(imageDataUrl)) {
+  if (imageDataUrl && !/^data:image\/jpeg;base64,[A-Za-z0-9+/]+=*$/.test(imageDataUrl)) {
     throw new HttpsError("invalid-argument", "Adjunta una imagen JPG válida.");
   }
   const [memberSnapshot, publicSnapshot] = await Promise.all([
