@@ -95,14 +95,12 @@ body { font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Se
 }
 .main .jf-route-stage :is(p,small,.muted,.text-muted,.subtitle,.description,.helper-text,.field-hint) { color: var(--jf-muted); }
 .main .jf-route-stage :is(a:not([class*="primary"]):not([class*="Primary"])) { text-underline-offset: 3px; }
-.main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,.shared-stat-card,
-[class*="-card"],[class*="-panel"],[class*="Card_"],[class*="Panel_"]) {
+.main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,.shared-stat-card) {
   border-color: var(--jf-line) !important;
   border-radius: var(--jf-radius-lg) !important;
   box-shadow: var(--jf-shadow) !important;
 }
-.main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,.shared-stat-card,
-[class*="-card"],[class*="-panel"],[class*="Card_"],[class*="Panel_"]):not(.ranking-hero) {
+.main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,.shared-stat-card):not(.ranking-hero) {
   background: var(--jf-surface) !important;
 }
 .main .jf-route-stage :is(.toolbar,.filter-bar,.search-box,.table-wrap,.table-container,.empty-state,.empty,.notice,.info-box) {
