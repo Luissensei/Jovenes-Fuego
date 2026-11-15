@@ -1409,7 +1409,7 @@ const youthLookCatalog = {
     "emperador": 185,
     "filigrana": 155,
     "bronce": 100,
-    "runa": 175
+    "runa": 175,
   },
   "avatars": {
     "": 0,
@@ -1430,7 +1430,7 @@ const youthLookCatalog = {
     "zorro": 55,
     "pantera": 75,
     "tigre": 75,
-    "fenix-real": 135
+    "fenix-real": 135,
   },
   "titles": {
     "chispa": 0,
@@ -1439,7 +1439,7 @@ const youthLookCatalog = {
     "intercesor": 50,
     "adorador": 60,
     "sabio": 80,
-    "leyenda": 150
+    "leyenda": 150,
   },
   "backgrounds": {
     "brasa": 0,
@@ -1458,7 +1458,7 @@ const youthLookCatalog = {
     "santuario": 110,
     "aurum": 130,
     "seda": 120,
-    "nebula-real": 155
+    "nebula-real": 155,
   },
   "effects": {
     "ember": 0,
@@ -1476,7 +1476,7 @@ const youthLookCatalog = {
     "golden": 165,
     "comet": 145,
     "crown": 175,
-    "vortex": 155
+    "vortex": 155,
   },
   "badges": {
     "flame": 0,
@@ -1493,7 +1493,7 @@ const youthLookCatalog = {
     "guardian": 110,
     "victory": 125,
     "covenant": 100,
-    "radiance": 145
+    "radiance": 145,
   },
   "hair": {
     "natural": 0,
@@ -1505,7 +1505,7 @@ const youthLookCatalog = {
     "long": 65,
     "bun": 60,
     "classic": 30,
-    "cap": 40
+    "cap": 40,
   },
   "outfits": {
     "basic": 0,
@@ -1521,7 +1521,7 @@ const youthLookCatalog = {
     "guardian": 115,
     "imperial": 145,
     "champion": 120,
-    "satin": 130
+    "satin": 130,
   },
   "accessories": {
     "none": 0,
@@ -1537,8 +1537,8 @@ const youthLookCatalog = {
     "wings": 135,
     "sword": 125,
     "staff": 100,
-    "cape": 115
-  }
+    "cape": 115,
+  },
 } as const;
 const youthLookStoragePrefix: Record<keyof typeof youthLookCatalog, string> = {
   frames: "frames", avatars: "avs", titles: "tits", backgrounds: "bans",
