@@ -63,3 +63,17 @@ export async function getPublicProfiles(): Promise<PublicProfile[]> {
     })).filter((item) => item.id && item.name)
     : [];
 }
+
+/** Sincroniza solo cosméticos equipados después de validar el PIN juvenil en servidor. */
+export async function saveYouthProfileAppearance(
+  communitySession: string,
+  appearance: Pick<PublicProfile, 'frame' | 'avatar' | 'background' | 'title'>,
+): Promise<void> {
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const callable = httpsCallable<
+    {communitySession: string; appearance: Pick<PublicProfile, 'frame' | 'avatar' | 'background' | 'title'>},
+    {success: boolean}
+  >(functions, 'saveYouthProfileAppearance');
+  const response = await callable({communitySession, appearance});
+  if (!response.data.success) throw new Error('No se pudo sincronizar la apariencia.');
+}
