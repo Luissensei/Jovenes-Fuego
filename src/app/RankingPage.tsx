@@ -395,7 +395,7 @@ export default function RankingPage({
                       </span>
                       <span className="ranking-podium-avatar">
                         {player.pic ? (
-                          <img src={player.pic} alt={`Foto de ${player.name}`} loading="lazy" />
+                          <img src={player.pic} alt={`Foto de ${player.name}`} loading="lazy" decoding="async" />
                         ) : (
                           player.name.trim().split(/\s+/).slice(0, 2)
                             .map((part) => part[0] ?? '').join('').toUpperCase()
@@ -535,7 +535,7 @@ export default function RankingPage({
                       <div className="ranking-card-identity">
                         <span className="ranking-card-avatar">
                           <span className="ranking-card-avatar-inner">
-                            {profile.pic ? <img src={profile.pic} alt={`Foto de ${profile.name}`} loading="lazy"/> : profile.name.trim().split(/\s+/).slice(0,2).map((part) => part[0] ?? '').join('').toUpperCase()}
+                            {profile.pic ? <img src={profile.pic} alt={`Foto de ${profile.name}`} loading="lazy" decoding="async"/> : profile.name.trim().split(/\s+/).slice(0,2).map((part) => part[0] ?? '').join('').toUpperCase()}
                           </span>
                         </span>
                         <div className="ranking-card-name">
