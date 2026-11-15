@@ -2638,6 +2638,77 @@ export const adminSaveWeeklyActivity = onCall(async (request) => {
   return {success: true, id: ref.id};
 });
 
+export const setYouthWeeklyActivityAttendance = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const activityId = text(request.data?.activityId, 150);
+  const response = text(request.data?.response, 20);
+  if (!activityId || activityId.startsWith("legacy-") ||
+    !["yes", "no", "maybe"].includes(response)) {
+    throw new HttpsError("invalid-argument", "La actividad o respuesta no es válida.");
+  }
+  const activityRef = db.collection("weeklyActivities").doc(activityId);
+  const activity = await activityRef.get();
+  if (!activity.exists || activity.data()?.published !== true) {
+    throw new HttpsError("not-found", "Esta actividad ya no está disponible para confirmar.");
+  }
+  const attendanceRef = db.collection("weeklyActivityAttendance").doc(activityId + "_" + memberId);
+  await attendanceRef.set({
+    activityId, memberId, response, updatedAt: new Date().toISOString(),
+  }, {merge: true});
+  return {success: true};
+});
+
+export const getYouthWeeklyActivityAttendance = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const activityIds = Array.isArray(request.data?.activityIds)
+    ? (request.data.activityIds as unknown[]).map((id) => text(id, 150))
+      .filter((id) => id && !id.startsWith("legacy-")).slice(0, 30)
+    : [];
+  if (!activityIds.length) return {responses: {}};
+  const refs = activityIds.map((id) => db.collection("weeklyActivityAttendance").doc(id + "_" + memberId));
+  const snapshots = await db.getAll(...refs);
+  const responses: Record<string, string> = {};
+  snapshots.forEach((snapshot, index) => {
+    const response = snapshot.data()?.response;
+    if (["yes", "no", "maybe"].includes(String(response))) responses[activityIds[index]] = String(response);
+  });
+  return {responses};
+});
+
+export const adminGetWeeklyActivityAttendance = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireModulePermission(request.auth.uid, "events");
+  const activityId = text(request.data?.activityId, 150);
+  if (!activityId || activityId.startsWith("legacy-")) {
+    throw new HttpsError("invalid-argument", "Selecciona una actividad nueva.");
+  }
+  const activity = await db.collection("weeklyActivities").doc(activityId).get();
+  if (!activity.exists) throw new HttpsError("not-found", "No se encontró la actividad.");
+  const snapshot = await db.collection("weeklyActivityAttendance")
+    .where("activityId", "==", activityId).limit(500).get();
+  const members = await Promise.all(snapshot.docs.map(async (document) => {
+    const data = document.data();
+    const memberId = text(data.memberId, 150);
+    const member = await db.collection("members").doc(memberId).get();
+    const profile = await db.collection("publicProfiles").doc(memberId).get();
+    const memberData = member.data() ?? {};
+    const profileData = profile.data() ?? {};
+    return {
+      memberId,
+      name: text(profileData.name, 120) || text(memberData.name, 120) || "Joven",
+      nick: text(profileData.nick, 80) || text(memberData.nick, 80),
+      response: text(data.response, 20),
+      updatedAt: text(data.updatedAt, 40),
+    };
+  }));
+  return {
+    members: members.filter((item) => item.memberId && ["yes", "no", "maybe"].includes(item.response))
+      .sort((a, b) => a.name.localeCompare(b.name, "es")),
+  };
+});
+
 export const submitPublicPrayerRequest = onCall(async (request) => {
   const message = text(request.data?.message, 1200);
   const requester = text(request.data?.requester, 80) || "Anónimo";
