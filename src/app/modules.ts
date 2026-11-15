@@ -2,7 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import {
   LayoutDashboard, Users, CalendarCheck, MessageCircle, BookOpen, Bell,
   UserPlus, HandHeart, CalendarDays, QrCode, Trophy, Gamepad2,
-  UserRound, Images, Star, ShieldCheck, Inbox, ClipboardList, KeyRound,
+  UserRound, Images, Star, ShieldCheck, Inbox, ClipboardList, KeyRound, Flag,
   BarChart3, Crown, Settings, Sparkles,
 } from 'lucide-react';
 
@@ -35,6 +35,13 @@ export const modules: ModuleDefinition[] = [
     label: 'Jóvenes',
     path: '/jovenes',
     description: 'Fichas, perfiles y datos de los jóvenes.',
+  },
+  {
+    id: 'community-moderation',
+    icon: Flag,
+    label: 'Moderación JDF',
+    path: '/moderacion-jdf',
+    description: 'Reportes y cuidado de la comunidad juvenil.',
   },
   {
     id: 'youth-pins', icon: KeyRound, label: 'PIN de jóvenes', path: '/pines-jovenes',
