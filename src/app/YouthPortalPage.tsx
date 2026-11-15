@@ -403,27 +403,40 @@ function readLook(profile: PublicProfile): ProfileLook {
     outfit: equippedValue('equipped:outfit:', 'basic'),
     accessory: equippedValue('equipped:accessory:', 'none'),
   };
-
   try {
     const raw = window.localStorage.getItem(`jf-youth-look-${profile.id}`);
     if (!raw) return remote;
     const parsed = JSON.parse(raw) as Partial<ProfileLook>;
-    const localItems = Array.isArray(parsed.ownedItems)
-      ? parsed.ownedItems.filter((item): item is string => typeof item === 'string' && item.length <= 120).slice(0, 400)
-      : remote.ownedItems;
-    const localFlames = Number(parsed.flames);
+    const free: Record<LookShopCategory, string[]> = {
+      frames:['fuego'], avatars:['','paloma','leon','aguila'], titles:['chispa'],
+      backgrounds:['brasa'], effects:['ember'], badges:['flame'], hair:['natural'],
+      outfits:['basic'], accessories:['none'],
+    };
+    const prefixes: Record<LookShopCategory, string> = {
+      frames:'frames:', avatars:'avs:', titles:'tits:', backgrounds:'bans:',
+      effects:'equipped:fx:', badges:'equipped:bdg:', hair:'equipped:hair:',
+      outfits:'equipped:outfit:', accessories:'equipped:accessory:',
+    };
+    const localValue = (category: LookShopCategory, value: unknown, fallback: string) => {
+      if (!isValidLookValue(category, value)) return fallback;
+      const key = value as string;
+      return free[category].includes(key) || remoteItems.includes(`${prefixes[category]}${key}`)
+        ? key
+        : fallback;
+    };
     return {
-      frame: isValidLookValue('frames', parsed.frame) ? parsed.frame : remote.frame,
-      background: isValidLookValue('backgrounds', parsed.background) ? parsed.background : remote.background,
-      avatar: isValidLookValue('avatars', parsed.avatar) ? parsed.avatar : remote.avatar,
-      title: isValidLookValue('titles', parsed.title) ? parsed.title : remote.title,
-      ownedItems: localItems,
-      flames: Number.isFinite(localFlames) ? Math.max(0, Math.min(100000, localFlames)) : remote.flames,
-      effects: isValidLookValue('effects', parsed.effects) ? parsed.effects : remote.effects,
-      badge: isValidLookValue('badges', parsed.badge) ? parsed.badge : remote.badge,
-      hair: isValidLookValue('hair', parsed.hair) ? parsed.hair : remote.hair,
-      outfit: isValidLookValue('outfits', parsed.outfit) ? parsed.outfit : remote.outfit,
-      accessory: isValidLookValue('accessories', parsed.accessory) ? parsed.accessory : remote.accessory,
+      frame:localValue('frames',parsed.frame,remote.frame),
+      avatar:localValue('avatars',parsed.avatar,remote.avatar),
+      title:localValue('titles',parsed.title,remote.title),
+      background:localValue('backgrounds',parsed.background,remote.background),
+      effects:localValue('effects',parsed.effects,remote.effects),
+      badge:localValue('badges',parsed.badge,remote.badge),
+      hair:localValue('hair',parsed.hair,remote.hair),
+      outfit:localValue('outfits',parsed.outfit,remote.outfit),
+      accessory:localValue('accessories',parsed.accessory,remote.accessory),
+      // El saldo y los desbloqueos siempre vienen de Firebase, nunca de la caché local.
+      ownedItems:remote.ownedItems,
+      flames:remote.flames,
     };
   } catch {
     return remote;
