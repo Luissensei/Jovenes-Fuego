@@ -1145,6 +1145,30 @@ export const reportYouthCommunityPost = onCall(async (request) => {
   return {success: true};
 });
 
+export const reportYouthCommunityChatMessage = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const messageId = text(request.data?.messageId, 150);
+  const reason = text(request.data?.reason, 40);
+  const allowedReasons = ["inappropriate", "bullying", "privacy", "spam", "other"];
+  if (!/^[A-Za-z0-9_-]{10,150}$/.test(messageId) || !allowedReasons.includes(reason)) {
+    throw new HttpsError("invalid-argument", "El reporte no es válido.");
+  }
+  const messageRef = db.collection("youthCommunityChat").doc(messageId);
+  const reportRef = db.collection("youthCommunityReports").doc(`chat_${messageId}_${memberId}`);
+  await db.runTransaction(async (transaction) => {
+    const [message, previous] = await Promise.all([transaction.get(messageRef), transaction.get(reportRef)]);
+    if (!message.exists || message.data()?.status === "hidden") throw new HttpsError("not-found", "El mensaje ya no está disponible.");
+    if (previous.exists) throw new HttpsError("already-exists", "Ya reportaste este mensaje.");
+    transaction.create(reportRef, {
+      contentType: "chat", postId: messageId, reporterId: memberId, reason, details: "",
+      postAuthor: text(message.data()?.author, 120), postContent: text(message.data()?.content, 500),
+      status: "pending", createdAt: new Date().toISOString(),
+    });
+  });
+  return {success: true};
+});
+
 export const adminListYouthCommunityReports = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireAdminOrPastor(request.auth.uid);
@@ -1153,7 +1177,7 @@ export const adminListYouthCommunityReports = onCall(async (request) => {
   return {reports: snapshot.docs.map((document) => {
     const data = document.data();
     return {
-      id: document.id, postId: text(data.postId, 150), reason: text(data.reason, 40),
+      id: document.id, postId: text(data.postId, 150), contentType: text(data.contentType, 20) || "post", reason: text(data.reason, 40),
       details: text(data.details, 500), postAuthor: text(data.postAuthor, 120),
       postContent: text(data.postContent, 2000), createdAt: text(data.createdAt, 40),
     };
@@ -1168,9 +1192,12 @@ export const adminModerateYouthCommunityPost = onCall(async (request) => {
   if (!/^[A-Za-z0-9_-]{10,150}$/.test(postId) || !["hide", "restore"].includes(action)) {
     throw new HttpsError("invalid-argument", "La acción de moderación no es válida.");
   }
-  const postRef = db.collection("youthCommunityPosts").doc(postId);
+  const contentType = text(request.data?.contentType, 20) || "post";
+  if (!["post", "chat"].includes(contentType)) throw new HttpsError("invalid-argument", "Tipo de contenido no válido.");
+  const contentCollection = contentType === "chat" ? "youthCommunityChat" : "youthCommunityPosts";
+  const postRef = db.collection(contentCollection).doc(postId);
   const snapshot = await postRef.get();
-  if (!snapshot.exists) throw new HttpsError("not-found", "No se encontró la publicación.");
+  if (!snapshot.exists) throw new HttpsError("not-found", "No se encontró el contenido.");
   await postRef.update({
     status: action === "hide" ? "hidden" : "published",
     moderatedAt: new Date().toISOString(), moderatedBy: request.auth.uid,
