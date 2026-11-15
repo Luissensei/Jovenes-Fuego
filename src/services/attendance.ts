@@ -103,4 +103,6 @@ export async function saveMeetingAttendance(
     meetingId,
     participants,
   });
+  invalidateRequestCache('attendance-meetings:attendance');
+  invalidateRequestCache('attendance-meetings:reports');
 }
