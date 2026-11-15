@@ -955,6 +955,45 @@ export const verifyYouthProfilePin = onCall(async (request) => {
 
 
 /** Private community feed: every read requires a recent youth PIN session. */
+/** Chat grupal supervisable de la comunidad juvenil. */
+export const getYouthCommunityChat = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const snapshot = await db.collection("youthCommunityChat")
+    .orderBy("createdAt", "desc").limit(50).get();
+  return {messages: snapshot.docs.map((document) => {
+    const data = document.data();
+    return {
+      id: document.id, memberId: text(data.memberId, 150),
+      author: text(data.author, 120), content: text(data.content, 500),
+      createdAt: text(data.createdAt, 40),
+    };
+  }).reverse()};
+});
+
+export const sendYouthCommunityChatMessage = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  const author = await getCommunityMember(memberId);
+  const content = text(request.data?.content, 500);
+  if (content.length < 1) throw new HttpsError("invalid-argument", "Escribe un mensaje.");
+  const now = Date.now();
+  const rateRef = db.collection("youthCommunityRateLimits").doc(memberId);
+  const messageRef = db.collection("youthCommunityChat").doc();
+  await db.runTransaction(async (transaction) => {
+    const rate = await transaction.get(rateRef);
+    const lastChatAt = Number(rate.data()?.lastChatAt ?? 0);
+    if (now - lastChatAt < 5000) {
+      throw new HttpsError("resource-exhausted", "Espera unos segundos antes de enviar otro mensaje.");
+    }
+    transaction.create(messageRef, {
+      memberId, author: author.name, content,
+      createdAt: new Date(now).toISOString(), status: "published",
+    });
+    transaction.set(rateRef, {lastChatAt: now}, {merge: true});
+  });
+  return {success: true, id: messageRef.id};
+});
+
 export const getYouthCommunityFeed = onCall(async (request) => {
   const memberId = requireYouthCommunitySession(request.data?.communitySession);
   await getCommunityMember(memberId);
