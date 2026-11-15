@@ -1462,3 +1462,28 @@ body .youth-portal .youth-bottom-navigation button span {
   body .youth-portal .youth-bottom-navigation button { padding: 8px 2px; font-size: 9px; }
   body .youth-portal .youth-bottom-navigation button svg { width: 18px; height: 18px; }
 }
+
+/* Comunidad JDF: reportes y moderación */
+.jf-community-post-head { position: relative; }
+.jf-community-report {
+  display:inline-flex;align-items:center;gap:5px;margin-left:auto;padding:7px 9px;
+  border:1px solid var(--border-subtle);border-radius:999px;background:var(--surface-muted);
+  color:var(--text-muted);font:inherit;font-size:11px;cursor:pointer;
+}
+.jf-community-report:hover { color:var(--danger,#b42318);border-color:var(--danger,#b42318); }
+.jf-community-report:disabled { opacity:.55;cursor:default; }
+.jf-community-moderation { max-width:1040px; }
+.jf-moderation-toolbar { display:flex;justify-content:space-between;align-items:center;gap:12px;margin:22px 0;padding:14px 16px;border:1px solid var(--border-subtle);border-radius:14px;background:var(--surface-card); }
+.jf-moderation-toolbar span,.jf-moderation-toolbar button,.jf-moderation-card header span,.jf-moderation-card header small,.jf-moderation-footnote { display:inline-flex;align-items:center;gap:8px; }
+.jf-moderation-toolbar button,.jf-moderation-actions button { border:1px solid var(--border-subtle);border-radius:10px;padding:9px 12px;background:var(--surface-muted);color:var(--text-primary);font:inherit;cursor:pointer; }
+.jf-moderation-list { display:grid;gap:14px; }
+.jf-moderation-card { padding:18px;border:1px solid var(--border-subtle);border-radius:16px;background:var(--surface-card); }
+.jf-moderation-card header { display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--text-muted);font-size:12px; }
+.jf-moderation-card header span { color:var(--danger,#b42318);font-weight:650; }
+.jf-moderation-card blockquote { margin:12px 0;padding:13px 15px;border-left:3px solid var(--brand-primary);border-radius:0 10px 10px 0;background:var(--surface-muted);white-space:pre-wrap;overflow-wrap:anywhere; }
+.jf-moderation-author,.jf-moderation-details { color:var(--text-muted);font-size:13px; }
+.jf-moderation-actions { display:flex;flex-wrap:wrap;gap:8px;margin-top:16px; }
+.jf-moderation-actions button:first-child { color:var(--danger,#b42318); }
+.jf-moderation-actions button.secondary { color:var(--text-primary); }
+.jf-moderation-footnote { margin-top:18px;color:var(--text-muted);font-size:12px; }
+@media(max-width:560px){.jf-moderation-card{padding:14px}.jf-moderation-card header{align-items:flex-start;flex-direction:column}.jf-moderation-actions{display:grid}.jf-moderation-actions button{width:100%}.jf-moderation-toolbar{align-items:flex-start;flex-direction:column}}
