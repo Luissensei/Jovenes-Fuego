@@ -11,7 +11,7 @@ import {
   Palette, Volume2, VolumeX, Star, X,
   BookMarked, Moon, Sun, CheckCircle2, UserRound, Save, Trash2, Home, MessageCircle,
 } from 'lucide-react';
-import {getPublicProfiles, saveYouthProfileAppearance, type PublicProfile} from '../services/publicProfiles';
+import {getPublicProfiles, purchaseYouthLookItem, saveYouthProfileAppearance, type PublicProfile} from '../services/publicProfiles';
 import {
   getWeeklyActivities,
   getHallOfFame,
@@ -753,42 +753,57 @@ export default function YouthPortalPage() {
   }
 
   async function equipLookItem(category: LookShopCategory, item: (typeof lookShop)[LookShopCategory][number]) {
-    if (!selectedProfile) return;
-    const ownedKey = `${lookCategoryStorage[category]}:${item.key}`;
-    const alreadyOwned = item.cost === 0 || look.ownedItems.includes(ownedKey);
-    if (!alreadyOwned && look.flames < item.cost) {
-      setLookNotice(`Te faltan ${item.cost - look.flames} Llamas para desbloquear ${item.label}.`);
+    if (!selectedProfile || lookSaving) return;
+    if (!communitySession) {
+      setLookNotice('Verifica tu PIN juvenil para comprar y sincronizar artículos.');
       return;
     }
-    const equippedPrefixes: Partial<Record<LookShopCategory, string>> = {
-      effects:'equipped:fx:',
-      badges:'equipped:bdg:',
-      hair:'equipped:hair:',
-      outfits:'equipped:outfit:',
-      accessories:'equipped:accessory:',
-    };
-    const prefix = equippedPrefixes[category];
-    const retainedItems = prefix ? look.ownedItems.filter((value) => !value.startsWith(prefix)) : look.ownedItems;
-    const nextOwnedItems = Array.from(new Set([
-      ...retainedItems,
-      ...(!alreadyOwned && item.cost > 0 ? [ownedKey] : []),
-      ...(prefix ? [`${prefix}${item.key}`] : []),
-    ]));
-    const next: ProfileLook = {
-      ...look,
-      frame: category === 'frames' ? item.key : look.frame,
-      avatar: category === 'avatars' ? item.key : look.avatar,
-      title: category === 'titles' ? item.key : look.title,
-      background: category === 'backgrounds' ? item.key : look.background,
-      effects: category === 'effects' ? item.key : look.effects,
-      badge: category === 'badges' ? item.key : look.badge,
-      hair: category === 'hair' ? item.key : look.hair,
-      outfit: category === 'outfits' ? item.key : look.outfit,
-      accessory: category === 'accessories' ? item.key : look.accessory,
-      ownedItems: nextOwnedItems,
-      flames: alreadyOwned ? look.flames : look.flames - item.cost,
-    };
-    await persistLook(next, item.label + ' equipado correctamente.');
+    setLookSaving(true);
+    setLookNotice('');
+    try {
+      const purchase = await purchaseYouthLookItem(communitySession, category, item.key);
+      const equippedPrefixes: Partial<Record<LookShopCategory, string>> = {
+        effects:'equipped:fx:',
+        badges:'equipped:bdg:',
+        hair:'equipped:hair:',
+        outfits:'equipped:outfit:',
+        accessories:'equipped:accessory:',
+      };
+      const prefix = equippedPrefixes[category];
+      const retainedItems = prefix
+        ? purchase.ownedItems.filter((value) => !value.startsWith(prefix) || value === `${prefix}${item.key}`)
+        : purchase.ownedItems;
+      const next: ProfileLook = {
+        ...look,
+        frame: category === 'frames' ? item.key : look.frame,
+        avatar: category === 'avatars' ? item.key : look.avatar,
+        title: category === 'titles' ? item.key : look.title,
+        background: category === 'backgrounds' ? item.key : look.background,
+        effects: category === 'effects' ? item.key : look.effects,
+        badge: category === 'badges' ? item.key : look.badge,
+        hair: category === 'hair' ? item.key : look.hair,
+        outfit: category === 'outfits' ? item.key : look.outfit,
+        accessory: category === 'accessories' ? item.key : look.accessory,
+        ownedItems: retainedItems,
+        flames: purchase.flames,
+      };
+      setLook(next);
+      try {
+        window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
+      } catch {
+        // La compra ya quedó confirmada en el servidor; la caché local es opcional.
+      }
+      setLookNotice(`${item.label} equipado. Saldo actualizado: ${purchase.flames} Llamas.`);
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : '';
+      setLookNotice(message.includes('suficientes Llamas')
+        ? 'No tienes suficientes Llamas para desbloquear este artículo.'
+        : message.includes('desbloqueado') || message.includes('no existe')
+          ? message
+          : 'No se pudo completar la compra. Comprueba tu conexión e inténtalo de nuevo.');
+    } finally {
+      setLookSaving(false);
+    }
   }
 
   async function applyLookTemplate(templateKey: string) {
