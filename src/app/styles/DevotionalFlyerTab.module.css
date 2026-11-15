@@ -47,3 +47,16 @@
 .formError{color:#c34c3d}
 .formSuccess{color:#28764c}
 @media(max-width:600px){.submitCard{padding:18px}.submitButton{width:100%}}
+
+.story{position:relative;overflow:hidden;background:#100e18;border-radius:18px;isolation:isolate}
+.story .flyer{display:block;width:100%;max-height:620px;aspect-ratio:9/14;object-fit:contain;background:#100e18}
+.storyTop{position:absolute;top:12px;left:14px;right:14px;display:flex;justify-content:space-between;color:#fff;font-size:10px;font-weight:800;letter-spacing:.12em;text-shadow:0 1px 5px #000}
+.storyBars{position:absolute;top:8px;left:10px;right:10px;display:flex;gap:4px}
+.storyBars span{height:3px;flex:1;border-radius:9px;background:#ffffff55}
+.storyBars .storyBarActive{background:#fff}
+.storyPrev,.storyNext{position:absolute;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:34px;height:42px;border:0;border-radius:10px;background:#0008;color:#fff}
+.storyPrev{left:9px}.storyNext{right:9px}
+.storyPrev:disabled,.storyNext:disabled{opacity:.25}
+.storyDots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:7px}
+.storyDots button{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:#ffffff70}
+.storyDots .storyDotActive{background:#fff;transform:scale(1.25)}
