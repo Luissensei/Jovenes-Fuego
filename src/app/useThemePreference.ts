@@ -21,7 +21,7 @@ export function useThemePreference() {
     root.style.colorScheme = theme;
     document.querySelector('meta[name="theme-color"]')?.setAttribute(
       'content',
-      theme === 'dark' ? '#101a15' : '#f4f7f6',
+      theme === 'dark' ? '#111a15' : '#f3f4ef',
     );
     try {
       window.localStorage.setItem('jf-theme', theme);
