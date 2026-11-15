@@ -1053,3 +1053,72 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
   }
 }
 
+/* Compatibility names used by older route modules now resolve to the same semantic tokens. */
+:root {
+  --jf-text: var(--jf-ink);
+  --jf-border: var(--jf-line);
+  --jf-input: var(--jf-surface-2);
+  --jf-glass-edge: var(--jf-line);
+  --jf-shadow-hover: var(--jf-shadow-raised);
+}
+
+/* Remaining route modules and body-mounted dialogs. */
+.main .jf-route-stage :is(
+  .managed-stat,.managed-record,.managed-toolbar,.managed-empty,.managed-modal,
+  .leaders-card,.leaders-stat,.leaders-table-wrapper,.leaders-table,
+  .checkin-list,.checkin-summary>article,.checkin-camera-placeholder,
+  .devotionals-controls,.devotionals-search,.devotional-card,
+  .followup-stat,.followup-card,.followup-content,.followup-search,
+  .visitor-card,.visitors-stat,.visitors-content,.visitors-search,
+  .attendance-card,.attendance-member,.attendance-summary
+) {
+  background-color: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  border-color: var(--jf-line) !important;
+}
+:where(.managed-modal,.leaders-modal,.member-detail-modal,.followup-modal,.visitors-modal,.devotionals-modal,.photos-modal) {
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  border: 1px solid var(--jf-line) !important;
+  box-shadow: var(--jf-shadow-raised) !important;
+}
+:where(.managed-modal,.leaders-modal,.member-detail-modal,.followup-modal,.visitors-modal,.devotionals-modal,.photos-modal) :is(h1,h2,h3,h4,label,strong,p,small,span) {
+  color: inherit;
+}
+:where(.managed-modal,.leaders-modal,.member-detail-modal,.followup-modal,.visitors-modal,.devotionals-modal,.photos-modal) :is(input,select,textarea) {
+  color: var(--jf-ink) !important;
+  background: var(--jf-surface) !important;
+  border-color: var(--jf-line-strong) !important;
+}
+.main .jf-route-stage :is(.checkin-primary,.attendance-primary,.managed-primary) {
+  background: var(--jf-brand) !important;
+  border-color: var(--jf-brand) !important;
+  color: #fff !important;
+}
+:root[data-theme="dark"] .main .jf-route-stage :is(.checkin-primary,.attendance-primary,.managed-primary) { color: #102117 !important; }
+.main .jf-route-stage :is(.checkin-secondary,.attendance-secondary,.managed-secondary) {
+  background: var(--jf-surface-2) !important;
+  border-color: var(--jf-line) !important;
+  color: var(--jf-ink) !important;
+}
+.main .jf-route-stage .attendance-status-button {
+  background: var(--jf-surface-2) !important;
+  border-color: var(--jf-line) !important;
+  color: var(--jf-muted) !important;
+}
+.main .jf-route-stage .attendance-status-button.active {
+  background: var(--jf-brand-soft) !important;
+  border-color: var(--jf-brand) !important;
+  color: var(--jf-brand-ink) !important;
+}
+.main .jf-route-stage :is(.leaders-table,.reports-table) th {
+  background: var(--jf-surface-2) !important;
+  color: var(--jf-muted) !important;
+  border-color: var(--jf-line) !important;
+}
+.main .jf-route-stage :is(.leaders-table,.reports-table) td {
+  background: transparent !important;
+  color: var(--jf-ink) !important;
+  border-color: var(--jf-line) !important;
+}
+
