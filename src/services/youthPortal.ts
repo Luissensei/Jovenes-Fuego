@@ -23,6 +23,20 @@ export type YouthCommunityPostInput = {
   type:"text"|"verse"|"song"|"testimony";content:string;reference?:string;linkUrl?:string;
 };
 export type YouthCommunityChatMessage = {id:string;memberId:string;author:string;content:string;createdAt:string};
+export type YouthCommunityAnnouncement = {id:string;title:string;message:string;createdAt:string};
+export async function getYouthCommunityAnnouncements(communitySession:string):Promise<YouthCommunityAnnouncement[]> {
+  const result=await youthPinCall<{communitySession:string},{announcements:YouthCommunityAnnouncement[]}>(
+    "getYouthCommunityAnnouncements",{communitySession},
+  );
+  return Array.isArray(result.announcements)?result.announcements:[];
+}
+export async function publishYouthCommunityAnnouncement(title:string,message:string):Promise<void> {
+  const result=await youthPinCall<{title:string;message:string},{success:boolean}>(
+    "adminPublishYouthCommunityAnnouncement",{title,message},
+  );
+  if(!result.success)throw new Error("No se pudo publicar el aviso.");
+}
+
 export async function getYouthCommunityChat(communitySession:string):Promise<YouthCommunityChatMessage[]> {
   const result=await youthPinCall<{communitySession:string},{messages:YouthCommunityChatMessage[]}>("getYouthCommunityChat",{communitySession});
   return Array.isArray(result.messages)?result.messages:[];
