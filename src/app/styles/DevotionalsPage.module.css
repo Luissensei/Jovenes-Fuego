@@ -347,18 +347,18 @@
 
 
 /* Publicación visible desde la pantalla principal de administración */
-.scope :global(.devotional-publisher-card){
+.scope:global(.devotional-publisher-card){
   display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.85fr);gap:22px;align-items:center;
   padding:22px;border:1px solid rgba(94,145,222,.3);border-radius:20px;
   background:linear-gradient(125deg,rgba(74,111,174,.12),var(--jf-surface,rgba(27,23,35,.92)));
   box-shadow:0 14px 36px rgba(5,4,10,.1);
 }
-.scope :global(.devotional-publisher-copy){min-width:0}
+.scope :global(.devotional-publisher-card) :global(.devotional-publisher-copy){min-width:0}
 .scope :global(.devotional-publisher-kicker){display:flex;align-items:center;gap:8px;color:var(--jf-accent,#82aef0);font-size:11px;font-weight:800;letter-spacing:.08em}
 .scope :global(.devotional-publisher-copy) h2{margin:10px 0 7px;font-size:clamp(18px,2.2vw,23px);color:var(--jf-text,#f5efe6)}
 .scope :global(.devotional-publisher-copy) p,.scope :global(.devotional-flyer-empty){margin:0;color:var(--jf-muted,#9298a5);font-size:13px;line-height:1.65}
 .scope :global(.devotional-flyer-ready){color:#29966b;font-size:12px;font-weight:700}
-.scope :global(.devotional-publisher-card) .devotional-flyer-upload{min-width:0}
+.scope :global(.devotional-publisher-card) :global(.devotional-flyer-upload){min-width:0}
 @media(max-width:700px){
- .scope :global(.devotional-publisher-card){grid-template-columns:minmax(0,1fr);gap:15px;padding:17px;border-radius:17px}
+ .scope:global(.devotional-publisher-card){grid-template-columns:minmax(0,1fr);gap:15px;padding:17px;border-radius:17px}
 }
