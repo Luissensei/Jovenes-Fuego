@@ -59,7 +59,9 @@ export default function DashboardPage() {
     setError('');
     setPeopleLoading(true);
     setActivitiesLoading(true);
-    setAttendanceLoading(canReadAttendance);
+    // El ranking y la agenda tienen prioridad visual. La asistencia se consulta
+    // después del primer render para no competir con la apertura del dashboard.
+    setAttendanceLoading(false);
 
     void getPublicRankingMetrics().then((value) => {
       if (active) setPeople(value);
@@ -77,18 +79,26 @@ export default function DashboardPage() {
       if (active) setActivitiesLoading(false);
     });
 
-    if (canReadAttendance) {
-      void listAttendanceMeetings(isLeader && !leaderHasReports ? 'attendance' : 'reports')
-        .then((value) => { if (active) setAttendanceMeetings(value); })
-        .catch(() => {
-          if (active) setError((old) => old || 'No se pudo consultar la asistencia del periodo.');
-        })
-        .finally(() => { if (active) setAttendanceLoading(false); });
-    } else {
+    if (!canReadAttendance) {
       setAttendanceMeetings([]);
-      setAttendanceLoading(false);
     }
-    return () => { active = false; };
+    const attendanceTimer = canReadAttendance
+      ? window.setTimeout(() => {
+        if (!active) return;
+        setAttendanceLoading(true);
+        void listAttendanceMeetings(isLeader && !leaderHasReports ? 'attendance' : 'reports')
+          .then((value) => { if (active) setAttendanceMeetings(value); })
+          .catch(() => {
+            if (active) setError((old) => old || 'No se pudo consultar la asistencia del periodo.');
+          })
+          .finally(() => { if (active) setAttendanceLoading(false); });
+      }, 900)
+      : undefined;
+
+    return () => {
+      active = false;
+      if (attendanceTimer !== undefined) window.clearTimeout(attendanceTimer);
+    };
   }, [configured, canReadAttendance, isLeader, leaderHasReports]);
 
   const ranked = useMemo(() => [...people].sort((a, b) => (b.points ?? 0) - (a.points ?? 0) || a.name.localeCompare(b.name, 'es')), [people]);
