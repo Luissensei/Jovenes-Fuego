@@ -11,6 +11,7 @@ export type DevotionalRecord = {
   category: string;
   date: string;
   content: string;
+  flyerDataUrl?: string;
   createdAt: string;
 };
 
@@ -34,7 +35,13 @@ function validateDevotional(data: CreateDevotionalInput) {
   if (fields.some((value) => typeof value !== 'string' || !value.trim())) {
     throw new Error('Completa todos los campos del devocional.');
   }
-  if (data.flyerDataUrl && (data.flyerDataUrl.length > 700000 || !/^data:image\\/(jpeg|png|webp);base64,/.test(data.flyerDataUrl))) {\n    throw new Error("El flyer debe ser una imagen JPG, PNG o WebP de tamaño reducido.");\n  }\n  if (data.title.trim().length > 120 || data.verse.trim().length > 2000 ||
+  if (data.flyerDataUrl && (
+    data.flyerDataUrl.length > 700000 ||
+    !/^data:image\/(jpeg|png|webp);base64,/.test(data.flyerDataUrl)
+  )) {
+    throw new Error('El flyer debe ser una imagen JPG, PNG o WebP de tamaño reducido.');
+  }
+  if (data.title.trim().length > 120 || data.verse.trim().length > 2000 ||
     data.content.trim().length > 10000 || data.reference.trim().length > 120 ||
     data.author.trim().length > 100 || data.category.trim().length > 50) {
     throw new Error('Uno de los campos supera el tamaño permitido.');
@@ -53,9 +60,15 @@ export async function listDevotionals(): Promise<DevotionalRecord[]> {
   return Array.isArray(response.devotionals) ? response.devotionals : [];
 }
 
-export async function createDevotional(
-  input: CreateDevotionalInput,
-): Promise<string> {
+export async function getPublicDevotionals(): Promise<DevotionalRecord[]> {
+  const response = await call<Record<string, never>, {devotionals: DevotionalRecord[]}>(
+    'getPublicDevotionals',
+    {},
+  );
+  return Array.isArray(response.devotionals) ? response.devotionals : [];
+}
+
+export async function createDevotional(input: CreateDevotionalInput): Promise<string> {
   assertFirebaseWritesAllowed();
   validateDevotional(input);
   const response = await call<CreateDevotionalInput, {success: boolean; id: string}>(
@@ -68,6 +81,7 @@ export async function createDevotional(
       category: input.category.trim(),
       date: input.date,
       content: input.content.trim(),
+      ...(input.flyerDataUrl ? {flyerDataUrl: input.flyerDataUrl} : {}),
     },
   );
   if (!response.success || !response.id) {
@@ -85,4 +99,3 @@ export async function deleteDevotional(id: string): Promise<void> {
   );
   if (!response.success) throw new Error('No se pudo confirmar la eliminación del devocional.');
 }
-\nexport async function getPublicDevotionals(): Promise<DevotionalRecord[]> {\n  const response = await call<Record<string, never>, {devotionals: DevotionalRecord[]}>("getPublicDevotionals", {});\n  return Array.isArray(response.devotionals) ? response.devotionals : [];\n}\n
