@@ -2422,6 +2422,7 @@ export const adminListDevotionals = onCall(async (request) => {
       category: text(data.category, 50),
       date: text(data.date, 10),
       content: text(data.content, 10000),
+      flyerDataUrl: text(data.flyerDataUrl, 700000),
       createdAt: photoDate(data.createdAt),
     };
   }).sort((left, right) =>
