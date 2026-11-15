@@ -961,7 +961,7 @@ export const getYouthCommunityChat = onCall(async (request) => {
   await getCommunityMember(memberId);
   const snapshot = await db.collection("youthCommunityChat")
     .orderBy("createdAt", "desc").limit(50).get();
-  return {messages: snapshot.docs.map((document) => {
+  return {messages: snapshot.docs.filter((document) => document.data().status !== "hidden").map((document) => {
     const data = document.data();
     return {
       id: document.id, memberId: text(data.memberId, 150),
