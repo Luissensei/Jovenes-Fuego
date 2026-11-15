@@ -1,5 +1,5 @@
 /* Jóvenes de Fuego — responsive quality layer.
-   Loaded last so screen styles cannot reintroduce overflow, inaccessible controls or theme drift. */
+   Loaded before the product design system; provides responsive compatibility and shared control behavior. */
 
 :root {
   /* Compatibility aliases: the product system is the single palette source. */
