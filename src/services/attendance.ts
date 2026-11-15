@@ -107,4 +107,5 @@ export async function saveMeetingAttendance(
   const userScope = auth?.currentUser?.uid ?? 'no-auth';
   invalidateRequestCache(`attendance-meetings:${userScope}:attendance`);
   invalidateRequestCache(`attendance-meetings:${userScope}:reports`);
+  invalidateRequestCache('public-hall-of-fame');
 }
