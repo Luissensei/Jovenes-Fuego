@@ -43,7 +43,7 @@ export default function DevotionalsPage() {
   const [author, setAuthor] = useState('');
   const [newCategory, setNewCategory] = useState('Fe');
   const [content, setContent] = useState('');
-  const [flyerDataUrl, setFlyerDataUrl] = useState('');
+  const [flyerDataUrls, setFlyerDataUrls] = useState<string[]>([]);
   const [flyerError, setFlyerError] = useState('');
 
   const [loading, setLoading] = useState(true);
@@ -108,59 +108,69 @@ export default function DevotionalsPage() {
     setAuthor('');
     setNewCategory('Fe');
     setContent('');
-    setFlyerDataUrl('');
+    setFlyerDataUrls([]);
     setFlyerError('');
   }
 
   async function handleFlyerChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
+    const files = Array.from(event.target.files ?? []);
     setFlyerError('');
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      setFlyerError('Selecciona una imagen JPG, PNG o WebP.');
-      event.target.value = '';
-      return;
-    }
-    if (file.size > 12 * 1024 * 1024) {
-      setFlyerError('La imagen original no puede superar 12 MB.');
+    if (!files.length) return;
+    const remaining = 5 - flyerDataUrls.length;
+    if (files.length > remaining) {
+      setFlyerError(`Puedes agregar ${remaining} imagen(es) más. Cada historia admite hasta 5.`);
       event.target.value = '';
       return;
     }
     try {
-      const source = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => typeof reader.result === 'string' ? resolve(reader.result) : reject(new Error('No se pudo leer la imagen.'));
-        reader.onerror = () => reject(new Error('No se pudo leer la imagen.'));
-        reader.readAsDataURL(file);
-      });
-      const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-        const element = new Image();
-        element.onload = () => resolve(element);
-        element.onerror = () => reject(new Error('El archivo de imagen no es válido.'));
-        element.src = source;
-      });
-      const scale = Math.min(1, 1440 / Math.max(image.naturalWidth, image.naturalHeight));
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
-      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
-      const context = canvas.getContext('2d');
-      if (!context) throw new Error('No se pudo preparar la imagen.');
-      context.fillStyle = '#ffffff';
-      context.fillRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      let quality = 0.78;
-      let compressed = canvas.toDataURL('image/jpeg', quality);
-      while (compressed.length > 660000 && quality > 0.42) {
-        quality -= 0.08;
-        compressed = canvas.toDataURL('image/jpeg', quality);
+      const prepared = await Promise.all(files.map(async (file) => {
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 12 * 1024 * 1024) {
+          throw new Error('Cada imagen debe ser JPG, PNG o WebP y pesar máximo 12 MB.');
+        }
+        const source = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => typeof reader.result === 'string' ? resolve(reader.result) : reject(new Error('No se pudo leer una imagen.'));
+          reader.onerror = () => reject(new Error('No se pudo leer una imagen.'));
+          reader.readAsDataURL(file);
+        });
+        const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+          const element = new Image();
+          element.onload = () => resolve(element);
+          element.onerror = () => reject(new Error('Uno de los archivos no es una imagen válida.'));
+          element.src = source;
+        });
+        const scale = Math.min(1, 1100 / Math.max(image.naturalWidth, image.naturalHeight));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+        const context = canvas.getContext('2d');
+        if (!context) throw new Error('No se pudo preparar una imagen.');
+        context.fillStyle = '#ffffff';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        let quality = 0.62;
+        let compressed = canvas.toDataURL('image/jpeg', quality);
+        while (compressed.length > 115000 && quality > 0.3) {
+          quality -= 0.07;
+          compressed = canvas.toDataURL('image/jpeg', quality);
+        }
+        if (compressed.length > 130000) throw new Error('Una imagen sigue siendo muy pesada. Usa una imagen más ligera.');
+        return compressed;
+      }));
+      const combined = [...flyerDataUrls, ...prepared];
+      if (combined.reduce((total, image) => total + image.length, 0) > 620000) {
+        throw new Error('El conjunto de imágenes supera el tamaño permitido. Reduce la cantidad o el peso.');
       }
-      if (compressed.length > 680000) throw new Error('El flyer sigue siendo muy pesado. Prueba con una imagen más ligera.');
-      setFlyerDataUrl(compressed);
+      setFlyerDataUrls(combined);
     } catch (cause) {
-      setFlyerError(cause instanceof Error ? cause.message : 'No se pudo procesar el flyer.');
-      setFlyerDataUrl('');
+      setFlyerError(cause instanceof Error ? cause.message : 'No se pudieron procesar las imágenes.');
     }
     event.target.value = '';
+  }
+
+  function removeFlyer(index: number) {
+    setFlyerDataUrls((current) => current.filter((_, itemIndex) => itemIndex !== index));
+    setFlyerError('');
   }
 
   async function handleCreate(event: React.FormEvent<HTMLFormElement>) {
@@ -178,7 +188,7 @@ export default function DevotionalsPage() {
         category: newCategory,
         date: getLocalDate(),
         content,
-        ...(flyerDataUrl ? {flyerDataUrl} : {}),
+        ...(flyerDataUrls.length ? {flyerDataUrls} : {}),
       });
 
       if (!mountedRef.current) return;
@@ -243,22 +253,27 @@ export default function DevotionalsPage() {
         <div className="devotional-publisher-copy">
           <span className="devotional-publisher-kicker"><ImagePlus size={15}/> PUBLICACIÓN PARA EL PORTAL JUVENIL</span>
           <h2 id="devotional-publisher-title">Imagen del devocional para los jóvenes</h2>
-          <p>Selecciona aquí el flyer que aparecerá en el Portal Jóvenes. Después pulsa «Crear devocional» para completar el título, versículo y reflexión y publicarlo todo junto.</p>
+          <p>Selecciona hasta 5 imágenes para crear una historia. Los jóvenes podrán avanzar entre ellas sin que una reemplace a la anterior.</p>
         </div>
         <div className="devotional-flyer-upload">
           <label className="devotional-flyer-picker" htmlFor="devotional-flyer">
             <ImagePlus size={20}/>
-            <span>{flyerDataUrl ? 'Cambiar imagen del devocional' : 'Subir imagen del devocional'}</span>
-            <small>JPG, PNG o WebP · máximo 12 MB · optimización automática</small>
+            <span>{flyerDataUrls.length ? 'Agregar más imágenes' : 'Seleccionar imágenes'}</span>
+            <small>Hasta 5 imágenes · JPG, PNG o WebP · máximo 12 MB cada una</small>
           </label>
-          <input id="devotional-flyer" type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => void handleFlyerChange(event)} />
-          {flyerDataUrl ? (
-            <div className="devotional-flyer-preview">
-              <img src={flyerDataUrl} alt="Vista previa del flyer que verán los jóvenes"/>
-              <button type="button" onClick={() => {setFlyerDataUrl('');setFlyerError('');}}>Quitar imagen</button>
-              <span className="devotional-flyer-ready">Imagen lista para incluir en el próximo devocional</span>
+          <input id="devotional-flyer" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => void handleFlyerChange(event)} />
+          {flyerDataUrls.length ? (
+            <div className="devotional-story-previews">
+              {flyerDataUrls.map((image, index) => (
+                <div className="devotional-flyer-preview" key={index}>
+                  <img src={image} alt={`Imagen ${index + 1} de la historia`}/>
+                  <span>Imagen {index + 1}</span>
+                  <button type="button" onClick={() => removeFlyer(index)}>Quitar</button>
+                </div>
+              ))}
+              <span className="devotional-flyer-ready">{flyerDataUrls.length} de 5 imágenes listas para la historia</span>
             </div>
-          ) : <p className="devotional-flyer-empty">Todavía no has seleccionado una imagen.</p>}
+          ) : <p className="devotional-flyer-empty">Todavía no has seleccionado imágenes.</p>}
           {flyerError && <p role="alert" className="devotional-flyer-error">{flyerError}</p>}
         </div>
       </section>
@@ -323,7 +338,7 @@ export default function DevotionalsPage() {
               <Heart size={18} />
             </div>
 
-            {item.flyerDataUrl && <img className="devotional-admin-flyer" src={item.flyerDataUrl} alt={`Flyer de ${item.title}`} loading="lazy" />}
+            {(item.flyerDataUrls?.length ? item.flyerDataUrls : item.flyerDataUrl ? [item.flyerDataUrl] : []).map((image, index) => <img key={index} className="devotional-admin-flyer" src={image} alt={`Imagen ${index + 1} de ${item.title}`} loading="lazy" />)}
             <h3>{item.title}</h3>
             <blockquote>“{item.verse}”</blockquote>
             <strong className="devotional-reference">{item.reference}</strong>
@@ -364,7 +379,7 @@ export default function DevotionalsPage() {
             </div>
 
             <h2 id="devotional-detail-title">{selected.title}</h2>
-            {selected.flyerDataUrl && <img className="devotional-admin-flyer devotional-admin-flyer-detail" src={selected.flyerDataUrl} alt={`Flyer de ${selected.title}`} />}
+            {(selected.flyerDataUrls?.length ? selected.flyerDataUrls : selected.flyerDataUrl ? [selected.flyerDataUrl] : []).map((image, index) => <img key={index} className="devotional-admin-flyer devotional-admin-flyer-detail" src={image} alt={`Imagen ${index + 1} de ${selected.title}`} />)}
             <blockquote>“{selected.verse}”</blockquote>
             <strong>{selected.reference}</strong>
             <p className="devotional-full-content">{selected.content}</p>
