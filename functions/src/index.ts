@@ -2640,7 +2640,7 @@ export const adminSaveWeeklyActivity = onCall(async (request) => {
 
 export const setYouthWeeklyActivityAttendance = onCall(async (request) => {
   const memberId = requireYouthCommunitySession(request.data?.communitySession);
-  await getCommunityMember(memberId);
+  const member = await getCommunityMember(memberId);
   const activityId = text(request.data?.activityId, 150);
   const response = text(request.data?.response, 20);
   if (!activityId || activityId.startsWith("legacy-") ||
@@ -2654,7 +2654,8 @@ export const setYouthWeeklyActivityAttendance = onCall(async (request) => {
   }
   const attendanceRef = db.collection("weeklyActivityAttendance").doc(activityId + "_" + memberId);
   await attendanceRef.set({
-    activityId, memberId, response, updatedAt: new Date().toISOString(),
+    activityId, memberId, response, name: member.name, nick: member.nick,
+    updatedAt: new Date().toISOString(),
   }, {merge: true});
   return {success: true};
 });
@@ -2691,14 +2692,10 @@ export const adminGetWeeklyActivityAttendance = onCall(async (request) => {
   const members = await Promise.all(snapshot.docs.map(async (document) => {
     const data = document.data();
     const memberId = text(data.memberId, 150);
-    const member = await db.collection("members").doc(memberId).get();
-    const profile = await db.collection("publicProfiles").doc(memberId).get();
-    const memberData = member.data() ?? {};
-    const profileData = profile.data() ?? {};
     return {
       memberId,
-      name: text(profileData.name, 120) || text(memberData.name, 120) || "Joven",
-      nick: text(profileData.nick, 80) || text(memberData.nick, 80),
+      name: text(data.name, 120) || "Joven",
+      nick: text(data.nick, 60),
       response: text(data.response, 20),
       updatedAt: text(data.updatedAt, 40),
     };
