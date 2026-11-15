@@ -1,6 +1,7 @@
 import {httpsCallable} from 'firebase/functions';
 
 import {functions} from './firebase/client';
+import {cachedRequest} from './requestCache';
 
 export type PublicProfile = {
   id: string;
@@ -28,15 +29,17 @@ async function call<TResponse>(
 }
 
 /** Obtiene únicamente indicadores públicos, sin descargar fotografías ni datos privados. */
-export async function getPublicRankingMetrics(): Promise<PublicRankingMetric[]> {
-  const response = await call<{metrics: PublicRankingMetric[]}>('getPublicRankingMetrics');
-  return Array.isArray(response.metrics)
-    ? response.metrics.map((item) => ({
-      id: String(item.id ?? ''),
-      name: String(item.name ?? ''),
-      points: Math.max(0, Number(item.points) || 0),
-    })).filter((item) => item.id && item.name)
-    : [];
+export function getPublicRankingMetrics(): Promise<PublicRankingMetric[]> {
+  return cachedRequest('public-ranking-metrics', 20_000, async () => {
+    const response = await call<{metrics: PublicRankingMetric[]}>('getPublicRankingMetrics');
+    return Array.isArray(response.metrics)
+      ? response.metrics.map((item) => ({
+        id: String(item.id ?? ''),
+        name: String(item.name ?? ''),
+        points: Math.max(0, Number(item.points) || 0),
+      })).filter((item) => item.id && item.name)
+      : [];
+  });
 }
 
 /** Perfiles y apariencia pública se consultan con Admin SDK y filtro nopub en servidor. */
