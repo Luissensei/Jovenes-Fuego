@@ -776,3 +776,52 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
 @media (max-width: 600px) {
   .main .jf-route-stage [class*="NotificationsPage_hero"] { padding: 16px !important; }
 }
+
+
+/* Photos, managed records and reporting: neutralize leftover module-local color systems. */
+.main .jf-route-stage :is(.photo-card,.photos-tabs,.photos-modal,.managed-stat,.managed-record,
+.managed-toolbar,.managed-search,.managed-modal,.managed-empty,.reports-filter,.reports-meeting-list article) {
+  border-color: var(--jf-line) !important;
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main .jf-route-stage :is(.photo-card-content,.managed-record-main,.reports-section-heading) :is(h2,h3,strong) {
+  color: var(--jf-ink) !important;
+}
+.main .jf-route-stage :is(.photo-card-content,.managed-record-description,.managed-stat,.reports-breakdown) :is(p,small,span) {
+  color: var(--jf-muted) !important;
+}
+.main .jf-route-stage .photos-tabs button {
+  border-color: transparent !important;
+  background: transparent !important;
+  color: var(--jf-muted) !important;
+}
+.main .jf-route-stage .photos-tabs button.active {
+  background: var(--jf-brand-soft) !important;
+  color: var(--jf-brand-ink) !important;
+}
+.main .jf-route-stage :is(.photos-primary,.photos-approve,.managed-primary,.managed-submit) {
+  background: var(--jf-brand) !important;
+  border-color: var(--jf-brand) !important;
+  color: #fff !important;
+}
+.main .jf-route-stage .photos-reject {
+  background: var(--jf-danger-soft) !important;
+  border-color: var(--jf-danger-soft) !important;
+  color: var(--jf-danger) !important;
+}
+.main .jf-route-stage :is(.managed-status,.photo-status) {
+  background: var(--jf-brand-soft) !important;
+  color: var(--jf-brand-ink) !important;
+}
+.main .jf-route-stage .reports-table th {
+  background: var(--jf-surface-2) !important;
+  color: var(--jf-muted) !important;
+}
+.main .jf-route-stage .reports-table td { color: var(--jf-ink) !important; }
+.main .jf-route-stage .reports-progress > div { transition: width .2s ease; }
+@media (max-width: 650px) {
+  .main .jf-route-stage :is(.managed-record,.photos-hero) { align-items: flex-start !important; }
+  .main .jf-route-stage .managed-toolbar { flex-wrap: wrap; }
+}
