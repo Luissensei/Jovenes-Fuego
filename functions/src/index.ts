@@ -1119,16 +1119,25 @@ export const createYouthCommunityComment = onCall(async (request) => {
   }
   const postRef = db.collection("youthCommunityPosts").doc(postId);
   const commentRef = postRef.collection("comments").doc();
+  const rateRef = db.collection("youthCommunityRateLimits").doc(memberId);
+  const now = Date.now();
   await db.runTransaction(async (transaction) => {
-    const post = await transaction.get(postRef);
+    const [post, rate] = await Promise.all([
+      transaction.get(postRef),
+      transaction.get(rateRef),
+    ]);
     if (!post.exists || post.data()?.deleted === true || post.data()?.status === "hidden") {
       throw new HttpsError("not-found", "Esta publicación ya no está disponible.");
     }
+    if (now - Number(rate.data()?.lastCommentAt ?? 0) < 3000) {
+      throw new HttpsError("resource-exhausted", "Espera unos segundos antes de comentar nuevamente.");
+    }
     transaction.create(commentRef, {
       memberId, author: author.name, content,
-      createdAt: new Date().toISOString(),
+      createdAt: new Date(now).toISOString(),
     });
     transaction.update(postRef, {commentCount: FieldValue.increment(1)});
+    transaction.set(rateRef, {lastCommentAt: now}, {merge: true});
   });
   return {success: true, id: commentRef.id};
 });
