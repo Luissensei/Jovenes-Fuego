@@ -1,0 +1,26 @@
+.page{display:grid;gap:22px;min-width:0;color:var(--jf-text)}
+.header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:24px;border:1px solid var(--jf-border);border-radius:22px;background:var(--jf-surface);box-shadow:var(--jf-shadow)}
+.heading>span{display:flex;align-items:center;gap:7px;color:var(--jf-accent);font-size:11px;font-weight:800;letter-spacing:.1em}
+.heading h1{margin:9px 0;font-size:clamp(23px,4vw,32px)}
+.heading p{margin:0;color:var(--jf-muted)}
+.header>button{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 15px;border:1px solid var(--jf-border);border-radius:11px;background:var(--jf-surface-raised);color:var(--jf-text);font:inherit;font-weight:700;cursor:pointer}
+.header>button:disabled{opacity:.6;cursor:wait}
+.list{display:grid;gap:20px}
+.card{overflow:hidden;border:1px solid var(--jf-border);border-radius:20px;background:var(--jf-surface);box-shadow:var(--jf-shadow)}
+.flyerLink{display:block;background:var(--jf-surface-raised);text-align:center}
+.flyer{display:block;width:100%;max-height:760px;object-fit:contain;margin:auto}
+.copy{display:grid;gap:12px;padding:22px}
+.meta{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.meta>span{padding:6px 10px;border-radius:99px;background:var(--jf-surface-raised);color:var(--jf-accent);font-size:12px;font-weight:800}
+.meta small{display:flex;align-items:center;gap:6px;color:var(--jf-muted)}
+.copy h2{margin:0;font-size:clamp(20px,3vw,27px)}
+.copy blockquote{margin:0;padding-left:14px;border-left:3px solid var(--jf-accent);color:var(--jf-muted);line-height:1.65}
+.reference{color:var(--jf-accent);font-size:13px}
+.copy p{margin:0;color:var(--jf-text);line-height:1.75;white-space:pre-wrap}
+.author{color:var(--jf-muted)}
+.state,.empty,.error{padding:34px;border:1px solid var(--jf-border);border-radius:16px;background:var(--jf-surface);color:var(--jf-muted);text-align:center}
+.empty{display:grid;justify-items:center;gap:9px}
+.empty strong{color:var(--jf-text)}
+.error{color:#c34c3d}
+.error button{display:block;margin:12px auto 0;padding:8px 13px;border:1px solid currentColor;border-radius:9px;background:transparent;color:inherit}
+@media(max-width:600px){.header{align-items:flex-start;flex-direction:column;padding:19px}.copy{padding:17px}.flyer{max-height:620px}}
