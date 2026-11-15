@@ -1390,6 +1390,66 @@ export const saveYouthProfileAppearance = onCall(async (request) => {
   return {success: true};
 });
 
+
+const youthLookCatalog = {"frames":{"fuego":0,"neon":40,"cielo":40,"hielo":50,"arco":60,"esmeralda":70,"rayo":80,"oro":120,"galaxia":150,"corona":200,"prisma":110,"obsidiana":125,"solar":95,"cristal":145,"emperador":185,"filigrana":155,"bronce":100,"runa":175},"avatars":{"":0,"paloma":0,"leon":0,"aguila":0,"cordero":20,"mariposa":25,"lobo":30,"estrella":40,"guerrero":50,"dragon":60,"cohete":70,"rey":80,"volcan":90,"fenix":95,"delfin":45,"zorro":55,"pantera":75,"tigre":75,"fenix-real":135},"titles":{"chispa":0,"valiente":25,"guerrero":40,"intercesor":50,"adorador":60,"sabio":80,"leyenda":150},"backgrounds":{"brasa":0,"ocaso":30,"aurora":50,"noche":50,"volcan":80,"galaxia":100,"oceano":65,"bosque":70,"aurora-boreal":115,"atardecer":55,"cosmos":125,"imperial":145,"amatista":95,"santuario":110,"aurum":130,"seda":120,"nebula-real":155},"effects":{"ember":0,"aurora":65,"spark":75,"ice":85,"halo":110,"galaxy":140,"sun":90,"lightning":105,"bloom":95,"royal":125,"orbit":135,"runes":150,"golden":165,"comet":145,"crown":175,"vortex":155},"badges":{"flame":0,"book":45,"heart":55,"shield":65,"star":80,"crown":120,"hope":70,"mission":85,"brave":90,"joy":55,"royal":135,"guardian":110,"victory":125,"covenant":100,"radiance":145},"hair":{"natural":0,"waves":35,"curly":45,"fade":45,"afro":55,"braids":65,"long":65,"bun":60,"classic":30,"cap":40},"outfits":{"basic":0,"hoodie":55,"white":60,"sport":45,"denim":70,"royal":100,"worship":65,"street":75,"warrior":90,"formal":70,"guardian":115,"imperial":145,"champion":120,"satin":130},"accessories":{"none":0,"glasses":25,"headphones":40,"cross":45,"wristband":25,"halo":70,"book":35,"cap":40,"crown":80,"scarf":50,"wings":135,"sword":125,"staff":100,"cape":115}} as const;
+const youthLookStoragePrefix: Record<keyof typeof youthLookCatalog, string> = {
+  frames: "frames", avatars: "avs", titles: "tits", backgrounds: "bans",
+  effects: "fx", badges: "bdg", hair: "hair", outfits: "outfits", accessories: "accessories",
+};
+const youthLookEquippedPrefix: Partial<Record<keyof typeof youthLookCatalog, string>> = {
+  effects: "equipped:fx:", badges: "equipped:bdg:", hair: "equipped:hair:",
+  outfits: "equipped:outfit:", accessories: "equipped:accessory:",
+};
+
+/** Compra y equipa un cosmético usando precios y saldo verificados en servidor. */
+export const purchaseYouthLookItem = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const category = text(request.data?.category, 30) as keyof typeof youthLookCatalog;
+  const itemKey = text(request.data?.itemKey, 80);
+  if (!Object.prototype.hasOwnProperty.call(youthLookCatalog, category) ||
+      !Object.prototype.hasOwnProperty.call(youthLookCatalog[category], itemKey)) {
+    throw new HttpsError("invalid-argument", "El artículo solicitado no existe.");
+  }
+  const cost = youthLookCatalog[category][itemKey as keyof typeof youthLookCatalog[typeof category]] as number;
+  const storageKey = `${youthLookStoragePrefix[category]}:${itemKey}`;
+  const photoRef = db.collection("photos").doc(memberId);
+  let result: {flames: number; ownedItems: string[]};
+  await db.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(photoRef);
+    const data = snapshot.data() ?? {};
+    const balanceValue = Number(data.w ?? 0);
+    const balance = Number.isFinite(balanceValue) ? Math.max(0, Math.min(100000, Math.floor(balanceValue))) : 0;
+    const owned = Array.isArray(data.u)
+      ? data.u.filter((value): value is string => typeof value === "string").slice(0, 400)
+      : [];
+    const alreadyOwned = cost === 0 || owned.includes(storageKey);
+    if (!alreadyOwned && balance < cost) {
+      throw new HttpsError("failed-precondition", "No tienes suficientes Llamas para este artículo.");
+    }
+    const equippedPrefix = youthLookEquippedPrefix[category];
+    const nextOwned = equippedPrefix
+      ? owned.filter((value) => !value.startsWith(equippedPrefix))
+      : [...owned];
+    if (!alreadyOwned && cost > 0) nextOwned.push(storageKey);
+    if (equippedPrefix) nextOwned.push(`${equippedPrefix}${itemKey}`);
+    const uniqueOwned = Array.from(new Set(nextOwned)).slice(-400);
+    const nextBalance = alreadyOwned ? balance : balance - cost;
+    const fieldByCategory = {
+      frames: "f", avatars: "a", titles: "t", backgrounds: "b",
+      effects: "fx", badges: "bdg", hair: "hair", outfits: "outfit", accessories: "accessory",
+    } as const;
+    transaction.set(photoRef, {
+      [fieldByCategory[category]]: itemKey,
+      w: nextBalance,
+      u: uniqueOwned,
+      appearanceUpdatedAt: new Date().toISOString(),
+    }, {merge: true});
+    result = {flames: nextBalance, ownedItems: uniqueOwned};
+  });
+  return {success: true, ...result!};
+});
+
 export const getPublicProfiles = onCall(async () => {
   try {
     const profiles = await loadVisiblePublicProfiles();
