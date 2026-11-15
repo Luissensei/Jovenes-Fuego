@@ -1,12 +1,52 @@
 import {useEffect, useRef, useState} from 'react';
 import type {FormEvent} from 'react';
-import {CalendarDays, Plus, RefreshCw, Save, Eye, EyeOff, Pencil, X} from 'lucide-react';
+import {CalendarDays, Plus, RefreshCw, Save, Eye, EyeOff, Pencil, X, Users} from 'lucide-react';
 import {firebaseReadOnlyMode} from '../../services/firebase/client';
 import {
   getAdminWeeklyActivities,
   saveWeeklyActivity,
   type WeeklyActivity,
+  getAdminWeeklyActivityAttendance,
+  type AdminWeeklyActivityAttendance,
 } from '../../services/youthPortal';
+
+function ActivityAttendancePanel({activity}: {activity: WeeklyActivity}) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [members, setMembers] = useState<AdminWeeklyActivityAttendance[]>([]);
+  const [error, setError] = useState('');
+  async function toggle() {
+    if (open) { setOpen(false); return; }
+    setOpen(true);
+    setLoading(true);
+    setError('');
+    try { setMembers(await getAdminWeeklyActivityAttendance(activity.id)); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'No se pudo cargar la asistencia.'); }
+    finally { setLoading(false); }
+  }
+  const count = (value: string) => members.filter((item) => item.response === value).length;
+  if (activity.id.startsWith('legacy-')) return null;
+  return (
+    <div className="weekly-attendance-panel">
+      <button type="button" className="weekly-attendance-toggle" onClick={() => void toggle()} aria-expanded={open}>
+        <Users size={15}/> {open ? 'Ocultar asistencia' : 'Ver asistencia'}
+      </button>
+      {open && <div className="weekly-attendance-content">
+        {loading ? <span>Cargando confirmaciones...</span> : error ? <p role="alert">{error}</p> : <>
+          <div className="weekly-attendance-counts">
+            <span><b>{count('yes')}</b> Sí asistirán</span>
+            <span><b>{count('maybe')}</b> Tal vez</span>
+            <span><b>{count('no')}</b> No podrán</span>
+          </div>
+          {members.length === 0 ? <p>Aún no hay respuestas para esta actividad.</p> : <ul>
+            {members.map((member) => <li key={member.memberId}><span>{member.name}{member.nick ? ` · @${member.nick}` : ''}</span><strong>{member.response === 'yes' ? 'Asistirá' : member.response === 'maybe' ? 'Tal vez' : 'No podrá'}</strong></li>)}
+          </ul>}
+          <button type="button" onClick={() => void toggle()}>Cerrar</button>
+        </>}
+      </div>}
+    </div>
+  );
+}
 
 type ActivityForm = Omit<WeeklyActivity, 'id'>;
 
@@ -122,6 +162,7 @@ export default function WeeklyActivitiesPanel() {
               <div className="weekly-admin-item-icon"><CalendarDays size={20}/></div>
               <div className="weekly-admin-item-copy"><span>{item.date} {item.time && `· ${item.time}`} {item.editable === false && '· Registro histórico'}</span><h3>{item.title}</h3><p>{item.description || 'Sin descripción'}</p><small>{item.location || 'Lugar por confirmar'}</small></div>
               <div className={`weekly-publish-status ${item.published ? 'published' : 'draft'}`}>{item.published ? <><Eye size={14}/> Publicada</> : <><EyeOff size={14}/> Borrador</>}</div>
+              {item.published && <ActivityAttendancePanel activity={item}/>}
               <button type="button" className="weekly-edit-button" onClick={() => openEdit(item)} disabled={firebaseReadOnlyMode || item.editable === false} title={item.editable === false ? 'Los registros históricos se conservan en solo lectura' : 'Editar actividad'} aria-label={`Editar ${item.title}`}><Pencil size={16}/></button>
             </article>
           ))}
