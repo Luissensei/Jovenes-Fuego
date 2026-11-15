@@ -603,7 +603,7 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
   }
 }
 /* The secure PIN dialog follows the same palette; no unrelated purple/orange gradients. */
-:global(.youth-pin-dialog) { border-color: var(--jf-line) !important; border-radius: 14px !important; background: var(--jf-surface) !important; color: var(--jf-ink) !important; }
-:global(.youth-pin-icon) { border-radius: 10px !important; background: var(--jf-brand-soft) !important; color: var(--jf-brand) !important; }
-:global(.youth-pin-kicker) { color: var(--jf-brand) !important; }
-:global(.youth-pin-form button) { border-radius: 8px !important; background: var(--jf-brand) !important; }
+.youth-pin-dialog { border-color: var(--jf-line) !important; border-radius: 14px !important; background: var(--jf-surface) !important; color: var(--jf-ink) !important; }
+.youth-pin-icon { border-radius: 10px !important; background: var(--jf-brand-soft) !important; color: var(--jf-brand) !important; }
+.youth-pin-kicker { color: var(--jf-brand) !important; }
+.youth-pin-form button { border-radius: 8px !important; background: var(--jf-brand) !important; }
