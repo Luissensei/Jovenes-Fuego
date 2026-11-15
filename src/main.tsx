@@ -14,6 +14,7 @@ import './styles/portal-complete-redesign.css';
 import './styles/portal-mobile-fix.css';
 // Single final visual contract: keep this last to avoid competing theme layers.
 import './styles/product-design-system.css';
+import './styles/navigation-performance-polish.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
