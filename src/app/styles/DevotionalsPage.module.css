@@ -336,3 +336,11 @@
 .scope :global(.devotional-flyer-preview) img{display:block;max-width:100%;max-height:360px;object-fit:contain;border:1px solid var(--jf-border);border-radius:12px;background:var(--jf-surface-raised)}
 .scope :global(.devotional-flyer-preview) button{padding:8px 12px;border:1px solid var(--jf-border);border-radius:9px;background:var(--jf-surface-raised);color:var(--jf-text);cursor:pointer}
 .scope :global(.devotional-flyer-error){margin:0;color:#c34c3d;font-size:13px}
+
+/* Imagen promocional del devocional: carga clara y vista previa */
+.scope :global(.devotional-flyer-heading){display:grid;gap:5px}
+.scope :global(.devotional-flyer-heading) p{margin:0;color:var(--jf-muted);font-size:12px;line-height:1.5}
+.scope :global(.devotional-flyer-picker){min-height:76px;align-content:center;border-color:rgba(86,132,210,.55);background:var(--jf-input,rgba(65,105,170,.07))}
+.scope :global(.devotional-flyer-picker):hover{border-color:var(--jf-accent,#6594e8);background:rgba(86,132,210,.12)}
+.scope :global(.devotional-admin-flyer){display:block;width:100%;max-height:260px;object-fit:contain;border-radius:13px;background:var(--jf-input,#15111c);border:1px solid var(--jf-border)}
+.scope :global(.devotional-admin-flyer-detail){max-height:420px}
