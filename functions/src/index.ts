@@ -1450,6 +1450,75 @@ export const purchaseYouthLookItem = onCall(async (request) => {
   return {success: true, ...result!};
 });
 
+
+/** Desbloquea una plantilla completa en una sola transacción: nunca cobra parcialmente. */
+export const purchaseYouthLookBundle = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const requested = request.data?.items;
+  if (!Array.isArray(requested) || requested.length < 1 || requested.length > 9) {
+    throw new HttpsError("invalid-argument", "La plantilla no es válida.");
+  }
+  const selections: Array<{category: keyof typeof youthLookCatalog; key: string; cost: number}> = [];
+  const seen = new Set<string>();
+  for (const entry of requested) {
+    const category = text(entry?.category, 30) as keyof typeof youthLookCatalog;
+    const key = text(entry?.itemKey, 80);
+    if (!Object.prototype.hasOwnProperty.call(youthLookCatalog, category) ||
+        !Object.prototype.hasOwnProperty.call(youthLookCatalog[category], key)) {
+      throw new HttpsError("invalid-argument", "La plantilla contiene un artículo inválido.");
+    }
+    if (seen.has(category)) throw new HttpsError("invalid-argument", "La plantilla repite categorías.");
+    seen.add(category);
+    const cost = youthLookCatalog[category][key as keyof typeof youthLookCatalog[typeof category]] as number;
+    selections.push({category, key, cost});
+  }
+  const photoRef = db.collection("photos").doc(memberId);
+  let result: {flames: number; ownedItems: string[]} | undefined;
+  await db.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(photoRef);
+    const data = snapshot.data() ?? {};
+    const rawBalance = Number(data.w ?? 0);
+    const balance = Number.isFinite(rawBalance) ? Math.max(0, Math.min(100000, Math.floor(rawBalance))) : 0;
+    const owned = Array.isArray(data.u)
+      ? data.u.filter((value): value is string => typeof value === "string").slice(0, 400)
+      : [];
+    const nextOwned = [...owned];
+    let total = 0;
+    const updates: Record<string, string> = {};
+    const fieldByCategory = {
+      frames: "f", avatars: "a", titles: "t", backgrounds: "b",
+      effects: "fx", badges: "bdg", hair: "hair", outfits: "outfit", accessories: "accessory",
+    } as const;
+    for (const selection of selections) {
+      const storageKey = `${youthLookStoragePrefix[selection.category]}:${selection.key}`;
+      if (selection.cost > 0 && !nextOwned.includes(storageKey)) {
+        total += selection.cost;
+        nextOwned.push(storageKey);
+      }
+      const prefix = youthLookEquippedPrefix[selection.category];
+      if (prefix) {
+        for (let index = nextOwned.length - 1; index >= 0; index -= 1) {
+          if (nextOwned[index].startsWith(prefix)) nextOwned.splice(index, 1);
+        }
+        nextOwned.push(`${prefix}${selection.key}`);
+      }
+      updates[fieldByCategory[selection.category]] = selection.key;
+    }
+    if (balance < total) {
+      throw new HttpsError("failed-precondition", "No tienes suficientes Llamas para esta plantilla.");
+    }
+    const nextBalance = balance - total;
+    const uniqueOwned = Array.from(new Set(nextOwned)).slice(-400);
+    transaction.set(photoRef, {
+      ...updates, w: nextBalance, u: uniqueOwned,
+      appearanceUpdatedAt: new Date().toISOString(),
+    }, {merge: true});
+    result = {flames: nextBalance, ownedItems: uniqueOwned};
+  });
+  return {success: true, ...result!};
+});
+
 export const getPublicProfiles = onCall(async () => {
   try {
     const profiles = await loadVisiblePublicProfiles();
