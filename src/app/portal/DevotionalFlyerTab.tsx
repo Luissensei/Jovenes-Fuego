@@ -106,7 +106,7 @@ export default function DevotionalFlyerTab({memberId, memberName}: {memberId: st
         <div className={styles.heading}>
           <span><Flame size={15}/> CRECIMIENTO ESPIRITUAL</span>
           <h1>Devocional de la generación</h1>
-          <p>Una palabra para alimentar tu fe y caminar con Dios.</p>
+          <p>Hola, {memberName}. Una palabra para alimentar tu fe y caminar con Dios.</p>
         </div>
         <button type="button" onClick={() => void load()} disabled={loading} aria-label="Actualizar devocionales">
           <RefreshCw size={17}/> Actualizar
