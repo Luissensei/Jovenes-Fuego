@@ -32,7 +32,13 @@ export default function CommunityTab({memberName,communitySession}:Props){
   const [publishing,setPublishing]=useState(false);
   const [commentDrafts,setCommentDrafts]=useState<Record<string,string>>({});
   const [busyPost,setBusyPost]=useState("");
-  const [reportedPosts,setReportedPosts]=useState<string[]>([]);\n  const [chatMessages,setChatMessages]=useState<YouthCommunityChatMessage[]>([]);\n  const [chatDraft,setChatDraft]=useState("");\n  const [chatLoading,setChatLoading]=useState(true);\n  const [chatSending,setChatSending]=useState(false);\n  const [chatError,setChatError]=useState("");\n  const [reportedChatMessages,setReportedChatMessages]=useState<string[]>([]);
+  const [reportedPosts,setReportedPosts]=useState<string[]>([]);
+  const [chatMessages,setChatMessages]=useState<YouthCommunityChatMessage[]>([]);
+  const [chatDraft,setChatDraft]=useState("");
+  const [chatLoading,setChatLoading]=useState(true);
+  const [chatSending,setChatSending]=useState(false);
+  const [chatError,setChatError]=useState("");
+  const [reportedChatMessages,setReportedChatMessages]=useState<string[]>([]);
 
   const load=useCallback(async(showRefresh=false)=>{
     if(showRefresh)setRefreshing(true);else setLoading(true);
@@ -42,7 +48,9 @@ export default function CommunityTab({memberName,communitySession}:Props){
     finally{setLoading(false);setRefreshing(false);}
   },[communitySession]);
 
-  useEffect(()=>{void load();},[load]);\n\n  const loadChat=useCallback(async()=>{
+  useEffect(()=>{void load();},[load]);
+
+  const loadChat=useCallback(async()=>{
     try{setChatMessages(await getYouthCommunityChat(communitySession));setChatError("");}
     catch(cause){setChatError(cause instanceof Error?cause.message:"No se pudo cargar el chat.");}
     finally{setChatLoading(false);}
