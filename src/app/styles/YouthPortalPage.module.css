@@ -132,3 +132,11 @@
 @keyframes jf-community-shimmer{to{background-position:-200% 0}}@keyframes jf-community-spin{to{transform:rotate(360deg)}}
 @media(max-width:800px){:global(.jf-community-layout){grid-template-columns:minmax(0,1fr)}:global(.jf-community-sidebar){grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){:global(.jf-community-hero){min-height:0;padding:23px 20px;border-radius:20px}:global(.jf-community-hero-mark){flex-basis:72px;width:72px;height:72px;border-radius:23px}:global(.jf-community-hero-mark b){font-size:1.35rem}:global(.jf-community-hero-mark span){font-size:.9rem}:global(.jf-community-hero-mark small){font-size:.34rem}:global(.jf-community-hero h2){font-size:1.75rem}:global(.jf-community-hero p){font-size:.82rem}:global(.jf-community-hero-meta){gap:8px;font-size:.65rem}:global(.jf-community-sidebar){grid-template-columns:1fr}:global(.jf-community-composer),:global(.jf-community-post){padding:14px}:global(.jf-community-kind-picker){gap:5px}:global(.jf-community-kind-picker button){padding:7px 9px;font-size:.68rem}}
+
+:global(.youth-activity-attendance){display:grid;gap:9px;margin-top:15px;padding-top:13px;border-top:1px solid var(--jf-line)}
+:global(.youth-activity-attendance>strong){font-size:.82rem}
+:global(.youth-activity-attendance>div){display:flex;flex-wrap:wrap;gap:7px}
+:global(.youth-activity-attendance button){border:1px solid var(--jf-line-strong);background:var(--jf-surface-2);color:var(--jf-ink);border-radius:8px;padding:8px 12px;font-size:.76rem;font-weight:650;cursor:pointer}
+:global(.youth-activity-attendance button.selected){background:var(--jf-accent-soft);border-color:var(--jf-accent);color:var(--jf-accent-ink)}
+:global(.youth-activity-attendance button:disabled){opacity:.55;cursor:wait}
+:global(.youth-activity-attendance small){display:flex;align-items:center;gap:5px;color:var(--jf-muted);font-size:.72rem}
