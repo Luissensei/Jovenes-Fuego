@@ -1,5 +1,4 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { MotionConfig } from 'motion/react';
 import {
   NavLink,
   Navigate,
@@ -400,7 +399,6 @@ function AdminApp() {
   }
 
   return (
-    <MotionConfig reducedMotion="user">
     <div className={`layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''} ${menuOpen ? 'menu-open' : ''}`}>
       <header className="mobile-header">
         <button
@@ -626,7 +624,6 @@ function AdminApp() {
         </Suspense>
       )}
     </div>
-    </MotionConfig>
   );
 }
 
@@ -635,7 +632,7 @@ export function App() {
     <Routes>
       <Route
         path="/portal-joven/*"
-        element={<MotionConfig reducedMotion="user"><Suspense fallback={<PageLoading label="Abriendo portal juvenil"/>}><YouthPortalPage /></Suspense></MotionConfig>}
+        element={<Suspense fallback={<PageLoading label="Abriendo portal juvenil"/>}><YouthPortalPage /></Suspense>}
       />
 
       <Route
