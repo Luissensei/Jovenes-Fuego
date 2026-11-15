@@ -1185,3 +1185,46 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
   border-color: var(--jf-line) !important;
 }
 
+/* Form control states: text, select, date, file, checkbox and radio. */
+.main .jf-route-stage :is(input,select,textarea,button),
+.youth-portal :is(input,select,textarea,button) { font-family: inherit; }
+.main .jf-route-stage :is(input[type="checkbox"],input[type="radio"],input[type="range"]),
+.youth-portal :is(input[type="checkbox"],input[type="radio"],input[type="range"]) {
+  accent-color: var(--jf-brand);
+}
+.main .jf-route-stage select option {
+  color: var(--jf-ink);
+  background: var(--jf-surface);
+}
+.main .jf-route-stage :is(input,select,textarea):disabled,
+.youth-portal :is(input,select,textarea):disabled {
+  opacity: .72;
+  color: var(--jf-muted) !important;
+  background: var(--jf-surface-3) !important;
+  border-color: var(--jf-line) !important;
+  cursor: not-allowed;
+}
+.main .jf-route-stage :is(input,select,textarea)[aria-invalid="true"],
+.main .jf-route-stage :is(input,select,textarea]:invalid:not(:placeholder-shown) {
+  border-color: var(--jf-danger) !important;
+}
+.main .jf-route-stage input[type="file"] {
+  min-height: 42px;
+  padding: 6px;
+  color: var(--jf-muted) !important;
+  background: var(--jf-surface-2) !important;
+}
+.main .jf-route-stage input[type="file"]::file-selector-button {
+  min-height: 30px;
+  margin-right: 9px;
+  padding: 5px 10px;
+  border: 1px solid var(--jf-line);
+  border-radius: 7px;
+  color: var(--jf-ink);
+  background: var(--jf-surface);
+  font: inherit;
+  cursor: pointer;
+}
+.youth-portal :is(input[type="checkbox"],input[type="radio"],input[type="range"]) { accent-color: var(--yp-green); }
+.youth-portal select option { color: var(--yp-text); background: var(--yp-surface); }
+
