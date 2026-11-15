@@ -8,8 +8,37 @@ export type YouthPinStatus={configured:boolean;activationPending:boolean};
 export type YouthPinAdminRecord={id:string;name:string;configured:boolean;activationPending:boolean;locked:boolean;configuredAt:string};
 async function youthPinCall<I,O>(name:string,input:I):Promise<O>{if(!functions)throw new Error("El backend de Firebase no está configurado.");const r=await httpsCallable<I,O>(functions,name)(input);return r.data;}
 export async function getYouthProfilePinStatus(memberId:string):Promise<YouthPinStatus>{return youthPinCall("getYouthProfilePinStatus",{memberId});}
-export async function activateYouthProfilePin(memberId:string,activationPin:string,newPin:string):Promise<PublicProfile>{const r=await youthPinCall<{memberId:string;activationPin:string;newPin:string},{profile:PublicProfile}>("activateYouthProfilePin",{memberId,activationPin,newPin});return r.profile;}
-export async function verifyYouthProfilePin(memberId:string,pin:string):Promise<PublicProfile>{const r=await youthPinCall<{memberId:string;pin:string},{profile:PublicProfile}>("verifyYouthProfilePin",{memberId,pin});return r.profile;}
+export type YouthCommunitySession = {profile: PublicProfile; communitySession: string};
+export async function activateYouthProfilePin(memberId:string,activationPin:string,newPin:string):Promise<YouthCommunitySession>{return youthPinCall<{memberId:string;activationPin:string;newPin:string},YouthCommunitySession>("activateYouthProfilePin",{memberId,activationPin,newPin});}
+export async function verifyYouthProfilePin(memberId:string,pin:string):Promise<YouthCommunitySession>{return youthPinCall<{memberId:string;pin:string},YouthCommunitySession>("verifyYouthProfilePin",{memberId,pin});}
+
+export type YouthCommunityComment = {id:string;memberId:string;author:string;content:string;createdAt:string};
+export type YouthCommunityPost = {
+  id:string;memberId:string;author:string;nickname:string;
+  type:"text"|"verse"|"song"|"testimony";content:string;reference:string;linkUrl:string;
+  createdAt:string;reactionCount:number;commentCount:number;reactedByMe:boolean;
+  recentComments:YouthCommunityComment[];
+};
+export type YouthCommunityPostInput = {
+  type:"text"|"verse"|"song"|"testimony";content:string;reference?:string;linkUrl?:string;
+};
+export async function getYouthCommunityFeed(communitySession:string):Promise<YouthCommunityPost[]> {
+  const result=await youthPinCall<{communitySession:string},{posts:YouthCommunityPost[]}>("getYouthCommunityFeed",{communitySession});
+  return Array.isArray(result.posts)?result.posts:[];
+}
+export async function createYouthCommunityPost(communitySession:string,input:YouthCommunityPostInput):Promise<void> {
+  const result=await youthPinCall<{communitySession:string}&YouthCommunityPostInput,{success:boolean}>("createYouthCommunityPost",{communitySession,...input});
+  if(!result.success)throw new Error("No se pudo publicar el mensaje.");
+}
+export async function createYouthCommunityComment(communitySession:string,postId:string,content:string):Promise<void> {
+  const result=await youthPinCall<{communitySession:string;postId:string;content:string},{success:boolean}>("createYouthCommunityComment",{communitySession,postId,content});
+  if(!result.success)throw new Error("No se pudo publicar el comentario.");
+}
+export async function toggleYouthCommunityReaction(communitySession:string,postId:string):Promise<boolean> {
+  const result=await youthPinCall<{communitySession:string;postId:string},{success:boolean;reacted:boolean}>("toggleYouthCommunityReaction",{communitySession,postId});
+  if(!result.success)throw new Error("No se pudo actualizar la reacción.");
+  return result.reacted;
+}
 export async function getYouthPinAdministration():Promise<YouthPinAdminRecord[]>{const r=await youthPinCall<Record<string,never>,{members:YouthPinAdminRecord[]}>("adminListYouthPins",{});return Array.isArray(r.members)?r.members:[];}
 export async function issueYouthActivationPin(memberId:string):Promise<{temporaryPin:string;expiresAt:string}>{const r=await youthPinCall<{memberId:string},{success:boolean;temporaryPin:string;expiresAt:string}>("adminIssueYouthPin",{memberId});if(!r.success||!r.temporaryPin)throw new Error("No se pudo generar el PIN temporal.");return {temporaryPin:r.temporaryPin,expiresAt:r.expiresAt};}
 export type WeeklyActivity = {
