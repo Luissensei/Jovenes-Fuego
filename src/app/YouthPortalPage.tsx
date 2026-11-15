@@ -127,8 +127,9 @@ type ProfileLook = {
   accessory: string;
 };
 
-type ProfileExtras = {displayName: string; nickname: string; motto: string; weeklyGoal: string};
-const defaultProfileExtras: ProfileExtras = {displayName: '', nickname: '', motto: '', weeklyGoal: ''};
+type ProfileExtras = {displayName: string; nickname: string; motto: string; weeklyGoal: string; country: string};
+const defaultProfileExtras: ProfileExtras = {displayName: '', nickname: '', motto: '', weeklyGoal: '', country: 'CO'};
+const youthCountries = [{code:'CO',name:'Colombia',flag:'🇨🇴'},{code:'MX',name:'México',flag:'🇲🇽'},{code:'AR',name:'Argentina',flag:'🇦🇷'},{code:'PE',name:'Perú',flag:'🇵🇪'},{code:'CL',name:'Chile',flag:'🇨🇱'},{code:'EC',name:'Ecuador',flag:'🇪🇨'},{code:'VE',name:'Venezuela',flag:'🇻🇪'},{code:'BO',name:'Bolivia',flag:'🇧🇴'},{code:'US',name:'Estados Unidos',flag:'🇺🇸'},{code:'ES',name:'España',flag:'🇪🇸'},{code:'OTHER',name:'Otro país',flag:'🌎'}];
 type LookShopCategory = 'frames' | 'avatars' | 'titles' | 'backgrounds' | 'effects' | 'badges' | 'hair' | 'outfits' | 'accessories';
 
 const lookShop: Record<LookShopCategory, {key: string; label: string; emoji: string; cost: number}[]> = {
@@ -439,6 +440,7 @@ function readProfileExtras(profileId: string): ProfileExtras {
       nickname: typeof parsed.nickname === 'string' ? parsed.nickname.slice(0,30) : '',
       motto: typeof parsed.motto === 'string' ? parsed.motto.slice(0,100) : '',
       weeklyGoal: typeof parsed.weeklyGoal === 'string' ? parsed.weeklyGoal.slice(0,160) : '',
+      country: typeof parsed.country === 'string' && youthCountries.some((country) => country.code === parsed.country) ? parsed.country : 'CO',
     };
   } catch {
     return defaultProfileExtras;
@@ -521,7 +523,7 @@ export default function YouthPortalPage() {
   const [look, setLook] = useState<ProfileLook>(defaultLook);
   const [profileExtras, setProfileExtras] = useState<ProfileExtras>(defaultProfileExtras);
   const [editingLook, setEditingLook] = useState(false);
-  const [lookCategory, setLookCategory] = useState<LookShopCategory>('frames');
+  const [lookCategory, setLookCategory] = useState<LookShopCategory>('avatars');
   const [lookSaving, setLookSaving] = useState(false);
   const [portalExiting, setPortalExiting] = useState(false);
   const [gameExiting, setGameExiting] = useState(false);
@@ -883,6 +885,7 @@ export default function YouthPortalPage() {
       nickname: profileExtras.nickname.trim().replace(/^@/, '').slice(0,30),
       motto: profileExtras.motto.trim().slice(0,100),
       weeklyGoal: profileExtras.weeklyGoal.trim().slice(0,160),
+      country: youthCountries.some((country) => country.code === profileExtras.country) ? profileExtras.country : 'CO',
     };
     try {
       window.localStorage.setItem(`jf-youth-profile-extra-${selectedProfile.id}`, JSON.stringify(safeExtras));
@@ -1136,12 +1139,16 @@ export default function YouthPortalPage() {
 
           {activeYouthSection === 'space' && editingLook && (
             <section className="youth-customizer">
-              <header>
-                <WandSparkles size={20}/>
-                <div><b>Forja tu identidad</b><span>Desbloquea marcos, avatares, títulos y mundos con tus Llamas.</span></div>
+              <header className="youth-profile-modal-heading">
+                <div><span>PERSONALIZA TU IDENTIDAD</span><b>Tu perfil, tu estilo</b><small>Elige un avatar y un marco que te representen.</small></div>
                 <strong className="youth-store-wallet"><Flame size={16}/> {look.flames}</strong>
                 <button type="button" aria-label="Cerrar personalización" onClick={() => setEditingLook(false)}><X size={18}/></button>
               </header>
+              <div className={`youth-profile-live-preview frame-${look.frame}`}>
+                <div className="youth-profile-live-avatar">{look.avatar ? ({paloma:'🕊️',leon:'🦁',aguila:'🦅',cordero:'🐑',mariposa:'🦋',lobo:'🐺',estrella:'🌟',guerrero:'🛡️',dragon:'🐉',cohete:'🚀',rey:'👑',volcan:'🌋',fenix:'🔥','fenix-real':'🔥',delfin:'🐬',zorro:'🦊',pantera:'🐆',tigre:'🐯'} as Record<string,string>)[look.avatar] ?? '✨' : getInitials(profileExtras.displayName || selectedProfile.name)}</div>
+                <div><b>{profileExtras.displayName || selectedProfile.name}</b><span>{profileExtras.nickname ? '@'+profileExtras.nickname : 'Joven de Fuego'}</span></div>
+                <small>{youthCountries.find((country) => country.code === profileExtras.country)?.flag || '🌎'}</small>
+              </div>
               <section className="youth-look-templates">
                 <div className="youth-look-templates-heading"><b>Plantillas de estilo</b><span>Combinaciones listas para transformar tu perfil.</span></div>
                 <div className="youth-look-templates-grid">
@@ -1176,7 +1183,7 @@ export default function YouthPortalPage() {
               )}
               <nav className="youth-store-tabs" aria-label="Personalización">
                 {([
-                  ['frames','Marcos'],['avatars','Avatares'],['titles','Títulos'],['backgrounds','Fondos'],
+                  ['avatars','Avatar'],['frames','Marco'],['titles','Títulos'],['backgrounds','Fondos'],
                   ['effects','Efectos'],['badges','Insignias'],
                   ['hair','Cabello'],['outfits','Ropa'],['accessories','Accesorios'],
                 ] as [LookShopCategory,string][]).map(([key,label]) => (
@@ -1308,16 +1315,22 @@ export default function YouthPortalPage() {
           </div>)}
 
           {activeYouthSection === 'space' && (<div className="youth-tab-page youth-space-tab">
-          {!editingLook && <section className="youth-profile-editor">
-            <div className="youth-profile-editor-heading"><div><b>Mi perfil</b><span>Actualiza tus datos visibles en este dispositivo.</span></div><UserSearch size={20}/></div>
+          {!editingLook && <section className="youth-profile-editor youth-profile-showcase">
+            <div className="youth-profile-editor-heading"><div><span>IDENTIDAD JOVEN</span><b>Mi perfil</b><small>Haz que tu espacio se parezca a ti.</small></div><UserRound size={22}/></div>
+            <div className="youth-profile-showcase-card">
+              <div className={`youth-profile-showcase-avatar frame-${look.frame}`}><span>{look.avatar ? ({paloma:'🕊️',leon:'🦁',aguila:'🦅',cordero:'🐑',mariposa:'🦋',lobo:'🐺',estrella:'🌟',guerrero:'🛡️',dragon:'🐉',cohete:'🚀',rey:'👑',volcan:'🌋',fenix:'🔥','fenix-real':'🔥',delfin:'🐬',zorro:'🦊',pantera:'🐆',tigre:'🐯'} as Record<string,string>)[look.avatar] ?? '✨' : getInitials(profileExtras.displayName || selectedProfile.name)}</span><i>✦</i></div>
+              <div><b>{profileExtras.displayName || selectedProfile.name}</b><span>@{profileExtras.nickname || selectedProfile.nick || 'jovenfuego'}</span><small>{youthCountries.find((country) => country.code === profileExtras.country)?.flag || '🌎'} {youthCountries.find((country) => country.code === profileExtras.country)?.name || 'Colombia'}</small></div>
+              <button type="button" onClick={() => {setLookCategory('avatars');setEditingLook(true);}} aria-label="Editar apariencia"><Palette size={19}/></button>
+            </div>
             <div className="youth-profile-editor-grid">
               <label>Nombre visible<input value={profileExtras.displayName} onChange={(event) => setProfileExtras((value) => ({...value,displayName:event.target.value}))} maxLength={60} placeholder={selectedProfile.name}/></label>
               <label>Apodo<input value={profileExtras.nickname} onChange={(event) => setProfileExtras((value) => ({...value,nickname:event.target.value}))} maxLength={30} placeholder={selectedProfile.nick || 'Mi apodo'}/></label>
               <label>Mi frase personal<input value={profileExtras.motto} onChange={(event) => setProfileExtras((value) => ({...value,motto:event.target.value}))} maxLength={100} placeholder="Una frase que me representa"/></label>
               <label>Mi meta de esta semana<textarea value={profileExtras.weeklyGoal} onChange={(event) => setProfileExtras((value) => ({...value,weeklyGoal:event.target.value}))} maxLength={160} rows={2} placeholder="Ej. Leer un capítulo diario y servir en mi grupo"/></label>
+              <label className="youth-country-field">Mi país<select value={profileExtras.country} onChange={(event) => setProfileExtras((value) => ({...value,country:event.target.value}))}>{youthCountries.map((country) => <option key={country.code} value={country.code}>{country.flag} {country.name}</option>)}</select></label>
             </div>
-            <button type="button" onClick={saveProfileExtras}>Guardar mi perfil</button>
-            <button type="button" className="youth-open-customizer" onClick={() => setEditingLook(true)}><Palette size={16}/> Personalizar apariencia</button>
+            <div className="youth-profile-editor-actions"><button type="button" onClick={saveProfileExtras}><Save size={16}/> Guardar mi perfil</button><button type="button" className="youth-open-customizer" onClick={() => {setLookCategory('avatars');setEditingLook(true);}}><Palette size={16}/> Cambiar avatar y marco</button></div>
+            <small className="youth-profile-local-note"><ShieldCheck size={13}/> Los cambios de perfil se guardan en este dispositivo.</small>
           </section>}
           <section className="youth-journal-panel">
             <header><div><span>UN MOMENTO CON DIOS</span><h2>Mi bitácora personal</h2><p>Escribe una reflexión, algo por lo que agradeces o una oración para recordar.</p></div><BookMarked size={23}/></header>
