@@ -1080,6 +1080,74 @@ export const toggleYouthCommunityReaction = onCall(async (request) => {
   return {success: true, reacted: result};
 });
 
+/** Reporte comunitario: los jóvenes pueden alertar sobre publicaciones sin exponer su identidad públicamente. */
+export const reportYouthCommunityPost = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const postId = text(request.data?.postId, 150);
+  const reason = text(request.data?.reason, 40);
+  const details = text(request.data?.details, 500);
+  const allowedReasons = ["inappropriate", "bullying", "privacy", "spam", "other"];
+  if (!/^[A-Za-z0-9_-]{10,150}$/.test(postId) || !allowedReasons.includes(reason)) {
+    throw new HttpsError("invalid-argument", "El reporte no es válido.");
+  }
+  const postRef = db.collection("youthCommunityPosts").doc(postId);
+  const reportRef = db.collection("youthCommunityReports").doc(`${postId}_${memberId}`);
+  await db.runTransaction(async (transaction) => {
+    const [post, previous] = await Promise.all([transaction.get(postRef), transaction.get(reportRef)]);
+    if (!post.exists || post.data()?.deleted === true) throw new HttpsError("not-found", "La publicación ya no está disponible.");
+    if (previous.exists) throw new HttpsError("already-exists", "Ya reportaste esta publicación. El equipo revisará el caso.");
+    transaction.create(reportRef, {
+      postId, reporterId: memberId, reason, details,
+      postAuthor: text(post.data()?.author, 120), postContent: text(post.data()?.content, 2000),
+      status: "pending", createdAt: new Date().toISOString(),
+    });
+  });
+  return {success: true};
+});
+
+export const adminListYouthCommunityReports = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdminOrPastor(request.auth.uid);
+  const snapshot = await db.collection("youthCommunityReports")
+    .where("status", "==", "pending").orderBy("createdAt", "desc").limit(100).get();
+  return {reports: snapshot.docs.map((document) => {
+    const data = document.data();
+    return {
+      id: document.id, postId: text(data.postId, 150), reason: text(data.reason, 40),
+      details: text(data.details, 500), postAuthor: text(data.postAuthor, 120),
+      postContent: text(data.postContent, 2000), createdAt: text(data.createdAt, 40),
+    };
+  })};
+});
+
+export const adminModerateYouthCommunityPost = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireAdminOrPastor(request.auth.uid);
+  const postId = text(request.data?.postId, 150);
+  const action = text(request.data?.action, 20);
+  if (!/^[A-Za-z0-9_-]{10,150}$/.test(postId) || !["hide", "restore"].includes(action)) {
+    throw new HttpsError("invalid-argument", "La acción de moderación no es válida.");
+  }
+  const postRef = db.collection("youthCommunityPosts").doc(postId);
+  const snapshot = await postRef.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "No se encontró la publicación.");
+  await postRef.update({
+    status: action === "hide" ? "hidden" : "published",
+    moderatedAt: new Date().toISOString(), moderatedBy: request.auth.uid,
+  });
+  const reports = await db.collection("youthCommunityReports")
+    .where("postId", "==", postId).where("status", "==", "pending").get();
+  const batch = db.batch();
+  reports.docs.forEach((document) => batch.update(document.ref, {
+    status: action === "hide" ? "actioned" : "reviewed",
+    reviewedAt: new Date().toISOString(), reviewedBy: request.auth!.uid,
+  }));
+  await batch.commit();
+  await recordAudit("youth.community.moderate", request.auth.uid, postId, {action});
+  return {success: true};
+});
+
 export const adminListYouthPins = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
