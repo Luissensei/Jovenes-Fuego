@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useState} from 'react';
 import {useRef} from 'react';
-import {BookOpen, CalendarDays, Flame, RefreshCw, Send, ImagePlus, X, CheckCircle2} from 'lucide-react';
+import {BookOpen, CalendarDays, Flame, RefreshCw, Send, ImagePlus, X, CheckCircle2, ChevronLeft, ChevronRight} from 'lucide-react';
 import {submitYouthDevotional} from '../../services/youthDevotionalSubmissions';
 import {getPublicDevotionals, type DevotionalRecord} from '../../services/repositories/devotionals';
 import styles from '../styles/DevotionalFlyerTab.module.css';
@@ -11,6 +11,26 @@ function formatDate(value: string) {
   return new Date(year, month - 1, day).toLocaleDateString('es-CO', {
     day: 'numeric', month: 'long', year: 'numeric',
   });
+}
+
+function DevotionalStory({item}: {item: DevotionalRecord}) {
+  const images = item.flyerDataUrls?.length ? item.flyerDataUrls : item.flyerDataUrl ? [item.flyerDataUrl] : [];
+  const [active, setActive] = useState(0);
+  if (!images.length) return null;
+  return (
+    <div className={styles.story}>
+      <img className={styles.flyer} src={images[active]} alt={`Imagen ${active + 1} de ${item.title}`} loading="lazy"/>
+      {images.length > 1 && (
+        <>
+          <div className={styles.storyTop}><span>HISTORIA</span><span>{active + 1} / {images.length}</span></div>
+          <div className={styles.storyBars}>{images.map((_, index) => <span key={index} className={index <= active ? styles.storyBarActive : ''}/>)}</div>
+          <button type="button" className={styles.storyPrev} onClick={() => setActive((value) => Math.max(0, value - 1))} disabled={active === 0} aria-label="Imagen anterior"><ChevronLeft size={20}/></button>
+          <button type="button" className={styles.storyNext} onClick={() => setActive((value) => Math.min(images.length - 1, value + 1))} disabled={active === images.length - 1} aria-label="Imagen siguiente"><ChevronRight size={20}/></button>
+          <div className={styles.storyDots}>{images.map((_, index) => <button type="button" key={index} onClick={() => setActive(index)} aria-label={`Ver imagen ${index + 1}`} className={index === active ? styles.storyDotActive : ''}/>)}</div>
+        </>
+      )}
+    </div>
+  );
 }
 
 export default function DevotionalFlyerTab({memberId, memberName}: {memberId: string; memberName: string}) {
@@ -145,11 +165,7 @@ export default function DevotionalFlyerTab({memberId, memberName}: {memberId: st
       <div className={styles.list}>
         {items.map((item) => (
           <article className={styles.card} key={item.id}>
-            {item.flyerDataUrl && (
-              <a className={styles.flyerLink} href={item.flyerDataUrl} target="_blank" rel="noreferrer" aria-label={`Abrir flyer de ${item.title}`}>
-                <img className={styles.flyer} src={item.flyerDataUrl} alt={`Flyer: ${item.title}`} loading="lazy"/>
-              </a>
-            )}
+            <DevotionalStory item={item}/>
             <div className={styles.copy}>
               <div className={styles.meta}><span>{item.category}</span><small><CalendarDays size={14}/>{formatDate(item.date)}</small></div>
               <h2>{item.title}</h2>
