@@ -1,111 +1,65 @@
-.scope{width:100%;min-width:0;color:var(--text-primary,#f8f5ef)}
-.panel{overflow:hidden;border:1px solid color-mix(in srgb,var(--text-primary,#fff) 12%,transparent);border-radius:24px;background:linear-gradient(145deg,color-mix(in srgb,var(--surface,#19161e) 94%,#7653a2 6%),var(--surface,#19161e));box-shadow:0 18px 55px rgba(17,12,25,.12)}
-.header{display:flex;align-items:center;gap:14px;padding:22px 24px;border-bottom:1px solid color-mix(in srgb,var(--text-primary,#fff) 9%,transparent)}
-.emblem{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;border-radius:15px;color:#f0d59c;background:linear-gradient(145deg,#49335e,#211b2a);box-shadow:inset 0 1px rgba(255,255,255,.18),0 8px 20px rgba(16,10,24,.2)}
-.heading{min-width:0;flex:1}
-.heading>span{display:block;font-size:10px;letter-spacing:.16em;font-weight:800;color:#b99a69}
-.heading h2{margin:3px 0 2px;font-size:22px;letter-spacing:-.035em}
-.heading p{margin:0;color:var(--text-secondary,#aaa);font-size:13px;line-height:1.45}
-.status{flex:0 0 auto;padding:7px 10px;border-radius:999px;background:color-mix(in srgb,#b99a69 12%,transparent);color:#c6a978;font-size:10px;font-weight:800;letter-spacing:.04em}
-.devotionalCard{display:flex;align-items:center;gap:12px;margin:17px 20px 0;padding:14px 16px;border:1px solid rgba(190,157,103,.24);border-radius:16px;background:linear-gradient(110deg,rgba(151,111,58,.13),rgba(108,79,139,.11))}
-.devotionalIcon{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:rgba(190,157,103,.16);color:#c6a978}
-.devotionalCard>div:nth-child(2){flex:1;min-width:0}
-.devotionalCard strong,.devotionalCard span{display:block}
-.devotionalCard strong{font-size:13px}
-.devotionalCard span{margin-top:3px;color:var(--text-secondary,#aaa);font-size:12px}
-.devotionalCard button{border:0;border-radius:10px;padding:9px 13px;background:#b58e52;color:#201a20;font-size:12px;font-weight:800;cursor:pointer}
-.chat{min-height:230px;max-height:420px;overflow:auto;padding:20px}
-.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:190px;text-align:center;max-width:620px;margin:auto}
-.welcome>span{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:rgba(169,135,192,.15);color:#c6a978}
-.welcome strong{margin-top:13px;font-size:17px}
-.welcome p{max-width:500px;margin:8px 0 16px;color:var(--text-secondary,#aaa);font-size:13px;line-height:1.6}
-.prompts{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
-.prompts button{border:1px solid color-mix(in srgb,var(--text-primary,#fff) 12%,transparent);border-radius:999px;padding:8px 12px;background:color-mix(in srgb,var(--surface,#19161e) 88%,#fff 2%);color:var(--text-primary,#f8f5ef);font-size:12px;cursor:pointer}
-.prompts button:hover{border-color:rgba(190,157,103,.6)}
-.messages{display:flex;flex-direction:column;gap:14px}
-.userMessage,.aiMessage{display:flex;align-items:flex-start;gap:10px;max-width:92%}
-.userMessage{align-self:flex-end;flex-direction:row-reverse}
-.aiMessage{align-self:flex-start}
-.messageAvatar{display:grid;place-items:center;flex:0 0 29px;width:29px;height:29px;border-radius:10px;background:rgba(190,157,103,.15);color:#c6a978}
-.messageContent{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px 14px;border-radius:15px;background:color-mix(in srgb,var(--surface,#19161e) 85%,#fff 5%);font-size:13px;line-height:1.65}
-.userMessage .messageContent{background:linear-gradient(135deg,#4f3c61,#3d304b);color:#fff}
-.typing{display:flex;align-items:center;gap:8px;color:var(--text-secondary,#aaa);font-size:12px}
-.error,.setupNotice{display:flex;align-items:flex-start;gap:9px;margin:0 20px 12px;padding:11px 13px;border-radius:12px;font-size:12px;line-height:1.5}
-.error{color:#d98181;background:rgba(190,70,70,.1)}
-.setupNotice{color:var(--text-secondary,#aaa);background:color-mix(in srgb,var(--text-primary,#fff) 5%,transparent)}
-.composer{display:flex;align-items:flex-end;gap:10px;margin:0 20px;padding:12px;border:1px solid color-mix(in srgb,var(--text-primary,#fff) 13%,transparent);border-radius:16px;background:color-mix(in srgb,var(--surface,#19161e) 95%,#fff 3%)}
-.composer textarea{flex:1;min-width:0;resize:vertical;border:0;outline:0;background:transparent;color:var(--text-primary,#f8f5ef);font:inherit;font-size:13px;line-height:1.5}
-.composer button{display:grid;place-items:center;width:39px;height:39px;flex:0 0 39px;border:0;border-radius:12px;background:#b58e52;color:#201a20;cursor:pointer}
-.composer button:disabled{opacity:.45;cursor:not-allowed}
-.footer{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 22px 17px;color:var(--text-secondary,#aaa);font-size:10px;line-height:1.4}
-.footer button{display:flex;align-items:center;gap:5px;border:0;background:none;color:#c6a978;font-size:11px;cursor:pointer;white-space:nowrap}
-@media(max-width:650px){.panel{border-radius:18px}.header{align-items:flex-start;flex-wrap:wrap;padding:17px}.status{margin-left:60px}.devotionalCard{align-items:flex-start;flex-wrap:wrap;margin:12px;padding:12px}.devotionalCard button{margin-left:50px}.chat{padding:14px;min-height:210px}.userMessage,.aiMessage{max-width:100%}.composer{margin:0 12px}.footer{align-items:flex-start;padding:10px 14px 14px;flex-direction:column}}
-
-
-/* Presentación compacta para la ventana flotante. */
-.compactPanel{display:flex;flex-direction:column;width:100%;height:100%;max-height:100%;border-radius:22px;background:var(--jf-surface,#203a40);border-color:var(--jf-border,rgba(218,123,147,.35));}
-.compactPanel .header{flex:0 0 auto;gap:10px;padding:13px 14px;background:linear-gradient(110deg,rgba(46,21,27,.96),rgba(47,68,84,.94),rgba(55,110,111,.9));}
-.compactPanel .emblem{width:38px;height:38px;flex-basis:38px;border-radius:13px;background:linear-gradient(145deg,#DA7B93,#376E6F);color:#2E151B;}
-.compactPanel .heading>span{color:#f2b6c5;font-size:8px;letter-spacing:.12em;}
-.compactPanel .heading h2{font-size:18px;color:#fff;}
-.compactPanel .heading p{display:none;}
-.compactPanel .status{max-width:104px;padding:6px 8px;background:rgba(218,123,147,.18);color:#f8cbd6;font-size:8px;white-space:normal;text-align:center;}
-.closeButton{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border:1px solid rgba(255,255,255,.2);border-radius:50%;background:rgba(255,255,255,.08);color:#fff;cursor:pointer;}
-.compactPanel .devotionalCard{display:none;}
-.compactPanel .chat{flex:1 1 auto;min-height:155px;max-height:none;overflow-y:auto;padding:15px;background:var(--jf-surface,#203a40);}
-.compactPanel .welcome{min-height:150px;}
-.compactPanel .welcome>span{background:rgba(218,123,147,.17);color:#DA7B93;}
-.compactPanel .welcome strong{color:var(--jf-text,#f8eef0);font-size:15px;}
-.compactPanel .welcome p{font-size:11px;}
-.compactPanel .prompts{gap:6px;}
-.compactPanel .prompts button{padding:7px 9px;border-color:rgba(218,123,147,.25);background:rgba(55,110,111,.2);font-size:10px;}
-.compactPanel .messages{gap:10px;}
-.compactPanel .messageContent{padding:10px 12px;font-size:12px;background:rgba(47,68,84,.54);color:var(--jf-text,#f8eef0);}
-.compactPanel .userMessage .messageContent{background:#376E6F;color:#fff;}
-.compactPanel .messageAvatar{background:rgba(218,123,147,.16);color:#DA7B93;}
-.compactPanel .error,.compactPanel .setupNotice{margin:8px 12px;padding:9px 10px;font-size:10px;}
-.compactPanel .composer{flex:0 0 auto;margin:0 12px 10px;padding:9px;border-color:rgba(218,123,147,.3);background:var(--jf-surface-raised,#2F4454);}
-.compactPanel .composer textarea{max-height:86px;color:var(--jf-text,#fff);}
-.compactPanel .composer button{background:#DA7B93;color:#2E151B;}
-.compactPanel .footer{flex:0 0 auto;align-items:flex-start;padding:8px 14px 12px;font-size:9px;}
-.compactPanel .footer button{color:#DA7B93;}
-@media(max-width:560px){.compactPanel{border-radius:20px;}.compactPanel .header{padding:12px;}.compactPanel .chat{padding:12px;}.compactPanel .footer{padding:7px 12px 10px;}}
-
-
-/* Fuego AI — solid blue surfaces and legible conversation states. */
-.scope{color:#edf3fb}
-.panel{background:#121f32;border:1px solid #2a3d56;border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,.2)}
-.header{border-color:#2a3d56;background:#172943}
-.emblem{background:linear-gradient(145deg,#426fce,#294b7a);color:#fff;box-shadow:none}
-.heading>span{color:#9bb9ff}.heading h2{color:#f3f6fc}.heading p{color:#a9bad0}
-.status{background:#203a5b;color:#cfe0ff;border:1px solid #456184}
-.devotionalCard{background:#14243a;border-color:#304864}.devotionalIcon{background:#203a5b;color:#cfe0ff}
-.devotionalCard strong{color:#edf3fb}.devotionalCard span{color:#a9bad0}
-.devotionalCard button,.composer button{background:#426fce;color:#fff}
-.chat{background:#101c2d}
-.welcome>span{background:#203a5b;color:#cfe0ff}.welcome strong{color:#f3f6fc}.welcome p{color:#a9bad0}
-.prompts button{background:#17283e;border:1px solid #304761;color:#e1eaf5}
-.prompts button:hover{border-color:#668cff}
-.messageAvatar{background:#203a5b;color:#cfe0ff}
-.messageContent{background:#17283e;color:#edf3fb}
-.userMessage .messageContent{background:#294b7a;color:#fff}
-.typing{color:#a9bad0}.error{background:#4a2633;color:#ffe8ed}
-.setupNotice{background:#14243a;color:#bdcadd}
-.composer{background:#0d192a;border:1px solid #30445e}.composer textarea{color:#edf3fb}
-.footer{color:#9aabc0}.footer button{color:#9bb9ff}
-.compactPanel{background:#121f32;border-color:#344c70;border-radius:18px}
-.compactPanel .header{background:#172943;border-color:#2a3d56}
-.compactPanel .emblem{background:linear-gradient(145deg,#426fce,#294b7a);color:#fff}
-.compactPanel .heading>span{color:#9bb9ff}
-.compactPanel .status{background:#203a5b;color:#cfe0ff}
-.compactPanel .chat{background:#101c2d}
-.compactPanel .welcome>span{background:#203a5b;color:#cfe0ff}
-.compactPanel .prompts button{background:#17283e;border-color:#304761;color:#e1eaf5}
-.compactPanel .messageContent{background:#17283e;color:#edf3fb}
-.compactPanel .userMessage .messageContent{background:#294b7a;color:#fff}
-.compactPanel .messageAvatar{background:#203a5b;color:#cfe0ff}
-.compactPanel .composer{background:#0d192a;border-color:#30445e}
-.compactPanel .composer button{background:#426fce;color:#fff}
-.compactPanel .footer button{color:#9bb9ff}
-.closeButton{background:#1b304a;border-color:#48617f;color:#e5eefb}
-@media(prefers-reduced-motion:reduce){.prompts button,.composer button{transition:none}}
+/* Fuego AI: assistant surface aligned with the institutional product palette. */
+.scope{width:100%;min-width:0;color:var(--jf-ink)}
+.panel{display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid var(--jf-line);border-radius:var(--jf-radius-lg);background:var(--jf-surface);color:var(--jf-ink);box-shadow:var(--jf-shadow-raised)}
+.header{display:flex;align-items:center;gap:13px;padding:18px 20px;border-bottom:1px solid var(--jf-line);background:var(--jf-surface-2)}
+.emblem{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border-radius:12px;background:var(--jf-brand-soft);color:var(--jf-brand)}
+.heading{flex:1;min-width:0}.heading>span{display:block;color:var(--jf-ember);font-size:9px;letter-spacing:.13em;font-weight:850}
+.heading h2{margin:3px 0;color:var(--jf-ink);font-size:19px;letter-spacing:-.025em}
+.heading p{margin:0;color:var(--jf-muted);font-size:12px;line-height:1.45}
+.status{flex:0 0 auto;max-width:160px;padding:6px 9px;border:1px solid var(--jf-line);border-radius:999px;background:var(--jf-surface);color:var(--jf-muted);font-size:9px;font-weight:750;text-align:center}
+.closeButton{display:grid;place-items:center;width:35px;height:35px;flex:0 0 35px;border:1px solid var(--jf-line);border-radius:50%;background:var(--jf-surface);color:var(--jf-ink);cursor:pointer}
+.devotionalCard{display:flex;align-items:center;gap:11px;margin:15px 17px 0;padding:13px 14px;border:1px solid var(--jf-line);border-radius:12px;background:var(--jf-brand-soft);color:var(--jf-brand-ink)}
+.devotionalIcon{display:grid;place-items:center;width:36px;height:36px;flex:0 0 36px;border-radius:10px;background:var(--jf-surface);color:var(--jf-brand)}
+.devotionalCard>div:nth-child(2){display:grid;gap:3px;flex:1;min-width:0}
+.devotionalCard strong{color:var(--jf-brand-ink);font-size:11px}
+.devotionalCard span{color:var(--jf-muted);font-size:10px;line-height:1.45}
+.devotionalCard button{min-height:35px;padding:8px 11px;border:1px solid var(--jf-brand);border-radius:8px;background:var(--jf-brand);color:#fff;font-size:10px;font-weight:800;cursor:pointer}
+:root[data-theme="dark"] .devotionalCard button{color:#102117}
+.chat{min-height:260px;max-height:560px;overflow-y:auto;padding:20px;background:var(--jf-surface);overscroll-behavior:contain}
+.welcome{display:grid;justify-items:center;gap:9px;max-width:620px;margin:0 auto;padding:20px 10px;text-align:center}
+.welcome>span{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--jf-brand-soft);color:var(--jf-brand)}
+.welcome strong{color:var(--jf-ink);font-size:15px}
+.welcome p{max-width:500px;margin:0 0 8px;color:var(--jf-muted);font-size:12px;line-height:1.65}
+.prompts{display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
+.prompts button{padding:8px 11px;border:1px solid var(--jf-line);border-radius:999px;background:var(--jf-surface-2);color:var(--jf-ink);font-size:10px;cursor:pointer}
+.prompts button:hover:not(:disabled){border-color:var(--jf-brand);background:var(--jf-brand-soft)}
+.prompts button:disabled{opacity:.55;cursor:not-allowed}
+.messages{display:grid;gap:13px}
+.userMessage,.aiMessage{display:flex;align-items:flex-start;gap:9px;min-width:0}
+.userMessage{flex-direction:row-reverse}
+.messageAvatar{display:grid;place-items:center;flex:0 0 29px;width:29px;height:29px;border-radius:9px;background:var(--jf-brand-soft);color:var(--jf-brand)}
+.messageContent{max-width:min(82%,650px);padding:11px 13px;border:1px solid var(--jf-line);border-radius:13px;background:var(--jf-surface-2);color:var(--jf-ink);font-size:12px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.userMessage .messageContent{border-color:var(--jf-brand);background:var(--jf-brand);color:#fff}
+:root[data-theme="dark"] .userMessage .messageContent{color:#102117}
+.typing{display:flex;align-items:center;gap:8px;color:var(--jf-muted);font-size:11px}
+.error{margin:10px 18px;padding:10px 12px;border:1px solid color-mix(in srgb,var(--jf-danger) 28%,var(--jf-line));border-radius:9px;background:var(--jf-danger-soft);color:var(--jf-danger);font-size:11px}
+.setupNotice{display:flex;align-items:flex-start;gap:8px;margin:10px 18px;padding:10px 12px;border:1px solid var(--jf-line);border-radius:9px;background:var(--jf-surface-2);color:var(--jf-muted);font-size:10px;line-height:1.5}
+.composer{display:flex;align-items:flex-end;gap:9px;margin:0 17px 12px;padding:10px;border:1px solid var(--jf-line-strong);border-radius:12px;background:var(--jf-surface-2)}
+.composer:focus-within{border-color:var(--jf-focus);box-shadow:0 0 0 2px color-mix(in srgb,var(--jf-focus) 18%,transparent)}
+.composer textarea{flex:1;min-width:0;max-height:150px;resize:vertical;border:0;outline:0;background:transparent;color:var(--jf-ink);font:inherit;font-size:12px;line-height:1.5}
+.composer textarea::placeholder{color:var(--jf-muted)}
+.composer button{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border:1px solid var(--jf-brand);border-radius:9px;background:var(--jf-brand);color:#fff;cursor:pointer}
+:root[data-theme="dark"] .composer button{color:#102117}
+.composer button:disabled{opacity:.5;cursor:not-allowed}
+.footer{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 18px 14px;color:var(--jf-muted);font-size:9px;line-height:1.5}
+.footer button{display:flex;align-items:center;gap:5px;flex:none;border:0;background:transparent;color:var(--jf-brand);font-size:10px;font-weight:750;cursor:pointer}
+.compactPanel{height:100%;max-height:100%;border-radius:16px}
+.compactPanel .header{flex:0 0 auto;padding:12px 13px;gap:9px}
+.compactPanel .emblem{width:36px;height:36px;flex-basis:36px;border-radius:10px}
+.compactPanel .heading>span{font-size:8px}
+.compactPanel .heading h2{font-size:16px}
+.compactPanel .heading p{font-size:10px}
+.compactPanel .status{max-width:105px;padding:5px 7px;font-size:8px}
+.compactPanel .chat{flex:1 1 auto;min-height:130px;max-height:none;padding:13px}
+.compactPanel .welcome{padding:12px 6px}
+.compactPanel .welcome>span{width:39px;height:39px}
+.compactPanel .welcome strong{font-size:13px}
+.compactPanel .welcome p{font-size:11px}
+.compactPanel .prompts{gap:6px}
+.compactPanel .prompts button{padding:6px 8px;font-size:9px}
+.compactPanel .messageContent{padding:9px 10px;font-size:11px}
+.compactPanel .composer{flex:0 0 auto;margin:0 10px 8px;padding:8px}
+.compactPanel .composer textarea{max-height:86px;font-size:11px}
+.compactPanel .footer{padding:8px 12px 10px;font-size:8px}
+@media(max-width:600px){.header{align-items:flex-start;flex-wrap:wrap;padding:15px}.heading{min-width:calc(100% - 65px)}.status{margin-left:57px}.chat{min-height:220px;padding:14px}.devotionalCard{align-items:flex-start;flex-wrap:wrap;margin:12px;padding:11px}.devotionalCard>div:nth-child(2){min-width:calc(100% - 50px)}.devotionalCard button{width:100%}.footer{align-items:flex-start;flex-direction:column}}
+@media(prefers-reduced-motion:reduce){.panel *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
