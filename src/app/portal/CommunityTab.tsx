@@ -1,4 +1,4 @@
-import {useCallback,useEffect,useState} from "react";
+import {useCallback,useEffect,useRef,useState} from "react";
 import {BookOpen,Heart,Link2,MessageCircle,Music2,RefreshCw,Send,Sparkles,Users,Quote,Flag,ShieldCheck,Clock3,Bell} from "lucide-react";
 import {
   createYouthCommunityComment,createYouthCommunityPost,getYouthCommunityFeed,getYouthCommunityChat,getYouthCommunityAnnouncements,reportYouthCommunityChatMessage,reportYouthCommunityPost,sendYouthCommunityChatMessage,toggleYouthCommunityReaction,
@@ -33,6 +33,7 @@ export default function CommunityTab({memberName,communitySession}:Props){
   const [commentDrafts,setCommentDrafts]=useState<Record<string,string>>({});
   const [busyPost,setBusyPost]=useState("");
   const [reportedPosts,setReportedPosts]=useState<string[]>([]);
+  const chatRequestRef=useRef(false);
   const [chatMessages,setChatMessages]=useState<YouthCommunityChatMessage[]>([]);
   const [chatDraft,setChatDraft]=useState("");
   const [chatLoading,setChatLoading]=useState(true);
@@ -66,14 +67,16 @@ export default function CommunityTab({memberName,communitySession}:Props){
   },[loadAnnouncements]);
 
   const loadChat=useCallback(async()=>{
+    if(chatRequestRef.current)return;
+    chatRequestRef.current=true;
     try{setChatMessages(await getYouthCommunityChat(communitySession));setChatError("");}
     catch(cause){setChatError(cause instanceof Error?cause.message:"No se pudo cargar el chat.");}
-    finally{setChatLoading(false);}
+    finally{chatRequestRef.current=false;setChatLoading(false);}
   },[communitySession]);
 
   useEffect(()=>{
     void loadChat();
-    const interval=window.setInterval(()=>void loadChat(),12000);
+    const interval=window.setInterval(()=>void loadChat(),30000);
     return ()=>window.clearInterval(interval);
   },[loadChat]);
 
