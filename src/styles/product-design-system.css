@@ -459,3 +459,54 @@ body .youth-portal .youth-pin-icon { background: var(--jf-ember) !important; bor
     transform: none !important;
   }
 }
+
+
+/* Module-specific semantic accents: one restrained palette across legacy CSS modules. */
+.main .jf-route-stage .attendance-card button:not(:disabled),
+.main .jf-route-stage .reports-export {
+  background: var(--jf-brand) !important;
+  border: 1px solid var(--jf-brand) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage .attendance-card button:hover:not(:disabled),
+.main .jf-route-stage .reports-export:hover {
+  background: var(--jf-brand-strong) !important;
+  border-color: var(--jf-brand-strong) !important;
+  transform: none !important;
+}
+.main .jf-route-stage .attendance-card :is(input,select):focus,
+.main .jf-route-stage .reports-filter :is(input,select):focus {
+  border-color: var(--jf-focus) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb,var(--jf-focus) 18%,transparent) !important;
+}
+.main .jf-route-stage :is(.member-avatar,.members-total-icon) {
+  background: var(--jf-brand-soft) !important;
+  color: var(--jf-brand-ink) !important;
+}
+.main .jf-route-stage .member-count svg,
+.main .jf-route-stage .reports-section-heading > svg,
+.main .jf-route-stage .reports-section-heading > div > span {
+  color: var(--jf-brand) !important;
+}
+.main .jf-route-stage .reports-icon {
+  border-radius: 8px !important;
+}
+.main .jf-route-stage .reports-icon:is(.purple,.orange,.green,.red) {
+  background: var(--jf-brand-soft) !important;
+  color: var(--jf-brand-ink) !important;
+}
+.main .jf-route-stage .reports-progress { background: var(--jf-surface-3) !important; }
+.main .jf-route-stage .reports-progress > div { background: var(--jf-brand) !important; }
+.main .jf-route-stage .reports-table-wrapper { max-width: 100%; }
+.main .jf-route-stage .reports-table { min-width: 620px; }
+:root[data-theme="dark"] .main .jf-route-stage .reports-icon:is(.purple,.orange,.green,.red) {
+  background: var(--jf-brand-soft) !important;
+  color: var(--jf-brand-ink) !important;
+}
+@media (max-width: 600px) {
+  .main .jf-route-stage :is(.attendance-header,.members-hero,.reports-hero) {
+    padding: 19px !important;
+  }
+  .main .jf-route-stage :is(.attendance-card,.reports-card) { padding: 14px !important; }
+}
