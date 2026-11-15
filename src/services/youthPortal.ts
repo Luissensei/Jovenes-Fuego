@@ -61,6 +61,14 @@ export async function reportYouthCommunityPost(
 export type AdminYouthCommunityReport = {
   id:string;postId:string;reason:string;details:string;postAuthor:string;postContent:string;createdAt:string;
 };
+export async function reportYouthCommunityChatMessage(
+  communitySession:string,messageId:string,reason:"inappropriate"|"bullying"|"privacy"|"spam"|"other",
+):Promise<void>{
+  const result=await youthPinCall<{communitySession:string;messageId:string;reason:string},{success:boolean}>(
+    "reportYouthCommunityChatMessage",{communitySession,messageId,reason},
+  );
+  if(!result.success)throw new Error("No se pudo enviar el reporte.");
+}
 export async function getAdminYouthCommunityReports():Promise<AdminYouthCommunityReport[]>{
   const result=await youthPinCall<Record<string,never>,{reports:AdminYouthCommunityReport[]}>("adminListYouthCommunityReports",{});
   return Array.isArray(result.reports)?result.reports:[];
