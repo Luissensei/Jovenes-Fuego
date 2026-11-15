@@ -444,7 +444,7 @@ body .youth-portal .youth-pin-icon { background: var(--jf-ember) !important; bor
   .main .jf-route-stage { padding-bottom: 8px; }
   .main .jf-route-stage :is(h1) { font-size: clamp(23px,6vw,30px); }
   .main .jf-route-stage :is(h2) { font-size: clamp(18px,4.8vw,23px); }
-  .main .jf-route-stage :is(.page-card,.panel,.card,[class*="-card"],[class*="-panel"]) { border-radius: 10px !important; }
+  .main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,.shared-stat-card) { border-radius: 10px !important; }
   body .youth-portal .youth-header { padding: 18px 12px 12px !important; }
   body .youth-portal :is(.youth-selector,.youth-profile-card,.youth-activity-card,.youth-game-tile) { border-radius: 10px !important; }
 }
