@@ -725,32 +725,6 @@ export default function YouthPortalPage() {
   })), [faithful, profiles]);
 
 
-  async function persistLook(next: ProfileLook, successMessage: string) {
-    if (!selectedProfile) return;
-    setLook(next);
-    setLookSaving(true);
-    setLookNotice('');
-    let savedLocally = false;
-    try {
-      window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
-      savedLocally = true;
-      if (communitySession) {
-        await saveYouthProfileAppearance(communitySession, next);
-        setLookNotice(successMessage + ' Sincronizado con tu perfil.');
-      } else {
-        setLookNotice(successMessage + ' Guardado solo en este dispositivo. Verifica tu PIN para sincronizarlo.');
-      }
-    } catch (cause) {
-      if (!savedLocally) {
-        setLook(readLook(selectedProfile));
-        setLookNotice('El navegador no permitió guardar la personalización en este dispositivo.');
-      } else {
-        setLookNotice('Quedó guardado en este dispositivo, pero no se pudo sincronizar. Verifica tu conexión e inténtalo de nuevo.');
-      }
-    } finally {
-      setLookSaving(false);
-    }
-  }
 
   async function equipLookItem(category: LookShopCategory, item: (typeof lookShop)[LookShopCategory][number]) {
     if (!selectedProfile || lookSaving) return;
