@@ -129,3 +129,19 @@ body .youth-portal .youth-store-wallet {display:flex;align-items:center;gap:5px;
   body .youth-portal .youth-profile-showcase-avatar {flex-basis:64px;width:64px;height:64px;font-size:34px}
   body .youth-portal .youth-profile-editor-actions > button {flex:1 1 100%}
 }
+
+/* The appearance editor opens as a centered mobile-friendly profile dialog. */
+body .youth-portal .youth-customizer {
+  position:fixed!important;z-index:1200!important;left:50%!important;top:50%!important;
+  width:min(640px,calc(100vw - 24px))!important;max-width:640px!important;
+  max-height:min(90dvh,900px)!important;overflow-y:auto!important;
+  margin:0!important;transform:translate(-50%,-50%)!important;
+  box-shadow:0 0 0 100vmax rgba(12,18,30,.62),0 24px 70px rgba(0,0,0,.28)!important;
+  overscroll-behavior:contain;
+}
+@media(max-width:600px) {
+  body .youth-portal .youth-customizer {
+    width:calc(100vw - 20px)!important;max-height:88dvh!important;
+    border-radius:22px!important;padding:16px!important;
+  }
+}
