@@ -5,7 +5,7 @@ import {
   type YouthCommunityPost,type YouthCommunityPostInput,
 } from "../../services/youthPortal";
 
-type Props={memberId:string;memberName:string;communitySession:string};
+type Props={memberName:string;communitySession:string};
 
 const postKinds=[
   {value:"text",label:"Mensaje",icon:MessageCircle,placeholder:"¿Qué quieres compartir con la comunidad?"},
@@ -20,7 +20,7 @@ function formatDate(value:string){
   return new Intl.DateTimeFormat("es-CO",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}).format(date);
 }
 
-export default function CommunityTab({memberId,memberName,communitySession}:Props){
+export default function CommunityTab({memberName,communitySession}:Props){
   const [posts,setPosts]=useState<YouthCommunityPost[]>([]);
   const [loading,setLoading]=useState(true);
   const [refreshing,setRefreshing]=useState(false);
@@ -82,7 +82,6 @@ export default function CommunityTab({memberId,memberName,communitySession}:Prop
   }
 
   const activeKind=postKinds.find(item=>item.value===kind)??postKinds[0];
-  const ActiveIcon=activeKind.icon;
 
   return <div className="youth-tab-page jf-community">
     <section className="jf-community-hero">
