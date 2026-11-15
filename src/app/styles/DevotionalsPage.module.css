@@ -347,7 +347,7 @@
 
 
 /* Publicación visible desde la pantalla principal de administración */
-.scope:global(.devotional-publisher-card){
+.scope :global(.devotional-publisher-card){
   display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.85fr);gap:22px;align-items:center;
   padding:22px;border:1px solid rgba(94,145,222,.3);border-radius:20px;
   background:linear-gradient(125deg,rgba(74,111,174,.12),var(--jf-surface,rgba(27,23,35,.92)));
@@ -360,5 +360,5 @@
 .scope :global(.devotional-flyer-ready){color:#29966b;font-size:12px;font-weight:700}
 .scope :global(.devotional-publisher-card) :global(.devotional-flyer-upload){min-width:0}
 @media(max-width:700px){
- .scope:global(.devotional-publisher-card){grid-template-columns:minmax(0,1fr);gap:15px;padding:17px;border-radius:17px}
+ .scope :global(.devotional-publisher-card){grid-template-columns:minmax(0,1fr);gap:15px;padding:17px;border-radius:17px}
 }
