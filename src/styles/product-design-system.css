@@ -1390,3 +1390,20 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
 }
 .main .jf-route-stage .devotionals-feature :is(h1,h2,h3,p,span,strong) { color: var(--jf-ink) !important; }
 
+/* Dark-theme primary controls use dark ink on the lighter green brand surface. */
+:root[data-theme="dark"] .main .jf-route-stage :is(
+  .photos-primary,.photos-approve,.managed-primary,.managed-submit,.management-submit,
+  .reports-export,.trivia-primary,.trivia-next,.mbg-primary-button,.verse-next-button,
+  .qbg-next,.qbg-actions button:not(.secondary),.attendance-primary,.checkin-primary,
+  .primaryAction,.primary-action,.primary-button,.btn-primary,[data-variant="primary"]
+) { color: #102117 !important; }
+:root[data-theme="dark"] .main .jf-route-stage :is(.trivia-primary,.trivia-next,.trivia-progress>div) { color: #102117 !important; }
+:root[data-theme="dark"] .main .jf-route-stage :is(.trivia-option.correct,.mbg-options button.correct,.verse-option.correct) {
+  color: var(--jf-success) !important;
+  background: var(--jf-success-soft) !important;
+  border-color: var(--jf-success) !important;
+}
+:root[data-theme="dark"] .youth-portal :is(.youth-pin-form button,.youth-primary,.youth-submit) { color: #102117 !important; }
+:root[data-theme="dark"] .main .jf-route-stage [class*="YouthPinsPage_issued"] button,
+:root[data-theme="dark"] .main .jf-route-stage [class*="YouthPinsPage_issue"] { color: #102117 !important; }
+
