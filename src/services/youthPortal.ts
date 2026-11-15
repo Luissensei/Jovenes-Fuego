@@ -22,6 +22,17 @@ export type YouthCommunityPost = {
 export type YouthCommunityPostInput = {
   type:"text"|"verse"|"song"|"testimony";content:string;reference?:string;linkUrl?:string;
 };
+export type YouthCommunityChatMessage = {id:string;memberId:string;author:string;content:string;createdAt:string};
+export async function getYouthCommunityChat(communitySession:string):Promise<YouthCommunityChatMessage[]> {
+  const result=await youthPinCall<{communitySession:string},{messages:YouthCommunityChatMessage[]}>("getYouthCommunityChat",{communitySession});
+  return Array.isArray(result.messages)?result.messages:[];
+}
+export async function sendYouthCommunityChatMessage(communitySession:string,content:string):Promise<void> {
+  const result=await youthPinCall<{communitySession:string;content:string},{success:boolean}>(
+    "sendYouthCommunityChatMessage",{communitySession,content},
+  );
+  if(!result.success)throw new Error("No se pudo enviar el mensaje.");
+}
 export async function getYouthCommunityFeed(communitySession:string):Promise<YouthCommunityPost[]> {
   const result=await youthPinCall<{communitySession:string},{posts:YouthCommunityPost[]}>("getYouthCommunityFeed",{communitySession});
   return Array.isArray(result.posts)?result.posts:[];
