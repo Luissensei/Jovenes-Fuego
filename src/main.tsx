@@ -18,7 +18,6 @@ import './styles/unified-module-theme.css';
 import './styles/portal-polish.css';
 import './styles/theme-final-overrides.css';
 import './styles/sidebar-transparent-redesign.css';
-import './styles/visual-refresh-2026.css';
 import './styles/product-design-system.css';
 
 try {
