@@ -11,7 +11,7 @@ import {
   Palette, Volume2, VolumeX, Star, X,
   BookMarked, Moon, Sun, CheckCircle2, UserRound, Save, Trash2, Home, MessageCircle,
 } from 'lucide-react';
-import {getPublicProfiles, purchaseYouthLookItem, saveYouthProfileAppearance, type PublicProfile} from '../services/publicProfiles';
+import {getPublicProfiles, purchaseYouthLookBundle, purchaseYouthLookItem, saveYouthProfileAppearance, type PublicProfile} from '../services/publicProfiles';
 import {
   getWeeklyActivities,
   getHallOfFame,
@@ -807,45 +807,45 @@ export default function YouthPortalPage() {
   }
 
   async function applyLookTemplate(templateKey: string) {
-    if (!selectedProfile) return;
+    if (!selectedProfile || lookSaving) return;
     const template = [...lookTemplates, ...savedLookTemplates].find((item) => item.key === templateKey);
     if (!template) return;
+    if (!communitySession) {
+      setLookNotice('Verifica tu PIN juvenil para comprar y sincronizar una plantilla.');
+      return;
+    }
     const mappings: [LookShopCategory, string][] = [
       ['frames',template.preset.frame],['avatars',template.preset.avatar],['titles',template.preset.title],
       ['backgrounds',template.preset.background],['effects',template.preset.effects],['badges',template.preset.badge],
       ['hair',template.preset.hair],['outfits',template.preset.outfit],['accessories',template.preset.accessory],
     ];
-    let cost = 0;
-    const owned = [...look.ownedItems];
-    const replacements: Record<string,string> = {
-      effects:'equipped:fx:',badges:'equipped:bdg:',hair:'equipped:hair:',
-      outfits:'equipped:outfit:',accessories:'equipped:accessory:',
-    };
-    for (const [category,key] of mappings) {
-      const item = lookShop[category].find((entry) => entry.key === key);
-      if (!item) continue;
-      const ownedKey = `${lookCategoryStorage[category]}:${item.key}`;
-      const alreadyOwned = item.cost === 0 || owned.includes(ownedKey);
-      if (!alreadyOwned) {
-        cost += item.cost;
-        owned.push(ownedKey);
+    const items = mappings.map(([category,itemKey]) => ({category,itemKey}));
+    setLookSaving(true);
+    setLookNotice('');
+    try {
+      const purchase = await purchaseYouthLookBundle(communitySession, items);
+      const next: ProfileLook = {
+        ...look,
+        ...template.preset,
+        ownedItems: purchase.ownedItems,
+        flames: purchase.flames,
+      };
+      setLook(next);
+      try {
+        window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
+      } catch {
+        // La plantilla ya está guardada en el servidor; la caché local es opcional.
       }
-      const prefix = replacements[category];
-      if (prefix) {
-        for (let index = owned.length - 1; index >= 0; index -= 1) {
-          if (owned[index].startsWith(prefix)) owned.splice(index, 1);
-        }
-        owned.push(`${prefix}${key}`);
-      }
+      setLookNotice(`Plantilla ${template.label} aplicada. Saldo: ${purchase.flames} Llamas.`);
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : '';
+      setLookNotice(message.includes('suficientes Llamas')
+        ? 'No tienes suficientes Llamas para esta plantilla.'
+        : 'No se pudo aplicar la plantilla. Comprueba tu conexión e inténtalo de nuevo.');
+    } finally {
+      setLookSaving(false);
     }
-    if (look.flames < cost) {
-      setLookNotice(`Esta plantilla requiere ${cost} Llamas y tienes ${look.flames}.`);
-      return;
-    }
-    const next: ProfileLook = {...look,...template.preset,ownedItems:Array.from(new Set(owned)),flames:look.flames-cost};
-    await persistLook(next,`Plantilla ${template.label} aplicada.`);
   }
-
 
   function saveCurrentLookTemplate() {
     if (!selectedProfile) return;
