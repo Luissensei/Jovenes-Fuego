@@ -75,3 +75,9 @@
 @media(max-width:1100px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.welcomeVisual{flex-basis:100px;width:100px;height:100px}.featureGrid{grid-template-columns:1fr}}
 @media(max-width:700px){.scope{gap:14px;padding-bottom:24px}.welcome{min-height:0;padding:21px 17px;border-radius:11px}.welcomeVisual{display:none}.welcome h1{margin-top:14px;font-size:clamp(24px,7vw,30px)}.welcomeCopy>p{font-size:11px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metricCard{padding:12px}.metricTop{font-size:8px}.metricTop i{width:29px;height:29px}.metricCard>strong{font-size:22px}.featureGrid,.lowerGrid{grid-template-columns:1fr;gap:11px}.panel{padding:14px}.panelHeading h2{font-size:16px}.podium{min-height:200px;gap:6px;padding-inline:0}.avatar{width:53px;height:53px;font-size:15px}.podiumPerson[data-place="1"] .avatar{width:64px;height:64px}.podiumPerson>b{font-size:9px}.podiumPerson>small{font-size:8px}.podiumBase{height:48px}.podiumPerson[data-place="1"] .podiumBase{height:70px}.podiumPerson[data-place="3"] .podiumBase{height:39px}.chartRow{grid-template-columns:76px minmax(35px,1fr) 42px;gap:7px}.shortcuts{grid-template-columns:1fr}.assistantCard{flex-wrap:wrap;align-items:flex-start}.assistantCard>a{margin-left:55px}}
 @media(prefers-reduced-motion:reduce){.shortcuts>a{transition:none}}
+
+
+/* Contraste explícito del bloque de bienvenida frente a reglas globales del tema. */
+:global(.main .jf-route-stage) .welcome h1{color:#f5f6ef!important}
+:global(.main .jf-route-stage) .welcomeCopy>p{color:#cbd6cd!important}
+:global(.main .jf-route-stage) .welcome .eyebrow{color:#efb092!important}
