@@ -1,5 +1,5 @@
 import {httpsCallable} from 'firebase/functions';
-import {assertFirebaseWritesAllowed, functions} from './firebase/client';
+import {assertFirebaseWritesAllowed, auth, functions} from './firebase/client';
 import {cachedRequest, invalidateRequestCache} from './requestCache';
 
 
@@ -322,9 +322,10 @@ export function getMembersForAdministration(
     return Promise.reject(new Error('Firebase Functions no está configurado.'));
   }
 
-  // Comparte únicamente solicitudes simultáneas del mismo módulo. No conserva
-  // datos en caché: cada nueva carga vuelve a consultar el estado actualizado.
-  const pending = pendingMemberRequests.get(module);
+  // Comparte solicitudes simultáneas solo dentro de la misma sesión y módulo.
+  // Evita reutilizar entre cuentas el resultado privado de una llamada en curso.
+  const requestKey = `${auth?.currentUser?.uid ?? 'no-auth'}:${module}`;
+  const pending = pendingMemberRequests.get(requestKey);
   if (pending) return pending;
 
   // Las fichas privadas se consultan en el servidor: las reglas de Firestore
@@ -343,10 +344,10 @@ export function getMembersForAdministration(
       : [],
   );
 
-  pendingMemberRequests.set(module, request);
+  pendingMemberRequests.set(requestKey, request);
   const clearPending = () => {
-    if (pendingMemberRequests.get(module) === request) {
-      pendingMemberRequests.delete(module);
+    if (pendingMemberRequests.get(requestKey) === request) {
+      pendingMemberRequests.delete(requestKey);
     }
   };
   request.then(clearPending, clearPending);
