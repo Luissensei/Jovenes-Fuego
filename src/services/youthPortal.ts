@@ -59,7 +59,7 @@ export async function reportYouthCommunityPost(
   if(!result.success)throw new Error("No se pudo enviar el reporte.");
 }
 export type AdminYouthCommunityReport = {
-  id:string;postId:string;reason:string;details:string;postAuthor:string;postContent:string;createdAt:string;
+  id:string;postId:string;contentType:"post"|"chat";reason:string;details:string;postAuthor:string;postContent:string;createdAt:string;
 };
 export async function reportYouthCommunityChatMessage(
   communitySession:string,messageId:string,reason:"inappropriate"|"bullying"|"privacy"|"spam"|"other",
@@ -73,8 +73,8 @@ export async function getAdminYouthCommunityReports():Promise<AdminYouthCommunit
   const result=await youthPinCall<Record<string,never>,{reports:AdminYouthCommunityReport[]}>("adminListYouthCommunityReports",{});
   return Array.isArray(result.reports)?result.reports:[];
 }
-export async function moderateYouthCommunityPost(postId:string,action:"hide"|"restore"):Promise<void>{
-  const result=await youthPinCall<{postId:string;action:string},{success:boolean}>("adminModerateYouthCommunityPost",{postId,action});
+export async function moderateYouthCommunityPost(postId:string,action:"hide"|"restore",contentType:"post"|"chat"="post"):Promise<void>{
+  const result=await youthPinCall<{postId:string;action:string;contentType:string},{success:boolean}>("adminModerateYouthCommunityPost",{postId,action,contentType});
   if(!result.success)throw new Error("No se pudo actualizar la moderación.");
 }
 export async function getYouthPinAdministration():Promise<YouthPinAdminRecord[]>{const r=await youthPinCall<Record<string,never>,{members:YouthPinAdminRecord[]}>("adminListYouthPins",{});return Array.isArray(r.members)?r.members:[];}
