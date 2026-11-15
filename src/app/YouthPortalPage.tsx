@@ -25,6 +25,7 @@ import {
 } from '../services/youthPortal';
 
 const ActivitiesTab = lazy(() => import('./portal/ActivitiesTab'));
+const DevotionalFlyerTab = lazy(() => import('./portal/DevotionalFlyerTab'));
 const GamesTab = lazy(() => import('./portal/GamesTab'));
 const TriviaGame = lazy(() => import('./TriviaGame'));
 const VerseGame = lazy(() => import('./VerseGame'));
@@ -304,11 +305,12 @@ const lookCategoryStorage: Record<LookShopCategory, string> = {
   accessories: 'accessories',
 };
 
-type YouthSection = 'home' | 'activities' | 'ranking' | 'games' | 'space';
+type YouthSection = 'home' | 'activities' | 'devotional' | 'ranking' | 'games' | 'space';
 
 const youthNavigation: Array<{id: YouthSection; label: string; icon: typeof Home}> = [
   {id: 'home', label: 'Inicio', icon: Home},
   {id: 'activities', label: 'Actividades', icon: CalendarDays},
+  {id: 'devotional', label: 'Devocional', icon: BookMarked},
   {id: 'ranking', label: 'Ranking', icon: Trophy},
   {id: 'games', label: 'Juegos', icon: Gamepad2},
   {id: 'space', label: 'Mi espacio', icon: UserRound},
@@ -1216,6 +1218,12 @@ export default function YouthPortalPage() {
                 onToggleGrowthDay={toggleGrowthDay}
                 onRetry={() => void loadActivities()}
               />
+            </Suspense>
+          )}
+
+          {activeYouthSection === 'devotional' && (
+            <Suspense fallback={<SkeletonList/>}>
+              <DevotionalFlyerTab />
             </Suspense>
           )}
 
