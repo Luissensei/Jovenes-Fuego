@@ -1,6 +1,7 @@
 import {httpsCallable} from 'firebase/functions';
 
 import {functions} from './firebase/client';
+import {cachedRequest, invalidateRequestCache} from './requestCache';
 
 export type AttendanceStatus = 'Presente' | 'Tarde' | 'Falta' | 'Justificada' | 'Ausente';
 
@@ -45,14 +46,16 @@ async function call<T>(name: string, payload: unknown = {}): Promise<T> {
   return response.data;
 }
 
-export async function listAttendanceMeetings(
+export function listAttendanceMeetings(
   module: 'attendance' | 'reports' = 'attendance',
 ): Promise<AttendanceMeeting[]> {
-  const response = await call<{meetings: AttendanceMeeting[]}>(
-    'getAttendanceMeetings',
-    {module},
-  );
-  return Array.isArray(response.meetings) ? response.meetings : [];
+  return cachedRequest(`attendance-meetings:${module}`, 10_000, async () => {
+    const response = await call<{meetings: AttendanceMeeting[]}>(
+      'getAttendanceMeetings',
+      {module},
+    );
+    return Array.isArray(response.meetings) ? response.meetings : [];
+  });
 }
 
 export async function createAttendanceMeeting(
@@ -64,7 +67,10 @@ export async function createAttendanceMeeting(
     throw new Error('Debes indicar el nombre y la fecha.');
   }
 
-  return call<CreateMeetingResult>('createAttendanceMeeting', {name, date});
+  const result = await call<CreateMeetingResult>('createAttendanceMeeting', {name, date});
+  invalidateRequestCache('attendance-meetings:attendance');
+  invalidateRequestCache('attendance-meetings:reports');
+  return result;
 }
 
 export async function saveMeetingAttendance(
