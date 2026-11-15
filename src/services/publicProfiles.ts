@@ -30,7 +30,7 @@ async function call<TResponse>(
 
 /** Obtiene únicamente indicadores públicos, sin descargar fotografías ni datos privados. */
 export function getPublicRankingMetrics(): Promise<PublicRankingMetric[]> {
-  return cachedRequest('public-ranking-metrics', 20_000, async () => {
+  return cachedRequest('public-ranking-metrics', 60_000, async () => {
     const response = await call<{metrics: PublicRankingMetric[]}>('getPublicRankingMetrics');
     return Array.isArray(response.metrics)
       ? response.metrics.map((item) => ({
