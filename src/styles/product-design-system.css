@@ -722,3 +722,17 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
   .main .jf-route-stage :is(.followup-stats,.visitors-stats) { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
   .main .jf-route-stage :is(.followup-header,.visitors-header,.checkin-hero,.devotionals-feature) { align-items: flex-start !important; padding: 18px !important; }
 }
+
+:root[data-theme="dark"] body .youth-portal {
+  --yp-bg: var(--jf-canvas);
+  --yp-surface: var(--jf-surface);
+  --yp-surface-2: var(--jf-surface-2);
+  --yp-text: var(--jf-ink);
+  --yp-muted: var(--jf-muted);
+  --yp-line: var(--jf-line);
+  --yp-green: var(--jf-brand);
+  --yp-green-2: var(--jf-brand-strong);
+  --yp-green-soft: var(--jf-brand-soft);
+  --yp-gold: var(--jf-gold);
+  --yp-shadow: var(--jf-shadow);
+}
