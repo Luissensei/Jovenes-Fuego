@@ -275,6 +275,16 @@ export default function DevotionalsPage() {
             </div>
           ) : <p className="devotional-flyer-empty">Todavía no has seleccionado imágenes.</p>}
           {flyerError && <p role="alert" className="devotional-flyer-error">{flyerError}</p>}
+          <button
+            type="button"
+            className="devotionals-primary devotional-publish-cta"
+            onClick={() => {
+              setError('');
+              setShowForm(true);
+            }}
+          >
+            <Plus size={17} /> Completar y publicar devocional
+          </button>
         </div>
       </section>
 
@@ -348,9 +358,20 @@ export default function DevotionalsPage() {
               <span>
                 <CalendarDays size={14} /> {item.date}
               </span>
-              <button onClick={() => setSelected(item)}>
-                Leer reflexión
-              </button>
+              <div className="devotional-card-actions">
+                <button type="button" onClick={() => setSelected(item)}>
+                  Leer reflexión
+                </button>
+                <button
+                  type="button"
+                  className="devotional-card-delete"
+                  onClick={() => void handleDelete(item)}
+                  disabled={deleting}
+                  aria-label={`Eliminar devocional ${item.title}`}
+                >
+                  <Trash2 size={15} /> {deleting ? 'Eliminando...' : 'Eliminar'}
+                </button>
+              </div>
             </div>
           </article>
         ))}
