@@ -24,6 +24,37 @@ export type YouthCommunityPostInput = {
 };
 export type YouthCommunityChatMessage = {id:string;memberId:string;author:string;content:string;createdAt:string};
 export type YouthCommunityAnnouncement = {id:string;title:string;message:string;createdAt:string};
+export type WeeklyActivityAttendanceResponse = "yes" | "no" | "maybe";
+export type AdminWeeklyActivityAttendance = {
+  memberId: string; name: string; nick: string; response: WeeklyActivityAttendanceResponse; updatedAt: string;
+};
+export async function getYouthWeeklyActivityAttendance(
+  communitySession: string, activityIds: string[],
+): Promise<Record<string, WeeklyActivityAttendanceResponse>> {
+  const result = await youthPinCall<
+    {communitySession: string; activityIds: string[]},
+    {responses: Record<string, WeeklyActivityAttendanceResponse>}
+  >("getYouthWeeklyActivityAttendance", {communitySession, activityIds});
+  return result.responses ?? {};
+}
+export async function setYouthWeeklyActivityAttendance(
+  communitySession: string, activityId: string, response: WeeklyActivityAttendanceResponse,
+): Promise<void> {
+  const result = await youthPinCall<
+    {communitySession: string; activityId: string; response: WeeklyActivityAttendanceResponse},
+    {success: boolean}
+  >("setYouthWeeklyActivityAttendance", {communitySession, activityId, response});
+  if (!result.success) throw new Error("No se pudo guardar tu confirmación.");
+}
+export async function getAdminWeeklyActivityAttendance(activityId: string): Promise<AdminWeeklyActivityAttendance[]> {
+  if (!functions) throw new Error("Firebase Functions no está configurado.");
+  const call = httpsCallable<{activityId: string}, {members: AdminWeeklyActivityAttendance[]}>(
+    functions, "adminGetWeeklyActivityAttendance",
+  );
+  const result = await call({activityId});
+  return Array.isArray(result.data.members) ? result.data.members : [];
+}
+
 export async function getYouthCommunityAnnouncements(communitySession:string):Promise<YouthCommunityAnnouncement[]> {
   const result=await youthPinCall<{communitySession:string},{announcements:YouthCommunityAnnouncement[]}>(
     "getYouthCommunityAnnouncements",{communitySession},
