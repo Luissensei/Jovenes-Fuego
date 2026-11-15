@@ -1168,10 +1168,16 @@ export default function YouthPortalPage() {
                 <strong className="youth-store-wallet"><Flame size={16}/> {look.flames}</strong>
                 <button type="button" aria-label="Cerrar personalización" onClick={() => setEditingLook(false)}><X size={18}/></button>
               </header>
-              <div className={`youth-profile-live-preview frame-${look.frame}`}>
-                <div className="youth-profile-live-avatar">{look.avatar ? ({paloma:'🕊️',leon:'🦁',aguila:'🦅',cordero:'🐑',mariposa:'🦋',lobo:'🐺',estrella:'🌟',guerrero:'🛡️',dragon:'🐉',cohete:'🚀',rey:'👑',volcan:'🌋',fenix:'🔥','fenix-real':'🔥',delfin:'🐬',zorro:'🦊',pantera:'🐆',tigre:'🐯'} as Record<string,string>)[look.avatar] ?? '✨' : getInitials(profileExtras.displayName || selectedProfile.name)}</div>
-                <div><b>{profileExtras.displayName || selectedProfile.name}</b><span>{profileExtras.nickname ? '@'+profileExtras.nickname : 'Joven de Fuego'}</span></div>
-                <small>{youthCountries.find((country) => country.code === profileExtras.country)?.flag || '🌎'}</small>
+              <div className={`youth-profile-live-preview frame-${look.frame} background-${look.background} effect-${look.effects}`}>
+                <div className={`youth-profile-live-avatar outfit-${look.outfit} hair-${look.hair}`}>
+                  <span className="youth-look-character-face">{look.avatar ? ({paloma:'🕊️',leon:'🦁',aguila:'🦅',cordero:'🐑',mariposa:'🦋',lobo:'🐺',estrella:'🌟',guerrero:'🛡️',dragon:'🐉',cohete:'🚀',rey:'👑',volcan:'🌋',fenix:'🔥','fenix-real':'🔥',delfin:'🐬',zorro:'🦊',pantera:'🐆',tigre:'🐯'} as Record<string,string>)[look.avatar] ?? '✨' : getInitials(profileExtras.displayName || selectedProfile.name)}</span>
+                  {look.hair !== 'natural' && <span className="youth-look-layer youth-look-hair">{({waves:'〰️',curly:'➰',fade:'✂️',afro:'☁️',braids:'🎀',long:'💇',bun:'🌀',classic:'✨',cap:'🧢'} as Record<string,string>)[look.hair] ?? ''}</span>}
+                  {look.accessory !== 'none' && <span className="youth-look-layer youth-look-accessory">{({glasses:'👓',headphones:'🎧',cross:'✝️',wristband:'📿',halo:'😇',book:'📖',cap:'🧢',crown:'👑',scarf:'🧣',wings:'🪽',sword:'⚔️',staff:'🪄',cape:'🦸'} as Record<string,string>)[look.accessory] ?? ''}</span>}
+                  <span className="youth-look-layer youth-look-badge">{({flame:'🔥',book:'📖',heart:'❤️',shield:'🛡️',star:'⭐',crown:'👑',hope:'🕊️',mission:'🎯',brave:'💪',joy:'🌈',royal:'👑',guardian:'🛡️',victory:'🏆',covenant:'🤝',radiance:'✨'} as Record<string,string>)[look.badge] ?? '✦'}</span>
+                  {look.effects !== 'ember' && <span className="youth-look-layer youth-look-effect">{({aurora:'🌌',spark:'✨',ice:'❄️',halo:'💫',galaxy:'🌠',sun:'☀️',lightning:'⚡',bloom:'🌸',royal:'💎',orbit:'🪐',runes:'🔮',golden:'🌟',comet:'☄️',crown:'👑',vortex:'🌀'} as Record<string,string>)[look.effects] ?? ''}</span>}
+                </div>
+                <div className="youth-look-preview-copy"><b>{profileExtras.displayName || selectedProfile.name}</b><span>{profileExtras.nickname ? '@'+profileExtras.nickname : 'Joven de Fuego'}</span><small>{look.title === 'chispa' ? 'CHISPA ENCENDIDA' : look.title.toUpperCase()}</small></div>
+                <small className="youth-look-country">{youthCountries.find((country) => country.code === profileExtras.country)?.flag || '🌎'}</small>
               </div>
               <section className="youth-look-templates">
                 <div className="youth-look-templates-heading"><b>Plantillas de estilo</b><span>Combinaciones listas para transformar tu perfil.</span></div>
@@ -1189,7 +1195,7 @@ export default function YouthPortalPage() {
                   <input id="youth-template-name" value={templateName} onChange={(event) => setTemplateName(event.target.value)} maxLength={32} placeholder="Ej. Mi estilo de fuego" />
                   <button type="button" onClick={saveCurrentLookTemplate} disabled={lookSaving || !templateName.trim()}><Save size={15}/> Guardar plantilla</button>
                 </div>
-                <small>Guarda la combinación de marco, fondo, avatar, título y accesorios cosméticos. El perfil utiliza un avatar sencillo en 2D.</small>
+                <small>Combina avatar, cabello, ropa, accesorios, insignias y efectos. Tu vista previa cambia al instante.</small>
               </div>
               {savedLookTemplates.length > 0 && (
                 <div className="youth-saved-templates">
@@ -1235,7 +1241,7 @@ export default function YouthPortalPage() {
                 })}
               </div>
               {lookNotice && <p className="youth-inline-warning" role="status">{lookNotice}</p>}
-              <p className="youth-inline-warning">La apariencia se guarda en este dispositivo. Como el selector de perfiles es público y no verifica identidad, estos cambios no modifican el perfil compartido ni el saldo real de Llamas.</p>
+              <p className="youth-inline-warning">Las compras y el saldo se validan y guardan en tu perfil protegido. Necesitas verificar tu PIN juvenil para sincronizar tus cambios.</p>
               {lookSaving && <p className="youth-inline-warning">Guardando personalización...</p>}
 
             </section>
