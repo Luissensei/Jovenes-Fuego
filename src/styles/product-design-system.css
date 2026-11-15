@@ -1122,3 +1122,66 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
   border-color: var(--jf-line) !important;
 }
 
+/* Authentication and shared utility surfaces also follow the active theme. */
+.login-shell { background: var(--jf-canvas) !important; color: var(--jf-ink) !important; }
+.login-card {
+  background: var(--jf-surface) !important;
+  border-color: var(--jf-line) !important;
+  color: var(--jf-ink) !important;
+  box-shadow: var(--jf-shadow-raised) !important;
+}
+.login-card :is(h1,label) { color: var(--jf-ink) !important; }
+.login-card :is(input,select,textarea) {
+  color: var(--jf-ink) !important;
+  background: var(--jf-surface-2) !important;
+  border-color: var(--jf-line-strong) !important;
+}
+.login-card :is(input,select,textarea)::placeholder { color: var(--jf-muted) !important; }
+.login-card :is(input,select,textarea):focus-visible {
+  outline: 2px solid var(--jf-focus) !important;
+  outline-offset: 2px !important;
+  border-color: var(--jf-focus) !important;
+}
+.login-intro,.login-foot,.lead { color: var(--jf-muted) !important; }
+.pin-panel {
+  color: var(--jf-ink) !important;
+  background: var(--jf-surface) !important;
+  border-color: var(--jf-line) !important;
+}
+.pin-panel :is(h3,p,label) { color: var(--jf-ink) !important; }
+.pin-panel input {
+  color: var(--jf-ink) !important;
+  background: var(--jf-surface-2) !important;
+  border-color: var(--jf-line-strong) !important;
+}
+.notice,.preview-warning {
+  color: var(--jf-warning) !important;
+  background: var(--jf-warning-soft) !important;
+  border-color: color-mix(in srgb,var(--jf-warning) 28%,var(--jf-line)) !important;
+}
+.notice p { color: var(--jf-muted) !important; }
+.setup-warning {
+  color: var(--jf-warning) !important;
+  background: var(--jf-warning-soft) !important;
+  border-color: color-mix(in srgb,var(--jf-warning) 28%,var(--jf-line)) !important;
+}
+.form-error,.attendance-error {
+  color: var(--jf-danger) !important;
+  background: var(--jf-danger-soft) !important;
+  border-color: color-mix(in srgb,var(--jf-danger) 28%,var(--jf-line)) !important;
+}
+.attendance-success {
+  color: var(--jf-success) !important;
+  background: var(--jf-success-soft) !important;
+  border-color: color-mix(in srgb,var(--jf-success) 28%,var(--jf-line)) !important;
+}
+.main .jf-route-stage .shared-table th {
+  background: var(--jf-surface-2) !important;
+  color: var(--jf-muted) !important;
+}
+.main .jf-route-stage .shared-table td {
+  background: transparent !important;
+  color: var(--jf-ink) !important;
+  border-color: var(--jf-line) !important;
+}
+
