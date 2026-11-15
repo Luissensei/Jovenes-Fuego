@@ -145,3 +145,76 @@ body .youth-portal .youth-customizer {
     border-radius:22px!important;padding:16px!important;
   }
 }
+
+/* Vista previa compuesta: capas cosméticas que responden al equipamiento actual. */
+body .youth-portal .youth-profile-live-preview {
+  position:relative;isolation:isolate;min-height:112px;overflow:hidden;
+  background:
+    radial-gradient(circle at 8% 10%,rgba(255,255,255,.9),transparent 34%),
+    linear-gradient(125deg,#fff8e9,#f2e5d1 58%,#fffaf0);
+}
+body .youth-portal .youth-profile-live-preview.background-noche,
+body .youth-portal .youth-profile-live-preview.background-galaxia,
+body .youth-portal .youth-profile-live-preview.background-cosmos,
+body .youth-portal .youth-profile-live-preview.background-nebula-real {
+  color:#f8f4ff;background:radial-gradient(circle at 75% 10%,#67528c,transparent 40%),linear-gradient(125deg,#171b35,#30304e 65%,#493d65);
+}
+body .youth-portal .youth-profile-live-preview.background-ocaso,
+body .youth-portal .youth-profile-live-preview.background-atardecer {
+  background:linear-gradient(125deg,#fff0d7,#f3c7a3 55%,#e8a58d);
+}
+body .youth-portal .youth-profile-live-preview.background-aurora,
+body .youth-portal .youth-profile-live-preview.background-aurora-boreal {
+  background:radial-gradient(ellipse at 15% 10%,rgba(112,210,184,.4),transparent 48%),linear-gradient(125deg,#e8f5ec,#d9e9ed 58%,#e9e0f5);
+}
+body .youth-portal .youth-profile-live-avatar {
+  position:relative;isolation:isolate;overflow:visible;flex:0 0 76px;width:76px;height:76px;
+  border-width:4px;border-radius:23px;font-size:38px;
+  box-shadow:0 8px 18px rgba(66,47,24,.15),inset 0 0 0 2px rgba(255,255,255,.55);
+  animation:youth-avatar-float 4.5s ease-in-out infinite;
+}
+body .youth-portal .youth-profile-live-avatar::before {
+  content:"";position:absolute;inset:5px;border:1px solid rgba(255,255,255,.65);
+  border-radius:15px;pointer-events:none;
+}
+body .youth-portal .youth-look-character-face {
+  position:relative;z-index:2;display:grid;place-items:center;width:100%;height:100%;
+  filter:drop-shadow(0 3px 2px rgba(49,37,22,.15));
+}
+body .youth-portal .youth-look-layer {
+  position:absolute;z-index:3;display:grid;place-items:center;line-height:1;
+  filter:drop-shadow(0 2px 2px rgba(30,25,20,.2));pointer-events:none;
+}
+body .youth-portal .youth-look-hair {top:-9px;left:18px;font-size:21px;transform:rotate(-12deg)}
+body .youth-portal .youth-look-accessory {right:-9px;bottom:5px;font-size:22px}
+body .youth-portal .youth-look-badge {
+  top:-9px;right:-8px;width:25px;height:25px;border:2px solid rgba(255,255,255,.9);
+  border-radius:50%;background:#fff4d7;font-size:13px;
+}
+body .youth-portal .youth-look-effect {
+  left:-9px;bottom:-7px;font-size:19px;animation:youth-look-sparkle 2.8s ease-in-out infinite;
+}
+body .youth-portal .youth-profile-live-avatar.outfit-royal,
+body .youth-portal .youth-profile-live-avatar.outfit-imperial {box-shadow:0 0 0 3px rgba(226,190,105,.25),0 8px 20px rgba(66,47,24,.2)}
+body .youth-portal .youth-profile-live-avatar.outfit-warrior,
+body .youth-portal .youth-profile-live-avatar.outfit-guardian {border-radius:17px 17px 25px 25px}
+body .youth-portal .youth-profile-live-preview.effect-aurora .youth-profile-live-avatar,
+body .youth-portal .youth-profile-live-preview.effect-galaxy .youth-profile-live-avatar,
+body .youth-portal .youth-profile-live-preview.effect-halo .youth-profile-live-avatar {
+  box-shadow:0 0 0 3px rgba(255,255,255,.45),0 0 22px rgba(145,133,221,.5),0 8px 18px rgba(66,47,24,.15);
+}
+body .youth-portal .youth-look-preview-copy {display:grid;gap:3px;min-width:0;flex:1}
+body .youth-portal .youth-look-preview-copy b {font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body .youth-portal .youth-look-preview-copy span {font-size:11px;opacity:.75}
+body .youth-portal .youth-look-preview-copy small {margin-top:3px;font-size:9px;font-weight:850;letter-spacing:.12em;color:#a36c35}
+body .youth-portal .youth-profile-live-preview.background-noche .youth-look-preview-copy small,
+body .youth-portal .youth-profile-live-preview.background-galaxia .youth-look-preview-copy small,
+body .youth-portal .youth-profile-live-preview.background-cosmos .youth-look-preview-copy small,
+body .youth-portal .youth-profile-live-preview.background-nebula-real .youth-look-preview-copy small {color:#e4c78d}
+body .youth-portal .youth-look-country {position:relative;z-index:1}
+@keyframes youth-avatar-float {0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes youth-look-sparkle {0%,100%{transform:scale(.9) rotate(-8deg);opacity:.75}50%{transform:scale(1.13) rotate(8deg);opacity:1}}
+@media (prefers-reduced-motion:reduce) {
+  body .youth-portal .youth-profile-live-avatar,
+  body .youth-portal .youth-look-effect {animation:none!important}
+}
