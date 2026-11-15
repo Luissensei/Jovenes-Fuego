@@ -11,7 +11,7 @@ import {
   Palette, Volume2, VolumeX, Star, X,
   BookMarked, Moon, Sun, CheckCircle2, UserRound, Save, Trash2, Home, MessageCircle,
 } from 'lucide-react';
-import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
+import {getPublicProfiles, saveYouthProfileAppearance, type PublicProfile} from '../services/publicProfiles';
 import {
   getWeeklyActivities,
   getHallOfFame,
@@ -730,14 +730,23 @@ export default function YouthPortalPage() {
     setLook(next);
     setLookSaving(true);
     setLookNotice('');
+    let savedLocally = false;
     try {
-      // La selección del perfil es pública y no demuestra quién lo está usando.
-      // Por eso la apariencia se guarda localmente y nunca modifica datos de otra persona.
       window.localStorage.setItem(`jf-youth-look-${selectedProfile.id}`, JSON.stringify(next));
-      setLookNotice(successMessage + ' Guardado en este dispositivo.');
-    } catch {
-      setLook(readLook(selectedProfile));
-      setLookNotice('El navegador no permitió guardar la personalización en este dispositivo.');
+      savedLocally = true;
+      if (communitySession) {
+        await saveYouthProfileAppearance(communitySession, next);
+        setLookNotice(successMessage + ' Sincronizado con tu perfil.');
+      } else {
+        setLookNotice(successMessage + ' Guardado solo en este dispositivo. Verifica tu PIN para sincronizarlo.');
+      }
+    } catch (cause) {
+      if (!savedLocally) {
+        setLook(readLook(selectedProfile));
+        setLookNotice('El navegador no permitió guardar la personalización en este dispositivo.');
+      } else {
+        setLookNotice('Quedó guardado en este dispositivo, pero no se pudo sincronizar. Verifica tu conexión e inténtalo de nuevo.');
+      }
     } finally {
       setLookSaving(false);
     }
