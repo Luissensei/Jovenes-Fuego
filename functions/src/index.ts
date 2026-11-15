@@ -2446,8 +2446,12 @@ export const adminCreateDevotional = onCall(async (request) => {
   const date = text(data.date, 10);
   const content = text(data.content, 10000);
   const flyerDataUrl = text(data.flyerDataUrl, 700000);
+  const rawFlyerDataUrls = Array.isArray(data.flyerDataUrls) ? data.flyerDataUrls : [];
+  if (rawFlyerDataUrls.length > 5) {
+    throw new HttpsError("invalid-argument", "Cada historia admite máximo 5 imágenes.");
+  }
   const flyerDataUrls = Array.isArray(data.flyerDataUrls)
-    ? data.flyerDataUrls.filter((image: unknown): image is string => typeof image === "string").slice(0, 5).map((image: string) => text(image, 130000))
+    ? data.flyerDataUrls.filter((image: unknown): image is string => typeof image === "string").map((image: string) => text(image, 130000))
     : flyerDataUrl ? [flyerDataUrl] : [];
   const totalFlyerSize = flyerDataUrls.reduce((total: number, image: string) => total + image.length, 0);
   if (flyerDataUrls.length > 5 || totalFlyerSize > 620000 ||
