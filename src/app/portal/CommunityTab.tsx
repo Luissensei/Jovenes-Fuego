@@ -38,7 +38,10 @@ export default function CommunityTab({memberName,communitySession}:Props){
   const [chatLoading,setChatLoading]=useState(true);
   const [chatSending,setChatSending]=useState(false);
   const [chatError,setChatError]=useState("");
-  const [reportedChatMessages,setReportedChatMessages]=useState<string[]>([]);\n  const [announcements,setAnnouncements]=useState<YouthCommunityAnnouncement[]>([]);\n  const [announcementsLoading,setAnnouncementsLoading]=useState(true);\n  const [announcementsError,setAnnouncementsError]=useState("");
+  const [reportedChatMessages,setReportedChatMessages]=useState<string[]>([]);
+  const [announcements,setAnnouncements]=useState<YouthCommunityAnnouncement[]>([]);
+  const [announcementsLoading,setAnnouncementsLoading]=useState(true);
+  const [announcementsError,setAnnouncementsError]=useState("");
 
   const load=useCallback(async(showRefresh=false)=>{
     if(showRefresh)setRefreshing(true);else setLoading(true);
