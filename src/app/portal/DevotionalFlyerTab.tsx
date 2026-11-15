@@ -19,7 +19,16 @@ function DevotionalStory({item}: {item: DevotionalRecord}) {
   const touchStart = useRef<number | null>(null);
   if (!images.length) return null;
   return (
-    <div className={styles.story} onTouchStart={(event) => {touchStart.current = event.touches[0]?.clientX ?? null;}} onTouchEnd={(event) => {\n      if (touchStart.current === null) return;\n      const distance = (event.changedTouches[0]?.clientX ?? touchStart.current) - touchStart.current;\n      if (Math.abs(distance) > 45) setActive((value) => Math.max(0, Math.min(images.length - 1, value + (distance < 0 ? 1 : -1))));\n      touchStart.current = null;\n    }}>
+    <div className={styles.story}
+      onTouchStart={(event) => { touchStart.current = event.touches[0]?.clientX ?? null; }}
+      onTouchEnd={(event) => {
+        if (touchStart.current === null) return;
+        const distance = (event.changedTouches[0]?.clientX ?? touchStart.current) - touchStart.current;
+        if (Math.abs(distance) > 45) {
+          setActive((value) => Math.max(0, Math.min(images.length - 1, value + (distance < 0 ? 1 : -1))));
+        }
+        touchStart.current = null;
+      }}>
       <img className={styles.flyer} src={images[active]} alt={`Imagen ${active + 1} de ${item.title}`} loading="lazy"/>
       {images.length > 1 && (
         <>
