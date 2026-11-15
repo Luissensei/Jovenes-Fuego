@@ -1137,9 +1137,9 @@ export const adminModerateYouthCommunityPost = onCall(async (request) => {
     moderatedAt: new Date().toISOString(), moderatedBy: request.auth.uid,
   });
   const reports = await db.collection("youthCommunityReports")
-    .where("postId", "==", postId).where("status", "==", "pending").get();
+    .where("postId", "==", postId).get();
   const batch = db.batch();
-  reports.docs.forEach((document) => batch.update(document.ref, {
+  reports.docs.filter((document) => document.data().status === "pending").forEach((document) => batch.update(document.ref, {
     status: action === "hide" ? "actioned" : "reviewed",
     reviewedAt: new Date().toISOString(), reviewedBy: request.auth!.uid,
   }));
