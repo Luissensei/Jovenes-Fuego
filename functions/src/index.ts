@@ -43,7 +43,7 @@ function text(value: unknown, maxLength: number): string {
     : "";
 }
 
-async function requireAuthorizedRole(uid: string): Promise<AuthorizedRole> {
+async function loadAuthorizedUser(uid: string) {
   const userSnapshot = await db.collection("users").doc(uid).get();
   if (!userSnapshot.exists) {
     throw new HttpsError("permission-denied", "No tienes un perfil autorizado.");
@@ -58,7 +58,11 @@ async function requireAuthorizedRole(uid: string): Promise<AuthorizedRole> {
   if (!allowed.includes(role as AuthorizedRole)) {
     throw new HttpsError("permission-denied", "Tu rol no tiene permiso para esta operación.");
   }
-  return role as AuthorizedRole;
+  return {role: role as AuthorizedRole, userData};
+}
+
+async function requireAuthorizedRole(uid: string): Promise<AuthorizedRole> {
+  return (await loadAuthorizedUser(uid)).role;
 }
 
 async function requireAdminOrPastor(uid: string): Promise<AuthorizedRole> {
@@ -387,11 +391,12 @@ const defaultLeaderPermissions = [
 ];
 
 async function requireModulePermission(uid: string, moduleId: string): Promise<AuthorizedRole> {
-  const role = await requireAuthorizedRole(uid);
+  // Reutiliza el mismo documento para validar el rol y leer los permisos:
+  // los líderes ya no generan una segunda lectura de users/{uid} por llamada.
+  const {role, userData} = await loadAuthorizedUser(uid);
   if (role === "admin" || role === "administrador" || role === "pastor") return role;
 
-  const snapshot = await db.collection("users").doc(uid).get();
-  const stored = snapshot.data()?.permissions;
+  const stored = userData.permissions;
   const permissions = Array.isArray(stored)
     ? cleanStringArray(stored, manageablePermissions)
     : defaultLeaderPermissions;
