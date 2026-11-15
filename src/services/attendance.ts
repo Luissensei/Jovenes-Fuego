@@ -1,6 +1,6 @@
 import {httpsCallable} from 'firebase/functions';
 
-import {functions} from './firebase/client';
+import {auth, functions} from './firebase/client';
 import {cachedRequest, invalidateRequestCache} from './requestCache';
 
 export type AttendanceStatus = 'Presente' | 'Tarde' | 'Falta' | 'Justificada' | 'Ausente';
@@ -49,7 +49,8 @@ async function call<T>(name: string, payload: unknown = {}): Promise<T> {
 export function listAttendanceMeetings(
   module: 'attendance' | 'reports' = 'attendance',
 ): Promise<AttendanceMeeting[]> {
-  return cachedRequest(`attendance-meetings:${module}`, 10_000, async () => {
+  const userScope = auth?.currentUser?.uid ?? 'no-auth';
+  return cachedRequest(`attendance-meetings:${userScope}:${module}`, 10_000, async () => {
     const response = await call<{meetings: AttendanceMeeting[]}>(
       'getAttendanceMeetings',
       {module},
@@ -68,8 +69,8 @@ export async function createAttendanceMeeting(
   }
 
   const result = await call<CreateMeetingResult>('createAttendanceMeeting', {name, date});
-  invalidateRequestCache('attendance-meetings:attendance');
-  invalidateRequestCache('attendance-meetings:reports');
+  invalidateRequestCache(`attendance-meetings:${auth?.currentUser?.uid ?? 'no-auth'}:attendance`);
+  invalidateRequestCache(`attendance-meetings:${auth?.currentUser?.uid ?? 'no-auth'}:reports`);
   return result;
 }
 
