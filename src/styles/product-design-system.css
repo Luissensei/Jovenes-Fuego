@@ -429,8 +429,8 @@ body .youth-portal .youth-pin-icon { background: var(--jf-ember) !important; bor
 
 /* Motion and responsive rules: interaction, not decoration. */
 @media (hover:hover) and (pointer:fine) {
-  .main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,[class*="-card"],[class*="-panel"]) { transition: border-color .15s ease, box-shadow .15s ease !important; }
-  .main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,[class*="-card"],[class*="-panel"]):hover { transform: none !important; box-shadow: var(--jf-shadow-raised) !important; }
+  .main .jf-route-stage :is(.page-card,.panel,.card,.stat-card) { transition: border-color .15s ease, box-shadow .15s ease !important; }
+  .main .jf-route-stage :is(.page-card,.panel,.card,.stat-card):hover { transform: none !important; box-shadow: var(--jf-shadow-raised) !important; }
   .sidebar .nav-item:hover { transform: none !important; }
 }
 @media (max-width: 900px) {
@@ -733,4 +733,46 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
   --yp-green-soft: var(--jf-brand-soft);
   --yp-gold: var(--jf-gold);
   --yp-shadow: var(--jf-shadow);
+}
+
+
+/* Notifications: map the module's legacy dark palette to semantic product tokens. */
+.main .jf-route-stage [class*="NotificationsPage_scope"] { color: var(--jf-ink) !important; }
+.main .jf-route-stage [class*="NotificationsPage_hero"],
+.main .jf-route-stage [class*="NotificationsPage_metrics"] article,
+.main .jf-route-stage [class*="NotificationsPage_item"] {
+  border-color: var(--jf-line) !important;
+  border-radius: 10px !important;
+  background: var(--jf-surface) !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main .jf-route-stage [class*="NotificationsPage_hero"] { padding: 20px !important; }
+.main .jf-route-stage [class*="NotificationsPage_hero"] :is(h1,p),
+.main .jf-route-stage [class*="NotificationsPage_copy"] :is(h2,p),
+.main .jf-route-stage [class*="NotificationsPage_metrics"] strong { color: var(--jf-ink) !important; }
+.main .jf-route-stage [class*="NotificationsPage_hero"] span,
+.main .jf-route-stage [class*="NotificationsPage_metrics"] span,
+.main .jf-route-stage [class*="NotificationsPage_copy"] small,
+.main .jf-route-stage [class*="NotificationsPage_note"] { color: var(--jf-muted) !important; }
+.main .jf-route-stage [class*="NotificationsPage_heroIcon"],
+.main .jf-route-stage [class*="NotificationsPage_icon"] {
+  background: var(--jf-brand-soft) !important;
+  color: var(--jf-brand) !important;
+}
+.main .jf-route-stage [class*="NotificationsPage_hero"] button {
+  background: var(--jf-brand) !important;
+  border-color: var(--jf-brand) !important;
+  color: #fff !important;
+}
+.main .jf-route-stage [class*="NotificationsPage_error"] {
+  background: var(--jf-danger-soft) !important;
+  border-color: var(--jf-danger) !important;
+  color: var(--jf-danger) !important;
+}
+.main .jf-route-stage [class*="NotificationsPage_empty"] {
+  border-color: var(--jf-line) !important;
+  color: var(--jf-muted) !important;
+}
+@media (max-width: 600px) {
+  .main .jf-route-stage [class*="NotificationsPage_hero"] { padding: 16px !important; }
 }
