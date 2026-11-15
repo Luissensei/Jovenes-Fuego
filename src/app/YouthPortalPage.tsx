@@ -1,6 +1,3 @@
-import '../../styles/portal-complete-redesign.css';
-import '../../styles/portal-mobile-fix.css';
-import '../../styles/youth-profile-showcase.css';
 import styles from './styles/YouthPortalPage.module.css';
 import dashboardStyles from './styles/YouthPortalDashboard.module.css';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
