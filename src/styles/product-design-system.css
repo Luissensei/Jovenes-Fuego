@@ -1373,3 +1373,20 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
 .main .jf-route-stage :is(.mbg-options button.correct,.verse-option.correct) svg { color: var(--jf-success) !important; }
 .main .jf-route-stage :is(.mbg-options button.incorrect,.verse-option.incorrect) svg { color: var(--jf-danger) !important; }
 
+/* The devotional feature header also follows the forest/ember identity. */
+.main .jf-route-stage .devotionals-hero {
+  background: var(--jf-sidebar) !important;
+  border: 1px solid var(--jf-sidebar-hover) !important;
+  color: var(--jf-sidebar-text) !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage .devotionals-hero :is(h1,h2,h3,p,span,strong) { color: var(--jf-sidebar-text) !important; }
+.main .jf-route-stage .devotionals-hero .devotionals-eyebrow { color: #f0a17f !important; }
+.main .jf-route-stage .devotionals-feature {
+  border-color: var(--jf-line) !important;
+  background: var(--jf-surface-2) !important;
+  color: var(--jf-ink) !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main .jf-route-stage .devotionals-feature :is(h1,h2,h3,p,span,strong) { color: var(--jf-ink) !important; }
+
