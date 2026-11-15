@@ -1,0 +1,131 @@
+/* Youth profile: playful identity editor inspired by collectible game profiles. */
+body .youth-portal .youth-profile-showcase {
+  padding: clamp(16px,3vw,24px) !important;
+  border-radius: 22px !important;
+  background: var(--yp-surface, #fff) !important;
+  border: 1px solid var(--yp-line, #e2e8f0) !important;
+  box-shadow: 0 12px 32px rgba(24,35,55,.06) !important;
+}
+body .youth-portal .youth-profile-showcase .youth-profile-editor-heading {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;
+}
+body .youth-portal .youth-profile-showcase .youth-profile-editor-heading span,
+body .youth-portal .youth-profile-modal-heading > div > span {
+  display:block;color:#5473d4;font-size:9px;font-weight:900;letter-spacing:.14em;
+}
+body .youth-portal .youth-profile-showcase .youth-profile-editor-heading b {
+  display:block;margin:3px 0;font-size:22px;letter-spacing:-.04em;
+}
+body .youth-portal .youth-profile-showcase .youth-profile-editor-heading small {
+  display:block;color:var(--yp-muted);font-size:12px;
+}
+body .youth-portal .youth-profile-showcase-card {
+  display:flex;align-items:center;gap:13px;min-width:0;padding:13px;margin-bottom:17px;
+  border:1px solid var(--yp-line);border-radius:17px;
+  background:linear-gradient(120deg,#f3f6ff,#f9faff 60%,#fff8ed);
+}
+body .youth-portal .youth-profile-showcase-card > div:nth-child(2) {display:grid;gap:3px;min-width:0;flex:1}
+body .youth-portal .youth-profile-showcase-card > div:nth-child(2) b {font-size:15px;overflow-wrap:anywhere}
+body .youth-portal .youth-profile-showcase-card > div:nth-child(2) span,
+body .youth-portal .youth-profile-showcase-card > div:nth-child(2) small {color:var(--yp-muted);font-size:11px}
+body .youth-portal .youth-profile-showcase-card > button {
+  display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;
+  color:#3158c9;background:#eaf0ff;border:0;border-radius:12px;
+}
+body .youth-portal .youth-profile-showcase-avatar {
+  position:relative;display:grid;place-items:center;flex:0 0 72px;width:72px;height:72px;
+  border:4px solid #d6a14d;border-radius:19px;background:linear-gradient(145deg,#fff0bf,#f7c978);
+  box-shadow:0 3px 0 rgba(137,91,32,.15);font-size:39px;
+}
+body .youth-portal .youth-profile-showcase-avatar i {
+  position:absolute;right:-5px;bottom:-5px;display:grid;place-items:center;width:22px;height:22px;
+  color:#fff;background:#3158c9;border:2px solid #fff;border-radius:50%;font-size:11px;font-style:normal;
+}
+body .youth-portal .youth-profile-showcase-avatar.frame-neon {border-color:#9a8bd9;background:#f1edff}
+body .youth-portal .youth-profile-showcase-avatar.frame-cielo {border-color:#78aee7;background:#e9f5ff}
+body .youth-portal .youth-profile-showcase-avatar.frame-oro,
+body .youth-portal .youth-profile-showcase-avatar.frame-corona {border-color:#d6a14d;background:#fff2c8}
+body .youth-portal .youth-profile-editor-grid .youth-country-field {grid-column:1/-1}
+body .youth-portal .youth-profile-editor-grid :is(input,textarea,select) {
+  width:100%;min-height:44px;padding:10px 12px;color:var(--yp-text);
+  background:var(--yp-surface-2);border:1px solid var(--yp-line);border-radius:11px;
+}
+body .youth-portal .youth-profile-editor-actions {display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+body .youth-portal .youth-profile-editor-actions > button {
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:43px;
+  padding:10px 14px;color:#fff;background:#3158c9;border:1px solid #3158c9;border-radius:12px;
+  font-size:12px;font-weight:800;
+}
+body .youth-portal .youth-profile-editor-actions > .youth-open-customizer {
+  color:#3158c9!important;background:#edf2ff!important;border-color:#dce5ff!important;
+}
+body .youth-portal .youth-profile-local-note {
+  display:flex;align-items:center;gap:6px;margin-top:12px;color:var(--yp-muted);font-size:10px;
+}
+body .youth-portal .youth-profile-local-note svg {color:#3158c9}
+body .youth-portal .youth-customizer {
+  padding:clamp(14px,3vw,22px)!important;border-radius:24px!important;
+  background:var(--yp-surface)!important;border:1px solid var(--yp-line)!important;
+  box-shadow:0 18px 48px rgba(20,30,50,.12)!important;
+}
+body .youth-portal .youth-profile-modal-heading {
+  display:flex;align-items:center;gap:12px;padding:0 0 15px!important;border-bottom:1px solid var(--yp-line);
+}
+body .youth-portal .youth-profile-modal-heading > div {flex:1;min-width:0}
+body .youth-portal .youth-profile-modal-heading > div > b {display:block;margin:3px 0;font-size:22px;letter-spacing:-.04em}
+body .youth-portal .youth-profile-modal-heading > div > small {display:block;color:var(--yp-muted);font-size:11px}
+body .youth-portal .youth-profile-modal-heading > button {
+  display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;
+  color:var(--yp-text);background:var(--yp-surface-2);border:1px solid var(--yp-line);border-radius:12px;
+}
+body .youth-portal .youth-profile-live-preview {
+  display:flex;align-items:center;gap:12px;margin:15px 0;padding:13px;
+  border:1px solid #e8d7bd;border-radius:16px;background:linear-gradient(120deg,#fff7e7,#f8edda);
+}
+body .youth-portal .youth-profile-live-avatar {
+  display:grid;place-items:center;flex:0 0 62px;width:62px;height:62px;
+  border:4px solid #d6a14d;border-radius:17px;background:#ffedc4;font-size:34px;
+}
+body .youth-portal .youth-profile-live-preview > div:nth-child(2) {display:grid;gap:3px;min-width:0;flex:1}
+body .youth-portal .youth-profile-live-preview > div:nth-child(2) b {font-size:15px}
+body .youth-portal .youth-profile-live-preview > div:nth-child(2) span {font-size:11px;color:#8d785c}
+body .youth-portal .youth-profile-live-preview > small {font-size:22px}
+body .youth-portal .youth-profile-live-preview.frame-neon .youth-profile-live-avatar {border-color:#9a8bd9;background:#f1edff}
+body .youth-portal .youth-profile-live-preview.frame-cielo .youth-profile-live-avatar {border-color:#78aee7;background:#e9f5ff}
+body .youth-portal .youth-profile-live-preview.frame-oro .youth-profile-live-avatar,
+body .youth-portal .youth-profile-live-preview.frame-corona .youth-profile-live-avatar {border-color:#d6a14d;background:#fff2c8}
+body .youth-portal .youth-store-tabs {
+  display:flex;gap:5px;padding:5px;margin:12px 0 14px;background:var(--yp-surface-2);
+  border:1px solid var(--yp-line);border-radius:13px;overflow-x:auto;scrollbar-width:none;
+}
+body .youth-portal .youth-store-tabs button {
+  flex:0 0 auto;min-height:38px;padding:8px 14px;color:var(--yp-muted);
+  background:transparent;border:0;border-radius:10px;font-size:12px;font-weight:750;
+}
+body .youth-portal .youth-store-tabs button.active {color:#3158c9;background:#fff;box-shadow:0 2px 8px rgba(30,50,90,.09)}
+body .youth-portal .youth-store-grid {
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px!important;
+}
+body .youth-portal .youth-store-grid .youth-store-item {
+  display:flex;min-width:0;min-height:112px;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  padding:9px 5px!important;text-align:center;background:var(--yp-surface-2)!important;
+  border:1px solid var(--yp-line)!important;border-radius:14px!important;
+}
+body .youth-portal .youth-store-grid .youth-store-item.selected {
+  border:2px solid #5273dc!important;background:#eef2ff!important;box-shadow:0 0 0 3px rgba(81,111,213,.10)!important;
+}
+body .youth-portal .youth-store-item-art {display:grid;place-items:center;width:48px;height:48px;border-radius:13px;background:#eaf0ff;font-size:29px}
+body .youth-portal .youth-store-item b {font-size:10px;line-height:1.25}
+body .youth-portal .youth-store-item small {font-size:9px;line-height:1.25;color:var(--yp-muted)}
+body .youth-portal .youth-store-item.locked {opacity:.78}
+body .youth-portal .youth-store-wallet {display:flex;align-items:center;gap:5px;padding:7px 9px;border-radius:10px;background:#fff5df;color:#a66a24;font-size:12px}
+:root[data-theme="dark"] body .youth-portal .youth-profile-showcase-card,
+:root[data-theme="dark"] body .youth-portal .youth-profile-live-preview {background:linear-gradient(120deg,#252f42,#302d38);border-color:#3b465a}
+:root[data-theme="dark"] body .youth-portal .youth-profile-live-avatar {background:#38435a}
+:root[data-theme="dark"] body .youth-portal .youth-store-tabs button.active {background:#303b55;color:#c8d4ff}
+@media(max-width:480px) {
+  body .youth-portal .youth-store-grid {grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+  body .youth-portal .youth-store-grid .youth-store-item {min-height:100px}
+  body .youth-portal .youth-profile-showcase-avatar {flex-basis:64px;width:64px;height:64px;font-size:34px}
+  body .youth-portal .youth-profile-editor-actions > button {flex:1 1 100%}
+}
