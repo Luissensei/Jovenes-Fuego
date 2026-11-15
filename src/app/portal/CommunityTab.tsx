@@ -1,7 +1,7 @@
 import {useCallback,useEffect,useState} from "react";
-import {BookOpen,Heart,Link2,MessageCircle,Music2,RefreshCw,Send,Sparkles,Users,Quote} from "lucide-react";
+import {BookOpen,Heart,Link2,MessageCircle,Music2,RefreshCw,Send,Sparkles,Users,Quote,Flag} from "lucide-react";
 import {
-  createYouthCommunityComment,createYouthCommunityPost,getYouthCommunityFeed,toggleYouthCommunityReaction,
+  createYouthCommunityComment,createYouthCommunityPost,getYouthCommunityFeed,reportYouthCommunityPost,toggleYouthCommunityReaction,
   type YouthCommunityPost,type YouthCommunityPostInput,
 } from "../../services/youthPortal";
 
@@ -32,6 +32,7 @@ export default function CommunityTab({memberName,communitySession}:Props){
   const [publishing,setPublishing]=useState(false);
   const [commentDrafts,setCommentDrafts]=useState<Record<string,string>>({});
   const [busyPost,setBusyPost]=useState("");
+  const [reportedPosts,setReportedPosts]=useState<string[]>([]);
 
   const load=useCallback(async(showRefresh=false)=>{
     if(showRefresh)setRefreshing(true);else setLoading(true);
@@ -81,6 +82,24 @@ export default function CommunityTab({memberName,communitySession}:Props){
     finally{setBusyPost("");}
   }
 
+  async function report(postId:string){
+    if(reportedPosts.includes(postId)||busyPost)return;
+    const reason=window.prompt("¿Por qué deseas reportar esta publicación? Escribe: inapropiado, acoso, privacidad, spam u otro.");
+    if(!reason)return;
+    const normalized=reason.trim().toLowerCase();
+    const reasons:Record<string,"inappropriate"|"bullying"|"privacy"|"spam"|"other">={
+      "inapropiado":"inappropriate","acoso":"bullying","privacidad":"privacy","spam":"spam","otro":"other","otro motivo":"other",
+    };
+    const selected=reasons[normalized];
+    if(!selected){setError("Selecciona: inapropiado, acoso, privacidad, spam u otro.");return;}
+    setBusyPost(postId);setError("");
+    try{
+      await reportYouthCommunityPost(communitySession,postId,selected);
+      setReportedPosts(current=>[...current,postId]);
+    }catch(cause){setError(cause instanceof Error?cause.message:"No se pudo enviar el reporte.");}
+    finally{setBusyPost("");}
+  }
+
   const activeKind=postKinds.find(item=>item.value===kind)??postKinds[0];
 
   return <div className="youth-tab-page jf-community">
@@ -120,7 +139,7 @@ export default function CommunityTab({memberName,communitySession}:Props){
           const postKind=postKinds.find(item=>item.value===post.type)??postKinds[0];
           const Icon=postKind.icon;
           return <article className="jf-community-post" key={post.id}>
-            <header className="jf-community-post-head"><span className="jf-community-avatar">{post.author.split(/\s+/).slice(0,2).map(part=>part[0]??"").join("").toUpperCase()}</span><div className="jf-community-author"><b>{post.author}</b>{post.nickname&&<small>@{post.nickname}</small>}<time>{formatDate(post.createdAt)}</time></div><span className="jf-community-post-kind"><Icon size={13}/>{postKind.label}</span></header>
+            <header className="jf-community-post-head"><span className="jf-community-avatar">{post.author.split(/\s+/).slice(0,2).map(part=>part[0]??"").join("").toUpperCase()}</span><div className="jf-community-author"><b>{post.author}</b>{post.nickname&&<small>@{post.nickname}</small>}<time>{formatDate(post.createdAt)}</time></div><span className="jf-community-post-kind"><Icon size={13}/>{postKind.label}</span><button type="button" className="jf-community-report" onClick={()=>void report(post.id)} disabled={busyPost===post.id||reportedPosts.includes(post.id)} aria-label="Reportar publicación" title={reportedPosts.includes(post.id)?"Reporte enviado":"Reportar publicación"}><Flag size={14}/>{reportedPosts.includes(post.id)?"Reportado":"Reportar"}</button></header>
             {post.type==="verse"&&post.reference&&<div className="jf-community-verse-ref"><BookOpen size={15}/>{post.reference}</div>}
             <p className="jf-community-post-content">{post.content}</p>
             {post.type==="song"&&post.linkUrl&&<a className="jf-community-song-link" href={post.linkUrl} target="_blank" rel="noreferrer"><Music2 size={16}/> Escuchar canción <Link2 size={14}/></a>}
