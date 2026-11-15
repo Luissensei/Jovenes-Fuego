@@ -1596,6 +1596,30 @@ export const adminDeleteManagedRecord = onCall(async (request) => {
   return {success: true};
 });
 
+export const getPublicDevotionals = onCall(async () => {
+  try {
+    const snapshot = await db.collection("devotionals").orderBy("date", "desc").limit(30).get();
+    const devotionals = snapshot.docs.map((document) => {
+      const data = document.data();
+      return {
+        id: document.id,
+        title: text(data.title, 120),
+        verse: text(data.verse, 2000),
+        reference: text(data.reference, 120),
+        author: text(data.author, 100),
+        category: text(data.category, 50),
+        date: text(data.date, 10),
+        content: text(data.content, 10000),
+        flyerDataUrl: text(data.flyerDataUrl, 700000),
+      };
+    }).filter((item) => item.flyerDataUrl || item.title);
+    return {devotionals};
+  } catch (error) {
+    console.error("Error leyendo devocionales públicos:", error);
+    throw new HttpsError("internal", "No se pudieron consultar los devocionales.");
+  }
+});
+
 export const adminListDevotionals = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireModulePermission(request.auth.uid, "devotionals");
