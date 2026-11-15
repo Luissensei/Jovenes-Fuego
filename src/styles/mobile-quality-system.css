@@ -2,31 +2,32 @@
    Loaded last so screen styles cannot reintroduce overflow, inaccessible controls or theme drift. */
 
 :root {
-  --jf-ui-bg: #f4f7f5;
-  --jf-ui-surface: #ffffff;
-  --jf-ui-surface-muted: #f7faf8;
-  --jf-ui-text: #18271f;
-  --jf-ui-muted: #64756a;
-  --jf-ui-border: #dfe8e2;
-  --jf-ui-accent: #16865b;
-  --jf-ui-accent-strong: #106b47;
-  --jf-ui-accent-soft: #e8f5ed;
-  --jf-ui-danger: #b42318;
-  --jf-ui-shadow: 0 4px 16px rgba(24, 48, 34, .055);
+  /* Compatibility aliases: the product system is the single palette source. */
+  --jf-ui-bg: var(--jf-canvas);
+  --jf-ui-surface: var(--jf-surface);
+  --jf-ui-surface-muted: var(--jf-surface-2);
+  --jf-ui-text: var(--jf-ink);
+  --jf-ui-muted: var(--jf-muted);
+  --jf-ui-border: var(--jf-line);
+  --jf-ui-accent: var(--jf-brand);
+  --jf-ui-accent-strong: var(--jf-brand-strong);
+  --jf-ui-accent-soft: var(--jf-brand-soft);
+  --jf-ui-danger: var(--jf-danger);
+  --jf-ui-shadow: var(--jf-shadow);
   color-scheme: light;
 }
 :root[data-theme="dark"] {
-  --jf-ui-bg: #101a15;
-  --jf-ui-surface: #19251e;
-  --jf-ui-surface-muted: #202d25;
-  --jf-ui-text: #edf5ef;
-  --jf-ui-muted: #adbbb1;
-  --jf-ui-border: #34463a;
-  --jf-ui-accent: #65d6a0;
-  --jf-ui-accent-strong: #8ce5b8;
-  --jf-ui-accent-soft: #203d2d;
-  --jf-ui-danger: #ff9a91;
-  --jf-ui-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+  --jf-ui-bg: var(--jf-canvas);
+  --jf-ui-surface: var(--jf-surface);
+  --jf-ui-surface-muted: var(--jf-surface-2);
+  --jf-ui-text: var(--jf-ink);
+  --jf-ui-muted: var(--jf-muted);
+  --jf-ui-border: var(--jf-line);
+  --jf-ui-accent: var(--jf-brand);
+  --jf-ui-accent-strong: var(--jf-brand-strong);
+  --jf-ui-accent-soft: var(--jf-brand-soft);
+  --jf-ui-danger: var(--jf-danger);
+  --jf-ui-shadow: var(--jf-shadow);
   color-scheme: dark;
 }
 
