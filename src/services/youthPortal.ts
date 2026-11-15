@@ -220,6 +220,7 @@ export async function getHallOfFame(): Promise<{
   faithful: FaithfulPlayer[];
   attendanceLimited: boolean;
 }> {
+  return cachedRequest('public-hall-of-fame', 30_000, async () => {
   if (!functions) throw new Error('Firebase Functions no está configurado.');
   const loadHallOfFame = httpsCallable<
     Record<string, never>,
@@ -235,6 +236,7 @@ export async function getHallOfFame(): Promise<{
     faithful: Array.isArray(response.data.faithful) ? response.data.faithful : [],
     attendanceLimited: response.data.attendanceLimited === true,
   };
+  });
 }
 
 export async function getAdminWeeklyActivities(): Promise<WeeklyActivity[]> {
