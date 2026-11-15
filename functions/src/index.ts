@@ -1354,18 +1354,44 @@ export const saveYouthProfileAppearance = onCall(async (request) => {
     background: text(appearance.background, 50),
     title: text(appearance.title, 80),
   };
-  for (const key of Object.keys(values) as (keyof typeof values)[]) {
-    if (!(youthAppearanceOptions[key] as readonly string[]).includes(values[key])) {
-      throw new HttpsError("invalid-argument", "Uno de los elementos de apariencia no está disponible.");
+  const freeOptions = {
+    frame: ["fuego"],
+    avatar: ["", "paloma", "leon", "aguila"],
+    background: ["brasa"],
+    title: ["chispa"],
+  } as const;
+  const photoRef = db.collection("photos").doc(memberId);
+  await db.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(photoRef);
+    const data = snapshot.data() ?? {};
+    const owned = Array.isArray(data.u)
+      ? data.u.filter((value): value is string => typeof value === "string").slice(0, 400)
+      : [];
+    const requiredKeys = [
+      ["frame", "frames"],
+      ["avatar", "avs"],
+      ["background", "bans"],
+      ["title", "tits"],
+    ] as const;
+    for (const [field, prefix] of requiredKeys) {
+      const value = values[field];
+      const valid = (freeOptions[field] as readonly string[]).includes(value) ||
+        owned.includes(`${prefix}:${value}`);
+      if (!valid) {
+        throw new HttpsError(
+          "permission-denied",
+          "Ese elemento todavía no está desbloqueado en tu perfil.",
+        );
+      }
     }
-  }
-  await db.collection("photos").doc(memberId).set({
-    f: values.frame,
-    a: values.avatar,
-    b: values.background,
-    t: values.title,
-    appearanceUpdatedAt: new Date().toISOString(),
-  }, {merge: true});
+    transaction.set(photoRef, {
+      f: values.frame,
+      a: values.avatar,
+      b: values.background,
+      t: values.title,
+      appearanceUpdatedAt: new Date().toISOString(),
+    }, {merge: true});
+  });
   return {success: true};
 });
 
