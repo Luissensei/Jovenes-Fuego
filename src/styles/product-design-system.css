@@ -1438,3 +1438,27 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
 }
 .main .jf-route-stage .mbg-arranged { border-style: dashed !important; }
 
+
+
+/* La navegación juvenil admite seis accesos sin comprimir las etiquetas. */
+body .youth-portal .youth-bottom-navigation {
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+}
+body .youth-portal .youth-bottom-navigation button {
+  min-width: 0;
+  justify-content: center;
+  padding-inline: 4px;
+  font-size: 11px;
+}
+body .youth-portal .youth-bottom-navigation button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 520px) {
+  body .youth-portal .youth-bottom-navigation { gap: 2px; }
+  body .youth-portal .youth-bottom-navigation button { padding: 8px 2px; font-size: 9px; }
+  body .youth-portal .youth-bottom-navigation button svg { width: 18px; height: 18px; }
+}
