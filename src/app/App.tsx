@@ -395,7 +395,7 @@ function AdminApp() {
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className={`layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+    <div className={`layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''} ${menuOpen ? 'menu-open' : ''}`}>
       <header className="mobile-header">
         <button
           className="icon-button"
@@ -463,7 +463,7 @@ function AdminApp() {
             return <details className="jf-nav-group" key={group.label} open={sidebarCollapsed || activeGroup || Boolean(moduleSearch.trim()) || false}>
               <summary><span>{group.label}</span><span className="jf-nav-count">{items.length}</span></summary>
               <div className="jf-nav-group-items">{items.map((item) => (
-                <NavLink key={item.id} to={item.path} end={item.path === '/'} title={sidebarCollapsed ? item.label : undefined} onPointerEnter={() => preloadAdminModule(item.id)} onTouchStart={() => preloadAdminModule(item.id)} onClick={() => setMenuOpen(false)} className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+                <NavLink key={item.id} to={item.path} end={item.path === '/'} title={sidebarCollapsed ? item.label : undefined} onPointerEnter={() => preloadAdminModule(item.id)} onTouchStart={() => preloadAdminModule(item.id)} onPointerDown={() => preloadAdminModule(item.id)} onFocus={() => preloadAdminModule(item.id)} onClick={() => setMenuOpen(false)} className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
                   <span className="nav-item-icon" aria-hidden="true"><item.icon size={17} strokeWidth={1.9}/></span>
                   <span>{item.label}</span>
                 </NavLink>
