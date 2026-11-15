@@ -45,29 +45,50 @@ export default function DashboardPage() {
   const [people, setPeople] = useState<PublicRankingMetric[]>([]);
   const [activities, setActivities] = useState<WeeklyActivity[]>([]);
   const [attendanceMeetings, setAttendanceMeetings] = useState<AttendanceMeeting[]>([]);
-  const [loading, setLoading] = useState(configured);
+  const [peopleLoading, setPeopleLoading] = useState(configured);
+  const [activitiesLoading, setActivitiesLoading] = useState(configured);
+  const [attendanceLoading, setAttendanceLoading] = useState(configured && canReadAttendance);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!configured) { setPeople([]); setActivities([]); setAttendanceMeetings([]); setLoading(false); return; }
     let active = true;
-    setLoading(true);
+    if (!configured) {
+      setPeople([]); setActivities([]); setAttendanceMeetings([]);
+      setPeopleLoading(false); setActivitiesLoading(false); setAttendanceLoading(false);
+      return () => { active = false; };
+    }
     setError('');
-    Promise.allSettled([
-      getPublicRankingMetrics(),
-      getWeeklyActivities(),
-      canReadAttendance
-        ? listAttendanceMeetings(isLeader && !leaderHasReports ? 'attendance' : 'reports')
-        : Promise.resolve([] as AttendanceMeeting[]),
-    ]).then((results) => {
-      if (!active) return;
-      if (results[0].status === 'fulfilled') setPeople(results[0].value);
-      else setError('No se pudieron consultar los perfiles y puntos públicos.');
-      if (results[1].status === 'fulfilled') setActivities(results[1].value);
-      else setError((old) => old || 'No se pudo consultar la agenda publicada.');
-      if (results[2].status === 'fulfilled') setAttendanceMeetings(results[2].value);
-      else setError((old) => old || 'No se pudo consultar la asistencia del periodo.');
-    }).finally(() => { if (active) setLoading(false); });
+    setPeopleLoading(true);
+    setActivitiesLoading(true);
+    setAttendanceLoading(canReadAttendance);
+
+    void getPublicRankingMetrics().then((value) => {
+      if (active) setPeople(value);
+    }).catch(() => {
+      if (active) setError((old) => old || 'No se pudieron consultar los perfiles y puntos públicos.');
+    }).finally(() => {
+      if (active) setPeopleLoading(false);
+    });
+
+    void getWeeklyActivities().then((value) => {
+      if (active) setActivities(value);
+    }).catch(() => {
+      if (active) setError((old) => old || 'No se pudo consultar la agenda publicada.');
+    }).finally(() => {
+      if (active) setActivitiesLoading(false);
+    });
+
+    if (canReadAttendance) {
+      void listAttendanceMeetings(isLeader && !leaderHasReports ? 'attendance' : 'reports')
+        .then((value) => { if (active) setAttendanceMeetings(value); })
+        .catch(() => {
+          if (active) setError((old) => old || 'No se pudo consultar la asistencia del periodo.');
+        })
+        .finally(() => { if (active) setAttendanceLoading(false); });
+    } else {
+      setAttendanceMeetings([]);
+      setAttendanceLoading(false);
+    }
     return () => { active = false; };
   }, [configured, canReadAttendance, isLeader, leaderHasReports]);
 
@@ -119,11 +140,11 @@ export default function DashboardPage() {
     [attendanceMeetings],
   );
   const metricCards = [
-    { label: 'PERFILES PÚBLICOS', value: loading ? '…' : configured ? String(people.length) : '—', note: 'Perfiles visibles del ranking', icon: Users },
-    { label: 'ACTIVIDADES PRÓXIMAS', value: loading ? '…' : configured ? String(upcoming.length) : '—', note: 'Eventos publicados desde hoy', icon: CalendarDays },
-    { label: 'PUNTOS ACUMULADOS', value: loading ? '…' : configured ? totalPoints.toLocaleString('es-CO') : '—', note: 'Total del ranking público', icon: Star },
-    { label: 'LÍDER DEL RANKING', value: loading ? '…' : ranked[0]?.name || '—', note: ranked[0] ? `${(ranked[0].points ?? 0).toLocaleString('es-CO')} puntos` : 'Sin datos publicados', icon: Trophy },
-    ...(canReadAttendance ? [{label: 'ASISTENCIA DEL MES', value: loading ? '…' : attendanceMetric.value, note: attendanceMetric.note, icon: ClipboardCheck}] : []),
+    { label: 'PERFILES PÚBLICOS', value: peopleLoading ? '…' : configured ? String(people.length) : '—', note: 'Perfiles visibles del ranking', icon: Users },
+    { label: 'ACTIVIDADES PRÓXIMAS', value: activitiesLoading ? '…' : configured ? String(upcoming.length) : '—', note: 'Eventos publicados desde hoy', icon: CalendarDays },
+    { label: 'PUNTOS ACUMULADOS', value: peopleLoading ? '…' : configured ? totalPoints.toLocaleString('es-CO') : '—', note: 'Total del ranking público', icon: Star },
+    { label: 'LÍDER DEL RANKING', value: peopleLoading ? '…' : ranked[0]?.name || '—', note: ranked[0] ? `${(ranked[0].points ?? 0).toLocaleString('es-CO')} puntos` : 'Sin datos publicados', icon: Trophy },
+    ...(canReadAttendance ? [{label: 'ASISTENCIA DEL MES', value: attendanceLoading ? '…' : attendanceMetric.value, note: attendanceMetric.note, icon: ClipboardCheck}] : []),
   ];
 
   return (
