@@ -231,6 +231,30 @@ export default function DevotionalsPage() {
         </button>
       </header>
 
+      <section className="devotional-publisher-card" aria-labelledby="devotional-publisher-title">
+        <div className="devotional-publisher-copy">
+          <span className="devotional-publisher-kicker"><ImagePlus size={15}/> PUBLICACIÓN PARA EL PORTAL JUVENIL</span>
+          <h2 id="devotional-publisher-title">Imagen del devocional para los jóvenes</h2>
+          <p>Selecciona aquí el flyer que aparecerá en el Portal Jóvenes. Después pulsa «Crear devocional» para completar el título, versículo y reflexión y publicarlo todo junto.</p>
+        </div>
+        <div className="devotional-flyer-upload">
+          <label className="devotional-flyer-picker" htmlFor="devotional-flyer">
+            <ImagePlus size={20}/>
+            <span>{flyerDataUrl ? 'Cambiar imagen del devocional' : 'Subir imagen del devocional'}</span>
+            <small>JPG, PNG o WebP · máximo 12 MB · optimización automática</small>
+          </label>
+          <input id="devotional-flyer" type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => void handleFlyerChange(event)} />
+          {flyerDataUrl ? (
+            <div className="devotional-flyer-preview">
+              <img src={flyerDataUrl} alt="Vista previa del flyer que verán los jóvenes"/>
+              <button type="button" onClick={() => {setFlyerDataUrl('');setFlyerError('');}}>Quitar imagen</button>
+              <span className="devotional-flyer-ready">Imagen lista para incluir en el próximo devocional</span>
+            </div>
+          ) : <p className="devotional-flyer-empty">Todavía no has seleccionado una imagen.</p>}
+          {flyerError && <p role="alert" className="devotional-flyer-error">{flyerError}</p>}
+        </div>
+      </section>
+
       <section className="devotionals-feature">
         <div className="devotionals-feature-icon">
           <BookOpen size={28} />
@@ -415,21 +439,6 @@ export default function DevotionalsPage() {
                 <option key={item} value={item}>{item}</option>
               ))}
             </select>
-
-            <div className="devotional-flyer-heading"><label htmlFor="devotional-flyer">Imagen del devocional para los jóvenes</label><p>Sube aquí el flyer que aparecerá en el Portal Jóvenes junto con esta reflexión.</p></div>
-            <div className="devotional-flyer-upload">
-              <label className="devotional-flyer-picker" htmlFor="devotional-flyer">
-                <ImagePlus size={18} />
-                <span>{flyerDataUrl ? 'Cambiar flyer' : 'Seleccionar flyer'}</span>
-                <small>JPG, PNG o WebP · se optimiza automáticamente</small>
-              </label>
-              <input id="devotional-flyer" type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => void handleFlyerChange(event)} />
-              {flyerDataUrl && <div className="devotional-flyer-preview">
-                <img src={flyerDataUrl} alt="Vista previa del flyer" />
-                <button type="button" onClick={() => setFlyerDataUrl('')}>Quitar imagen</button>
-              </div>}
-              {flyerError && <p role="alert" className="devotional-flyer-error">{flyerError}</p>}
-            </div>
 
             <label htmlFor="devotional-content">Reflexión</label>
             <textarea
