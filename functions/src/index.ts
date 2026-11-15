@@ -1598,7 +1598,7 @@ export const adminDeleteManagedRecord = onCall(async (request) => {
 
 export const getPublicDevotionals = onCall(async () => {
   try {
-    const snapshot = await db.collection("devotionals").orderBy("date", "desc").limit(30).get();
+    const snapshot = await db.collection("devotionals").orderBy("date", "desc").limit(8).get();
     const devotionals = snapshot.docs.map((document) => {
       const data = document.data();
       return {
