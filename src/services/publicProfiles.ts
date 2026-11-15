@@ -98,3 +98,23 @@ export async function purchaseYouthLookItem(
     ownedItems: Array.isArray(response.data.ownedItems) ? response.data.ownedItems : [],
   };
 }
+
+/** Compra una plantilla cosmética completa de forma atómica en el servidor. */
+export async function purchaseYouthLookBundle(
+  communitySession: string,
+  items: Array<{category: string; itemKey: string}>,
+): Promise<{flames: number; ownedItems: string[]}> {
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const callable = httpsCallable<
+    {communitySession: string; items: Array<{category: string; itemKey: string}>},
+    {success: boolean; flames: number; ownedItems: string[]}
+  >(functions, 'purchaseYouthLookBundle');
+  const response = await callable({communitySession, items});
+  if (!response.data.success || !Number.isFinite(response.data.flames)) {
+    throw new Error('No se pudo completar la compra de la plantilla.');
+  }
+  return {
+    flames: Math.max(0, response.data.flames),
+    ownedItems: Array.isArray(response.data.ownedItems) ? response.data.ownedItems : [],
+  };
+}
