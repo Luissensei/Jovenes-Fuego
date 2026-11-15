@@ -697,6 +697,57 @@ function matchesYouthPin(
     timingSafeEqual(supplied, expected);
 }
 
+/** Short-lived signed identity for youth profiles authenticated with their PIN. */
+function createYouthCommunitySession(memberId: string): string {
+  const payload = Buffer.from(JSON.stringify({
+    memberId,
+    expiresAt: Date.now() + 24 * 60 * 60 * 1000,
+  })).toString("base64url");
+  const signature = createHmac("sha256", youthPinPepper).update(payload).digest("base64url");
+  return payload + "." + signature;
+}
+
+function requireYouthCommunitySession(value: unknown): string {
+  const token = text(value, 1200);
+  const [payload, signature, extra] = token.split(".");
+  if (!payload || !signature || extra) {
+    throw new HttpsError("unauthenticated", "Tu sesión juvenil venció. Ingresa nuevamente con tu PIN.");
+  }
+  const expected = createHmac("sha256", youthPinPepper).update(payload).digest();
+  let supplied: Buffer;
+  try { supplied = Buffer.from(signature, "base64url"); } catch {
+    throw new HttpsError("unauthenticated", "La sesión juvenil no es válida.");
+  }
+  if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) {
+    throw new HttpsError("unauthenticated", "La sesión juvenil no es válida.");
+  }
+  let decoded: {memberId?: unknown; expiresAt?: unknown};
+  try { decoded = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as typeof decoded; } catch {
+    throw new HttpsError("unauthenticated", "La sesión juvenil no es válida.");
+  }
+  const memberId = validYouthMemberId(decoded.memberId);
+  if (typeof decoded.expiresAt !== "number" || decoded.expiresAt <= Date.now()) {
+    throw new HttpsError("unauthenticated", "Tu sesión juvenil venció. Ingresa nuevamente con tu PIN.");
+  }
+  return memberId;
+}
+
+async function getCommunityMember(memberId: string): Promise<{name: string; nick: string}> {
+  const [memberSnapshot, publicSnapshot] = await Promise.all([
+    db.collection("members").doc(memberId).get(),
+    db.collection("publicProfiles").doc(memberId).get(),
+  ]);
+  const member = memberSnapshot.data() ?? {};
+  const profile = publicSnapshot.data() ?? {};
+  if (!memberSnapshot.exists || member.nopub === true || profile.nopub === true) {
+    throw new HttpsError("permission-denied", "Este perfil no puede participar en la comunidad.");
+  }
+  return {
+    name: text(profile.name, 120) || text(member.name, 120) || "Joven",
+    nick: text(profile.nick, 60) || text(member.nick, 60),
+  };
+}
+
 /**
  * Validates a public portal member identifier.
  * @param {unknown} value The requested identifier.
@@ -821,7 +872,7 @@ export const activateYouthProfilePin = onCall(async (request) => {
       "No se encontró un perfil público para este joven.",
     );
   }
-  return {profile};
+  return {profile, communitySession: createYouthCommunitySession(memberId)};
 });
 
 export const verifyYouthProfilePin = onCall(async (request) => {
@@ -884,7 +935,133 @@ export const verifyYouthProfilePin = onCall(async (request) => {
       "No se encontró un perfil público para este joven.",
     );
   }
-  return {profile};
+  return {profile, communitySession: createYouthCommunitySession(memberId)};
+});
+
+
+/** Private community feed: every read requires a recent youth PIN session. */
+export const getYouthCommunityFeed = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const snapshot = await db.collection("youthCommunityPosts")
+    .orderBy("createdAt", "desc").limit(30).get();
+  const posts = await Promise.all(snapshot.docs.map(async (document) => {
+    const data = document.data();
+    if (data.deleted === true || data.status === "hidden") return null;
+    const comments = await document.ref.collection("comments")
+      .orderBy("createdAt", "desc").limit(2).get();
+    return {
+      id: document.id,
+      memberId: text(data.memberId, 150),
+      author: text(data.author, 120),
+      nickname: text(data.nickname, 60),
+      type: text(data.type, 20) || "text",
+      content: text(data.content, 2000),
+      reference: text(data.reference, 160),
+      linkUrl: text(data.linkUrl, 500),
+      createdAt: text(data.createdAt, 40),
+      reactionCount: Number(data.reactionCount ?? 0),
+      commentCount: Number(data.commentCount ?? 0),
+      reactedByMe: Array.isArray(data.reactions) && data.reactions.includes(memberId),
+      recentComments: comments.docs.map((comment) => {
+        const item = comment.data();
+        return {
+          id: comment.id,
+          memberId: text(item.memberId, 150),
+          author: text(item.author, 120),
+          content: text(item.content, 500),
+          createdAt: text(item.createdAt, 40),
+        };
+      }),
+    };
+  }));
+  return {posts: posts.filter((post): post is NonNullable<typeof post> => post !== null)};
+});
+
+export const createYouthCommunityPost = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  const author = await getCommunityMember(memberId);
+  const type = text(request.data?.type, 20);
+  const content = text(request.data?.content, 2000);
+  const reference = text(request.data?.reference, 160);
+  const linkUrl = text(request.data?.linkUrl, 500);
+  if (!["text", "verse", "song", "testimony"].includes(type)) {
+    throw new HttpsError("invalid-argument", "Selecciona un tipo de publicación válido.");
+  }
+  if (content.length < 2) {
+    throw new HttpsError("invalid-argument", "Escribe algo antes de publicar.");
+  }
+  if (type === "verse" && !reference) {
+    throw new HttpsError("invalid-argument", "Añade la referencia bíblica del versículo.");
+  }
+  if (type === "song" && linkUrl && !/^https:\/\/(www\.)?(youtube\.com|youtu\.be|open\.spotify\.com)\//i.test(linkUrl)) {
+    throw new HttpsError("invalid-argument", "El enlace debe ser de YouTube o Spotify.");
+  }
+  const rateRef = db.collection("youthCommunityRateLimits").doc(memberId);
+  const now = Date.now();
+  const postRef = db.collection("youthCommunityPosts").doc();
+  await db.runTransaction(async (transaction) => {
+    const rate = await transaction.get(rateRef);
+    const lastPostAt = Number(rate.data()?.lastPostAt ?? 0);
+    if (now - lastPostAt < 15000) {
+      throw new HttpsError("resource-exhausted", "Espera unos segundos antes de publicar nuevamente.");
+    }
+    transaction.create(postRef, {
+      memberId, author: author.name, nickname: author.nick,
+      type, content, ...(reference ? {reference} : {}), ...(linkUrl ? {linkUrl} : {}),
+      createdAt: new Date(now).toISOString(), reactionCount: 0, commentCount: 0,
+      reactions: [], status: "published", deleted: false,
+    });
+    transaction.set(rateRef, {lastPostAt: now}, {merge: true});
+  });
+  return {success: true, id: postRef.id};
+});
+
+export const createYouthCommunityComment = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  const author = await getCommunityMember(memberId);
+  const postId = text(request.data?.postId, 150);
+  const content = text(request.data?.content, 500);
+  if (!/^[A-Za-z0-9_-]{10,150}$/.test(postId) || content.length < 1) {
+    throw new HttpsError("invalid-argument", "El comentario no es válido.");
+  }
+  const postRef = db.collection("youthCommunityPosts").doc(postId);
+  const commentRef = postRef.collection("comments").doc();
+  await db.runTransaction(async (transaction) => {
+    const post = await transaction.get(postRef);
+    if (!post.exists || post.data()?.deleted === true || post.data()?.status === "hidden") {
+      throw new HttpsError("not-found", "Esta publicación ya no está disponible.");
+    }
+    transaction.create(commentRef, {
+      memberId, author: author.name, content,
+      createdAt: new Date().toISOString(),
+    });
+    transaction.update(postRef, {commentCount: FieldValue.increment(1)});
+  });
+  return {success: true, id: commentRef.id};
+});
+
+export const toggleYouthCommunityReaction = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  const postId = text(request.data?.postId, 150);
+  if (!/^[A-Za-z0-9_-]{10,150}$/.test(postId)) {
+    throw new HttpsError("invalid-argument", "La publicación no es válida.");
+  }
+  const postRef = db.collection("youthCommunityPosts").doc(postId);
+  const result = await db.runTransaction(async (transaction) => {
+    const post = await transaction.get(postRef);
+    if (!post.exists || post.data()?.deleted === true || post.data()?.status === "hidden") {
+      throw new HttpsError("not-found", "Esta publicación ya no está disponible.");
+    }
+    const reactions = Array.isArray(post.data()?.reactions)
+      ? (post.data()?.reactions as unknown[]).filter((id): id is string => typeof id === "string").slice(0, 500)
+      : [];
+    const reacted = reactions.includes(memberId);
+    const next = reacted ? reactions.filter((id) => id !== memberId) : [...reactions, memberId];
+    transaction.update(postRef, {reactions: next, reactionCount: next.length});
+    return !reacted;
+  });
+  return {success: true, reacted: result};
 });
 
 export const adminListYouthPins = onCall(async (request) => {
