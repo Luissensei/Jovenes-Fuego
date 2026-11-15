@@ -1,0 +1,31 @@
+/* Navegación móvil compacta y panel de acceso directo. */
+@media(max-width:900px){
+  .layout.menu-open .mobile-header{display:none!important}
+  .layout.menu-open .sidebar{
+    inset:0 auto 0 0!important;
+    width:min(300px,86vw)!important;
+    min-width:0!important;
+    max-width:300px!important;
+    max-height:100dvh!important;
+    padding:18px 14px max(14px,env(safe-area-inset-bottom))!important;
+    border-radius:0 18px 18px 0!important;
+  }
+  .layout.menu-open .sidebar .sidebar-collapse-toggle{display:none!important}
+  .layout.menu-open .sidebar .brand{padding:4px 5px 13px!important}
+  .layout.menu-open .sidebar .env-chip{margin:0 2px 10px!important;padding:8px 10px!important;font-size:9px!important}
+  .layout.menu-open .sidebar .module-search{margin-bottom:9px!important;min-height:42px!important}
+  .layout.menu-open .sidebar nav.jf-module-navigation{gap:6px!important;padding:0 0 12px!important}
+  .layout.menu-open .sidebar nav.jf-module-navigation>.jf-nav-group{border-radius:11px!important}
+  .layout.menu-open .sidebar nav.jf-module-navigation>.jf-nav-group>summary{min-height:43px!important;padding:11px 12px!important;font-size:10px!important}
+  .layout.menu-open .sidebar .jf-nav-group-items>.nav-item{min-height:42px!important;padding:9px 10px!important;font-size:13px!important}
+  .layout.menu-open .sidebar .sidebar-bottom{padding-top:10px!important}
+  .layout.menu-open .sidebar .safe-note{padding:10px!important;font-size:10px!important}
+  .layout.menu-open .scrim{inset:0!important}
+}
+@media(max-width:600px){
+  .main>.topline{margin-bottom:12px!important}
+  .jf-route-stage{animation:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .sidebar,.sidebar.open,.scrim,.jf-route-stage{transition:none!important;animation:none!important}
+}
