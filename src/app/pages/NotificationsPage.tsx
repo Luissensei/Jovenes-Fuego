@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {NavLink} from 'react-router-dom';
-import {Bell, RefreshCw, ArrowUpRight, Inbox, HeartHandshake, Users, Image, ClipboardList} from 'lucide-react';
-import {getAdminNotifications, type AdminNotification} from '../../services/notifications';
+import {Bell, RefreshCw, ArrowUpRight, Inbox, HeartHandshake, Users, Image, ClipboardList, Send} from 'lucide-react';
+import {getAdminNotifications, type AdminNotification} from '../../services/notifications';\nimport {publishYouthCommunityAnnouncement} from '../../services/youthPortal';
 import styles from '../styles/NotificationsPage.module.css';
 
 const icons: Record<string, typeof Bell> = {
@@ -15,7 +15,7 @@ const icons: Record<string, typeof Bell> = {
 export default function NotificationsPage() {
   const [items, setItems] = useState<AdminNotification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState('');\n  const [announcementTitle, setAnnouncementTitle] = useState('');\n  const [announcementMessage, setAnnouncementMessage] = useState('');\n  const [publishingAnnouncement, setPublishingAnnouncement] = useState(false);\n  const [announcementStatus, setAnnouncementStatus] = useState('');
   const mountedRef = useRef(false);
   const requestSequenceRef = useRef(0);
 
@@ -47,6 +47,23 @@ export default function NotificationsPage() {
     };
   }, [refresh]);
 
+  async function publishAnnouncement(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (publishingAnnouncement) return;
+    setPublishingAnnouncement(true);
+    setAnnouncementStatus('');
+    try {
+      await publishYouthCommunityAnnouncement(announcementTitle.trim(), announcementMessage.trim());
+      setAnnouncementTitle('');
+      setAnnouncementMessage('');
+      setAnnouncementStatus('Aviso publicado. Ya está disponible en Comunidad JDF.');
+    } catch (cause) {
+      setAnnouncementStatus(cause instanceof Error ? cause.message : 'No se pudo publicar el aviso.');
+    } finally {
+      setPublishingAnnouncement(false);
+    }
+  }
+
   const urgentCount = items.filter((item) => item.priority === 'high').length;
 
   return (
@@ -56,6 +73,16 @@ export default function NotificationsPage() {
         <div><span>CENTRO DE ACTIVIDAD</span><h1>Notificaciones</h1><p>Reúne los pendientes de seguimiento, visitantes, peticiones, mensajes y fotografías.</p></div>
         <button type="button" onClick={() => void refresh()} disabled={loading}><RefreshCw size={16}/> Actualizar</button>
       </header>
+
+      <section className={styles.announcementPanel}>
+        <div><span className={styles.announcementEyebrow}>COMUNIDAD JDF</span><h2>Enviar un aviso a los jóvenes</h2><p>Publica información oficial que aparecerá en la sección Comunidad del portal juvenil.</p></div>
+        <form onSubmit={publishAnnouncement}>
+          <label>Título<input value={announcementTitle} onChange={(event) => setAnnouncementTitle(event.target.value)} maxLength={100} minLength={4} required placeholder="Ej. Encuentro juvenil este sábado"/></label>
+          <label>Mensaje<textarea value={announcementMessage} onChange={(event) => setAnnouncementMessage(event.target.value)} maxLength={800} minLength={8} required rows={3} placeholder="Escribe los detalles importantes del aviso..."/></label>
+          <div><small>Visible para todos los jóvenes que ingresen a Comunidad JDF.</small><button type="submit" disabled={publishingAnnouncement || announcementTitle.trim().length < 4 || announcementMessage.trim().length < 8}><Send size={15}/>{publishingAnnouncement?'Publicando...':'Publicar aviso'}</button></div>
+          {announcementStatus && <p role="status">{announcementStatus}</p>}
+        </form>
+      </section>
 
       <section className={styles.metrics}>
         <article><span>PENDIENTES</span><strong>{items.length}</strong></article>
