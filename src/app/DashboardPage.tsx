@@ -1,5 +1,4 @@
 import styles from './styles/DashboardPage.module.css';
-import { motion } from 'motion/react';
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 const PointsChart = lazy(() => import('./components/PointsChart'));
 import { NavLink } from 'react-router-dom';
@@ -171,19 +170,15 @@ export default function DashboardPage() {
       </header>
 
       <section className={styles.metrics} aria-label="Indicadores generales">
-        {metricCards.map(({ label, value, note, icon: Icon }, index) => (
-          <motion.article
+        {metricCards.map(({ label, value, note, icon: Icon }) => (
+          <article
             className={styles.metricCard}
             key={label}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileHover={{ y: -4 }}
-            transition={{ duration: 0.3, delay: index * 0.055, ease: 'easeOut' }}
           >
             <div className={styles.metricTop}><span>{label}</span><i><Icon size={19} /></i></div>
             <strong title={value}>{value}</strong><small>{note}</small>
             <div className={styles.metricSpark} aria-hidden="true"><span /><span /><span /><span /><span /><span /><span /></div>
-          </motion.article>
+          </article>
         ))}
       </section>
 
