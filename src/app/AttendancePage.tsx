@@ -47,7 +47,7 @@ export default function AttendancePage() {
   const mountedRef = useRef(false);
   const loadSequenceRef = useRef(0);
 
-  const loadData = useCallback(async (preferredMeetingId?: string) => {
+  const loadData = useCallback(async (preferredMeetingId?: string, reloadMembers = true) => {
     const sequence = ++loadSequenceRef.current;
     if (mountedRef.current) {
       setLoading(true);
@@ -56,11 +56,11 @@ export default function AttendancePage() {
     try {
       const [meetingRows, memberRows] = await Promise.all([
         listAttendanceMeetings(),
-        getMembersForAdministration('attendance'),
+        reloadMembers ? getMembersForAdministration('attendance') : Promise.resolve(null),
       ]);
       if (!mountedRef.current || sequence !== loadSequenceRef.current) return;
       setMeetings(meetingRows);
-      setMembers(memberRows);
+      if (memberRows) setMembers(memberRows);
       setSelectedMeetingId((current) => {
         const target = preferredMeetingId || current;
         return target && meetingRows.some((meeting) => meeting.id === target)
@@ -115,7 +115,7 @@ export default function AttendancePage() {
       });
       if (!mountedRef.current) return;
       setMeetingName('');
-      await loadData(result.meetingId);
+      await loadData(result.meetingId, false);
       if (mountedRef.current) setMessage('Reunión creada correctamente.');
     } catch (cause) {
       if (mountedRef.current) {
@@ -148,7 +148,7 @@ export default function AttendancePage() {
 
       await saveMeetingAttendance(selectedMeeting.id, participants);
       if (!mountedRef.current) return;
-      await loadData(selectedMeeting.id);
+      await loadData(selectedMeeting.id, false);
       if (mountedRef.current) setMessage('Asistencia guardada correctamente.');
     } catch (cause) {
       if (mountedRef.current) {
