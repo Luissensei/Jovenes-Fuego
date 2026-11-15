@@ -1205,7 +1205,7 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
   cursor: not-allowed;
 }
 .main .jf-route-stage :is(input,select,textarea)[aria-invalid="true"],
-.main .jf-route-stage :is(input,select,textarea):invalid:not(:placeholder-shown) {
+.main .jf-route-stage :is(input,textarea):invalid:not(:placeholder-shown) {
   border-color: var(--jf-danger) !important;
 }
 .main .jf-route-stage input[type="file"] {
