@@ -16,6 +16,7 @@ import './styles/portal-mobile-fix.css';
 import './styles/product-design-system.css';
 import './styles/navigation-performance-polish.css';
 import './styles/navigation-modern-blue.css';
+import './styles/youth-profile-showcase.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
