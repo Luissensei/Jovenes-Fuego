@@ -99,7 +99,7 @@ export default function CommunityTab({memberId,memberName,communitySession}:Prop
     <div className="jf-community-layout">
       <div className="jf-community-main">
         <section className="jf-community-composer">
-          <div className="jf-community-composer-head"><span className="jf-community-avatar">{memberName.split(/\\s+/).slice(0,2).map(part=>part[0]??"").join("").toUpperCase()}</span><div><b>Comparte con la comunidad</b><small>Una palabra puede animar el día de alguien.</small></div></div>
+          <div className="jf-community-composer-head"><span className="jf-community-avatar">{memberName.split(/\s+/).slice(0,2).map(part=>part[0]??"").join("").toUpperCase()}</span><div><b>Comparte con la comunidad</b><small>Una palabra puede animar el día de alguien.</small></div></div>
           <div className="jf-community-kind-picker" role="group" aria-label="Tipo de publicación">
             {postKinds.map(item=>{const Icon=item.icon;return <button type="button" key={item.value} className={kind===item.value?"active":""} onClick={()=>setKind(item.value)}><Icon size={15}/>{item.label}</button>;})}
           </div>
@@ -121,7 +121,7 @@ export default function CommunityTab({memberId,memberName,communitySession}:Prop
           const postKind=postKinds.find(item=>item.value===post.type)??postKinds[0];
           const Icon=postKind.icon;
           return <article className="jf-community-post" key={post.id}>
-            <header className="jf-community-post-head"><span className="jf-community-avatar">{post.author.split(/\\s+/).slice(0,2).map(part=>part[0]??"").join("").toUpperCase()}</span><div className="jf-community-author"><b>{post.author}</b>{post.nickname&&<small>@{post.nickname}</small>}<time>{formatDate(post.createdAt)}</time></div><span className="jf-community-post-kind"><Icon size={13}/>{postKind.label}</span></header>
+            <header className="jf-community-post-head"><span className="jf-community-avatar">{post.author.split(/\s+/).slice(0,2).map(part=>part[0]??"").join("").toUpperCase()}</span><div className="jf-community-author"><b>{post.author}</b>{post.nickname&&<small>@{post.nickname}</small>}<time>{formatDate(post.createdAt)}</time></div><span className="jf-community-post-kind"><Icon size={13}/>{postKind.label}</span></header>
             {post.type==="verse"&&post.reference&&<div className="jf-community-verse-ref"><BookOpen size={15}/>{post.reference}</div>}
             <p className="jf-community-post-content">{post.content}</p>
             {post.type==="song"&&post.linkUrl&&<a className="jf-community-song-link" href={post.linkUrl} target="_blank" rel="noreferrer"><Music2 size={16}/> Escuchar canción <Link2 size={14}/></a>}
