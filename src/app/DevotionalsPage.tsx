@@ -63,7 +63,11 @@ export default function DevotionalsPage() {
       const items = await listDevotionals();
       // No mostrar documentos antiguos/vacíos como tarjetas sin título ni reflexión.
       const usableItems = items.filter((item) => Boolean(
-        item.title?.trim() || item.verse?.trim() || item.content?.trim() || item.flyerDataUrl,
+        item.title?.trim() &&
+        item.verse?.trim() &&
+        item.reference?.trim() &&
+        item.content?.trim() &&
+        item.category?.trim(),
       ));
       if (mountedRef.current) setDevotionals(usableItems);
     } catch (cause) {
