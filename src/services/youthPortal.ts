@@ -1,5 +1,6 @@
 import {httpsCallable} from 'firebase/functions';
 import {assertFirebaseWritesAllowed, functions} from './firebase/client';
+import {cachedRequest, invalidateRequestCache} from './requestCache';
 
 
 import type {PublicProfile} from "./publicProfiles";
