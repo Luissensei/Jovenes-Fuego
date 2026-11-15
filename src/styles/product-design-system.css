@@ -41,6 +41,13 @@
   --jf-sidebar-muted: #a9b8ad;
   --jf-sidebar-hover: #243b2e;
   --jf-sidebar-active: #2c4937;
+  /* Legacy component aliases: all resolve to semantic product tokens. */
+  --jf-text: var(--jf-ink); --jf-border: var(--jf-line); --jf-input: var(--jf-surface-2);
+  --jf-glass-edge: var(--jf-line); --jf-shadow-hover: var(--jf-shadow-raised);
+  --jf-accent: var(--jf-ember); --jf-surface-raised: var(--jf-surface-2);
+  --text-primary: var(--jf-ink); --text-secondary: var(--jf-muted); --text: var(--jf-ink);
+  --muted: var(--jf-muted); --surface: var(--jf-surface); --card: var(--jf-surface);
+  --card-bg: var(--jf-surface); --border: var(--jf-line); --border-color: var(--jf-line);
 }
 :root[data-theme="dark"],
 :root.dark {
@@ -77,6 +84,12 @@
   --jf-sidebar-muted: #a9b9ad;
   --jf-sidebar-hover: #1b2c21;
   --jf-sidebar-active: #294333;
+  --jf-text: var(--jf-ink); --jf-border: var(--jf-line); --jf-input: var(--jf-surface-2);
+  --jf-glass-edge: var(--jf-line); --jf-shadow-hover: var(--jf-shadow-raised);
+  --jf-accent: var(--jf-ember); --jf-surface-raised: var(--jf-surface-2);
+  --text-primary: var(--jf-ink); --text-secondary: var(--jf-muted); --text: var(--jf-ink);
+  --muted: var(--jf-muted); --surface: var(--jf-surface); --card: var(--jf-surface);
+  --card-bg: var(--jf-surface); --border: var(--jf-line); --border-color: var(--jf-line);
 }
 
 /* Foundation */
@@ -1227,4 +1240,88 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
 }
 .youth-portal :is(input[type="checkbox"],input[type="radio"],input[type="range"]) { accent-color: var(--yp-green); }
 .youth-portal select option { color: var(--yp-text); background: var(--yp-surface); }
+
+/* Remaining screens: records, Bible games and shared utility classes. */
+.main .jf-route-stage .managed-hero {
+  background: var(--jf-sidebar) !important;
+  color: var(--jf-sidebar-text) !important;
+  border: 1px solid var(--jf-sidebar-hover) !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage .managed-hero :is(h1,h2,h3,p,span,strong) { color: var(--jf-sidebar-text) !important; }
+.main .jf-route-stage .managed-hero .managed-eyebrow { color: #f0a17f !important; }
+.main .jf-route-stage .managed-toolbar,
+.main .jf-route-stage .managed-empty,
+.main .jf-route-stage .managed-stat,
+.main .jf-route-stage .managed-record {
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  border-color: var(--jf-line) !important;
+}
+.main .jf-route-stage .managed-search :is(input,select) {
+  color: var(--jf-ink) !important;
+  background: var(--jf-surface) !important;
+  border-color: var(--jf-line-strong) !important;
+}
+.main .jf-route-stage .managed-modal {
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  border-color: var(--jf-line) !important;
+}
+.main .jf-route-stage .managed-modal :is(h2,h3,label,p,span) { color: inherit; }
+.main .jf-route-stage .managed-modal :is(input,select,textarea) {
+  color: var(--jf-ink) !important;
+  background: var(--jf-surface-2) !important;
+  border-color: var(--jf-line-strong) !important;
+}
+.main .jf-route-stage :is(.mbg-game,.verse-game,.qbg-shell) {
+  color: var(--jf-ink) !important;
+}
+.main .jf-route-stage :is(.mbg-stats,.mbg-question,.mbg-result,.mbg-word-board,.mbg-duel-setup,.verse-question-card,.verse-results,.qbg-question) {
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  border-color: var(--jf-line) !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main .jf-route-stage :is(.mbg-game,.verse-game,.qbg-shell) :is(h2,h3,p,label,strong,span) { color: inherit; }
+.main .jf-route-stage :is(.mbg-eyebrow,.mbg-stats svg,.mbg-result>svg,.mbg-result>strong,.mbg-duel-scores strong,.mbg-bible-reference,.verse-game-label,.verse-game-stats strong svg,.verse-reference,.verse-bible-reference,.verse-final-score strong) { color: var(--jf-ember) !important; }
+.main .jf-route-stage :is(.mbg-options button,.mbg-word-options button,.mbg-arranged button,.mbg-duel-setup input,.verse-option,.qbg-choice-row button,.qbg-character-options button) {
+  color: var(--jf-ink) !important;
+  background: var(--jf-surface-2) !important;
+  border-color: var(--jf-line-strong) !important;
+}
+.main .jf-route-stage :is(.mbg-options button,.mbg-word-options button,.mbg-arranged button,.verse-option,.qbg-choice-row button,.qbg-character-options button):hover:not(:disabled) {
+  border-color: var(--jf-brand) !important;
+  background: var(--jf-brand-soft) !important;
+}
+.main .jf-route-stage :is(.mbg-primary-button,.verse-next-button,.qbg-primary,.qbg-next) {
+  color: #fff !important;
+  background: var(--jf-brand) !important;
+  border-color: var(--jf-brand) !important;
+}
+:root[data-theme="dark"] .main .jf-route-stage :is(.mbg-primary-button,.verse-next-button,.qbg-primary,.qbg-next) { color: #102117 !important; }
+.main .jf-route-stage :is(.mbg-secondary-button,.verse-exit-button,.qbg-back) {
+  color: var(--jf-ink) !important;
+  background: var(--jf-surface-2) !important;
+  border: 1px solid var(--jf-line) !important;
+}
+.main .jf-route-stage :is(.mbg-feedback.good,.mbg-answer-detail.good,.verse-feedback.success) {
+  color: var(--jf-success) !important;
+  background: var(--jf-success-soft) !important;
+  border-color: var(--jf-line) !important;
+}
+.main .jf-route-stage :is(.mbg-feedback.bad,.mbg-answer-detail.bad,.verse-feedback.error) {
+  color: var(--jf-danger) !important;
+  background: var(--jf-danger-soft) !important;
+  border-color: var(--jf-line) !important;
+}
+@media(prefers-reduced-motion:reduce) {
+  .main .jf-route-stage :is(.mbg-game,.verse-game,.qbg-shell) *,
+  .main .jf-route-stage :is(.mbg-game,.verse-game,.qbg-shell) *::before,
+  .main .jf-route-stage :is(.mbg-game,.verse-game,.qbg-shell) *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
 
