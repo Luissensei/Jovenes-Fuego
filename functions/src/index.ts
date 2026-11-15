@@ -1655,6 +1655,10 @@ export const adminCreateDevotional = onCall(async (request) => {
   const category = text(data.category, 50);
   const date = text(data.date, 10);
   const content = text(data.content, 10000);
+  const flyerDataUrl = text(data.flyerDataUrl, 700000);
+  if (flyerDataUrl && !/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/.test(flyerDataUrl)) {
+    throw new HttpsError("invalid-argument", "El flyer debe ser una imagen JPG, PNG o WebP válida.");
+  }
 
   if (!title || !verse || !reference || !author || !category || !content || !isValidDate(date)) {
     throw new HttpsError("invalid-argument", "Completa los campos y verifica la fecha del devocional.");
@@ -1662,6 +1666,7 @@ export const adminCreateDevotional = onCall(async (request) => {
 
   const result = await db.collection("devotionals").add({
     title, verse, reference, author, category, date, content,
+    ...(flyerDataUrl ? {flyerDataUrl} : {}),
     createdAt: new Date().toISOString(),
     createdBy: request.auth.uid,
   });
