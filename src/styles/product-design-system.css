@@ -1,0 +1,461 @@
+/* Jóvenes de Fuego — product design system
+   Direction: editorial community platform, not a generic AI dashboard.
+   Neutral-first surfaces, forest identity, ember accent, restrained motion.
+   Tokens follow semantic roles so light/dark themes remain predictable. */
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --jf-canvas: #f3f4ef;
+  --jf-surface: #ffffff;
+  --jf-surface-2: #f8f9f6;
+  --jf-surface-3: #edf0e9;
+  --jf-ink: #1d2a23;
+  --jf-muted: #68756c;
+  --jf-line: #dce2da;
+  --jf-line-strong: #c8d2c8;
+  --jf-brand: #246447;
+  --jf-brand-strong: #194e36;
+  --jf-brand-soft: #e5efe8;
+  --jf-brand-ink: #174b34;
+  --jf-ember: #c65b38;
+  --jf-ember-strong: #a94327;
+  --jf-ember-soft: #f8e9e3;
+  --jf-gold: #9a7438;
+  --jf-success: #24734e;
+  --jf-success-soft: #e7f2eb;
+  --jf-warning: #94621c;
+  --jf-warning-soft: #f7efdf;
+  --jf-danger: #a83d3d;
+  --jf-danger-soft: #f8e9e8;
+  --jf-info: #356b83;
+  --jf-info-soft: #e8f0f3;
+  --jf-shadow: 0 1px 2px rgba(24, 39, 29, .04), 0 8px 22px rgba(24, 39, 29, .045);
+  --jf-shadow-raised: 0 10px 28px rgba(24, 39, 29, .09);
+  --jf-radius-sm: 7px;
+  --jf-radius-md: 10px;
+  --jf-radius-lg: 14px;
+  --jf-focus: #287c57;
+  --jf-sidebar: #172a20;
+  --jf-sidebar-text: #e8eee9;
+  --jf-sidebar-muted: #a9b8ad;
+  --jf-sidebar-hover: #243b2e;
+  --jf-sidebar-active: #2c4937;
+}
+:root[data-theme="dark"],
+:root.dark {
+  color-scheme: dark;
+  --jf-canvas: #111a15;
+  --jf-surface: #19251e;
+  --jf-surface-2: #1e2c23;
+  --jf-surface-3: #26362b;
+  --jf-ink: #edf3ed;
+  --jf-muted: #b1beb4;
+  --jf-line: #34463a;
+  --jf-line-strong: #465b4b;
+  --jf-brand: #78b58e;
+  --jf-brand-strong: #94c9a6;
+  --jf-brand-soft: #263d2e;
+  --jf-brand-ink: #c1e1cb;
+  --jf-ember: #ef936f;
+  --jf-ember-strong: #ffad8d;
+  --jf-ember-soft: #482d25;
+  --jf-gold: #d2b16e;
+  --jf-success: #82c49b;
+  --jf-success-soft: #263e30;
+  --jf-warning: #e3bd78;
+  --jf-warning-soft: #433724;
+  --jf-danger: #ee9995;
+  --jf-danger-soft: #482b2a;
+  --jf-info: #8bbbcf;
+  --jf-info-soft: #263d47;
+  --jf-shadow: 0 1px 2px rgba(0, 0, 0, .14), 0 8px 22px rgba(0, 0, 0, .12);
+  --jf-shadow-raised: 0 12px 30px rgba(0, 0, 0, .24);
+  --jf-focus: #91cda4;
+  --jf-sidebar: #101b15;
+  --jf-sidebar-text: #edf3ed;
+  --jf-sidebar-muted: #a9b9ad;
+  --jf-sidebar-hover: #1b2c21;
+  --jf-sidebar-active: #294333;
+}
+
+/* Foundation */
+html, body, #root, .layout, .main {
+  background: var(--jf-canvas) !important;
+  color: var(--jf-ink) !important;
+}
+body { font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important; font-size: 14px; line-height: 1.55; }
+.main { padding-top: 0 !important; }
+.main .jf-route-stage { width: min(100%, 1500px); margin-inline: auto; }
+.main .jf-route-stage :is(h1,h2,h3,h4) {
+  color: var(--jf-ink) !important;
+  font-family: "Manrope", "DM Sans", sans-serif;
+  letter-spacing: -.025em;
+  line-height: 1.2;
+}
+.main .jf-route-stage :is(p,small,.muted,.text-muted,.subtitle,.description,.helper-text,.field-hint) { color: var(--jf-muted); }
+.main .jf-route-stage :is(a:not([class*="primary"]):not([class*="Primary"])) { text-underline-offset: 3px; }
+.main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,.shared-stat-card,
+[class*="-card"],[class*="-panel"],[class*="Card_"],[class*="Panel_"]) {
+  border-color: var(--jf-line) !important;
+  border-radius: var(--jf-radius-lg) !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+.main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,.shared-stat-card,
+[class*="-card"],[class*="-panel"],[class*="Card_"],[class*="Panel_"]):not(.ranking-hero) {
+  background: var(--jf-surface) !important;
+}
+.main .jf-route-stage :is(.toolbar,.filter-bar,.search-box,.table-wrap,.table-container,.empty-state,.empty,.notice,.info-box) {
+  border-color: var(--jf-line) !important;
+  background: var(--jf-surface-2) !important;
+  color: var(--jf-ink) !important;
+  border-radius: var(--jf-radius-md) !important;
+}
+.main .jf-route-stage :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea) {
+  min-height: 40px;
+  border: 1px solid var(--jf-line-strong) !important;
+  border-radius: var(--jf-radius-sm) !important;
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage :is(input,select,textarea)::placeholder { color: var(--jf-muted) !important; opacity: .82; }
+.main .jf-route-stage :is(input,select,textarea):focus-visible {
+  outline: 2px solid var(--jf-focus) !important;
+  outline-offset: 2px;
+  border-color: var(--jf-focus) !important;
+}
+.main .jf-route-stage :is(button,.btn,[role="button"]) {
+  border-radius: var(--jf-radius-sm);
+  box-shadow: none;
+  font-weight: 650;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.main .jf-route-stage :is(button,a,[role="button"],input,select,textarea):focus-visible {
+  outline: 2px solid var(--jf-focus) !important;
+  outline-offset: 2px;
+}
+.main .jf-route-stage :is(table,th,td) { border-color: var(--jf-line) !important; }
+.main .jf-route-stage th {
+  background: var(--jf-surface-2);
+  color: var(--jf-muted) !important;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+}
+.main .jf-route-stage td { color: var(--jf-ink); }
+.main .jf-route-stage tr:hover td { background: color-mix(in srgb, var(--jf-brand-soft) 48%, transparent); }
+.main .jf-route-stage :is(.primaryAction,.primary-action,.primary-button,.btn-primary,[data-variant="primary"]) {
+  background: var(--jf-brand) !important;
+  border: 1px solid var(--jf-brand) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+:root[data-theme="dark"] .main .jf-route-stage :is(.primaryAction,.primary-action,.primary-button,.btn-primary,[data-variant="primary"]) { color: #102117 !important; }
+.main .jf-route-stage :is(.danger,.btn-danger,[data-variant="danger"]) { background: var(--jf-danger-soft) !important; color: var(--jf-danger) !important; border-color: color-mix(in srgb,var(--jf-danger) 28%,var(--jf-line)) !important; }
+
+/* Administrative shell: quiet, legible and recognizably Jóvenes de Fuego. */
+.sidebar {
+  background: var(--jf-sidebar) !important;
+  color: var(--jf-sidebar-text) !important;
+  border-right: 1px solid rgba(220,235,223,.10) !important;
+  box-shadow: 5px 0 20px rgba(10,24,15,.08) !important;
+}
+.sidebar::before { display: none !important; }
+.sidebar .brand { border-bottom: 1px solid rgba(220,235,223,.10) !important; }
+.sidebar .brand strong { color: var(--jf-sidebar-text) !important; font-size: 14px !important; letter-spacing: -.015em; }
+.sidebar .brand small { color: var(--jf-sidebar-muted) !important; }
+.sidebar .brand-mark { box-shadow: none !important; }
+.sidebar .env-chip {
+  color: #c4d8c9 !important;
+  background: rgba(255,255,255,.055) !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  box-shadow: none !important;
+}
+.sidebar .pulse { background: #75bd91 !important; box-shadow: 0 0 0 3px rgba(117,189,145,.13); }
+.sidebar .module-search {
+  color: var(--jf-sidebar-muted) !important;
+  background: rgba(255,255,255,.055) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+.sidebar .module-search input { color: var(--jf-sidebar-text) !important; background: transparent !important; }
+.sidebar .module-search input::placeholder { color: var(--jf-sidebar-muted) !important; }
+.sidebar .jf-nav-group { border: 0 !important; background: transparent !important; }
+.sidebar .jf-nav-group > summary {
+  color: var(--jf-sidebar-muted) !important;
+  font-size: 10px !important;
+  font-weight: 750 !important;
+  letter-spacing: .10em !important;
+  text-transform: uppercase;
+}
+.sidebar .jf-nav-count { color: var(--jf-sidebar-muted) !important; }
+.sidebar .nav-item {
+  min-height: 39px !important;
+  color: var(--jf-sidebar-muted) !important;
+  border: 1px solid transparent !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 550 !important;
+}
+.sidebar .nav-item::before { display: none !important; }
+.sidebar .nav-item:hover {
+  background: var(--jf-sidebar-hover) !important;
+  color: #fff !important;
+  transform: none !important;
+}
+.sidebar .nav-item.active {
+  background: var(--jf-sidebar-active) !important;
+  border-color: rgba(146,190,157,.18) !important;
+  color: #fff !important;
+  box-shadow: inset 3px 0 var(--jf-ember) !important;
+  font-weight: 750 !important;
+}
+.sidebar .nav-item-icon {
+  background: transparent !important;
+  color: #b9cdbd !important;
+  border-radius: 6px !important;
+}
+.sidebar .nav-item.active .nav-item-icon { color: #f0a181 !important; }
+.sidebar .nav-item:hover .nav-item-icon { transform: none !important; }
+.sidebar .sidebar-bottom { border-top: 1px solid rgba(220,235,223,.10); }
+.sidebar .safe-note {
+  background: rgba(255,255,255,.055) !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  border-radius: 8px !important;
+  color: var(--jf-sidebar-text) !important;
+}
+.sidebar .safe-note small { color: var(--jf-sidebar-muted) !important; }
+.sidebar .theme-toggle,.sidebar .sidebar-collapse-toggle {
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  color: var(--jf-sidebar-text) !important;
+  border-radius: 8px !important;
+}
+.mobile-header {
+  background: var(--jf-sidebar) !important;
+  color: var(--jf-sidebar-text) !important;
+  border-bottom: 1px solid rgba(220,235,223,.10) !important;
+}
+.main > .topline {
+  background: var(--jf-canvas) !important;
+  border-bottom: 1px solid var(--jf-line) !important;
+  box-shadow: none !important;
+}
+.main > .topline .topline-status {
+  background: transparent !important;
+  border: 0 !important;
+  color: var(--jf-muted) !important;
+  padding-inline: 0 !important;
+}
+.main > .topline .topline-status-module { color: var(--jf-ink) !important; }
+.main > .topline .topline-status .dot { background: var(--jf-success) !important; box-shadow: 0 0 0 3px var(--jf-success-soft) !important; }
+.main > .topline .project-label {
+  background: var(--jf-surface) !important;
+  border: 1px solid var(--jf-line) !important;
+  color: var(--jf-muted) !important;
+  border-radius: 7px !important;
+}
+.main > .topline .topline-theme-toggle {
+  color: var(--jf-muted) !important;
+  border: 1px solid var(--jf-line) !important;
+  background: var(--jf-surface) !important;
+  border-radius: 7px !important;
+}
+.main > footer { color: var(--jf-muted) !important; border-color: var(--jf-line) !important; }
+
+/* Shared module headers, status pills and statistic rows. */
+.main .jf-route-stage :is(.members-hero,.attendance-header,.followup-header,.visitors-header,
+.devotionals-header,.reports-hero,.checkin-hero,.managed-hero,.management-header,
+.settings-hero,.photos-hero,.leaders-hero,.ranking-hero,.page-header,.page-hero,.module-hero) {
+  border-radius: var(--jf-radius-lg) !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage :is(.members-hero,.attendance-header,.followup-header,.visitors-header,
+.devotionals-header,.reports-hero,.checkin-hero,.managed-hero,.management-header,
+.settings-hero,.photos-hero,.leaders-hero,.ranking-hero) {
+  background: var(--jf-surface-2) !important;
+  border: 1px solid var(--jf-line) !important;
+}
+.main .jf-route-stage :is(.status,.badge,.pill,[class*="status-"],[data-status]) {
+  box-shadow: none !important;
+}
+
+/* Home dashboard — remove the synthetic neon/blue sci-fi treatment. */
+.main .jf-route-stage [class*="DashboardPage_scope"] { color: var(--jf-ink) !important; gap: 18px !important; }
+.main .jf-route-stage [class*="DashboardPage_welcome"] {
+  min-height: 0 !important;
+  padding: clamp(20px,3vw,32px) !important;
+  border: 1px solid #314a3a !important;
+  border-radius: 10px !important;
+  background: #1b3024 !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage [class*="DashboardPage_welcome"]::before { display: none !important; }
+.main .jf-route-stage [class*="DashboardPage_welcome"] h1 { color: #f3f3e9 !important; }
+.main .jf-route-stage [class*="DashboardPage_welcome"] p { color: #c0cfc2 !important; }
+.main .jf-route-stage [class*="DashboardPage_eyebrow"],
+.main .jf-route-stage [class*="DashboardPage_kicker"] { color: #e9a17f !important; }
+.main .jf-route-stage [class*="DashboardPage_welcomeVisual"],
+.main .jf-route-stage [class*="DashboardPage_visualHalo"] { display: none !important; }
+.main .jf-route-stage [class*="DashboardPage_metrics"] { gap: 10px !important; }
+.main .jf-route-stage [class*="DashboardPage_metricCard"] {
+  padding: 16px !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 9px !important;
+  background: var(--jf-surface) !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage [class*="DashboardPage_metricCard"] > strong { color: var(--jf-ink) !important; font-size: 28px !important; font-weight: 700 !important; }
+.main .jf-route-stage [class*="DashboardPage_metricTop"] { color: var(--jf-muted) !important; }
+.main .jf-route-stage [class*="DashboardPage_metricTop"] i { background: var(--jf-brand-soft) !important; color: var(--jf-brand) !important; border-radius: 7px !important; }
+.main .jf-route-stage [class*="DashboardPage_metricCard"] small { color: var(--jf-muted) !important; }
+.main .jf-route-stage [class*="DashboardPage_panel"],
+.main .jf-route-stage [class*="DashboardPage_assistantCard"],
+.main .jf-route-stage [class*="DashboardPage_systemCard"] {
+  padding: 18px !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 10px !important;
+  background: var(--jf-surface) !important;
+  box-shadow: none !important;
+}
+.main .jf-route-stage [class*="DashboardPage_panelHeading"] h2 { color: var(--jf-ink) !important; font-size: 16px !important; }
+.main .jf-route-stage [class*="DashboardPage_panelHeading"] p,
+.main .jf-route-stage [class*="DashboardPage_eventInfo"] p,
+.main .jf-route-stage [class*="DashboardPage_eventInfo"] small { color: var(--jf-muted) !important; }
+.main .jf-route-stage [class*="DashboardPage_panelHeading"] > a { background: var(--jf-brand-soft) !important; border-color: transparent !important; color: var(--jf-brand-ink) !important; }
+.main .jf-route-stage [class*="DashboardPage_podium"] { background: transparent !important; }
+.main .jf-route-stage [class*="DashboardPage_podiumPerson"] > b { color: var(--jf-ink) !important; }
+.main .jf-route-stage [class*="DashboardPage_podiumPerson"] > small { color: var(--jf-muted) !important; }
+.main .jf-route-stage [class*="DashboardPage_podiumBase"] { background: var(--jf-surface-3) !important; border-color: var(--jf-line) !important; color: var(--jf-ink) !important; }
+.main .jf-route-stage [class*="DashboardPage_chartRow"] > span { color: var(--jf-muted) !important; }
+.main .jf-route-stage [class*="DashboardPage_chartRow"] > div { background: var(--jf-surface-3) !important; }
+.main .jf-route-stage [class*="DashboardPage_chartRow"] > div > i { background: var(--jf-brand) !important; }
+.main .jf-route-stage [class*="DashboardPage_chartRow"] > b { color: var(--jf-ink) !important; }
+.main .jf-route-stage [class*="DashboardPage_eventRow"] { border-color: var(--jf-line) !important; }
+.main .jf-route-stage [class*="DashboardPage_dateTile"] { background: var(--jf-brand-soft) !important; border-color: transparent !important; }
+.main .jf-route-stage [class*="DashboardPage_dateTile"] b { color: var(--jf-brand-ink) !important; }
+.main .jf-route-stage [class*="DashboardPage_dateTile"] span { color: var(--jf-brand) !important; }
+.main .jf-route-stage [class*="DashboardPage_eventInfo"] > b { color: var(--jf-ink) !important; }
+.main .jf-route-stage [class*="DashboardPage_shortcuts"] > a { background: var(--jf-surface-2) !important; border-color: var(--jf-line) !important; color: var(--jf-ink) !important; }
+.main .jf-route-stage [class*="DashboardPage_shortcuts"] > a > i { background: var(--jf-brand-soft) !important; color: var(--jf-brand) !important; }
+.main .jf-route-stage [class*="DashboardPage_shortcuts"] > a small { color: var(--jf-muted) !important; }
+.main .jf-route-stage [class*="DashboardPage_assistantIcon"] { background: var(--jf-ember-soft) !important; color: var(--jf-ember) !important; }
+.main .jf-route-stage [class*="DashboardPage_assistantCard"] h2,
+.main .jf-route-stage [class*="DashboardPage_systemCard"] b { color: var(--jf-ink) !important; }
+.main .jf-route-stage [class*="DashboardPage_assistantCard"] p,
+.main .jf-route-stage [class*="DashboardPage_systemCard"] p,
+.main .jf-route-stage [class*="DashboardPage_systemCard"] small { color: var(--jf-muted) !important; }
+.main .jf-route-stage [class*="DashboardPage_assistantCard"] a { color: var(--jf-brand) !important; }
+
+/* Youth portal: warmer, more human and more playful, but not toy-like. */
+body .youth-portal {
+  --youth-bg: var(--jf-canvas);
+  --youth-card: var(--jf-surface);
+  --youth-text: var(--jf-ink);
+  --youth-muted: var(--jf-muted);
+  --youth-border: var(--jf-line);
+  background: var(--jf-canvas) !important;
+  color: var(--jf-ink) !important;
+}
+body .youth-portal .youth-container { width: min(100%, 1080px) !important; }
+body .youth-portal .youth-header {
+  padding: 26px 18px 18px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+body .youth-portal .youth-brand-label { color: var(--jf-muted) !important; letter-spacing: .12em; }
+body .youth-portal .youth-header h1 { color: var(--jf-ink) !important; letter-spacing: -.04em; }
+body .youth-portal .youth-title-divider { background: var(--jf-ember) !important; }
+body .youth-portal .youth-selector,
+body .youth-portal :is(.youth-profile-card,.youth-activity-card,.youth-hall-card,.youth-game-tile,
+.youth-ranking-card,.youth-section-card,.youth-card,.youth-panel,.youth-growth-plan,
+.youth-activities,.youth-game-hub,.youth-journal-panel,.youth-prayer-panel,.youth-customizer) {
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--jf-shadow) !important;
+}
+body .youth-portal :is(h1,h2,h3,h4,strong,b) { color: var(--jf-ink); }
+body .youth-portal :is(p,small,.muted,.description,.subtitle) { color: var(--jf-muted); }
+body .youth-portal :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) {
+  border: 1px solid var(--jf-line-strong) !important;
+  border-radius: 8px !important;
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  box-shadow: none !important;
+}
+body .youth-portal :is(button,a,[role="button"]) { border-radius: 8px; }
+body .youth-portal :is(button,a,input,select,textarea):focus-visible { outline: 2px solid var(--jf-focus) !important; outline-offset: 2px; }
+body .youth-portal .youth-bottom-navigation {
+  background: var(--jf-sidebar) !important;
+  border: 1px solid rgba(220,235,223,.12) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(10,24,15,.18) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+body .youth-portal .youth-bottom-navigation button { color: #bdcbbf !important; border-radius: 7px !important; }
+body .youth-portal .youth-bottom-navigation button.active { color: #fff !important; background: #2d503a !important; }
+body .youth-portal .youth-bottom-navigation button.active::after { background: var(--jf-ember) !important; }
+
+/* Dialogs, login and empty/loading states. */
+.login-shell { background: var(--jf-canvas) !important; }
+.login-card {
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--jf-shadow-raised) !important;
+}
+.login-card :is(h1,label) { color: var(--jf-ink) !important; }
+.login-card .login-intro,.login-card .login-foot { color: var(--jf-muted) !important; }
+.login-card input { border-color: var(--jf-line-strong) !important; background: var(--jf-surface-2) !important; color: var(--jf-ink) !important; }
+.login-submit { background: var(--jf-brand) !important; color: #fff !important; border-radius: 8px !important; box-shadow: none !important; }
+:root[data-theme="dark"] .login-submit { color: #102117 !important; }
+body .youth-portal .youth-pin-dialog {
+  background: var(--jf-surface) !important;
+  color: var(--jf-ink) !important;
+  border: 1px solid var(--jf-line) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--jf-shadow-raised) !important;
+}
+body .youth-portal .youth-pin-dialog h2 { color: var(--jf-ink) !important; }
+body .youth-portal .youth-pin-dialog p,
+body .youth-portal .youth-pin-dialog small { color: var(--jf-muted) !important; }
+body .youth-portal .youth-pin-form button { background: var(--jf-brand) !important; border-radius: 8px !important; }
+body .youth-portal .youth-pin-icon { background: var(--jf-ember) !important; border-radius: 10px !important; }
+
+/* Motion and responsive rules: interaction, not decoration. */
+@media (hover:hover) and (pointer:fine) {
+  .main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,[class*="-card"],[class*="-panel"]) { transition: border-color .15s ease, box-shadow .15s ease !important; }
+  .main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,[class*="-card"],[class*="-panel"]):hover { transform: none !important; box-shadow: var(--jf-shadow-raised) !important; }
+  .sidebar .nav-item:hover { transform: none !important; }
+}
+@media (max-width: 900px) {
+  .main { width: 100% !important; margin-left: 0 !important; padding-inline: 14px !important; }
+  .main .jf-route-stage { width: 100%; }
+  .main > .topline { border-radius: 0 !important; }
+  body .youth-portal .youth-container { padding-inline: 14px !important; }
+}
+@media (max-width: 600px) {
+  .main { padding: 0 11px 28px !important; }
+  .main .jf-route-stage { padding-bottom: 8px; }
+  .main .jf-route-stage :is(h1) { font-size: clamp(23px,6vw,30px); }
+  .main .jf-route-stage :is(h2) { font-size: clamp(18px,4.8vw,23px); }
+  .main .jf-route-stage :is(.page-card,.panel,.card,[class*="-card"],[class*="-panel"]) { border-radius: 10px !important; }
+  body .youth-portal .youth-header { padding: 18px 12px 12px !important; }
+  body .youth-portal :is(.youth-selector,.youth-profile-card,.youth-activity-card,.youth-game-tile) { border-radius: 10px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .main .jf-route-stage *, .sidebar *, .youth-portal * {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+    transform: none !important;
+  }
+}
