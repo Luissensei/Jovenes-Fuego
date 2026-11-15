@@ -104,6 +104,7 @@ export async function saveMeetingAttendance(
     meetingId,
     participants,
   });
-  invalidateRequestCache('attendance-meetings:attendance');
-  invalidateRequestCache('attendance-meetings:reports');
+  const userScope = auth?.currentUser?.uid ?? 'no-auth';
+  invalidateRequestCache(`attendance-meetings:${userScope}:attendance`);
+  invalidateRequestCache(`attendance-meetings:${userScope}:reports`);
 }
