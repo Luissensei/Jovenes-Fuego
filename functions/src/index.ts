@@ -1058,6 +1058,7 @@ export const createYouthCommunityComment = onCall(async (request) => {
 
 export const toggleYouthCommunityReaction = onCall(async (request) => {
   const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
   const postId = text(request.data?.postId, 150);
   if (!/^[A-Za-z0-9_-]{10,150}$/.test(postId)) {
     throw new HttpsError("invalid-argument", "La publicación no es válida.");
