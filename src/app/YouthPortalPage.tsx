@@ -637,8 +637,8 @@ export default function YouthPortalPage() {
 
   useEffect(() => {
     if (!selectedProfile) return;
-    const connection = (navigator as Navigator & {connection?: {saveData?: boolean}}).connection;
-    if (connection?.saveData) return;
+    const connection = (navigator as Navigator & {connection?: {saveData?: boolean; effectiveType?: string}}).connection;
+    if (connection?.saveData || connection?.effectiveType === 'slow-2g' || connection?.effectiveType === '2g') return;
     const preload = () => {
       void import('./portal/ActivitiesTab');
       void import('./portal/GamesTab');
