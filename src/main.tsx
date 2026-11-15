@@ -3,21 +3,16 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './app/App';
 
+// Global foundation and structural layout.
 import './styles/app.css';
 import './styles/layout.css';
-import './styles/refinement.css';
-import './styles/xr-glass-dashboard.css';
-import './styles/portal-theme-fixes.css';
+// Responsive behavior and isolated portal/admin enhancements.
 import './styles/mobile-quality-system.css';
-import './styles/portal-mobile-fix.css';
-import './styles/portal-complete-redesign.css';
-import './styles/admin-module-system.css';
-import './styles/theme-performance-fix.css';
 import './styles/mobile-spacing-and-instant-sidebar.css';
-import './styles/unified-module-theme.css';
-import './styles/portal-polish.css';
-import './styles/theme-final-overrides.css';
-import './styles/sidebar-transparent-redesign.css';
+import './styles/admin-module-system.css';
+import './styles/portal-complete-redesign.css';
+import './styles/portal-mobile-fix.css';
+// Single final visual contract: keep this last to avoid competing theme layers.
 import './styles/product-design-system.css';
 
 try {
