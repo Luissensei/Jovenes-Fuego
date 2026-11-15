@@ -11,7 +11,7 @@ import {
   Palette, Volume2, VolumeX, Star, X,
   BookMarked, Moon, Sun, CheckCircle2, UserRound, Save, Trash2, Home, MessageCircle,
 } from 'lucide-react';
-import {getPublicProfiles, purchaseYouthLookBundle, purchaseYouthLookItem, saveYouthProfileAppearance, type PublicProfile} from '../services/publicProfiles';
+import {getPublicProfiles, purchaseYouthLookBundle, purchaseYouthLookItem, type PublicProfile} from '../services/publicProfiles';
 import {
   getWeeklyActivities,
   getHallOfFame,
