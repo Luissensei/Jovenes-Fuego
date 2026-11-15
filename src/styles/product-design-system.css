@@ -48,6 +48,9 @@
   --text-primary: var(--jf-ink); --text-secondary: var(--jf-muted); --text: var(--jf-ink);
   --muted: var(--jf-muted); --surface: var(--jf-surface); --card: var(--jf-surface);
   --card-bg: var(--jf-surface); --border: var(--jf-line); --border-color: var(--jf-line);
+  --accent: var(--jf-ember); --surface-2: var(--jf-surface-2); --surface-3: var(--jf-surface-3);
+  --surface-elevated: var(--jf-surface-2); --surface-card: var(--jf-surface);
+  --border-subtle: var(--jf-line); --jf-glass: var(--jf-surface); --jf-glass-border: var(--jf-line);
 }
 :root[data-theme="dark"],
 :root.dark {
@@ -90,6 +93,9 @@
   --text-primary: var(--jf-ink); --text-secondary: var(--jf-muted); --text: var(--jf-ink);
   --muted: var(--jf-muted); --surface: var(--jf-surface); --card: var(--jf-surface);
   --card-bg: var(--jf-surface); --border: var(--jf-line); --border-color: var(--jf-line);
+  --accent: var(--jf-ember); --surface-2: var(--jf-surface-2); --surface-3: var(--jf-surface-3);
+  --surface-elevated: var(--jf-surface-2); --surface-card: var(--jf-surface);
+  --border-subtle: var(--jf-line); --jf-glass: var(--jf-surface); --jf-glass-border: var(--jf-line);
 }
 
 /* Foundation */
