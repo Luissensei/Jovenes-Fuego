@@ -171,6 +171,7 @@ export async function saveWeeklyActivity(
   if (!response.data.success || !response.data.id) {
     throw new Error('No se pudo confirmar el guardado de la actividad.');
   }
+  invalidateRequestCache('public-weekly-activities');
 }
 
 export async function sendPrayerRequest(input: PrayerRequestInput): Promise<void> {
