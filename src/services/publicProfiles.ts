@@ -1,7 +1,7 @@
 import {httpsCallable} from 'firebase/functions';
 
 import {functions} from './firebase/client';
-import {cachedRequest} from './requestCache';
+import {cachedRequest, invalidateRequestCache} from './requestCache';
 
 export type PublicProfile = {
   id: string;
@@ -43,10 +43,11 @@ export function getPublicRankingMetrics(): Promise<PublicRankingMetric[]> {
 }
 
 /** Perfiles y apariencia pública se consultan con Admin SDK y filtro nopub en servidor. */
-export async function getPublicProfiles(): Promise<PublicProfile[]> {
-  const response = await call<{profiles: PublicProfile[]}>('getPublicProfiles');
-  return Array.isArray(response.profiles)
-    ? response.profiles.map((item) => ({
+export function getPublicProfiles(): Promise<PublicProfile[]> {
+  return cachedRequest('public-profiles', 30_000, async () => {
+    const response = await call<{profiles: PublicProfile[]}>('getPublicProfiles');
+    return Array.isArray(response.profiles)
+      ? response.profiles.map((item) => ({
       id: String(item.id ?? ''),
       name: String(item.name ?? ''),
       nick: String(item.nick ?? ''),
@@ -60,8 +61,9 @@ export async function getPublicProfiles(): Promise<PublicProfile[]> {
       ownedItems: Array.isArray(item.ownedItems)
         ? item.ownedItems.filter((value): value is string => typeof value === 'string').slice(0, 400)
         : [],
-    })).filter((item) => item.id && item.name)
-    : [];
+      })).filter((item) => item.id && item.name)
+      : [];
+  });
 }
 
 /** Sincroniza solo cosméticos equipados después de validar el PIN juvenil en servidor. */
@@ -76,6 +78,7 @@ export async function saveYouthProfileAppearance(
   >(functions, 'saveYouthProfileAppearance');
   const response = await callable({communitySession, appearance});
   if (!response.data.success) throw new Error('No se pudo sincronizar la apariencia.');
+  invalidateRequestCache('public-profiles');
 }
 
 /** Compra y equipa un cosmético; el saldo y el precio se calculan en servidor. */
@@ -93,6 +96,7 @@ export async function purchaseYouthLookItem(
   if (!response.data.success || !Number.isFinite(response.data.flames)) {
     throw new Error('No se pudo completar la compra.');
   }
+  invalidateRequestCache('public-profiles');
   return {
     flames: Math.max(0, response.data.flames),
     ownedItems: Array.isArray(response.data.ownedItems) ? response.data.ownedItems : [],
@@ -113,6 +117,7 @@ export async function purchaseYouthLookBundle(
   if (!response.data.success || !Number.isFinite(response.data.flames)) {
     throw new Error('No se pudo completar la compra de la plantilla.');
   }
+  invalidateRequestCache('public-profiles');
   return {
     flames: Math.max(0, response.data.flames),
     ownedItems: Array.isArray(response.data.ownedItems) ? response.data.ownedItems : [],
