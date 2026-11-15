@@ -196,7 +196,7 @@ export type AdminPrayerRequest = {
  * Reads upcoming activities already published by the original app.
  */
 export function getWeeklyActivities(): Promise<WeeklyActivity[]> {
-  return cachedRequest('public-weekly-activities', 20_000, async () => {
+  return cachedRequest('public-weekly-activities', 60_000, async () => {
     if (!functions) throw new Error('Firebase Functions no está configurado.');
     const loadActivities = httpsCallable<
       Record<string, never>,
