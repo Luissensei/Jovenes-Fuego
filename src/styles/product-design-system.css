@@ -828,54 +828,54 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
 
 
 /* Assistant and youth utilities: remove competing violet/blue/orange visual identities. */
-.main .jf-route-stage [class*="FuegoAssistant_panel"],
-.main .jf-route-stage [class*="FuegoAssistant_composer"] {
+[class*="FuegoAssistant_panel"],
+[class*="FuegoAssistant_composer"] {
   border-color: var(--jf-line) !important;
   background: var(--jf-surface) !important;
   color: var(--jf-ink) !important;
   box-shadow: var(--jf-shadow) !important;
 }
-.main .jf-route-stage [class*="FuegoAssistant_header"] {
+[class*="FuegoAssistant_header"] {
   border-color: var(--jf-line) !important;
   background: var(--jf-surface-2) !important;
 }
-.main .jf-route-stage [class*="FuegoAssistant_heading"] :is(h2,p),
-.main .jf-route-stage [class*="FuegoAssistant_footer"] { color: var(--jf-ink) !important; }
-.main .jf-route-stage [class*="FuegoAssistant_heading"] > span,
-.main .jf-route-stage [class*="FuegoAssistant_status"],
-.main .jf-route-stage [class*="FuegoAssistant_footer"] button { color: var(--jf-brand) !important; }
-.main .jf-route-stage [class*="FuegoAssistant_emblem"],
-.main .jf-route-stage [class*="FuegoAssistant_messageAvatar"],
-.main .jf-route-stage [class*="FuegoAssistant_welcome"] > span {
+[class*="FuegoAssistant_heading"] :is(h2,p),
+[class*="FuegoAssistant_footer"] { color: var(--jf-ink) !important; }
+[class*="FuegoAssistant_heading"] > span,
+[class*="FuegoAssistant_status"],
+[class*="FuegoAssistant_footer"] button { color: var(--jf-brand) !important; }
+[class*="FuegoAssistant_emblem"],
+[class*="FuegoAssistant_messageAvatar"],
+[class*="FuegoAssistant_welcome"] > span {
   background: var(--jf-brand-soft) !important;
   color: var(--jf-brand) !important;
   box-shadow: none !important;
 }
-.main .jf-route-stage [class*="FuegoAssistant_prompts"] button {
+[class*="FuegoAssistant_prompts"] button {
   border-color: var(--jf-line) !important;
   background: var(--jf-surface-2) !important;
   color: var(--jf-ink) !important;
 }
-.main .jf-route-stage [class*="FuegoAssistant_userMessage"] [class*="messageContent"] {
+[class*="FuegoAssistant_userMessage"] [class*="messageContent"] {
   background: var(--jf-brand) !important;
   color: #fff !important;
 }
-.main .jf-route-stage [class*="FuegoAssistant_composer"] textarea { color: var(--jf-ink) !important; }
-.main .jf-route-stage [class*="FuegoAssistant_composer"] button,
-.main .jf-route-stage [class*="FuegoAssistant_devotionalCard"] button {
+[class*="FuegoAssistant_composer"] textarea { color: var(--jf-ink) !important; }
+[class*="FuegoAssistant_composer"] button,
+[class*="FuegoAssistant_devotionalCard"] button {
   background: var(--jf-brand) !important;
   color: #fff !important;
 }
-.main .jf-route-stage [class*="FuegoFloatingAssistant_launcher"] {
+[class*="FuegoFloatingAssistant_launcher"] {
   border-color: var(--jf-brand) !important;
   background: var(--jf-brand) !important;
   box-shadow: 0 8px 24px rgba(23,42,32,.24) !important;
 }
-.main .jf-route-stage [class*="FuegoFloatingAssistant_launcherAura"] {
+[class*="FuegoFloatingAssistant_launcherAura"] {
   border-color: var(--jf-brand) !important;
   box-shadow: 0 0 0 5px color-mix(in srgb,var(--jf-brand) 12%,transparent) !important;
 }
-.main .jf-route-stage [class*="FuegoFloatingAssistant_window"] {
+[class*="FuegoFloatingAssistant_window"] {
   border-color: var(--jf-line) !important;
   background: var(--jf-surface) !important;
   box-shadow: 0 18px 50px rgba(0,0,0,.2) !important;
@@ -944,7 +944,7 @@ body .youth-portal .youth-error button { color: var(--jf-danger) !important; }
   color: var(--jf-danger) !important;
 }
 @media (max-width: 600px) {
-  .main .jf-route-stage [class*="FuegoAssistant_panel"] { border-radius: 12px !important; }
+  [class*="FuegoAssistant_panel"] { border-radius: 12px !important; }
   .main .jf-route-stage [class*="YouthPinsPage_scope"] { gap: 13px !important; }
   .main .jf-route-stage .trivia-options { grid-template-columns: 1fr !important; }
 }
