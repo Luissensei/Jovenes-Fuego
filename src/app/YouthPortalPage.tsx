@@ -9,7 +9,7 @@ import {
   Gamepad2, RefreshCw, ChevronRight, ShieldCheck, Sparkles,
   CalendarDays, HeartHandshake, Send, Medal, Crown,
   Palette, Volume2, VolumeX, Star, X, WandSparkles,
-  BookMarked, Moon, Sun, UserSearch, CheckCircle2, UserRound, Save, Trash2, Home,
+  BookMarked, Moon, Sun, UserSearch, CheckCircle2, UserRound, Save, Trash2, Home, MessageCircle,
 } from 'lucide-react';
 import {getPublicProfiles, type PublicProfile} from '../services/publicProfiles';
 import {
@@ -25,6 +25,7 @@ import {
 } from '../services/youthPortal';
 
 const ActivitiesTab = lazy(() => import('./portal/ActivitiesTab'));
+const CommunityTab = lazy(() => import('./portal/CommunityTab'));
 const DevotionalFlyerTab = lazy(() => import('./portal/DevotionalFlyerTab'));
 const GamesTab = lazy(() => import('./portal/GamesTab'));
 const TriviaGame = lazy(() => import('./TriviaGame'));
@@ -305,10 +306,11 @@ const lookCategoryStorage: Record<LookShopCategory, string> = {
   accessories: 'accessories',
 };
 
-type YouthSection = 'home' | 'activities' | 'devotional' | 'ranking' | 'games' | 'space';
+type YouthSection = 'home' | 'community' | 'activities' | 'devotional' | 'ranking' | 'games' | 'space';
 
 const youthNavigation: Array<{id: YouthSection; label: string; icon: typeof Home}> = [
   {id: 'home', label: 'Inicio', icon: Home},
+  {id: 'community', label: 'Comunidad', icon: MessageCircle},
   {id: 'activities', label: 'Actividades', icon: CalendarDays},
   {id: 'devotional', label: 'Devocional', icon: BookMarked},
   {id: 'ranking', label: 'Ranking', icon: Trophy},
@@ -504,6 +506,7 @@ export default function YouthPortalPage() {
   const [newPersonalPin, setNewPersonalPin] = useState('');
   const [confirmPersonalPin, setConfirmPersonalPin] = useState('');
   const [activeYouthSection, setActiveYouthSection] = useState<YouthSection>('home');
+  const [communitySession, setCommunitySession] = useState('');
   const [openingProfileId, setOpeningProfileId] = useState<string | null>(null);
 
   const [activities, setActivities] = useState<WeeklyActivity[]>([]);
@@ -912,8 +915,9 @@ export default function YouthPortalPage() {
     if(pinMode==='verify'&&!/^\d{4}$/.test(personalPin)){setPinStatus('Escribe tu PIN personal de 4 dígitos.');return;}
     setPinBusy(true);
     try{
-      const profile=pinMode==='activate'?await activateYouthProfilePin(pendingProfile.id,activationPin,newPersonalPin):await verifyYouthProfilePin(pendingProfile.id,personalPin);
-      setPendingProfile(null);setSelectedProfile(profile);setActivationPin('');setPersonalPin('');setNewPersonalPin('');setConfirmPersonalPin('');
+      const result=pinMode==='activate'?await activateYouthProfilePin(pendingProfile.id,activationPin,newPersonalPin):await verifyYouthProfilePin(pendingProfile.id,personalPin);
+      setCommunitySession(result.communitySession);
+      setPendingProfile(null);setSelectedProfile(result.profile);setActivationPin('');setPersonalPin('');setNewPersonalPin('');setConfirmPersonalPin('');
     }catch(cause){setPinStatus(cause instanceof Error?cause.message:'No se pudo validar el PIN.');}
     finally{setPinBusy(false);}
   }
@@ -923,6 +927,7 @@ export default function YouthPortalPage() {
     setPortalExiting(true);
     window.setTimeout(() => {
       setSelectedProfile(null);
+      setCommunitySession('');
       setActiveYouthSection('home');
       setPortalExiting(false);
     }, 360);
@@ -1206,6 +1211,12 @@ export default function YouthPortalPage() {
           )}
 
           {soundError && <p className="youth-inline-warning">{soundError}</p>}
+
+          {activeYouthSection === 'community' && (
+            <Suspense fallback={<SkeletonList/>}>
+              <CommunityTab memberId={selectedProfile.id} memberName={profileExtras.displayName || selectedProfile.name} communitySession={communitySession}/>
+            </Suspense>
+          )}
 
           {activeYouthSection === 'activities' && (
             <Suspense fallback={<SkeletonList/>}>
