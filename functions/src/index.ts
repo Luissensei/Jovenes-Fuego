@@ -1333,6 +1333,42 @@ export const adminIssueYouthPin = onCall(async (request) => {
   };
 });
 
+const youthAppearanceOptions = {
+  frame: ["fuego","neon","cielo","hielo","arco","esmeralda","rayo","oro","galaxia","corona","prisma","obsidiana","solar","cristal","emperador","filigrana","bronce","runa"],
+  avatar: ["","paloma","leon","aguila","cordero","mariposa","lobo","estrella","guerrero","dragon","cohete","rey","volcan","fenix","delfin","zorro","pantera","tigre","fenix-real"],
+  background: ["brasa","ocaso","aurora","noche","volcan","galaxia","oceano","bosque","aurora-boreal","atardecer","cosmos","imperial","amatista","santuario","aurum","seda"],
+  title: ["chispa","valiente","guerrero","intercesor","adorador","sabio","leyenda"],
+} as const;
+
+/** Guarda únicamente la apariencia equipada por el joven autenticado con su PIN. */
+export const saveYouthProfileAppearance = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const appearance = request.data?.appearance as Record<string, unknown> | undefined;
+  if (!appearance || typeof appearance !== "object") {
+    throw new HttpsError("invalid-argument", "La apariencia enviada no es válida.");
+  }
+  const values = {
+    frame: text(appearance.frame, 50),
+    avatar: text(appearance.avatar, 80),
+    background: text(appearance.background, 50),
+    title: text(appearance.title, 80),
+  };
+  for (const key of Object.keys(values) as (keyof typeof values)[]) {
+    if (!(youthAppearanceOptions[key] as readonly string[]).includes(values[key])) {
+      throw new HttpsError("invalid-argument", "Uno de los elementos de apariencia no está disponible.");
+    }
+  }
+  await db.collection("photos").doc(memberId).set({
+    f: values.frame,
+    a: values.avatar,
+    b: values.background,
+    t: values.title,
+    appearanceUpdatedAt: new Date().toISOString(),
+  }, {merge: true});
+  return {success: true};
+});
+
 export const getPublicProfiles = onCall(async () => {
   try {
     const profiles = await loadVisiblePublicProfiles();
