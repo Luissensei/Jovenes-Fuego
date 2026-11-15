@@ -1214,7 +1214,7 @@ export default function YouthPortalPage() {
 
           {activeYouthSection === 'community' && (
             <Suspense fallback={<SkeletonList/>}>
-              <CommunityTab memberId={selectedProfile.id} memberName={profileExtras.displayName || selectedProfile.name} communitySession={communitySession}/>
+              <CommunityTab memberName={profileExtras.displayName || selectedProfile.name} communitySession={communitySession}/>
             </Suspense>
           )}
 
