@@ -54,7 +54,10 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
     ].includes(name);
     let appCheckFailure = "";
 
-    if (appCheck) {
+    // App Check solo es requisito del backend para operaciones sensibles de líderes.
+    // No solicitar tokens para cada lectura pública: reCAPTCHA puede añadir latencia
+    // y bloquear llamadas no protegidas en móviles o conexiones lentas.
+    if (appCheckRequired && appCheck) {
       let tokenResult: Awaited<ReturnType<typeof getToken>> | null = null;
       let initialFailure = "";
       try {
@@ -63,9 +66,7 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
         initialFailure = cause instanceof Error ? cause.message : "Error desconocido";
       }
 
-      // Solo para operaciones protegidas: si no hay token, forzar una
-      // renovación una vez. No se envía ninguna de estas operaciones sin él.
-      if (appCheckRequired && !tokenResult?.token) {
+      if (!tokenResult?.token) {
         try {
           tokenResult = await getToken(appCheck, true);
         } catch (cause) {
@@ -78,10 +79,8 @@ export function httpsCallable<TRequest = unknown, TResponse = unknown>(
 
       if (tokenResult?.token) {
         headers["X-Firebase-AppCheck"] = tokenResult.token;
-      } else if (appCheckRequired && !appCheckFailure) {
+      } else if (!appCheckFailure) {
         appCheckFailure = initialFailure || "El SDK de Firebase devolvió un token vacío.";
-      } else if (!appCheckRequired && initialFailure) {
-        console.warn("App Check no entregó token para esta llamada:", initialFailure);
       }
     } else if (appCheckRequired) {
       appCheckFailure = firebaseAppCheckError || "Firebase App Check no se inicializó en este navegador.";
