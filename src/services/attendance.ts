@@ -50,7 +50,7 @@ export function listAttendanceMeetings(
   module: 'attendance' | 'reports' = 'attendance',
 ): Promise<AttendanceMeeting[]> {
   const userScope = auth?.currentUser?.uid ?? 'no-auth';
-  return cachedRequest(`attendance-meetings:${userScope}:${module}`, 10_000, async () => {
+  return cachedRequest(`attendance-meetings:${userScope}:${module}`, 45_000, async () => {
     const response = await call<{meetings: AttendanceMeeting[]}>(
       'getAttendanceMeetings',
       {module},
