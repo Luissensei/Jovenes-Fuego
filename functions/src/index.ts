@@ -999,44 +999,6 @@ export const getYouthCommunityAnnouncements = onCall(async (request) => {
   return {announcements};
 });
 
-export const getYouthCommunityChat = onCall(async (request) => {
-  const memberId = requireYouthCommunitySession(request.data?.communitySession);
-  await getCommunityMember(memberId);
-  const snapshot = await db.collection("youthCommunityChat")
-    .orderBy("createdAt", "desc").limit(30).get();
-  return {messages: snapshot.docs.filter((document) => document.data().status !== "hidden").map((document) => {
-    const data = document.data();
-    return {
-      id: document.id, memberId: text(data.memberId, 150),
-      author: text(data.author, 120), content: text(data.content, 500),
-      createdAt: text(data.createdAt, 40),
-    };
-  }).reverse()};
-});
-
-export const sendYouthCommunityChatMessage = onCall(async (request) => {
-  const memberId = requireYouthCommunitySession(request.data?.communitySession);
-  const author = await getCommunityMember(memberId);
-  const content = text(request.data?.content, 500);
-  if (content.length < 1) throw new HttpsError("invalid-argument", "Escribe un mensaje.");
-  const now = Date.now();
-  const rateRef = db.collection("youthCommunityRateLimits").doc(memberId);
-  const messageRef = db.collection("youthCommunityChat").doc();
-  await db.runTransaction(async (transaction) => {
-    const rate = await transaction.get(rateRef);
-    const lastChatAt = Number(rate.data()?.lastChatAt ?? 0);
-    if (now - lastChatAt < 5000) {
-      throw new HttpsError("resource-exhausted", "Espera unos segundos antes de enviar otro mensaje.");
-    }
-    transaction.create(messageRef, {
-      memberId, author: author.name, content,
-      createdAt: new Date(now).toISOString(), status: "published",
-    });
-    transaction.set(rateRef, {lastChatAt: now}, {merge: true});
-  });
-  return {success: true, id: messageRef.id};
-});
-
 export const getYouthCommunityFeed = onCall(async (request) => {
   const memberId = requireYouthCommunitySession(request.data?.communitySession);
   await getCommunityMember(memberId);
@@ -1321,30 +1283,6 @@ export const reportYouthCommunityPost = onCall(async (request) => {
     transaction.create(reportRef, {
       postId, reporterId: memberId, reason, details,
       postAuthor: text(post.data()?.author, 120), postContent: text(post.data()?.content, 2000),
-      status: "pending", createdAt: new Date().toISOString(),
-    });
-  });
-  return {success: true};
-});
-
-export const reportYouthCommunityChatMessage = onCall(async (request) => {
-  const memberId = requireYouthCommunitySession(request.data?.communitySession);
-  await getCommunityMember(memberId);
-  const messageId = text(request.data?.messageId, 150);
-  const reason = text(request.data?.reason, 40);
-  const allowedReasons = ["inappropriate", "bullying", "privacy", "spam", "other"];
-  if (!/^[A-Za-z0-9_-]{10,150}$/.test(messageId) || !allowedReasons.includes(reason)) {
-    throw new HttpsError("invalid-argument", "El reporte no es válido.");
-  }
-  const messageRef = db.collection("youthCommunityChat").doc(messageId);
-  const reportRef = db.collection("youthCommunityReports").doc(`chat_${messageId}_${memberId}`);
-  await db.runTransaction(async (transaction) => {
-    const [message, previous] = await Promise.all([transaction.get(messageRef), transaction.get(reportRef)]);
-    if (!message.exists || message.data()?.status === "hidden") throw new HttpsError("not-found", "El mensaje ya no está disponible.");
-    if (previous.exists) throw new HttpsError("already-exists", "Ya reportaste este mensaje.");
-    transaction.create(reportRef, {
-      contentType: "chat", postId: messageId, reporterId: memberId, reason, details: "",
-      postAuthor: text(message.data()?.author, 120), postContent: text(message.data()?.content, 500),
       status: "pending", createdAt: new Date().toISOString(),
     });
   });
