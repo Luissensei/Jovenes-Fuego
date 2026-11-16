@@ -501,6 +501,27 @@ export async function sendYouthCommunityDirectMessage(communitySession:string,ta
   const result=await youthPinCall<{communitySession:string;targetMemberId:string;content:string},{success:boolean}>("sendYouthCommunityDirectMessage",{communitySession,targetMemberId,content});
   if(!result.success)throw new Error("No se pudo enviar el mensaje.");
 }
+export type YouthSocialGroupMessage = {
+  id:string;senderId:string;author:string;content:string;createdAt:string;
+};
+export async function getYouthCommunityGroupMessages(
+  communitySession:string,groupId:string,
+):Promise<YouthSocialGroupMessage[]>{
+  const result=await youthPinCall<
+    {communitySession:string;groupId:string},
+    {messages:YouthSocialGroupMessage[]}
+  >("getYouthCommunityGroupMessages",{communitySession,groupId});
+  return Array.isArray(result.messages)?result.messages:[];
+}
+export async function sendYouthCommunityGroupMessage(
+  communitySession:string,groupId:string,content:string,
+):Promise<void>{
+  const result=await youthPinCall<
+    {communitySession:string;groupId:string;content:string},
+    {success:boolean}
+  >("sendYouthCommunityGroupMessage",{communitySession,groupId,content});
+  if(!result.success)throw new Error("No se pudo enviar el mensaje al grupo.");
+}
 export async function markYouthCommunityNotificationsRead(communitySession:string,notificationIds:string[]):Promise<void>{
   const result=await youthPinCall<{communitySession:string;notificationIds:string[]},{success:boolean}>("markYouthCommunityNotificationsRead",{communitySession,notificationIds});
   if(!result.success)throw new Error("No se pudieron actualizar las notificaciones.");
