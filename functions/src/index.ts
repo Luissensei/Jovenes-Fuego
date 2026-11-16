@@ -1003,13 +1003,12 @@ export const getYouthCommunityFeed = onCall(async (request) => {
   const memberId = requireYouthCommunitySession(request.data?.communitySession);
   await getCommunityMember(memberId);
   const mode = text(request.data?.mode, 20) || "all";
-  if (!["all", "following", "mine"].includes(mode)) {
+  if (!["all", "mine"].includes(mode)) {
     throw new HttpsError("invalid-argument", "La vista de comunidad no es válida.");
   }
 
-  const [followingSnapshot, followerSnapshot, blockedByMeSnapshot, blockedMeSnapshot] = await Promise.all([
-    db.collection("youthCommunityFollows").where("followerId", "==", memberId).limit(500).get(),
-    db.collection("youthCommunityFollows").where("followingId", "==", memberId).limit(500).get(),
+  // Conserva los bloqueos históricos para que esas publicaciones sigan ocultas.
+  const [blockedByMeSnapshot, blockedMeSnapshot] = await Promise.all([
     db.collection("youthCommunityBlocks").where("blockerId", "==", memberId).limit(300).get(),
     db.collection("youthCommunityBlocks").where("blockedId", "==", memberId).limit(300).get(),
   ]);
@@ -1017,24 +1016,17 @@ export const getYouthCommunityFeed = onCall(async (request) => {
     ...blockedByMeSnapshot.docs.map((item) => text(item.data().blockedId, 150)),
     ...blockedMeSnapshot.docs.map((item) => text(item.data().blockerId, 150)),
   ]);
-  const followingIds = new Set(
-    followingSnapshot.docs.map((document) => text(document.data().followingId, 150)).filter(Boolean),
-  );
 
-  // The following view applies a relationship filter to a larger recent window.
   const candidateSnapshot = mode === "mine"
     ? await db.collection("youthCommunityPosts").where("memberId", "==", memberId).limit(100).get()
-    : await db.collection("youthCommunityPosts")
-      .orderBy("createdAt", "desc").limit(mode === "following" ? 120 : 40).get();
+    : await db.collection("youthCommunityPosts").orderBy("createdAt", "desc").limit(40).get();
 
   const candidates = candidateSnapshot.docs
     .filter((document) => {
       const data = document.data();
       const authorId = text(data.memberId, 150);
       if (!authorId || data.deleted === true || data.status === "hidden" || blockedIds.has(authorId)) return false;
-      if (mode === "following" && !followingIds.has(authorId)) return false;
-      if (mode === "mine" && authorId !== memberId) return false;
-      return true;
+      return mode !== "mine" || authorId === memberId;
     })
     .sort((left, right) =>
       text(right.data().createdAt, 40).localeCompare(text(left.data().createdAt, 40)),
@@ -1059,7 +1051,7 @@ export const getYouthCommunityFeed = onCall(async (request) => {
       reactionCount: Number(data.reactionCount ?? 0),
       commentCount: Number(data.commentCount ?? 0),
       reactedByMe: Array.isArray(data.reactions) && data.reactions.includes(memberId),
-      followingAuthor: followingIds.has(authorId),
+      followingAuthor: false,
       isMine: authorId === memberId,
       recentComments: comments.docs.map((comment) => {
         const item = comment.data();
@@ -1076,56 +1068,10 @@ export const getYouthCommunityFeed = onCall(async (request) => {
 
   return {
     posts,
-    followingIds: [...followingIds],
-    followingCount: followingIds.size,
-    followerCount: followerSnapshot.size,
+    followingIds: [],
+    followingCount: 0,
+    followerCount: 0,
   };
-});
-
-export const toggleYouthCommunityFollow = onCall(async (request) => {
-  const memberId = requireYouthCommunitySession(request.data?.communitySession);
-  await getCommunityMember(memberId);
-  const targetId = validYouthMemberId(request.data?.targetMemberId);
-  if (targetId === memberId) {
-    throw new HttpsError("invalid-argument", "No puedes seguir tu propio perfil.");
-  }
-  await getCommunityMember(targetId);
-  await assertNotBlocked(memberId, targetId);
-  const followId = `${Buffer.from(memberId).toString("base64url")}.${Buffer.from(targetId).toString("base64url")}`;
-  const followRef = db.collection("youthCommunityFollows").doc(followId);
-  const rateRef = db.collection("youthCommunityRateLimits").doc(memberId);
-  const now = Date.now();
-  const followed = await db.runTransaction(async (transaction) => {
-    const [existing, rate] = await Promise.all([
-      transaction.get(followRef),
-      transaction.get(rateRef),
-    ]);
-    if (now - Number(rate.data()?.lastFollowAt ?? 0) < 750) {
-      throw new HttpsError("resource-exhausted", "Espera un momento antes de cambiar otro seguimiento.");
-    }
-    if (existing.exists) {
-      transaction.delete(followRef);
-      transaction.set(rateRef, {lastFollowAt: now}, {merge: true});
-      return false;
-    }
-    transaction.create(followRef, {
-      followerId: memberId,
-      followingId: targetId,
-      createdAt: new Date(now).toISOString(),
-    });
-    transaction.set(rateRef, {lastFollowAt: now}, {merge: true});
-    return true;
-  });
-  await recordAudit(
-    followed ? "youth.community.follow" : "youth.community.unfollow",
-    memberId,
-    targetId,
-  );
-  if (followed) {
-    const actor = await getCommunityMember(memberId);
-    await notifyYouthMember(targetId, memberId, "follow", actor.name + " comenzó a seguirte.");
-  }
-  return {success: true, followed};
 });
 
 export const deleteYouthCommunityPost = onCall(async (request) => {
