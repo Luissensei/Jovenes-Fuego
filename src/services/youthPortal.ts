@@ -30,7 +30,6 @@ export type YouthCommunityPost = {
 export type YouthCommunityPostInput = {
   type:"text"|"verse"|"song"|"testimony";content:string;reference?:string;linkUrl?:string;
 };
-export type YouthCommunityChatMessage = {id:string;memberId:string;author:string;content:string;createdAt:string};
 export type YouthCommunityAnnouncement = {id:string;title:string;message:string;createdAt:string};
 export type WeeklyActivityAttendanceResponse = "yes" | "no" | "maybe";
 export type AdminWeeklyActivityAttendance = {
@@ -76,16 +75,6 @@ export async function publishYouthCommunityAnnouncement(title:string,message:str
   if(!result.success)throw new Error("No se pudo publicar el aviso.");
 }
 
-export async function getYouthCommunityChat(communitySession:string):Promise<YouthCommunityChatMessage[]> {
-  const result=await youthPinCall<{communitySession:string},{messages:YouthCommunityChatMessage[]}>("getYouthCommunityChat",{communitySession});
-  return Array.isArray(result.messages)?result.messages:[];
-}
-export async function sendYouthCommunityChatMessage(communitySession:string,content:string):Promise<void> {
-  const result=await youthPinCall<{communitySession:string;content:string},{success:boolean}>(
-    "sendYouthCommunityChatMessage",{communitySession,content},
-  );
-  if(!result.success)throw new Error("No se pudo enviar el mensaje.");
-}
 export async function getYouthCommunityFeed(
   communitySession:string,
   mode:YouthCommunityFeedMode="all",
@@ -100,14 +89,6 @@ export async function getYouthCommunityFeed(
     followingCount:Number(result.followingCount??0),
     followerCount:Number(result.followerCount??0),
   };
-}
-export async function toggleYouthCommunityFollow(communitySession:string,targetMemberId:string):Promise<boolean>{
-  const result=await youthPinCall<
-    {communitySession:string;targetMemberId:string},
-    {success:boolean;followed:boolean}
-  >("toggleYouthCommunityFollow",{communitySession,targetMemberId});
-  if(!result.success)throw new Error("No se pudo actualizar el seguimiento.");
-  return result.followed;
 }
 export async function deleteYouthCommunityPost(communitySession:string,postId:string):Promise<void>{
   const result=await youthPinCall<
@@ -140,14 +121,6 @@ export async function reportYouthCommunityPost(
 export type AdminYouthCommunityReport = {
   id:string;postId:string;contentType:"post"|"chat";reason:string;details:string;postAuthor:string;postContent:string;createdAt:string;
 };
-export async function reportYouthCommunityChatMessage(
-  communitySession:string,messageId:string,reason:"inappropriate"|"bullying"|"privacy"|"spam"|"other",
-):Promise<void>{
-  const result=await youthPinCall<{communitySession:string;messageId:string;reason:string},{success:boolean}>(
-    "reportYouthCommunityChatMessage",{communitySession,messageId,reason},
-  );
-  if(!result.success)throw new Error("No se pudo enviar el reporte.");
-}
 export async function getAdminYouthCommunityReports():Promise<AdminYouthCommunityReport[]>{
   const result=await youthPinCall<Record<string,never>,{reports:AdminYouthCommunityReport[]}>("adminListYouthCommunityReports",{});
   return Array.isArray(result.reports)?result.reports:[];
@@ -465,64 +438,3 @@ export async function updatePrayerRequestStatus(
 
 /** Guarda la apariencia a través de una función que valida el perfil y el saldo de Llamas. */
 
-
-export type YouthSocialProfile = {id:string;name:string;nickname:string;avatarUrl:string;bio:string;following:boolean;blocked:boolean};
-export type YouthSocialStory = {id:string;memberId:string;author:string;content:string;createdAt:number;expiresAt:number};
-export type YouthSocialGroup = {id:string;name:string;description:string;createdBy:string;memberCount:number;joined:boolean;createdAt:string};
-export type YouthSocialNotification = {id:string;type:string;message:string;targetId:string;read:boolean;createdAt:string};
-export type YouthSocialHub = {profiles:YouthSocialProfile[];groups:YouthSocialGroup[];stories:YouthSocialStory[];notifications:YouthSocialNotification[]};
-export async function getYouthSocialHub(communitySession:string):Promise<YouthSocialHub>{
-  const result=await youthPinCall<{communitySession:string},YouthSocialHub>("getYouthSocialHub",{communitySession});
-  return {profiles:Array.isArray(result.profiles)?result.profiles:[],groups:Array.isArray(result.groups)?result.groups:[],stories:Array.isArray(result.stories)?result.stories:[],notifications:Array.isArray(result.notifications)?result.notifications:[]};
-}
-export async function toggleYouthCommunityBlock(communitySession:string,targetMemberId:string):Promise<boolean>{
-  const result=await youthPinCall<{communitySession:string;targetMemberId:string},{success:boolean;blocked:boolean}>("toggleYouthCommunityBlock",{communitySession,targetMemberId});
-  if(!result.success)throw new Error("No se pudo actualizar el bloqueo.");
-  return result.blocked;
-}
-export async function createYouthCommunityStory(communitySession:string,content:string):Promise<void>{
-  const result=await youthPinCall<{communitySession:string;content:string},{success:boolean}>("createYouthCommunityStory",{communitySession,content});
-  if(!result.success)throw new Error("No se pudo publicar la historia.");
-}
-export async function createYouthCommunityGroup(communitySession:string,name:string,description:string):Promise<void>{
-  const result=await youthPinCall<{communitySession:string;name:string;description:string},{success:boolean}>("createYouthCommunityGroup",{communitySession,name,description});
-  if(!result.success)throw new Error("No se pudo crear el grupo.");
-}
-export async function toggleYouthCommunityGroupMembership(communitySession:string,groupId:string):Promise<boolean>{
-  const result=await youthPinCall<{communitySession:string;groupId:string},{success:boolean;joined:boolean}>("toggleYouthCommunityGroupMembership",{communitySession,groupId});
-  if(!result.success)throw new Error("No se pudo actualizar la membresía.");
-  return result.joined;
-}
-export async function getYouthCommunityDirectMessages(communitySession:string,targetMemberId:string):Promise<Array<{id:string;senderId:string;content:string;createdAt:string}>>{
-  const result=await youthPinCall<{communitySession:string;targetMemberId:string},{messages:Array<{id:string;senderId:string;content:string;createdAt:string}>}>("getYouthCommunityDirectMessages",{communitySession,targetMemberId});
-  return Array.isArray(result.messages)?result.messages:[];
-}
-export async function sendYouthCommunityDirectMessage(communitySession:string,targetMemberId:string,content:string):Promise<void>{
-  const result=await youthPinCall<{communitySession:string;targetMemberId:string;content:string},{success:boolean}>("sendYouthCommunityDirectMessage",{communitySession,targetMemberId,content});
-  if(!result.success)throw new Error("No se pudo enviar el mensaje.");
-}
-export type YouthSocialGroupMessage = {
-  id:string;senderId:string;author:string;content:string;createdAt:string;
-};
-export async function getYouthCommunityGroupMessages(
-  communitySession:string,groupId:string,
-):Promise<YouthSocialGroupMessage[]>{
-  const result=await youthPinCall<
-    {communitySession:string;groupId:string},
-    {messages:YouthSocialGroupMessage[]}
-  >("getYouthCommunityGroupMessages",{communitySession,groupId});
-  return Array.isArray(result.messages)?result.messages:[];
-}
-export async function sendYouthCommunityGroupMessage(
-  communitySession:string,groupId:string,content:string,
-):Promise<void>{
-  const result=await youthPinCall<
-    {communitySession:string;groupId:string;content:string},
-    {success:boolean}
-  >("sendYouthCommunityGroupMessage",{communitySession,groupId,content});
-  if(!result.success)throw new Error("No se pudo enviar el mensaje al grupo.");
-}
-export async function markYouthCommunityNotificationsRead(communitySession:string,notificationIds:string[]):Promise<void>{
-  const result=await youthPinCall<{communitySession:string;notificationIds:string[]},{success:boolean}>("markYouthCommunityNotificationsRead",{communitySession,notificationIds});
-  if(!result.success)throw new Error("No se pudieron actualizar las notificaciones.");
-}
