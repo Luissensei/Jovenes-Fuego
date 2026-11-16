@@ -1,4 +1,4 @@
-import {httpsCallable} from 'firebase/functions';
+import {httpsCallable} from './firebase/functionsShim';
 
 import {auth, functions} from './firebase/client';
 import {cachedRequest, invalidateRequestCache} from './requestCache';
