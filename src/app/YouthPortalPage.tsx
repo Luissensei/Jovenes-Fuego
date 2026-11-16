@@ -1072,7 +1072,8 @@ export default function YouthPortalPage() {
     };
     return (
       <main className={`${styles.scope} youth-portal`}>
-        <div className={`youth-container youth-game-shell ${gameExiting ? "youth-game-exit" : ""}`}>
+        <a className="jf-skip-link" href="#jf-youth-main-content">Saltar al contenido principal</a>
+        <div className={`youth-container youth-game-shell ${gameExiting ? "youth-game-exit" : ""}`} id="jf-youth-main-content" tabIndex={-1}>
           <div className="youth-game-topbar">
             <button className="youth-back" type="button" onClick={exitGame}><ArrowLeft size={17}/> Volver a mi espacio</button>
             <span><Gamepad2 size={16}/> JUGADOR · {selectedProfile.name}</span>
@@ -1102,7 +1103,8 @@ export default function YouthPortalPage() {
       <main
         className={`${styles.scope} ${dashboardStyles.dashboard} youth-portal ${portalExiting ? "youth-profile-exit" : ""}`}
       >
-        <div className="youth-container youth-home-enter">
+        <a className="jf-skip-link" href="#jf-youth-main-content">Saltar al contenido principal</a>
+        <div className="youth-container youth-home-enter" id="jf-youth-main-content" tabIndex={-1}>
           <div className="youth-home-toolbar">
             <button type="button" className="youth-back" onClick={leaveProfile}>
               <ArrowLeft size={17}/> Cambiar de perfil
@@ -1418,7 +1420,8 @@ export default function YouthPortalPage() {
 
   return (
     <main className={`${styles.scope} youth-portal`}>
-      <div className="youth-container">
+      <a className="jf-skip-link" href="#jf-youth-main-content">Saltar al contenido principal</a>
+      <div className="youth-container" id="jf-youth-main-content" tabIndex={-1}>
         <header className="youth-header">
           <div className="youth-brand-icon church-portal-logo">
             <img src="/church-logo.webp" alt="Logo de la Iglesia Cristiana Cuadrangular Alfa y Omega" />

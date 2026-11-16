@@ -128,3 +128,17 @@
     transition: none;
   }
 }
+
+
+/* El portal juvenil usa su propio árbol de rutas y recibe el mismo contrato accesible. */
+.youth-portal :is(button, a, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--jf-focus, #287c57) !important;
+  outline-offset: 3px !important;
+}
+.youth-portal [id="jf-youth-main-content"] {
+  min-width: 0;
+  scroll-margin-top: 14px;
+}
+.youth-portal [id="jf-youth-main-content"]:focus {
+  outline: none;
+}
