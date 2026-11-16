@@ -14,7 +14,7 @@ import {
   signOut,
   type User,
 } from 'firebase/auth';
-import {httpsCallable} from 'firebase/functions';
+import {httpsCallable} from '../services/firebase/functionsShim';
 
 import {
   auth,
