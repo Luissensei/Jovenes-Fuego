@@ -1,0 +1,17 @@
+/* Cross-module admin polish: semantic surfaces, responsive tables, no blur. */
+.main .jf-route-stage{min-width:0;color:var(--jf-ink,#1d2a23)}
+.main .jf-route-stage :is(.shared-page-header,.page-header,.module-header,.management-header,.members-hero,.reports-hero,.ranking-hero,.visitors-header,.followup-header,.devotionals-header,.settings-hero,.photos-hero,.leaders-hero){min-width:0;border-radius:15px}
+.main .jf-route-stage :is(.shared-page-header,.shared-stat-card,.shared-empty-state,.management-summary,.management-form,.management-records,.management-record,.managed-stat,.managed-record,.reports-card,.checkin-config,.checkin-panel,.followup-content,.visitors-content,.devotionals-controls,.devotional-card,.photos-stats article,.photo-card,.members-controls,.member-card,.member-row,.ranking-info-grid article,.ranking-player,.game-card,.profile-card,.weekly-admin-panel,.weekly-admin-item,.prayer-admin-card,.dashboard-stat,.dashboard-shortcut,.dashboard-chart-card,.dashboard-community-stat){min-width:0;border-color:var(--jf-line,#dce2da);border-radius:12px;background:var(--jf-surface,#fff);color:var(--jf-ink,#1d2a23);box-shadow:var(--jf-shadow,0 8px 22px rgba(24,39,29,.045))}
+.main .jf-route-stage :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){max-width:100%;min-width:0;border-color:var(--jf-line-strong,#c8d2c8);border-radius:9px;background:var(--jf-surface-2,#f8f9f6);color:var(--jf-ink,#1d2a23)}
+.main .jf-route-stage :is(input,select,textarea):focus-visible{outline:3px solid color-mix(in srgb,var(--jf-focus,#287c57) 48%,transparent);outline-offset:2px}
+.main .jf-route-stage :is(button,[role="button"]){border-radius:9px;transition:background-color .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease,transform .16s ease}
+.main .jf-route-stage :is(button,[role="button"]):disabled{cursor:not-allowed;opacity:.55;transform:none!important}
+.main .jf-route-stage :is(table,.table-wrap,.table-container,.data-table-wrap){max-width:100%}
+.main .jf-route-stage :is(.table-wrap,.table-container,.data-table-wrap){overflow-x:auto;overscroll-behavior-inline:contain;border:1px solid var(--jf-line,#dce2da);border-radius:11px;background:var(--jf-surface,#fff)}
+.main .jf-route-stage :is(th,td){border-color:var(--jf-line,#dce2da)}
+.main .jf-route-stage :is(.empty-state,.empty-message,.shared-empty-state,.managed-empty,.members-empty,.visitors-empty,.reports-empty){color:var(--jf-muted,#657168)}
+.main .jf-route-stage :is(.error,.form-error,.members-error,.shared-error){border-color:color-mix(in srgb,var(--jf-danger,#a83d3d) 35%,var(--jf-line));background:var(--jf-danger-soft,#f8e9e8);color:var(--jf-danger,#a83d3d)}
+.main .jf-route-stage :is(.success,.form-success,.shared-success){border-color:color-mix(in srgb,var(--jf-success,#24734e) 35%,var(--jf-line));background:var(--jf-success-soft,#e7f2eb);color:var(--jf-success,#24734e)}
+:root[data-theme="dark"] .main .jf-route-stage :is(.table-wrap,.table-container,.data-table-wrap){border-color:var(--jf-line,#34463a);background:var(--jf-surface,#19251e)}
+@media(max-width:760px){.main .jf-route-stage :is(.shared-page-header,.page-header,.module-header){align-items:flex-start;flex-direction:column}.main .jf-route-stage :is(.shared-page-header-action,.page-header-action){width:100%}}
+@media(prefers-reduced-motion:reduce){.main .jf-route-stage :is(button,[role="button"]){transition:none}}

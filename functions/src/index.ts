@@ -3510,6 +3510,17 @@ export const saveMeetingAttendance = onCall(async (request) => {
   }
 
   const validStatuses = ["Presente", "Tarde", "Falta", "Justificada", "Ausente"];
+  const meetingRef = db.collection("attendanceMeetings").doc(meetingId);
+  const meetingSnapshot = await meetingRef.get();
+  const previousParticipants = meetingSnapshot.exists && Array.isArray(meetingSnapshot.data()?.participants)
+    ? meetingSnapshot.data()!.participants as Array<Record<string, unknown>>
+    : [];
+  const previousById = new Map<string, Record<string, unknown>>();
+  previousParticipants.forEach((item) => {
+    const id = text(item.memberId, 150);
+    if (id) previousById.set(id, item);
+  });
+
   const refs = participantIds.map((id) => db.collection("members").doc(id));
   const memberSnapshots = refs.length ? await db.getAll(...refs) : [];
   const participants = rawParticipants.map((item, index) => {
@@ -3523,25 +3534,59 @@ export const saveMeetingAttendance = onCall(async (request) => {
       throw new HttpsError("invalid-argument", "Uno de los estados de asistencia no es válido.");
     }
     if (!memberSnapshot?.exists) {
-      throw new HttpsError("not-found", "Uno de los jóvenes ya no existe en la colección members.");
+      const previous = previousById.get(participantIds[index]);
+      const previousStatus = text(previous?.status, 20);
+      const normalizedPreviousStatus = previousStatus === "Justificado" ? "Justificada" : previousStatus;
+      if (!previous || !validStatuses.includes(normalizedPreviousStatus)) {
+        throw new HttpsError("not-found", "Uno de los jóvenes ya no existe en la colección members.");
+      }
+      return {
+        memberId: participantIds[index],
+        name: text(previous.name, 120) || "Joven sin nombre",
+        status,
+      };
     }
     const name = text(memberSnapshot.data()?.name, 120) || "Joven sin nombre";
     return {memberId: participantIds[index], name, status};
   });
 
-  const meetingRef = db.collection("attendanceMeetings").doc(meetingId);
-  const meetingSnapshot = await meetingRef.get();
-
   if (meetingSnapshot.exists) {
-    await meetingRef.update({
-      participants,
-      updatedAt: new Date().toISOString(),
-      updatedBy: request.auth.uid,
+    await db.runTransaction(async (transaction) => {
+      const currentMeeting = await transaction.get(meetingRef);
+      if (!currentMeeting.exists) {
+        throw new HttpsError("not-found", "La reunión ya no existe.");
+      }
+      const mergedParticipants = new Map(
+        participants.map((participant) => [participant.memberId, participant]),
+      );
+      const existingParticipants = Array.isArray(currentMeeting.data()?.participants)
+        ? currentMeeting.data()!.participants as Array<Record<string, unknown>>
+        : [];
+      // No borrar asistentes históricos que ya no figuran en el directorio activo.
+      // El panel no ofrece una acción explícita para eliminar asistentes.
+      existingParticipants.forEach((item) => {
+        const memberId = text(item.memberId, 150);
+        const status = text(item.status, 20);
+        const normalizedStatus = status === "Justificado" ? "Justificada" : status;
+        if (!memberId || mergedParticipants.has(memberId) || !validStatuses.includes(normalizedStatus)) return;
+        mergedParticipants.set(memberId, {
+          memberId,
+          name: text(item.name, 120) || "Joven sin nombre",
+          status: normalizedStatus,
+        });
+      });
+      if (mergedParticipants.size > 1000) {
+        throw new HttpsError("resource-exhausted", "La reunión contiene demasiados registros para actualizarse de forma segura.");
+      }
+      transaction.update(meetingRef, {
+        participants: [...mergedParticipants.values()],
+        updatedAt: new Date().toISOString(),
+        updatedBy: request.auth!.uid,
+      });
     });
   } else {
-    // Los eventos históricos usan IDs con formato YYYY-MM-DD_codigo
-    // y guardan los estados en attendance/{id}.r. No deben tratarse
-    // como reuniones nuevas de attendanceMeetings.
+    // Los eventos históricos usan IDs con formato YYYY-MM-DD_codigo.
+    // Conservan los registros anteriores y actualizan solo los IDs enviados.
     const legacyIdMatch = /^(\d{4}-\d{2}-\d{2})_(dis|mie|vie|ayj|ayc|esc|otr|gen)$/.exec(meetingId);
     if (!legacyIdMatch || !isValidDate(legacyIdMatch[1])) {
       throw new HttpsError("not-found", "No se encontró el evento seleccionado.");
@@ -3582,6 +3627,7 @@ export const saveMeetingAttendance = onCall(async (request) => {
       });
     });
   }
+
   await recordAudit("attendance.saved", request.auth.uid, meetingId, {participants: participants.length});
   return {success: true};
 });

@@ -37,6 +37,7 @@ export default function AttendancePage() {
 
   const [selectedMeetingId, setSelectedMeetingId] = useState('');
   const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>({});
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [memberSearch, setMemberSearch] = useState('');
 
   const [loading, setLoading] = useState(true);
@@ -101,7 +102,16 @@ export default function AttendancePage() {
       saved[participant.memberId] = participant.status;
     });
     setAttendance(saved);
+    setHasUnsavedChanges(false);
   }, [selectedMeeting]);
+
+  function handleMeetingSelection(nextMeetingId: string) {
+    if (nextMeetingId === selectedMeetingId) return;
+    if (hasUnsavedChanges && !window.confirm('Tienes cambios de asistencia sin guardar. ¿Quieres descartarlos y cambiar de reunión?')) return;
+    setSelectedMeetingId(nextMeetingId);
+    setMessage('');
+    setError('');
+  }
 
   async function handleCreateMeeting(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -128,11 +138,20 @@ export default function AttendancePage() {
 
   function handleStatusChange(memberId: string, status: AttendanceStatus) {
     setAttendance((previous) => ({...previous, [memberId]: status}));
+    setHasUnsavedChanges(true);
+    setError('');
+    setMessage('');
   }
 
   async function handleSaveAttendance() {
     if (!selectedMeeting) {
       setError('Selecciona una reunión primero.');
+      return;
+    }
+
+    const unregistered = members.filter((member) => !attendance[member.id]);
+    if (unregistered.length > 0) {
+      setError(`Hay ${unregistered.length} jóvenes sin estado. Marca cada uno o utiliza una acción rápida antes de guardar.`);
       return;
     }
 
@@ -143,11 +162,12 @@ export default function AttendancePage() {
       const participants: AttendanceParticipant[] = members.map((member) => ({
         memberId: member.id,
         name: String(member.name ?? 'Sin nombre'),
-        status: attendance[member.id] ?? 'Ausente',
+        status: attendance[member.id] as AttendanceStatus,
       }));
-
+      // El backend conserva los registros históricos omitidos del directorio activo.
       await saveMeetingAttendance(selectedMeeting.id, participants);
       if (!mountedRef.current) return;
+      setHasUnsavedChanges(false);
       await loadData(selectedMeeting.id, false);
       if (mountedRef.current) setMessage('Asistencia guardada correctamente.');
     } catch (cause) {
@@ -172,16 +192,20 @@ export default function AttendancePage() {
       ...current,
       ...Object.fromEntries(members.map((member) => [member.id, status])),
     }));
+    setHasUnsavedChanges(true);
+    setError('');
+    setMessage('');
   }
 
   const attendanceCounts = useMemo(() => members.reduce((counts, member) => {
-    const status = attendance[member.id] ?? 'Ausente';
-    if (status === 'Presente') counts.present += 1;
+    const status = attendance[member.id];
+    if (!status) counts.unregistered += 1;
+    else if (status === 'Presente') counts.present += 1;
     else if (status === 'Tarde') counts.late += 1;
     else if (status === 'Justificada') counts.justified += 1;
-    else counts.absent += 1;
+    else if (status === 'Falta' || status === 'Ausente') counts.absent += 1;
     return counts;
-  }, {present: 0, late: 0, absent: 0, justified: 0}), [members, attendance]);
+  }, {present: 0, late: 0, absent: 0, justified: 0, unregistered: 0}), [members, attendance]);
 
   return (
     <main className={`${styles.scope} attendance-page`}>
@@ -190,7 +214,10 @@ export default function AttendancePage() {
           <h1>Control de asistencia</h1>
           <p>Registra y administra la asistencia de los jóvenes.</p>
         </div>
-        <button type="button" className="attendance-refresh" onClick={() => void loadData(selectedMeetingId)} disabled={loading || saving}>
+        <button type="button" className="attendance-refresh" onClick={() => {
+          if (hasUnsavedChanges && !window.confirm('Tienes cambios de asistencia sin guardar. ¿Quieres descartarlos y actualizar?')) return;
+          void loadData(selectedMeetingId);
+        }} disabled={loading || saving}>
           <RefreshCw size={16}/> Actualizar
         </button>
       </header>
@@ -233,7 +260,7 @@ export default function AttendancePage() {
         ) : meetings.length === 0 ? (
           <p>No hay reuniones nuevas registradas todavía.</p>
         ) : (
-          <select value={selectedMeetingId} onChange={(event) => setSelectedMeetingId(event.target.value)}>
+          <select value={selectedMeetingId} onChange={(event) => handleMeetingSelection(event.target.value)} disabled={saving}>
             {meetings.map((meeting) => (
               <option key={meeting.id} value={meeting.id}>
                 {meeting.name} - {meeting.date}
@@ -244,11 +271,12 @@ export default function AttendancePage() {
       </section>
 
       {selectedMeeting && (
-        <section className="attendance-summary">
-          <div className="attendance-card"><h3>Presentes</h3><strong>{attendanceCounts.present}</strong></div>
-          <div className="attendance-card"><h3>Llegadas tarde</h3><strong>{attendanceCounts.late}</strong></div>
-          <div className="attendance-card"><h3>Ausentes</h3><strong>{attendanceCounts.absent}</strong></div>
-          <div className="attendance-card"><h3>Justificados</h3><strong>{attendanceCounts.justified}</strong></div>
+        <section className="attendance-summary" aria-label="Resumen de asistencia">
+          <div className="attendance-card attendance-count-card" data-tone="present"><h3>Presentes</h3><strong>{attendanceCounts.present}</strong></div>
+          <div className="attendance-card attendance-count-card" data-tone="late"><h3>Llegadas tarde</h3><strong>{attendanceCounts.late}</strong></div>
+          <div className="attendance-card attendance-count-card" data-tone="absent"><h3>Faltas y ausencias</h3><strong>{attendanceCounts.absent}</strong></div>
+          <div className="attendance-card attendance-count-card" data-tone="justified"><h3>Justificados</h3><strong>{attendanceCounts.justified}</strong></div>
+          <div className="attendance-card attendance-count-card" data-tone="pending"><h3>Sin registrar</h3><strong>{attendanceCounts.unregistered}</strong></div>
         </section>
       )}
 
@@ -293,14 +321,16 @@ export default function AttendancePage() {
             ) : (
               <div className="attendance-list">
                 {visibleMembers.map((member) => {
-                  const currentStatus = attendance[member.id] ?? 'Ausente';
+                  const currentStatus = attendance[member.id];
                   return (
                     <article key={member.id} className="attendance-member">
                       <div className="attendance-member-info">
                         <strong>{member.name || 'Joven sin nombre'}</strong>
                         {member.nick && <span>@{member.nick}</span>}
                       </div>
-                      <div className="attendance-status-options" role="group" aria-label={`Estado de asistencia de ${member.name || 'joven'}`}>
+                      <div className="attendance-member-status">
+                        {!currentStatus && <span className="attendance-unmarked">Pendiente · sin registrar</span>}
+                        <div className="attendance-status-options" role="group" aria-label={`Estado de asistencia de ${member.name || 'joven'}`}>
                         {attendanceOptions.map((option) => (
                           <button
                             key={option.value}
@@ -313,13 +343,15 @@ export default function AttendancePage() {
                             {option.label}
                           </button>
                         ))}
+                        </div>
                       </div>
                     </article>
                   );
                 })}
               </div>
             )}
-            <button type="button" onClick={() => void handleSaveAttendance()} disabled={saving || loading || members.length === 0}>
+            {hasUnsavedChanges && <p className="attendance-unsaved-note" role="status">Tienes cambios sin guardar. Los estados pendientes no se convertirán automáticamente en ausencias.</p>}
+            <button type="button" className="attendance-save-button" onClick={() => void handleSaveAttendance()} disabled={saving || loading || members.length === 0}>
               {saving ? 'Guardando asistencia...' : 'Guardar asistencia'}
             </button>
           </>

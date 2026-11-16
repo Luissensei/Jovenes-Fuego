@@ -18,6 +18,7 @@ import './styles/navigation-performance-polish.css';
 import './styles/navigation-modern-blue.css';
 import './styles/brand-blue-refinement.css';
 import './styles/app-quality-accessibility.css';
+import './styles/admin-module-quality.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
