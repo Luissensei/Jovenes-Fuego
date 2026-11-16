@@ -960,7 +960,6 @@ export const verifyYouthProfilePin = onCall(async (request) => {
 
 
 /** Private community feed: every read requires a recent youth PIN session. */
-/** Chat grupal supervisable de la comunidad juvenil. */
 /** Avisos oficiales publicados por el equipo pastoral para todos los jóvenes. */
 export const adminPublishYouthCommunityAnnouncement = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
@@ -1243,7 +1242,7 @@ export const adminListYouthCommunityReports = onCall(async (request) => {
   return {reports: snapshot.docs.map((document) => {
     const data = document.data();
     return {
-      id: document.id, postId: text(data.postId, 150), contentType: text(data.contentType, 20) || "post", reason: text(data.reason, 40),
+      id: document.id, postId: text(data.postId, 150), contentType: "post" as const, reason: text(data.reason, 40),
       details: text(data.details, 500), postAuthor: text(data.postAuthor, 120),
       postContent: text(data.postContent, 2000), createdAt: text(data.createdAt, 40),
     };
@@ -1258,10 +1257,7 @@ export const adminModerateYouthCommunityPost = onCall(async (request) => {
   if (!/^[A-Za-z0-9_-]{10,150}$/.test(postId) || !["hide", "restore"].includes(action)) {
     throw new HttpsError("invalid-argument", "La acción de moderación no es válida.");
   }
-  const contentType = text(request.data?.contentType, 20) || "post";
-  if (!["post", "chat"].includes(contentType)) throw new HttpsError("invalid-argument", "Tipo de contenido no válido.");
-  const contentCollection = contentType === "chat" ? "youthCommunityChat" : "youthCommunityPosts";
-  const postRef = db.collection(contentCollection).doc(postId);
+  const postRef = db.collection("youthCommunityPosts").doc(postId);
   const snapshot = await postRef.get();
   if (!snapshot.exists) throw new HttpsError("not-found", "No se encontró el contenido.");
   await postRef.update({
