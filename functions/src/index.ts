@@ -4004,6 +4004,92 @@ export const sendYouthCommunityDirectMessage = onCall(async (request) => {
   return {success: true, id: messageRef.id};
 });
 
+/** Returns recent messages from a group only to active members. */
+export const getYouthCommunityGroupMessages = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const groupId = text(request.data?.groupId, 150);
+  if (!/^[A-Za-z0-9_-]{10,150}$/.test(groupId)) {
+    throw new HttpsError("invalid-argument", "El grupo no es válido.");
+  }
+  const groupRef = db.collection("youthCommunityGroups").doc(groupId);
+  const membershipRef = groupRef.collection("members").doc(memberId);
+  const [group, membership] = await Promise.all([
+    groupRef.get(), membershipRef.get(),
+  ]);
+  if (!group.exists || group.data()?.status !== "active" ||
+      !membership.exists) {
+    throw new HttpsError(
+      "permission-denied",
+      "Debes pertenecer al grupo para leer sus mensajes.",
+    );
+  }
+  const snapshot = await groupRef.collection("messages")
+    .orderBy("createdAt", "desc").limit(60).get();
+  return {
+    messages: snapshot.docs.map((document) => {
+      const data = document.data();
+      return {
+        id: document.id,
+        senderId: text(data.senderId, 150),
+        author: text(data.author, 120),
+        content: text(data.content, 1000),
+        createdAt: text(data.createdAt, 40),
+      };
+    }).reverse(),
+  };
+});
+
+/** Sends a group message after verifying membership and applying rate limits. */
+export const sendYouthCommunityGroupMessage = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  const author = await getCommunityMember(memberId);
+  const groupId = text(request.data?.groupId, 150);
+  const content = text(request.data?.content, 1000);
+  if (!/^[A-Za-z0-9_-]{10,150}$/.test(groupId) ||
+      content.length < 1) {
+    throw new HttpsError("invalid-argument", "El mensaje no es válido.");
+  }
+  const groupRef = db.collection("youthCommunityGroups").doc(groupId);
+  const membershipRef = groupRef.collection("members").doc(memberId);
+  const rateRef = db.collection("youthCommunityRateLimits").doc(memberId);
+  const messageRef = groupRef.collection("messages").doc();
+  const now = Date.now();
+  await db.runTransaction(async (transaction) => {
+    const [group, membership, rate] = await Promise.all([
+      transaction.get(groupRef),
+      transaction.get(membershipRef),
+      transaction.get(rateRef),
+    ]);
+    if (!group.exists || group.data()?.status !== "active" ||
+        !membership.exists) {
+      throw new HttpsError(
+        "permission-denied",
+        "Debes pertenecer al grupo para escribir.",
+      );
+    }
+    if (now - Number(rate.data()?.lastGroupMessageAt ?? 0) < 1200) {
+      throw new HttpsError(
+        "resource-exhausted",
+        "Espera un momento antes de enviar otro mensaje.",
+      );
+    }
+    transaction.create(messageRef, {
+      senderId: memberId,
+      author: author.name,
+      content,
+      createdAt: new Date(now).toISOString(),
+    });
+    transaction.update(groupRef, {
+      lastMessage: content.slice(0, 120),
+      lastMessageAt: new Date(now).toISOString(),
+    });
+    transaction.set(rateRef, {lastGroupMessageAt: now}, {merge: true});
+  });
+  await recordAudit("youth.community.group.message", memberId, groupId);
+  return {success: true, id: messageRef.id};
+});
+
 export const markYouthCommunityNotificationsRead = onCall(async (request) => {
   const memberId = requireYouthCommunitySession(request.data?.communitySession);
   await getCommunityMember(memberId);
