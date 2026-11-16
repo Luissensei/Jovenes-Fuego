@@ -1,8 +1,8 @@
-import {useCallback,useEffect,useRef,useState} from "react";
-import {BookOpen,Heart,Link2,MessageCircle,Music2,RefreshCw,Send,Sparkles,Users,Quote,Flag,ShieldCheck,Clock3,Bell} from "lucide-react";
+import {useCallback,useEffect,useMemo,useRef,useState} from "react";
+import {BookOpen,Heart,Link2,MessageCircle,Music2,RefreshCw,Send,Sparkles,Users,Quote,Flag,ShieldCheck,Clock3,Bell,UserPlus,UserCheck,Trash2,Search,UsersRound} from "lucide-react";
 import {
-  createYouthCommunityComment,createYouthCommunityPost,getYouthCommunityFeed,getYouthCommunityChat,getYouthCommunityAnnouncements,reportYouthCommunityChatMessage,reportYouthCommunityPost,sendYouthCommunityChatMessage,toggleYouthCommunityReaction,
-  type YouthCommunityPost,type YouthCommunityPostInput,type YouthCommunityChatMessage,type YouthCommunityAnnouncement,
+  createYouthCommunityComment,createYouthCommunityPost,getYouthCommunityFeed,getYouthCommunityChat,getYouthCommunityAnnouncements,reportYouthCommunityChatMessage,reportYouthCommunityPost,sendYouthCommunityChatMessage,toggleYouthCommunityReaction,toggleYouthCommunityFollow,deleteYouthCommunityPost,
+  type YouthCommunityPost,type YouthCommunityPostInput,type YouthCommunityChatMessage,type YouthCommunityAnnouncement,type YouthCommunityFeedMode,
 } from "../../services/youthPortal";
 
 type Props={memberName:string;communitySession:string};
@@ -22,6 +22,11 @@ function formatDate(value:string){
 
 export default function CommunityTab({memberName,communitySession}:Props){
   const [posts,setPosts]=useState<YouthCommunityPost[]>([]);
+  const [feedMode,setFeedMode]=useState<YouthCommunityFeedMode>("all");
+  const [followingIds,setFollowingIds]=useState<string[]>([]);
+  const [followingCount,setFollowingCount]=useState(0);
+  const [followerCount,setFollowerCount]=useState(0);
+  const [feedSearch,setFeedSearch]=useState("");
   const [loading,setLoading]=useState(true);
   const [refreshing,setRefreshing]=useState(false);
   const [error,setError]=useState("");
@@ -47,10 +52,16 @@ export default function CommunityTab({memberName,communitySession}:Props){
   const load=useCallback(async(showRefresh=false)=>{
     if(showRefresh)setRefreshing(true);else setLoading(true);
     setError("");
-    try{setPosts(await getYouthCommunityFeed(communitySession));}
+    try{
+      const result=await getYouthCommunityFeed(communitySession,feedMode);
+      setPosts(result.posts);
+      setFollowingIds(result.followingIds);
+      setFollowingCount(result.followingCount);
+      setFollowerCount(result.followerCount);
+    }
     catch(cause){setError(cause instanceof Error?cause.message:"No se pudo cargar la comunidad.");}
     finally{setLoading(false);setRefreshing(false);}
-  },[communitySession]);
+  },[communitySession,feedMode]);
 
   useEffect(()=>{void load();},[load]);
 
@@ -166,6 +177,42 @@ export default function CommunityTab({memberName,communitySession}:Props){
     finally{setBusyPost("");}
   }
 
+  async function toggleFollow(post:YouthCommunityPost){
+    if(busyPost||post.isMine)return;
+    const actionKey=`follow:${post.memberId}`;
+    setBusyPost(actionKey);
+    try{
+      const followed=await toggleYouthCommunityFollow(communitySession,post.memberId);
+      setFollowingIds(current=>followed
+        ? [...new Set([...current,post.memberId])]
+        : current.filter(id=>id!==post.memberId));
+      setFollowingCount(current=>Math.max(0,current+(followed?1:-1)));
+      setPosts(current=>feedMode==="following"&&!followed
+        ? current.filter(item=>item.memberId!==post.memberId)
+        : current.map(item=>item.memberId===post.memberId?{...item,followingAuthor:followed}:item));
+    }catch(cause){setError(cause instanceof Error?cause.message:"No se pudo actualizar el seguimiento.");}
+    finally{setBusyPost("");}
+  }
+
+  async function removeOwnPost(postId:string){
+    if(busyPost||!window.confirm("¿Quieres retirar esta publicación del muro?"))return;
+    setBusyPost(postId);
+    try{
+      await deleteYouthCommunityPost(communitySession,postId);
+      setPosts(current=>current.filter(post=>post.id!==postId));
+    }catch(cause){setError(cause instanceof Error?cause.message:"No se pudo retirar la publicación.");}
+    finally{setBusyPost("");}
+  }
+
+  const visiblePosts=useMemo(()=>{
+    const term=feedSearch.trim().toLocaleLowerCase("es");
+    if(!term)return posts;
+    return posts.filter(post=>
+      `${post.author} ${post.nickname} ${post.content} ${post.reference}`
+        .toLocaleLowerCase("es").includes(term),
+    );
+  },[posts,feedSearch]);
+
   const activeKind=postKinds.find(item=>item.value===kind)??postKinds[0];
 
   return <div className="youth-tab-page jf-community">
@@ -214,16 +261,37 @@ export default function CommunityTab({memberName,communitySession}:Props){
           </form>
         </section>
 
-        <div className="jf-community-feed-heading"><div><span>EL MURO</span><h3>Lo que compartimos</h3></div><button type="button" onClick={()=>void load(true)} disabled={refreshing} aria-label="Actualizar publicaciones"><RefreshCw size={16} className={refreshing?"is-spinning":""}/></button></div>
+        <div className="jf-community-feed-heading">
+          <div><span>COMUNIDAD JDF</span><h3>El muro de todos</h3></div>
+          <button type="button" onClick={()=>void load(true)} disabled={refreshing} aria-label="Actualizar publicaciones"><RefreshCw size={16} className={refreshing?"is-spinning":""}/></button>
+        </div>
+        <div className="jf-community-social-toolbar">
+          <nav className="jf-community-feed-tabs" aria-label="Vistas del muro">
+            <button type="button" className={feedMode==="all"?"active":""} aria-pressed={feedMode==="all"} onClick={()=>setFeedMode("all")}>Para todos</button>
+            <button type="button" className={feedMode==="following"?"active":""} aria-pressed={feedMode==="following"} onClick={()=>setFeedMode("following")}>Siguiendo <span>{followingCount>=500?"500+":followingCount}</span></button>
+            <button type="button" className={feedMode==="mine"?"active":""} aria-pressed={feedMode==="mine"} onClick={()=>setFeedMode("mine")}>Mis publicaciones</button>
+          </nav>
+          <label className="jf-community-feed-search"><Search size={15} aria-hidden="true"/><input value={feedSearch} onChange={event=>setFeedSearch(event.target.value)} placeholder="Buscar en estas publicaciones..." aria-label="Buscar publicaciones"/></label>
+        </div>
 
         {error&&<div className="jf-community-error" role="alert">{error}<button type="button" onClick={()=>void load(true)}>Reintentar</button></div>}
         {loading&&<div className="jf-community-loading"><span/><span/><span/></div>}
-        {!loading&&!error&&posts.length===0&&<div className="jf-community-empty"><div><Quote size={25}/></div><h3>Este muro comienza contigo</h3><p>Comparte un versículo, una canción o una palabra de ánimo. ¡Sé quien encienda la conversación!</p></div>}
-        {!loading&&posts.map(post=>{
+        {!loading&&!error&&visiblePosts.length===0&&<div className="jf-community-empty"><div><Quote size={25}/></div><h3>{feedSearch.trim()?"No hay coincidencias":feedMode==="following"?(followingCount===0?"Todavía no sigues a nadie":"Aún no hay publicaciones recientes de los perfiles que sigues"):feedMode==="mine"?"Aún no tienes publicaciones":"Este muro comienza contigo"}</h3><p>{feedSearch.trim()?"Prueba con otra palabra.":feedMode==="following"?"Sigue a jóvenes desde sus publicaciones para ver su actividad aquí.":feedMode==="mine"?"Cuando publiques algo, aparecerá en esta sección.":"Comparte un versículo, una canción o una palabra de ánimo."}</p><button type="button" className="jf-community-empty-action" onClick={()=>feedMode==="following"?setFeedMode("all"):document.getElementById("jf-community-message")?.focus()}>{feedMode==="following"?"Explorar el muro":"Crear publicación"}</button></div>}
+        {!loading&&visiblePosts.map(post=>{
           const postKind=postKinds.find(item=>item.value===post.type)??postKinds[0];
           const Icon=postKind.icon;
           return <article className="jf-community-post" key={post.id}>
-            <header className="jf-community-post-head"><span className="jf-community-avatar">{post.author.split(/\s+/).slice(0,2).map(part=>part[0]??"").join("").toUpperCase()}</span><div className="jf-community-author"><b>{post.author}</b>{post.nickname&&<small>@{post.nickname}</small>}<time>{formatDate(post.createdAt)}</time></div><span className="jf-community-post-kind"><Icon size={13}/>{postKind.label}</span><button type="button" className="jf-community-report" onClick={()=>void report(post.id)} disabled={busyPost===post.id||reportedPosts.includes(post.id)} aria-label="Reportar publicación" title={reportedPosts.includes(post.id)?"Reporte enviado":"Reportar publicación"}><Flag size={14}/>{reportedPosts.includes(post.id)?"Reportado":"Reportar"}</button></header>
+            <header className="jf-community-post-head">
+              <span className="jf-community-avatar">{post.author.split(/\s+/).slice(0,2).map(part=>part[0]??"").join("").toUpperCase()}</span>
+              <div className="jf-community-author"><b>{post.author}</b>{post.nickname&&<small>@{post.nickname}</small>}<time>{formatDate(post.createdAt)}</time></div>
+              <span className="jf-community-post-kind"><Icon size={13}/>{postKind.label}</span>
+              <div className="jf-community-post-menu">
+                {post.isMine
+                  ? <button type="button" className="jf-community-own-post-action" onClick={()=>void removeOwnPost(post.id)} disabled={busyPost===post.id} title="Retirar mi publicación"><Trash2 size={14}/> Retirar</button>
+                  : <button type="button" className="jf-community-follow-action" onClick={()=>void toggleFollow(post)} disabled={Boolean(busyPost)} aria-pressed={followingIds.includes(post.memberId) || post.followingAuthor}>{(followingIds.includes(post.memberId) || post.followingAuthor)?<UserCheck size={14}/>:<UserPlus size={14}/>} {(followingIds.includes(post.memberId) || post.followingAuthor)?"Siguiendo":"Seguir"}</button>}
+                <button type="button" className="jf-community-report" onClick={()=>void report(post.id)} disabled={busyPost===post.id||reportedPosts.includes(post.id)} aria-label="Reportar publicación" title={reportedPosts.includes(post.id)?"Reporte enviado":"Reportar publicación"}><Flag size={14}/>{reportedPosts.includes(post.id)?"Reportado":"Reportar"}</button>
+              </div>
+            </header>
             {post.type==="verse"&&post.reference&&<div className="jf-community-verse-ref"><BookOpen size={15}/>{post.reference}</div>}
             <p className="jf-community-post-content">{post.content}</p>
             {post.type==="song"&&post.linkUrl&&<a className="jf-community-song-link" href={post.linkUrl} target="_blank" rel="noreferrer"><Music2 size={16}/> Escuchar canción <Link2 size={14}/></a>}
@@ -234,6 +302,12 @@ export default function CommunityTab({memberName,communitySession}:Props){
         })}
       </div>
       <aside className="jf-community-sidebar">
+        <section className="jf-community-network-card">
+          <span className="jf-community-side-icon"><UsersRound size={18}/></span>
+          <small>MI RED</small>
+          <div><strong>{followingCount>=500?"500+":followingCount}</strong><span>Siguiendo</span><strong>{followerCount>=500?"500+":followerCount}</strong><span>Seguidores</span></div>
+          <p>Conecta con jóvenes, comparte y acompáñense en la fe.</p>
+        </section>
         <section><span className="jf-community-side-icon"><BookOpen size={18}/></span><small>PALABRA PARA HOY</small><h3>“Anímense y edifíquense unos a otros.”</h3><p>1 Tesalonicenses 5:11</p></section>
         <section className="jf-community-guidelines"><b>Hagamos de este un buen lugar</b><ul><li>Habla con respeto y amor.</li><li>Comparte contenido que edifique.</li><li>Cuida la privacidad de los demás.</li><li>Si algo te incomoda, comunícalo a un líder.</li></ul></section>
       </aside>

@@ -12,11 +12,19 @@ export type YouthCommunitySession = {profile: PublicProfile; communitySession: s
 export async function activateYouthProfilePin(memberId:string,activationPin:string,newPin:string):Promise<YouthCommunitySession>{return youthPinCall<{memberId:string;activationPin:string;newPin:string},YouthCommunitySession>("activateYouthProfilePin",{memberId,activationPin,newPin});}
 export async function verifyYouthProfilePin(memberId:string,pin:string):Promise<YouthCommunitySession>{return youthPinCall<{memberId:string;pin:string},YouthCommunitySession>("verifyYouthProfilePin",{memberId,pin});}
 
+export type YouthCommunityFeedMode = "all" | "following" | "mine";
+export type YouthCommunityFeedResponse = {
+  posts: YouthCommunityPost[];
+  followingIds: string[];
+  followingCount: number;
+  followerCount: number;
+};
 export type YouthCommunityComment = {id:string;memberId:string;author:string;content:string;createdAt:string};
 export type YouthCommunityPost = {
   id:string;memberId:string;author:string;nickname:string;
   type:"text"|"verse"|"song"|"testimony";content:string;reference:string;linkUrl:string;
   createdAt:string;reactionCount:number;commentCount:number;reactedByMe:boolean;
+  followingAuthor:boolean;isMine:boolean;
   recentComments:YouthCommunityComment[];
 };
 export type YouthCommunityPostInput = {
@@ -78,9 +86,35 @@ export async function sendYouthCommunityChatMessage(communitySession:string,cont
   );
   if(!result.success)throw new Error("No se pudo enviar el mensaje.");
 }
-export async function getYouthCommunityFeed(communitySession:string):Promise<YouthCommunityPost[]> {
-  const result=await youthPinCall<{communitySession:string},{posts:YouthCommunityPost[]}>("getYouthCommunityFeed",{communitySession});
-  return Array.isArray(result.posts)?result.posts:[];
+export async function getYouthCommunityFeed(
+  communitySession:string,
+  mode:YouthCommunityFeedMode="all",
+):Promise<YouthCommunityFeedResponse> {
+  const result=await youthPinCall<
+    {communitySession:string;mode:YouthCommunityFeedMode},
+    YouthCommunityFeedResponse
+  >("getYouthCommunityFeed",{communitySession,mode});
+  return {
+    posts:Array.isArray(result.posts)?result.posts:[],
+    followingIds:Array.isArray(result.followingIds)?result.followingIds:[],
+    followingCount:Number(result.followingCount??0),
+    followerCount:Number(result.followerCount??0),
+  };
+}
+export async function toggleYouthCommunityFollow(communitySession:string,targetMemberId:string):Promise<boolean>{
+  const result=await youthPinCall<
+    {communitySession:string;targetMemberId:string},
+    {success:boolean;followed:boolean}
+  >("toggleYouthCommunityFollow",{communitySession,targetMemberId});
+  if(!result.success)throw new Error("No se pudo actualizar el seguimiento.");
+  return result.followed;
+}
+export async function deleteYouthCommunityPost(communitySession:string,postId:string):Promise<void>{
+  const result=await youthPinCall<
+    {communitySession:string;postId:string},
+    {success:boolean}
+  >("deleteYouthCommunityPost",{communitySession,postId});
+  if(!result.success)throw new Error("No se pudo retirar la publicación.");
 }
 export async function createYouthCommunityPost(communitySession:string,input:YouthCommunityPostInput):Promise<void> {
   const result=await youthPinCall<{communitySession:string}&YouthCommunityPostInput,{success:boolean}>("createYouthCommunityPost",{communitySession,...input});
