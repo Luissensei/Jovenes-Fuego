@@ -1397,15 +1397,6 @@ export default function YouthPortalPage() {
                   if (item.id === 'activities') void loadActivities();
                   if (item.id === 'ranking') void loadRanking();
                 }}
-                onTouchStart={() => {
-                  const connection = (navigator as Navigator & {connection?: {saveData?: boolean}}).connection;
-                  if (!connection?.saveData) {
-                    if (item.id === 'activities') void import('./portal/ActivitiesTab');
-                    if (item.id === 'games') void import('./portal/GamesTab');
-                  }
-                  if (item.id === 'activities') void loadActivities();
-                  if (item.id === 'ranking') void loadRanking();
-                }}
                 onClick={() => {setActiveYouthSection(item.id);if(item.id !== 'space') setEditingLook(false);}}
               >
                 <Icon size={20} strokeWidth={2}/>
