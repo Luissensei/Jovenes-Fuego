@@ -3849,7 +3849,9 @@ export const getYouthSocialHub = onCall(async (request) => {
   const membershipRefs = groups.map((group) => db.collection("youthCommunityGroups").doc(group.id)
     .collection("members").doc(memberId));
   const memberships = await Promise.all(membershipRefs.map((ref) => ref.get()));
-  memberships.forEach((membership, index) => { groups[index].joined = membership.exists; });
+  memberships.forEach((membership, index) => {
+    groups[index].joined = membership.exists;
+  });
   const notifications = notificationsSnapshot.docs.map((item) => {
     const data = item.data();
     return {
