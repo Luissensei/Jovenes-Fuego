@@ -18,7 +18,7 @@ export default function CommunityModerationPage(){
   useEffect(()=>{void load();},[load]);
   async function moderate(report:AdminYouthCommunityReport,action:"hide"|"restore"){
     setBusy(report.id);setError("");
-    try{await moderateYouthCommunityPost(report.postId,action,report.contentType);await load();}
+    try{await moderateYouthCommunityPost(report.postId,action);await load();}
     catch(cause){setError(cause instanceof Error?cause.message:"No se pudo completar la moderación.");}
     finally{setBusy("");}
   }
@@ -31,7 +31,7 @@ export default function CommunityModerationPage(){
     {loading?<p>Consultando reportes...</p>:reports.length===0?<div className="notice"><ShieldCheck size={20}/><div><strong>Todo al día</strong><p>No hay reportes pendientes por revisar.</p></div></div>:<div className="jf-moderation-list">
       {reports.map(report=><article className="jf-moderation-card" key={report.id}>
         <header><span><Flag size={15}/>{reasonLabels[report.reason]??"Reporte"}</span><small><Clock3 size={13}/>{new Date(report.createdAt).toLocaleString("es-CO")}</small></header>
-        <p className="jf-moderation-author">{report.contentType==="chat"?"Mensaje del chat de":"Publicación de"} <strong>{report.postAuthor||"Joven"}</strong></p>
+        <p className="jf-moderation-author">Publicación de <strong>{report.postAuthor||"Joven"}</strong></p>
         <blockquote>{report.postContent}</blockquote>
         {report.details&&<p className="jf-moderation-details"><b>Detalle:</b> {report.details}</p>}
         <div className="jf-moderation-actions"><button type="button" onClick={()=>void moderate(report,"hide")} disabled={busy===report.id}><EyeOff size={15}/> Ocultar publicación</button><button type="button" className="secondary" onClick={()=>void moderate(report,"restore")} disabled={busy===report.id}><Undo2 size={15}/> Mantener y cerrar reporte</button></div>
