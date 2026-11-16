@@ -4032,6 +4032,7 @@ export const getYouthCommunityGroupMessages = onCall(async (request) => {
       return {
         id: document.id,
         senderId: text(data.senderId, 150),
+        isMine: text(data.senderId, 150) === memberId,
         author: text(data.author, 120),
         content: text(data.content, 1000),
         createdAt: text(data.createdAt, 40),
