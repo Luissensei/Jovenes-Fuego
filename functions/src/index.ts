@@ -3648,9 +3648,6 @@ export const saveMeetingAttendance = onCall(async (request) => {
 
 
 // Helpers de privacidad y notificaciones para las funciones básicas de comunidad.
-function socialPairId(left: string, right: string): string {
-  return [left, right].sort().map((value) => Buffer.from(value).toString("base64url")).join(".");
-}
 function socialDirectedId(left: string, right: string): string {
   return `${Buffer.from(left).toString("base64url")}.${Buffer.from(right).toString("base64url")}`;
 }
