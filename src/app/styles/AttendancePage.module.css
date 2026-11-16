@@ -78,3 +78,50 @@
 @media(max-width:650px){.scope:global(.attendance-page){gap:14px}.scope :global(.attendance-header){align-items:flex-start;flex-direction:column}.scope :global(.attendance-refresh){width:100%}.scope :global(.attendance-summary){grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.scope :global(.attendance-count-card){min-height:82px;padding:13px}.scope :global(.attendance-count-card) strong{font-size:23px}.scope :global(.attendance-card) form{grid-template-columns:minmax(0,1fr)}.scope :global(.attendance-card) form>button{width:100%}.scope :global(.attendance-status-options){grid-template-columns:repeat(3,minmax(0,1fr))}.scope :global(.attendance-save-button){width:100%}}
 @media(max-width:390px){.scope :global(.attendance-status-options){grid-template-columns:repeat(2,minmax(0,1fr))}.scope :global(.attendance-summary){grid-template-columns:minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.scope :global(.attendance-member),.scope :global(.attendance-status-button),.scope :global(.attendance-card) button{transition:none}.scope :global(.attendance-member):hover,.scope :global(.attendance-card) button:hover{transform:none}}
+
+/* Status controls: keep selected state unmistakable in either theme. */
+.scope :global(.attendance-member) :global(.attendance-status-button)[data-selected="true"] {
+  border: 2px solid var(--status-tone) !important;
+  background: var(--status-tone) !important;
+  color: #fff !important;
+  font-weight: 850;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--status-tone) 18%, transparent),
+    0 4px 12px color-mix(in srgb, var(--status-tone) 24%, transparent);
+}
+.scope :global(.attendance-member) :global(.attendance-status-button)[data-selected="false"] {
+  opacity: .88;
+  background: color-mix(in srgb, var(--status-tone) 7%, var(--jf-surface)) !important;
+}
+.scope :global(.attendance-clear-button) {
+  justify-self: start;
+  min-height: 30px !important;
+  padding: 5px 9px !important;
+  border: 1px dashed var(--jf-line-strong, #c8d2c8) !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  color: var(--jf-muted, #657168) !important;
+  font-size: 10px !important;
+  box-shadow: none !important;
+}
+.scope :global(.attendance-clear-button)[aria-pressed="true"] {
+  border-style: solid !important;
+  border-color: var(--jf-warning, #94621c) !important;
+  background: var(--jf-warning-soft, #f7efdf) !important;
+  color: var(--jf-warning, #94621c) !important;
+}
+.scope :global(.attendance-clear-button):disabled {
+  opacity: .75 !important;
+  cursor: default !important;
+}
+:global(:root[data-theme="dark"]) .scope :global(.attendance-clear-button) {
+  border-color: #526052 !important;
+  color: #c1cec2 !important;
+}
+:global(:root[data-theme="dark"]) .scope :global(.attendance-clear-button)[aria-pressed="true"] {
+  background: rgba(233, 194, 125, .14) !important;
+  color: #f0cb86 !important;
+}
+.scope :global(#attendance-meeting) {
+  min-height: 48px;
+  font-weight: 650;
+}

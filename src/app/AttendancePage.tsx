@@ -36,8 +36,9 @@ export default function AttendancePage() {
   const [meetingDate, setMeetingDate] = useState(localDateInput);
 
   const [selectedMeetingId, setSelectedMeetingId] = useState('');
-  const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>({});
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [attendanceDrafts, setAttendanceDrafts] = useState<
+    Record<string, Record<string, AttendanceStatus | null>>
+  >({});
   const [memberSearch, setMemberSearch] = useState('');
 
   const [loading, setLoading] = useState(true);
@@ -48,20 +49,36 @@ export default function AttendancePage() {
   const mountedRef = useRef(false);
   const loadSequenceRef = useRef(0);
 
-  const loadData = useCallback(async (preferredMeetingId?: string, reloadMembers = true) => {
+  const loadData = useCallback(async (
+    preferredMeetingId?: string,
+    reloadMembers = true,
+    forceRefresh = false,
+  ) => {
     const sequence = ++loadSequenceRef.current;
     if (mountedRef.current) {
       setLoading(true);
       setError('');
     }
     try {
-      const [meetingRows, memberRows] = await Promise.all([
-        listAttendanceMeetings(),
+      const [meetingResult, memberResult] = await Promise.allSettled([
+        listAttendanceMeetings('attendance', forceRefresh),
         reloadMembers ? getMembersForAdministration('attendance') : Promise.resolve(null),
       ]);
       if (!mountedRef.current || sequence !== loadSequenceRef.current) return;
+      if (meetingResult.status === 'rejected') throw meetingResult.reason;
+
+      const meetingRows = meetingResult.value;
       setMeetings(meetingRows);
-      if (memberRows) setMembers(memberRows);
+      if (memberResult.status === 'fulfilled') {
+        if (memberResult.value) setMembers(memberResult.value);
+      } else {
+        setError(
+          memberResult.reason instanceof Error
+            ? `Las reuniones se cargaron, pero no se pudo consultar el directorio: ${memberResult.reason.message}`
+            : 'Las reuniones se cargaron, pero no se pudo consultar el directorio de jóvenes.',
+        );
+      }
+
       setSelectedMeetingId((current) => {
         const target = preferredMeetingId || current;
         return target && meetingRows.some((meeting) => meeting.id === target)
@@ -70,7 +87,7 @@ export default function AttendancePage() {
       });
     } catch (cause) {
       if (mountedRef.current && sequence === loadSequenceRef.current) {
-        setError(cause instanceof Error ? cause.message : 'No se pudo cargar la asistencia.');
+        setError(cause instanceof Error ? cause.message : 'No se pudo cargar la lista de reuniones.');
       }
     } finally {
       if (mountedRef.current && sequence === loadSequenceRef.current) setLoading(false);
@@ -91,30 +108,87 @@ export default function AttendancePage() {
     [meetings, selectedMeetingId],
   );
 
-  useEffect(() => {
-    if (!selectedMeeting) {
-      setAttendance({});
-      return;
-    }
-
+  const savedAttendance = useMemo<Record<string, AttendanceStatus>>(() => {
     const saved: Record<string, AttendanceStatus> = {};
-    selectedMeeting.participants.forEach((participant) => {
+    selectedMeeting?.participants.forEach((participant) => {
       saved[participant.memberId] = participant.status;
     });
-    setAttendance(saved);
-    setHasUnsavedChanges(false);
+    return saved;
   }, [selectedMeeting]);
+
+  const attendanceDraft = selectedMeetingId ? attendanceDrafts[selectedMeetingId] : undefined;
+  const attendance = useMemo<Record<string, AttendanceStatus>>(() => {
+    const current = {...savedAttendance};
+    Object.entries(attendanceDraft ?? {}).forEach(([memberId, status]) => {
+      if (status) current[memberId] = status;
+      else delete current[memberId];
+    });
+    return current;
+  }, [savedAttendance, attendanceDraft]);
+
+  const hasUnsavedChanges = useMemo(() => {
+    const ids = new Set([...Object.keys(savedAttendance), ...Object.keys(attendance)]);
+    return [...ids].some((memberId) => savedAttendance[memberId] !== attendance[memberId]);
+  }, [savedAttendance, attendance]);
+
+  const sortedMeetings = useMemo(
+    () => [...meetings].sort((left, right) =>
+      right.date.localeCompare(left.date) || left.name.localeCompare(right.name, 'es'),
+    ),
+    [meetings],
+  );
+
+  function clearAttendanceDraft(meetingId: string) {
+    if (!meetingId) return;
+    setAttendanceDrafts((previous) => {
+      if (!previous[meetingId]) return previous;
+      const next = {...previous};
+      delete next[meetingId];
+      return next;
+    });
+  }
+
+  function formatMeetingDate(value: string) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (!match) return value;
+    return new Date(`${value}T12:00:00`).toLocaleDateString('es-CO', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  }
+
+  function updateMeetingDraft(memberId: string, status: AttendanceStatus | null) {
+    if (!selectedMeetingId) return;
+    setAttendanceDrafts((previous) => ({
+      ...previous,
+      [selectedMeetingId]: {
+        ...(previous[selectedMeetingId] ?? attendance),
+        [memberId]: status,
+      },
+    }));
+    setError('');
+    setMessage('');
+  }
 
   function handleMeetingSelection(nextMeetingId: string) {
     if (nextMeetingId === selectedMeetingId) return;
-    if (hasUnsavedChanges && !window.confirm('Tienes cambios de asistencia sin guardar. ¿Quieres descartarlos y cambiar de reunión?')) return;
+    if (hasUnsavedChanges && !window.confirm(
+      'Hay marcas sin guardar en esta reunión. ¿Quieres descartarlas y abrir la reunión seleccionada?',
+    )) return;
+    clearAttendanceDraft(selectedMeetingId);
     setSelectedMeetingId(nextMeetingId);
+    setMemberSearch('');
     setMessage('');
     setError('');
   }
 
   async function handleCreateMeeting(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (hasUnsavedChanges && !window.confirm(
+      'Hay marcas de asistencia sin guardar. ¿Quieres descartarlas y crear otra reunión?',
+    )) return;
+    clearAttendanceDraft(selectedMeetingId);
     setError('');
     setMessage('');
     setSaving(true);
@@ -125,7 +199,7 @@ export default function AttendancePage() {
       });
       if (!mountedRef.current) return;
       setMeetingName('');
-      await loadData(result.meetingId, false);
+      await loadData(result.meetingId, false, true);
       if (mountedRef.current) setMessage('Reunión creada correctamente.');
     } catch (cause) {
       if (mountedRef.current) {
@@ -137,10 +211,11 @@ export default function AttendancePage() {
   }
 
   function handleStatusChange(memberId: string, status: AttendanceStatus) {
-    setAttendance((previous) => ({...previous, [memberId]: status}));
-    setHasUnsavedChanges(true);
-    setError('');
-    setMessage('');
+    updateMeetingDraft(memberId, status);
+  }
+
+  function handleClearStatus(memberId: string) {
+    updateMeetingDraft(memberId, null);
   }
 
   async function handleSaveAttendance() {
@@ -164,11 +239,18 @@ export default function AttendancePage() {
         name: String(member.name ?? 'Sin nombre'),
         status: attendance[member.id] as AttendanceStatus,
       }));
-      // El backend conserva los registros históricos omitidos del directorio activo.
       await saveMeetingAttendance(selectedMeeting.id, participants);
       if (!mountedRef.current) return;
-      setHasUnsavedChanges(false);
-      await loadData(selectedMeeting.id, false);
+
+      // Mantener la selección visible tras guardar y basarla en lo recién enviado.
+      const submittedDraft = Object.fromEntries(
+        participants.map((participant) => [participant.memberId, participant.status]),
+      );
+      setAttendanceDrafts((previous) => ({
+        ...previous,
+        [selectedMeeting.id]: submittedDraft,
+      }));
+      await loadData(selectedMeeting.id, false, true);
       if (mountedRef.current) setMessage('Asistencia guardada correctamente.');
     } catch (cause) {
       if (mountedRef.current) {
@@ -188,11 +270,17 @@ export default function AttendancePage() {
   }, [members, memberSearch]);
 
   function setAllAttendance(status: AttendanceStatus) {
-    setAttendance((current) => ({
-      ...current,
-      ...Object.fromEntries(members.map((member) => [member.id, status])),
+    if (!selectedMeetingId || visibleMembers.length === 0) return;
+    if (status === 'Ausente' && !window.confirm(
+      `¿Confirmas marcar como ausentes a los ${visibleMembers.length} jóvenes visibles en la lista?`,
+    )) return;
+    setAttendanceDrafts((previous) => ({
+      ...previous,
+      [selectedMeetingId]: {
+        ...(previous[selectedMeetingId] ?? attendance),
+        ...Object.fromEntries(visibleMembers.map((member) => [member.id, status])),
+      },
     }));
-    setHasUnsavedChanges(true);
     setError('');
     setMessage('');
   }
@@ -215,8 +303,11 @@ export default function AttendancePage() {
           <p>Registra y administra la asistencia de los jóvenes.</p>
         </div>
         <button type="button" className="attendance-refresh" onClick={() => {
-          if (hasUnsavedChanges && !window.confirm('Tienes cambios de asistencia sin guardar. ¿Quieres descartarlos y actualizar?')) return;
-          void loadData(selectedMeetingId);
+          if (hasUnsavedChanges && !window.confirm(
+            'Hay marcas sin guardar. ¿Quieres descartarlas y volver a consultar los datos del servidor?',
+          )) return;
+          clearAttendanceDraft(selectedMeetingId);
+          void loadData(selectedMeetingId, true, true);
         }} disabled={loading || saving}>
           <RefreshCw size={16}/> Actualizar
         </button>
@@ -258,12 +349,19 @@ export default function AttendancePage() {
         {loading ? (
           <p>Consultando reuniones y jóvenes...</p>
         ) : meetings.length === 0 ? (
-          <p>No hay reuniones nuevas registradas todavía.</p>
+          <p>Todavía no hay reuniones registradas. Crea una para comenzar.</p>
         ) : (
-          <select value={selectedMeetingId} onChange={(event) => handleMeetingSelection(event.target.value)} disabled={saving}>
-            {meetings.map((meeting) => (
+          <select
+            id="attendance-meeting"
+            aria-label="Seleccionar reunión para registrar asistencia"
+            value={selectedMeetingId}
+            onChange={(event) => handleMeetingSelection(event.target.value)}
+            disabled={saving || loading}
+          >
+            <option value="" disabled>Selecciona una reunión</option>
+            {sortedMeetings.map((meeting) => (
               <option key={meeting.id} value={meeting.id}>
-                {meeting.name} - {meeting.date}
+                {formatMeetingDate(meeting.date)} · {meeting.name}
               </option>
             ))}
           </select>
@@ -306,11 +404,11 @@ export default function AttendancePage() {
                 )}
               </label>
               <div className="attendance-bulk-actions" aria-label="Acciones rápidas de asistencia">
-                <button type="button" onClick={() => setAllAttendance('Presente')} disabled={saving || members.length === 0}>
-                  <CheckCheck size={15}/> Todos presentes
+                <button type="button" onClick={() => setAllAttendance('Presente')} disabled={saving || visibleMembers.length === 0}>
+                  <CheckCheck size={15}/> Visibles presentes
                 </button>
-                <button type="button" onClick={() => setAllAttendance('Ausente')} disabled={saving || members.length === 0}>
-                  <XCircle size={15}/> Todos ausentes
+                <button type="button" onClick={() => setAllAttendance('Ausente')} disabled={saving || visibleMembers.length === 0}>
+                  <XCircle size={15}/> Visibles ausentes
                 </button>
               </div>
             </div>
@@ -331,19 +429,30 @@ export default function AttendancePage() {
                       <div className="attendance-member-status">
                         {!currentStatus && <span className="attendance-unmarked">Pendiente · sin registrar</span>}
                         <div className="attendance-status-options" role="group" aria-label={`Estado de asistencia de ${member.name || 'joven'}`}>
-                        {attendanceOptions.map((option) => (
-                          <button
-                            key={option.value}
-                            type="button"
-                            className={`attendance-status-button tone-${option.tone}`}
-                            aria-pressed={currentStatus === option.value}
-                            onClick={() => handleStatusChange(member.id, option.value)}
-                            disabled={saving}
-                          >
-                            {option.label}
-                          </button>
-                        ))}
+                          {attendanceOptions.map((option) => (
+                            <button
+                              key={option.value}
+                              type="button"
+                              className={`attendance-status-button tone-${option.tone}`}
+                              data-selected={currentStatus === option.value}
+                              aria-pressed={currentStatus === option.value}
+                              title={`Marcar ${member.name || 'joven'} como ${option.label}`}
+                              onClick={() => handleStatusChange(member.id, option.value)}
+                              disabled={saving}
+                            >
+                              {option.label}
+                            </button>
+                          ))}
                         </div>
+                        <button
+                          type="button"
+                          className="attendance-clear-button"
+                          aria-pressed={!currentStatus}
+                          onClick={() => handleClearStatus(member.id)}
+                          disabled={saving || !currentStatus}
+                        >
+                          Quitar marca
+                        </button>
                       </div>
                     </article>
                   );

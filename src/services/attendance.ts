@@ -48,9 +48,12 @@ async function call<T>(name: string, payload: unknown = {}): Promise<T> {
 
 export function listAttendanceMeetings(
   module: 'attendance' | 'reports' = 'attendance',
+  forceRefresh = false,
 ): Promise<AttendanceMeeting[]> {
   const userScope = auth?.currentUser?.uid ?? 'no-auth';
-  return cachedRequest(`attendance-meetings:${userScope}:${module}`, 45_000, async () => {
+  const cacheKey = `attendance-meetings:${userScope}:${module}`;
+  if (forceRefresh) invalidateRequestCache(cacheKey);
+  return cachedRequest(cacheKey, 45_000, async () => {
     const response = await call<{meetings: AttendanceMeeting[]}>(
       'getAttendanceMeetings',
       {module},
