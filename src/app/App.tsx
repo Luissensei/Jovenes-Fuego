@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
+import RouteErrorBoundary from './components/RouteErrorBoundary';
 import {
   NavLink,
   Navigate,
@@ -159,6 +160,14 @@ function AdminApp() {
   const navigate = useNavigate();
   const location = useLocation();
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
+  useEffect(() => {
+    const route = [...modules]
+      .sort((left, right) => right.path.length - left.path.length)
+      .find((item) => item.path === location.pathname ||
+        (item.path !== '/' && location.pathname.startsWith(`${item.path}/`)));
+    document.title = route ? `${route.label} | Jóvenes de Fuego` : 'Jóvenes de Fuego';
+    return () => { document.title = 'Jóvenes de Fuego'; };
+  }, [location.pathname]);
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setMenuOpen(false);
@@ -400,10 +409,13 @@ function AdminApp() {
 
   return (
     <div className={`layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''} ${menuOpen ? 'menu-open' : ''}`}>
+      <a className="jf-skip-link" href="#jf-main-content">Saltar al contenido principal</a>
       <header className="mobile-header">
         <button
           className="icon-button"
           aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          aria-expanded={menuOpen}
+          aria-controls="jf-sidebar"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? <X size={21} /> : <Menu size={21} />}
@@ -417,7 +429,7 @@ function AdminApp() {
 
       </header>
 
-      <aside className={`sidebar ${menuOpen ? 'open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
+      <aside id="jf-sidebar" className={`sidebar ${menuOpen ? 'open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="brand">
           <span className="brand-mark church-brand-mark">
             <img src="/church-logo.webp" alt="" />
@@ -434,6 +446,8 @@ function AdminApp() {
           type="button"
           onClick={() => setSidebarCollapsed((value) => !value)}
           aria-label={sidebarCollapsed ? 'Expandir menú lateral' : 'Contraer menú lateral'}
+          aria-expanded={!sidebarCollapsed}
+          aria-controls="jf-module-navigation"
           title={sidebarCollapsed ? 'Expandir menú' : 'Contraer menú'}
         >
           {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
@@ -453,7 +467,7 @@ function AdminApp() {
           <input type="search" value={moduleSearch} onChange={(event) => setModuleSearch(event.target.value)} placeholder="Buscar módulo..." aria-label="Buscar un módulo" />
           {moduleSearch && <button type="button" onClick={() => setModuleSearch('')} aria-label="Limpiar búsqueda">×</button>}
         </label>
-        <nav className="jf-module-navigation" aria-label="Módulos">
+        <nav id="jf-module-navigation" className="jf-module-navigation" aria-label="Módulos">
           {filteredModules.length === 0 ? <p className="module-search-empty">No se encontraron módulos.</p> : [
             {label:'Inicio', ids:['dashboard','assistant']},
             {label:'Personas', ids:['members','leaders','visitors','followups']},
@@ -467,7 +481,7 @@ function AdminApp() {
             return <details className="jf-nav-group" key={group.label} open={sidebarCollapsed || activeGroup || Boolean(moduleSearch.trim()) || false}>
               <summary><span>{group.label}</span><span className="jf-nav-count">{items.length}</span></summary>
               <div className="jf-nav-group-items">{items.map((item) => (
-                <NavLink key={item.id} to={item.path} end={item.path === '/'} title={sidebarCollapsed ? item.label : undefined} onPointerEnter={() => preloadAdminModule(item.id)} onFocus={() => preloadAdminModule(item.id)} onClick={() => setMenuOpen(false)} className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+                <NavLink key={item.id} to={item.path} end={item.path === '/'} aria-label={sidebarCollapsed ? item.label : undefined} title={sidebarCollapsed ? item.label : undefined} onPointerEnter={() => preloadAdminModule(item.id)} onFocus={() => preloadAdminModule(item.id)} onClick={() => setMenuOpen(false)} className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
                   <span className="nav-item-icon" aria-hidden="true"><item.icon size={17} strokeWidth={1.9}/></span>
                   <span>{item.label}</span>
                 </NavLink>
@@ -519,7 +533,7 @@ function AdminApp() {
 
       <div className="main">
         <div className="topline">
-          <button className="topline-menu-button" type="button" onClick={() => setMenuOpen((value) => !value)} aria-expanded={menuOpen} aria-label={menuOpen ? 'Cerrar panel de módulos' : 'Abrir panel de módulos'}>
+          <button className="topline-menu-button" type="button" onClick={() => setMenuOpen((value) => !value)} aria-expanded={menuOpen} aria-controls="jf-sidebar" aria-label={menuOpen ? 'Cerrar panel de módulos' : 'Abrir panel de módulos'}>
             {menuOpen ? <X size={19}/> : <Menu size={19}/>}
           </button>
           <div className={`topline-status ${environmentTone}`} aria-live="polite">
@@ -572,7 +586,8 @@ function AdminApp() {
           </div>
         )}
 
-        <div className="jf-route-stage">
+        <div className="jf-route-stage" id="jf-main-content" tabIndex={-1}>
+          <RouteErrorBoundary key={location.pathname}>
           <Routes>
             {visibleModules.map((item) => (
               <Route
@@ -595,6 +610,7 @@ function AdminApp() {
               }
             />
           </Routes>
+          </RouteErrorBoundary>
         </div>
 
         <footer>
