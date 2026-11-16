@@ -15,16 +15,13 @@ export async function verifyYouthProfilePin(memberId:string,pin:string):Promise<
 export type YouthCommunityFeedMode = "all" | "mine";
 export type YouthCommunityFeedResponse = {
   posts: YouthCommunityPost[];
-  followingIds: string[];
-  followingCount: number;
-  followerCount: number;
 };
 export type YouthCommunityComment = {id:string;memberId:string;author:string;content:string;createdAt:string};
 export type YouthCommunityPost = {
   id:string;memberId:string;author:string;nickname:string;
   type:"text"|"verse"|"song"|"testimony";content:string;reference:string;linkUrl:string;
   createdAt:string;reactionCount:number;commentCount:number;reactedByMe:boolean;
-  followingAuthor:boolean;isMine:boolean;
+  isMine:boolean;
   recentComments:YouthCommunityComment[];
 };
 export type YouthCommunityPostInput = {
@@ -85,9 +82,6 @@ export async function getYouthCommunityFeed(
   >("getYouthCommunityFeed",{communitySession,mode});
   return {
     posts:Array.isArray(result.posts)?result.posts:[],
-    followingIds:Array.isArray(result.followingIds)?result.followingIds:[],
-    followingCount:Number(result.followingCount??0),
-    followerCount:Number(result.followerCount??0),
   };
 }
 export async function deleteYouthCommunityPost(communitySession:string,postId:string):Promise<void>{
