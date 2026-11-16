@@ -12,7 +12,7 @@ export type YouthCommunitySession = {profile: PublicProfile; communitySession: s
 export async function activateYouthProfilePin(memberId:string,activationPin:string,newPin:string):Promise<YouthCommunitySession>{return youthPinCall<{memberId:string;activationPin:string;newPin:string},YouthCommunitySession>("activateYouthProfilePin",{memberId,activationPin,newPin});}
 export async function verifyYouthProfilePin(memberId:string,pin:string):Promise<YouthCommunitySession>{return youthPinCall<{memberId:string;pin:string},YouthCommunitySession>("verifyYouthProfilePin",{memberId,pin});}
 
-export type YouthCommunityFeedMode = "all" | "following" | "mine";
+export type YouthCommunityFeedMode = "all" | "mine";
 export type YouthCommunityFeedResponse = {
   posts: YouthCommunityPost[];
   followingIds: string[];
