@@ -1050,7 +1050,6 @@ export const getYouthCommunityFeed = onCall(async (request) => {
       reactionCount: Number(data.reactionCount ?? 0),
       commentCount: Number(data.commentCount ?? 0),
       reactedByMe: Array.isArray(data.reactions) && data.reactions.includes(memberId),
-      followingAuthor: false,
       isMine: authorId === memberId,
       recentComments: comments.docs.map((comment) => {
         const item = comment.data();
@@ -1065,12 +1064,7 @@ export const getYouthCommunityFeed = onCall(async (request) => {
     };
   }));
 
-  return {
-    posts,
-    followingIds: [],
-    followingCount: 0,
-    followerCount: 0,
-  };
+  return {posts};
 });
 
 export const deleteYouthCommunityPost = onCall(async (request) => {
