@@ -3820,15 +3820,23 @@ export const getYouthSocialHub = onCall(async (request) => {
       };
     }).slice(0, 50);
   const now = Date.now();
-  const stories = storiesSnapshot.docs.map((item) => ({id: item.id, ...item.data()}))
-    .filter((item) => item.status === "published" && Number(item.expiresAt ?? 0) > now &&
-      !blockedIds.has(text(item.memberId, 150)))
-    .sort((a, b) => Number(b.createdAt ?? 0) - Number(a.createdAt ?? 0))
+  const stories = storiesSnapshot.docs.map((document) => {
+    const data = document.data();
+    return {
+      id: document.id,
+      memberId: text(data.memberId, 150),
+      author: text(data.author, 120),
+      content: text(data.content, 500),
+      status: text(data.status, 20),
+      createdAt: Number(data.createdAt ?? 0),
+      expiresAt: Number(data.expiresAt ?? 0),
+    };
+  }).filter((item) => item.status === "published" && item.expiresAt > now &&
+    !blockedIds.has(item.memberId))
+    .sort((left, right) => right.createdAt - left.createdAt)
     .slice(0, 40)
-    .map((item) => ({
-      id: item.id, memberId: text(item.memberId, 150),
-      author: text(item.author, 120), content: text(item.content, 500),
-      createdAt: Number(item.createdAt ?? 0), expiresAt: Number(item.expiresAt ?? 0),
+    .map(({id, memberId, author, content, createdAt, expiresAt}) => ({
+      id, memberId, author, content, createdAt, expiresAt,
     }));
   const groups = groupsSnapshot.docs.map((item) => {
     const data = item.data();
