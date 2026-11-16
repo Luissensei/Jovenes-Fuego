@@ -1045,9 +1045,15 @@ export const getYouthCommunityFeed = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "La vista de comunidad no es válida.");
   }
 
-  const [followingSnapshot, followerSnapshot] = await Promise.all([
+  const [followingSnapshot, followerSnapshot, blockedByMeSnapshot, blockedMeSnapshot] = await Promise.all([
     db.collection("youthCommunityFollows").where("followerId", "==", memberId).limit(500).get(),
     db.collection("youthCommunityFollows").where("followingId", "==", memberId).limit(500).get(),
+    db.collection("youthCommunityBlocks").where("blockerId", "==", memberId).limit(300).get(),
+    db.collection("youthCommunityBlocks").where("blockedId", "==", memberId).limit(300).get(),
+  ]);
+  const blockedIds = new Set([
+    ...blockedByMeSnapshot.docs.map((item) => text(item.data().blockedId, 150)),
+    ...blockedMeSnapshot.docs.map((item) => text(item.data().blockerId, 150)),
   ]);
   const followingIds = new Set(
     followingSnapshot.docs.map((document) => text(document.data().followingId, 150)).filter(Boolean),
@@ -1063,7 +1069,7 @@ export const getYouthCommunityFeed = onCall(async (request) => {
     .filter((document) => {
       const data = document.data();
       const authorId = text(data.memberId, 150);
-      if (!authorId || data.deleted === true || data.status === "hidden") return false;
+      if (!authorId || data.deleted === true || data.status === "hidden" || blockedIds.has(authorId)) return false;
       if (mode === "following" && !followingIds.has(authorId)) return false;
       if (mode === "mine" && authorId !== memberId) return false;
       return true;
@@ -1122,6 +1128,7 @@ export const toggleYouthCommunityFollow = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "No puedes seguir tu propio perfil.");
   }
   await getCommunityMember(targetId);
+  await assertNotBlocked(memberId, targetId);
   const followId = `${Buffer.from(memberId).toString("base64url")}.${Buffer.from(targetId).toString("base64url")}`;
   const followRef = db.collection("youthCommunityFollows").doc(followId);
   const rateRef = db.collection("youthCommunityRateLimits").doc(memberId);
@@ -1152,6 +1159,10 @@ export const toggleYouthCommunityFollow = onCall(async (request) => {
     memberId,
     targetId,
   );
+  if (followed) {
+    const actor = await getCommunityMember(memberId);
+    await notifyYouthMember(targetId, memberId, "follow", actor.name + " comenzó a seguirte.");
+  }
   return {success: true, followed};
 });
 
@@ -1203,6 +1214,7 @@ export const createYouthCommunityPost = onCall(async (request) => {
   }
   const rateRef = db.collection("youthCommunityRateLimits").doc(memberId);
   const now = Date.now();
+  const hashtags = [...new Set(content.match(/#[\p{L}\p{N}_]{2,40}/gu) ?? [])].slice(0, 12);
   const postRef = db.collection("youthCommunityPosts").doc();
   await db.runTransaction(async (transaction) => {
     const rate = await transaction.get(rateRef);
@@ -1214,7 +1226,7 @@ export const createYouthCommunityPost = onCall(async (request) => {
       memberId, author: author.name, nickname: author.nick,
       type, content, ...(reference ? {reference} : {}), ...(linkUrl ? {linkUrl} : {}),
       createdAt: new Date(now).toISOString(), reactionCount: 0, commentCount: 0,
-      reactions: [], status: "published", deleted: false,
+      reactions: [], hashtags, status: "published", deleted: false,
     });
     transaction.set(rateRef, {lastPostAt: now}, {merge: true});
   });
@@ -1241,6 +1253,7 @@ export const createYouthCommunityComment = onCall(async (request) => {
     if (!post.exists || post.data()?.deleted === true || post.data()?.status === "hidden") {
       throw new HttpsError("not-found", "Esta publicación ya no está disponible.");
     }
+    await assertNotBlocked(memberId, text(post.data()?.memberId, 150));
     if (now - Number(rate.data()?.lastCommentAt ?? 0) < 3000) {
       throw new HttpsError("resource-exhausted", "Espera unos segundos antes de comentar nuevamente.");
     }
@@ -1251,6 +1264,11 @@ export const createYouthCommunityComment = onCall(async (request) => {
     transaction.update(postRef, {commentCount: FieldValue.increment(1)});
     transaction.set(rateRef, {lastCommentAt: now}, {merge: true});
   });
+  const commentedPost = (await postRef.get()).data() ?? {};
+  await notifyYouthMember(
+    text(commentedPost.memberId, 150), memberId, "comment",
+    author.name + " comentó tu publicación.", postId,
+  );
   return {success: true, id: commentRef.id};
 });
 
@@ -1275,6 +1293,11 @@ export const toggleYouthCommunityReaction = onCall(async (request) => {
     transaction.update(postRef, {reactions: next, reactionCount: next.length});
     return !reacted;
   });
+  if (result) {
+    const likedPost = (await postRef.get()).data() ?? {};
+    const actor = await getCommunityMember(memberId);
+    await notifyYouthMember(text(likedPost.memberId, 150), memberId, "reaction", actor.name + " reaccionó a tu publicación.", postId);
+  }
   return {success: true, reacted: result};
 });
 
@@ -3736,5 +3759,254 @@ export const saveMeetingAttendance = onCall(async (request) => {
   }
 
   await recordAudit("attendance.saved", request.auth.uid, meetingId, {participants: participants.length});
+  return {success: true};
+});
+
+
+// Social hub: perfiles públicos, privacidad, historias, grupos, mensajes y notificaciones.
+// Todas las operaciones pasan por la sesión juvenil firmada y se ejecutan en el servidor.
+function socialPairId(left: string, right: string): string {
+  return [left, right].sort().map((value) => Buffer.from(value).toString("base64url")).join(".");
+}
+function socialDirectedId(left: string, right: string): string {
+  return `${Buffer.from(left).toString("base64url")}.${Buffer.from(right).toString("base64url")}`;
+}
+async function assertNotBlocked(left: string, right: string): Promise<void> {
+  const forward = db.collection("youthCommunityBlocks").doc(socialDirectedId(left, right));
+  const reverse = db.collection("youthCommunityBlocks").doc(socialDirectedId(right, left));
+  const [a, b] = await Promise.all([forward.get(), reverse.get()]);
+  if (a.exists || b.exists) {
+    throw new HttpsError("permission-denied", "Esta interacción no está disponible por la configuración de privacidad.");
+  }
+}
+async function notifyYouthMember(recipientId: string, actorId: string, type: string, message: string, targetId = ""): Promise<void> {
+  if (!recipientId || recipientId === actorId) return;
+  try {
+    await db.collection("youthCommunityNotifications").add({
+      recipientId, actorId, type: text(type, 40), message: text(message, 180),
+      ...(targetId ? {targetId: text(targetId, 150)} : {}),
+      read: false, createdAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("No se pudo crear la notificación social:", error);
+  }
+}
+
+export const getYouthSocialHub = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const [profilesSnapshot, groupsSnapshot, storiesSnapshot, notificationsSnapshot, blocksSnapshot, followingSnapshot] = await Promise.all([
+    db.collection("publicProfiles").limit(80).get(),
+    db.collection("youthCommunityGroups").limit(50).get(),
+    db.collection("youthCommunityStories").limit(100).get(),
+    db.collection("youthCommunityNotifications").where("recipientId", "==", memberId).limit(40).get(),
+    db.collection("youthCommunityBlocks").where("blockerId", "==", memberId).limit(300).get(),
+    db.collection("youthCommunityFollows").where("followerId", "==", memberId).limit(500).get(),
+  ]);
+  const blockedIds = new Set(blocksSnapshot.docs.map((item) => text(item.data().blockedId, 150)));
+  const followingIds = new Set(followingSnapshot.docs.map((item) => text(item.data().followingId, 150)));
+  const profiles = profilesSnapshot.docs
+    .filter((item) => item.id !== memberId && item.data().nopub !== true)
+    .map((item) => {
+      const data = item.data();
+      return {
+        id: item.id,
+        name: text(data.name, 120) || "Joven",
+        nickname: text(data.nick, 60),
+        avatarUrl: text(data.pic ?? data.avatarUrl, 500),
+        bio: text(data.bio, 180),
+        following: followingIds.has(item.id),
+        blocked: blockedIds.has(item.id),
+      };
+    }).slice(0, 50);
+  const now = Date.now();
+  const stories = storiesSnapshot.docs.map((item) => ({id: item.id, ...item.data()}))
+    .filter((item) => item.status === "published" && Number(item.expiresAt ?? 0) > now &&
+      !blockedIds.has(text(item.memberId, 150)))
+    .sort((a, b) => Number(b.createdAt ?? 0) - Number(a.createdAt ?? 0))
+    .slice(0, 40)
+    .map((item) => ({
+      id: item.id, memberId: text(item.memberId, 150),
+      author: text(item.author, 120), content: text(item.content, 500),
+      createdAt: Number(item.createdAt ?? 0), expiresAt: Number(item.expiresAt ?? 0),
+    }));
+  const groups = groupsSnapshot.docs.map((item) => {
+    const data = item.data();
+    return {
+      id: item.id, name: text(data.name, 80), description: text(data.description, 240),
+      createdBy: text(data.createdBy, 150), memberCount: Number(data.memberCount ?? 0),
+      joined: false, createdAt: text(data.createdAt, 40),
+    };
+  }).filter((item) => item.name && groupsSnapshot.docs.some((doc) => doc.id === item.id && doc.data().status !== "archived")).slice(0, 30);
+  const membershipRefs = groups.map((group) => db.collection("youthCommunityGroups").doc(group.id)
+    .collection("members").doc(memberId));
+  const memberships = await Promise.all(membershipRefs.map((ref) => ref.get()));
+  memberships.forEach((membership, index) => { groups[index].joined = membership.exists; });
+  const notifications = notificationsSnapshot.docs.map((item) => {
+    const data = item.data();
+    return {
+      id: item.id, type: text(data.type, 40), message: text(data.message, 180),
+      targetId: text(data.targetId, 150), read: data.read === true,
+      createdAt: text(data.createdAt, 40),
+    };
+  }).sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 30);
+  return {profiles, groups, stories, notifications};
+});
+
+export const toggleYouthCommunityBlock = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const targetId = validYouthMemberId(request.data?.targetMemberId);
+  if (targetId === memberId) throw new HttpsError("invalid-argument", "No puedes bloquear tu propio perfil.");
+  await getCommunityMember(targetId);
+  const blockRef = db.collection("youthCommunityBlocks").doc(socialDirectedId(memberId, targetId));
+  const current = await blockRef.get();
+  if (current.exists) {
+    await blockRef.delete();
+    await recordAudit("youth.community.unblock", memberId, targetId);
+    return {success: true, blocked: false};
+  }
+  await blockRef.create({blockerId: memberId, blockedId: targetId, createdAt: new Date().toISOString()});
+  const followId = socialDirectedId(memberId, targetId);
+  const reverseFollowId = socialDirectedId(targetId, memberId);
+  await Promise.all([
+    db.collection("youthCommunityFollows").doc(followId).delete().catch(() => undefined),
+    db.collection("youthCommunityFollows").doc(reverseFollowId).delete().catch(() => undefined),
+  ]);
+  await recordAudit("youth.community.block", memberId, targetId);
+  return {success: true, blocked: true};
+});
+
+export const createYouthCommunityStory = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  const author = await getCommunityMember(memberId);
+  const content = text(request.data?.content, 500);
+  if (content.length < 2) throw new HttpsError("invalid-argument", "Escribe algo para tu historia.");
+  const now = Date.now();
+  const storyRef = db.collection("youthCommunityStories").doc();
+  const rateRef = db.collection("youthCommunityRateLimits").doc(memberId);
+  await db.runTransaction(async (transaction) => {
+    const rate = await transaction.get(rateRef);
+    if (now - Number(rate.data()?.lastStoryAt ?? 0) < 30000) {
+      throw new HttpsError("resource-exhausted", "Espera un momento antes de publicar otra historia.");
+    }
+    transaction.create(storyRef, {
+      memberId, author: author.name, content, status: "published",
+      createdAt: now, expiresAt: now + 24 * 60 * 60 * 1000,
+    });
+    transaction.set(rateRef, {lastStoryAt: now}, {merge: true});
+  });
+  return {success: true, id: storyRef.id, expiresAt: now + 24 * 60 * 60 * 1000};
+});
+
+export const createYouthCommunityGroup = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  const author = await getCommunityMember(memberId);
+  const name = text(request.data?.name, 80);
+  const description = text(request.data?.description, 240);
+  if (name.length < 3) throw new HttpsError("invalid-argument", "El nombre del grupo debe tener al menos 3 caracteres.");
+  const groupRef = db.collection("youthCommunityGroups").doc();
+  const now = new Date().toISOString();
+  await db.runTransaction(async (transaction) => {
+    transaction.create(groupRef, {
+      name, description, createdBy: memberId, createdByName: author.name,
+      memberCount: 1, status: "active", createdAt: now,
+    });
+    transaction.create(groupRef.collection("members").doc(memberId), {
+      memberId, role: "owner", joinedAt: now,
+    });
+  });
+  await recordAudit("youth.community.group.create", memberId, groupRef.id);
+  return {success: true, groupId: groupRef.id};
+});
+
+export const toggleYouthCommunityGroupMembership = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const groupId = text(request.data?.groupId, 150);
+  if (!/^[A-Za-z0-9_-]{10,150}$/.test(groupId)) throw new HttpsError("invalid-argument", "El grupo no es válido.");
+  const groupRef = db.collection("youthCommunityGroups").doc(groupId);
+  const memberRef = groupRef.collection("members").doc(memberId);
+  const joined = await db.runTransaction(async (transaction) => {
+    const [group, membership] = await Promise.all([transaction.get(groupRef), transaction.get(memberRef)]);
+    if (!group.exists || group.data()?.status !== "active") throw new HttpsError("not-found", "El grupo ya no está disponible.");
+    if (membership.exists) {
+      if (membership.data()?.role === "owner") throw new HttpsError("failed-precondition", "El creador no puede abandonar su grupo.");
+      transaction.delete(memberRef);
+      transaction.update(groupRef, {memberCount: FieldValue.increment(-1)});
+      return false;
+    }
+    transaction.create(memberRef, {memberId, role: "member", joinedAt: new Date().toISOString()});
+    transaction.update(groupRef, {memberCount: FieldValue.increment(1)});
+    return true;
+  });
+  return {success: true, joined};
+});
+
+export const getYouthCommunityDirectMessages = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const targetId = validYouthMemberId(request.data?.targetMemberId);
+  if (targetId === memberId) throw new HttpsError("invalid-argument", "Selecciona otro perfil.");
+  await getCommunityMember(targetId);
+  await assertNotBlocked(memberId, targetId);
+  const conversationId = socialPairId(memberId, targetId);
+  const snapshot = await db.collection("youthCommunityConversations").doc(conversationId)
+    .collection("messages").orderBy("createdAt", "desc").limit(50).get();
+  return {messages: snapshot.docs.map((item) => {
+    const data = item.data();
+    return {
+      id: item.id, senderId: text(data.senderId, 150),
+      content: text(data.content, 1000), createdAt: text(data.createdAt, 40),
+    };
+  }).reverse()};
+});
+
+export const sendYouthCommunityDirectMessage = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  const sender = await getCommunityMember(memberId);
+  const targetId = validYouthMemberId(request.data?.targetMemberId);
+  const content = text(request.data?.content, 1000);
+  if (targetId === memberId || content.length < 1) throw new HttpsError("invalid-argument", "El mensaje no es válido.");
+  await getCommunityMember(targetId);
+  await assertNotBlocked(memberId, targetId);
+  const rateRef = db.collection("youthCommunityRateLimits").doc(memberId);
+  const now = Date.now();
+  const conversationId = socialPairId(memberId, targetId);
+  const conversationRef = db.collection("youthCommunityConversations").doc(conversationId);
+  const messageRef = conversationRef.collection("messages").doc();
+  await db.runTransaction(async (transaction) => {
+    const rate = await transaction.get(rateRef);
+    if (now - Number(rate.data()?.lastDirectMessageAt ?? 0) < 1500) {
+      throw new HttpsError("resource-exhausted", "Espera un momento antes de enviar otro mensaje.");
+    }
+    transaction.create(messageRef, {
+      senderId: memberId, senderName: sender.name, recipientId: targetId,
+      content, createdAt: new Date(now).toISOString(),
+    });
+    transaction.set(conversationRef, {
+      participants: [memberId, targetId], lastMessage: content.slice(0, 120),
+      lastMessageAt: new Date(now).toISOString(), updatedAt: new Date(now).toISOString(),
+    }, {merge: true});
+    transaction.set(rateRef, {lastDirectMessageAt: now}, {merge: true});
+  });
+  await notifyYouthMember(targetId, memberId, "direct_message", sender.name + " te envió un mensaje.", conversationId);
+  return {success: true, id: messageRef.id};
+});
+
+export const markYouthCommunityNotificationsRead = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  await getCommunityMember(memberId);
+  const notificationIds = Array.isArray(request.data?.notificationIds)
+    ? request.data.notificationIds.slice(0, 30).map((id: unknown) => text(id, 150)).filter(Boolean)
+    : [];
+  if (!notificationIds.length) return {success: true};
+  const refs = notificationIds.map((id: string) => db.collection("youthCommunityNotifications").doc(id));
+  const snapshots = await Promise.all(refs.map((ref) => ref.get()));
+  const batch = db.batch();
+  snapshots.forEach((snapshot) => {
+    if (snapshot.exists && snapshot.data()?.recipientId === memberId) batch.update(snapshot.ref, {read: true});
+  });
+  await batch.commit();
   return {success: true};
 });

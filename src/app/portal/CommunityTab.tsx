@@ -1,4 +1,5 @@
 import {useCallback,useEffect,useMemo,useRef,useState} from "react";
+import SocialHubTab from "./SocialHubTab";
 import {BookOpen,Heart,Link2,MessageCircle,Music2,RefreshCw,Send,Sparkles,Users,Quote,Flag,ShieldCheck,Clock3,Bell,UserPlus,UserCheck,Trash2,Search,UsersRound} from "lucide-react";
 import {
   createYouthCommunityComment,createYouthCommunityPost,getYouthCommunityFeed,getYouthCommunityChat,getYouthCommunityAnnouncements,reportYouthCommunityChatMessage,reportYouthCommunityPost,sendYouthCommunityChatMessage,toggleYouthCommunityReaction,toggleYouthCommunityFollow,deleteYouthCommunityPost,
@@ -21,6 +22,7 @@ function formatDate(value:string){
 }
 
 export default function CommunityTab({memberName,communitySession}:Props){
+  const [communitySection,setCommunitySection]=useState<"wall"|"social">("wall");
   const [posts,setPosts]=useState<YouthCommunityPost[]>([]);
   const [feedMode,setFeedMode]=useState<YouthCommunityFeedMode>("all");
   const [followingIds,setFollowingIds]=useState<string[]>([]);
@@ -227,12 +229,16 @@ export default function CommunityTab({memberName,communitySession}:Props){
       <div className="jf-community-hero-mark" aria-hidden="true"><span>✦</span><b>JDF</b><small>FE · AMOR · UNIDAD</small></div>
     </section>
 
+    <nav className="jf-community-feed-tabs" aria-label="Secciones de la comunidad" style={{margin:"14px 0"}}>
+      <button type="button" className={communitySection==="wall"?"active":""} aria-pressed={communitySection==="wall"} onClick={()=>setCommunitySection("wall")}>Muro y chat</button>
+      <button type="button" className={communitySection==="social"?"active":""} aria-pressed={communitySection==="social"} onClick={()=>setCommunitySection("social")}>Red social completa</button>
+    </nav>
     <section className="jf-community-announcements" aria-labelledby="jf-community-announcements-title">
       <header><span className="jf-community-announcements-icon"><Bell size={17}/></span><div><span>COMUNICADOS OFICIALES</span><h3 id="jf-community-announcements-title">Avisos del equipo</h3></div></header>
       {announcementsLoading?<p className="jf-community-announcements-empty">Consultando avisos...</p>:announcementsError?<p className="jf-community-announcements-empty" role="alert">{announcementsError}<button type="button" onClick={()=>void loadAnnouncements()}>Reintentar</button></p>:announcements.length===0?<p className="jf-community-announcements-empty">Por ahora no hay avisos nuevos.</p>:<div className="jf-community-announcements-list">{announcements.map(item=><article key={item.id}><div><b>{item.title}</b><time>{formatDate(item.createdAt)}</time></div><p>{item.message}</p></article>)}</div>}
     </section>
 
-    <div className="jf-community-layout">
+    {communitySection==="social"?<SocialHubTab communitySession={communitySession} memberName={memberName}/>:<div className="jf-community-layout">
       <div className="jf-community-main">
         <section className="jf-community-chat">
           <header className="jf-community-chat-head"><div><span className="jf-community-chat-kicker"><MessageCircle size={14}/> CONVERSACIÓN GRUPAL</span><h3>Chat JDF</h3><p>Conversemos, animémonos y crezcamos juntos.</p></div><span className="jf-community-chat-safe"><ShieldCheck size={14}/> Espacio supervisado</span></header>
@@ -311,6 +317,6 @@ export default function CommunityTab({memberName,communitySession}:Props){
         <section><span className="jf-community-side-icon"><BookOpen size={18}/></span><small>PALABRA PARA HOY</small><h3>“Anímense y edifíquense unos a otros.”</h3><p>1 Tesalonicenses 5:11</p></section>
         <section className="jf-community-guidelines"><b>Hagamos de este un buen lugar</b><ul><li>Habla con respeto y amor.</li><li>Comparte contenido que edifique.</li><li>Cuida la privacidad de los demás.</li><li>Si algo te incomoda, comunícalo a un líder.</li></ul></section>
       </aside>
-    </div>
+    </div>}
   </div>;
 }
