@@ -48,17 +48,17 @@ const permissionArray = (source, pattern, label) => {
 };
 const frontendLeaderPermissions = permissionArray(
   await read('src/app/App.tsx'),
-  /const defaultLeaderModules = \[([\\s\\S]*?)\];/,
+  /const defaultLeaderModules = \[([\s\S]*?)\];/,
   'los permisos predeterminados del líder en frontend',
 );
 const backendLeaderPermissions = permissionArray(
   await read('functions/src/index.ts'),
-  /const defaultLeaderPermissions = \[([\\s\\S]*?)\];/,
+  /const defaultLeaderPermissions = \[([\s\S]*?)\];/,
   'los permisos predeterminados del líder en backend',
 );
 const manageablePermissions = permissionArray(
   await read('functions/src/index.ts'),
-  /const manageablePermissions = \[([\\s\\S]*?)\];/,
+  /const manageablePermissions = \[([\s\S]*?)\];/,
   'el catálogo de permisos administrables',
 );
 assert.deepEqual(
