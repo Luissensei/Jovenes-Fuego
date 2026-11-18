@@ -76,7 +76,7 @@ for (const restricted of ['assistant', 'community-moderation', 'youth-pins', 'pa
 
 
 const functionsSource = await read('functions/src/index.ts');
-const callableBlocks = [...functionsSource.matchAll(/export const (\\w+) = onCall\\([\\s\\S]*?\\n\\}\\);/g)];
+const callableBlocks = [...functionsSource.matchAll(/export const (\w+) = onCall\([\s\S]*?\n\}\);/g)];
 assert.ok(callableBlocks.length >= 60, 'Debe auditarse el catálogo completo de Cloud Functions callable.');
 const publicCallableAllowlist = new Set([
   'signInWithUsername', 'getMyApplicationProfile',
@@ -95,10 +95,10 @@ for (const callable of callableBlocks) {
   const body = callable[0];
   auditedCallables.add(name);
   if (publicCallableAllowlist.has(name)) continue;
-  assert.match(body, /request\\.auth/, name + ' debe comprobar autenticación.');
+  assert.match(body, /request\.auth/, name + ' debe comprobar autenticación.');
   assert.match(
     body,
-    /require(?:Admin|AdminOrPastor|ModulePermission|YouthPinManager)\\(/,
+    /require(?:Admin|AdminOrPastor|ModulePermission|YouthPinManager)\(/,
     name + ' debe comprobar permisos en backend.',
   );
 }
