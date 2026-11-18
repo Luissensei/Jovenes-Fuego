@@ -50,7 +50,7 @@ async function loadAuthorizedUser(uid: string) {
   }
 
   const userData = userSnapshot.data() ?? {};
-  if (userData.status === "inactive") {
+  if (String(userData.status ?? "").trim().toLowerCase() === "inactive") {
     throw new HttpsError("permission-denied", "Esta cuenta está suspendida.");
   }
   const role = String(userData.role ?? "").trim().toLowerCase();
@@ -342,6 +342,9 @@ export const getMyApplicationProfile = onCall(async (request) => {
     }
 
     const data = snapshot.data() ?? {};
+    if (String(data.status ?? "").trim().toLowerCase() === "inactive") {
+      throw new HttpsError("permission-denied", "Esta cuenta está suspendida.");
+    }
     const role = text(data.role, 40).toLowerCase();
     const allowedRoles = [
       "admin", "administrador", "pastor", "lider", "líder", "user",

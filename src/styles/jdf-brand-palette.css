@@ -1,0 +1,146 @@
+/* Jóvenes de Fuego — paleta oficial violeta + verde.
+   Última capa de tokens para mantener coherencia entre módulos sin reescribirlos.
+   Sin blur decorativo: superficies sólidas, contraste y profundidad por sombras. */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --jf-canvas: #F2E9FF;
+  --jf-surface: #FFFFFF;
+  --jf-surface-2: #FAF7FF;
+  --jf-surface-3: #EDE2FF;
+  --jf-ink: #25134D;
+  --jf-muted: #66577E;
+  --jf-line: #DCCEF2;
+  --jf-line-strong: #C7B2E8;
+  --jf-brand: #6A2FC8;
+  --jf-brand-strong: #25134D;
+  --jf-brand-soft: #F2E9FF;
+  --jf-brand-ink: #4B2098;
+  --jf-ember: #235347;
+  --jf-ember-strong: #163832;
+  --jf-ember-soft: #DAF1DE;
+  --jf-gold: #98702F;
+  --jf-success: #235347;
+  --jf-success-soft: #DAF1DE;
+  --jf-focus: #6A2FC8;
+  --jf-sidebar: #0B0720;
+  --jf-sidebar-text: #F2E9FF;
+  --jf-sidebar-muted: #D1B8FF;
+  --jf-sidebar-hover: #25134D;
+  --jf-sidebar-active: #3C216D;
+  --jf-text: var(--jf-ink);
+  --jf-border: var(--jf-line);
+  --jf-input: var(--jf-surface-2);
+  --jf-glass-edge: var(--jf-line);
+  --jf-shadow-hover: var(--jf-shadow-raised);
+  --jf-accent: var(--jf-brand);
+  --jf-surface-raised: var(--jf-surface-2);
+  --text-primary: var(--jf-ink);
+  --text-secondary: var(--jf-muted);
+  --text: var(--jf-ink);
+  --muted: var(--jf-muted);
+  --surface: var(--jf-surface);
+  --card: var(--jf-surface);
+  --card-bg: var(--jf-surface);
+  --border: var(--jf-line);
+  --border-color: var(--jf-line);
+  --accent: var(--jf-brand);
+  --surface-2: var(--jf-surface-2);
+  --surface-3: var(--jf-surface-3);
+  --surface-elevated: var(--jf-surface-2);
+  --surface-card: var(--jf-surface);
+  --border-subtle: var(--jf-line);
+  --jf-glass: var(--jf-surface);
+  --jf-glass-border: var(--jf-line);
+}
+:root[data-theme="dark"],
+:root.dark {
+  color-scheme: dark;
+  --jf-canvas: #0B0720;
+  --jf-surface: #160F2C;
+  --jf-surface-2: #25134D;
+  --jf-surface-3: #352064;
+  --jf-ink: #F2E9FF;
+  --jf-muted: #D1B8FF;
+  --jf-line: #49366D;
+  --jf-line-strong: #654C91;
+  --jf-brand: #9D71E8;
+  --jf-brand-strong: #D1B8FF;
+  --jf-brand-soft: #25134D;
+  --jf-brand-ink: #F2E9FF;
+  --jf-ember: #8EB69B;
+  --jf-ember-strong: #DAF1DE;
+  --jf-ember-soft: #163832;
+  --jf-gold: #E5C47E;
+  --jf-success: #8EB69B;
+  --jf-success-soft: #163832;
+  --jf-focus: #D1B8FF;
+  --jf-sidebar: #051F20;
+  --jf-sidebar-text: #DAF1DE;
+  --jf-sidebar-muted: #8EB69B;
+  --jf-sidebar-hover: #0B2B26;
+  --jf-sidebar-active: #163832;
+  --jf-text: var(--jf-ink);
+  --jf-border: var(--jf-line);
+  --jf-input: var(--jf-surface-2);
+  --jf-glass-edge: var(--jf-line);
+  --jf-shadow-hover: var(--jf-shadow-raised);
+  --jf-accent: var(--jf-brand);
+  --jf-surface-raised: var(--jf-surface-2);
+  --text-primary: var(--jf-ink);
+  --text-secondary: var(--jf-muted);
+  --text: var(--jf-ink);
+  --muted: var(--jf-muted);
+  --surface: var(--jf-surface);
+  --card: var(--jf-surface);
+  --card-bg: var(--jf-surface);
+  --border: var(--jf-line);
+  --border-color: var(--jf-line);
+  --accent: var(--jf-brand);
+  --surface-2: var(--jf-surface-2);
+  --surface-3: var(--jf-surface-3);
+  --surface-elevated: var(--jf-surface-2);
+  --surface-card: var(--jf-surface);
+  --border-subtle: var(--jf-line);
+  --jf-glass: var(--jf-surface);
+  --jf-glass-border: var(--jf-line);
+}
+
+html, body, #root, .layout, .main {
+  background: var(--jf-canvas) !important;
+  color: var(--jf-ink) !important;
+}
+.sidebar, .mobile-header {
+  background: var(--jf-sidebar) !important;
+  color: var(--jf-sidebar-text) !important;
+}
+.sidebar .brand small, .sidebar .safe-note small { color: var(--jf-sidebar-muted) !important; }
+.sidebar .env-chip, .sidebar .safe-note {
+  background: var(--jf-sidebar-hover) !important;
+  border-color: color-mix(in srgb, var(--jf-sidebar-muted) 24%, transparent) !important;
+  color: var(--jf-sidebar-text) !important;
+}
+.sidebar .nav-item { color: var(--jf-sidebar-muted) !important; }
+.sidebar .nav-item:hover, .sidebar .nav-item.active {
+  background: var(--jf-sidebar-active) !important;
+  color: #FFFFFF !important;
+  box-shadow: none !important;
+}
+.sidebar .theme-toggle { color: var(--jf-sidebar-text) !important; border-color: var(--jf-sidebar-active) !important; }
+.brand-mark { background: linear-gradient(140deg, #6A2FC8, #235347) !important; }
+.main .jf-route-stage :is(button,.btn,[role="button"]).primary,
+.main .jf-route-stage :is(button,.btn).primary,
+.login-submit {
+  background: var(--jf-brand) !important;
+  border-color: var(--jf-brand) !important;
+  color: #FFFFFF !important;
+}
+.main .jf-route-stage :is(button,.btn,[role="button"]):focus-visible,
+.main .jf-route-stage :is(a,input,select,textarea):focus-visible {
+  outline-color: var(--jf-focus) !important;
+}
+/* Sustituye los desenfoques decorativos por superficies limpias. */
+.jf-community-hero-mark, .youth-pin-backdrop { backdrop-filter: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: "America/Bogota"
+    open-pull-requests-limit: 5
+    groups:
+      frontend-patch-and-minor:
+        update-types:
+          - patch
+          - minor
+    labels:
+      - dependencies
+      - security
+
+  - package-ecosystem: npm
+    directory: "/functions"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:30"
+      timezone: "America/Bogota"
+    open-pull-requests-limit: 5
+    groups:
+      functions-patch-and-minor:
+        update-types:
+          - patch
+          - minor
+    labels:
+      - dependencies
+      - security

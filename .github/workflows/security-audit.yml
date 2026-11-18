@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   schedule:
     - cron: "30 12 * * 1"
   workflow_dispatch:
@@ -34,21 +37,29 @@ jobs:
         run: npm ci
 
       - name: Audit application dependencies
-        continue-on-error: true
+        id: app-audit
+        shell: bash
         run: |
-          npm audit --json > application-audit.json || true
-          npm audit --omit=dev --json > application-production-audit.json || true
+          set +e
+          npm audit --json > application-audit.json
+          echo "app_full=$?" >> "$GITHUB_OUTPUT"
+          npm audit --omit=dev --json > application-production-audit.json
+          echo "app_production=$?" >> "$GITHUB_OUTPUT"
 
       - name: Install Cloud Functions dependencies
         run: npm ci
         working-directory: functions
 
       - name: Audit Cloud Functions dependencies
-        continue-on-error: true
+        id: functions-audit
+        shell: bash
         working-directory: functions
         run: |
-          npm audit --json > ../functions-audit.json || true
-          npm audit --omit=dev --json > ../functions-production-audit.json || true
+          set +e
+          npm audit --json > ../functions-audit.json
+          echo "functions_full=$?" >> "$GITHUB_OUTPUT"
+          npm audit --omit=dev --json > ../functions-production-audit.json
+          echo "functions_production=$?" >> "$GITHUB_OUTPUT"
 
       - name: Summarize vulnerabilities
         if: always()
@@ -86,3 +97,16 @@ jobs:
             functions-production-audit.json
           if-no-files-found: warn
           retention-days: 14
+
+      - name: Fail when vulnerabilities are reported
+        if: always()
+        env:
+          APP_FULL: ${{ steps.app-audit.outputs.app_full }}
+          APP_PRODUCTION: ${{ steps.app-audit.outputs.app_production }}
+          FUNCTIONS_FULL: ${{ steps.functions-audit.outputs.functions_full }}
+          FUNCTIONS_PRODUCTION: ${{ steps.functions-audit.outputs.functions_production }}
+        run: |
+          if [ "${APP_FULL:-1}" != "0" ] || [ "${APP_PRODUCTION:-1}" != "0" ] || [ "${FUNCTIONS_FULL:-1}" != "0" ] || [ "${FUNCTIONS_PRODUCTION:-1}" != "0" ]; then
+            echo "::error::npm audit found vulnerabilities or could not complete. Review the uploaded audit reports."
+            exit 1
+          fi
