@@ -1816,7 +1816,8 @@ export const adminGetMemberHistory = onCall(async (request) => {
     };
     const status = statusMap[statusCode];
     if (!status) return;
-    const [date = "", service = "gen"] = document.id.split("_");
+    const [date = "", rawService = "gen"] = document.id.split("_");
+    const service = rawService.toLocaleLowerCase("en-US");
     history.push({
       id: `legacy-attendance:${document.id}`, kind: "Asistencia",
       date, title: service, detail: "Registro histórico", status,
