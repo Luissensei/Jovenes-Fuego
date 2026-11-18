@@ -154,3 +154,78 @@
 :global(:root[data-theme="dark"]) .scope :global(.attendance-meeting-state.is-pending){color:#f2cc83}
 :global(:root[data-theme="dark"]) .scope :global(.attendance-meeting-state.is-complete){color:#9be7c7}
 @media(max-width:650px){.scope :global(.attendance-meeting-list){grid-template-columns:minmax(0,1fr);max-height:390px}.scope :global(.attendance-picker-heading){flex-direction:column}.scope :global(.attendance-meeting-total){align-self:flex-start}}
+
+
+/* Accessible meeting cards: restrained violet accent, readable surfaces. */
+.scope :global(.attendance-meeting-option){
+  background:#fbfaff!important;
+  border:1px solid #ded5ee!important;
+  color:#241b35!important;
+  box-shadow:0 2px 8px rgba(45,25,75,.045)!important;
+}
+.scope :global(.attendance-meeting-option):hover:not(:disabled){
+  background:#f4effc!important;
+  border-color:#9a76cf!important;
+}
+.scope :global(.attendance-meeting-option)[data-selected="true"]{
+  background:#f0e8fb!important;
+  border:2px solid #7040b5!important;
+  box-shadow:0 0 0 3px rgba(112,64,181,.10)!important;
+}
+.scope :global(.attendance-meeting-option-date){
+  color:#625675!important;
+  font-size:11px;
+  font-weight:800;
+}
+.scope :global(.attendance-meeting-option)>strong{color:#241b35!important}
+.scope :global(.attendance-meeting-option-arrow){color:#7040b5!important}
+.scope :global(.attendance-meeting-state.is-pending){
+  background:#fff1d6!important;
+  color:#754600!important;
+}
+.scope :global(.attendance-meeting-state.is-complete){
+  background:#dff4e8!important;
+  color:#145b38!important;
+}
+.scope :global(.attendance-meeting-filters) button{
+  background:#f7f4fb!important;
+  border-color:#ded5ee!important;
+  color:#49365f!important;
+}
+.scope :global(.attendance-meeting-filters) button[data-active="true"]{
+  background:#6b3db1!important;
+  border-color:#6b3db1!important;
+  color:#fff!important;
+}
+.scope :global(.attendance-meeting-total){
+  background:#f0eafa!important;
+  color:#55358a!important;
+}
+:global(:root[data-theme="dark"]) .scope :global(.attendance-meeting-option){
+  background:#211b2c!important;
+  border-color:#49385e!important;
+  color:#f5efff!important;
+}
+:global(:root[data-theme="dark"]) .scope :global(.attendance-meeting-option)>strong,
+:global(:root[data-theme="dark"]) .scope :global(.attendance-meeting-option-date){color:#f0e8fb!important}
+:global(:root[data-theme="dark"]) .scope :global(.attendance-meeting-option)[data-selected="true"]{
+  background:#332344!important;
+  border-color:#b18be6!important;
+}
+:global(:root[data-theme="dark"]) .scope :global(.attendance-meeting-filters) button{
+  background:#211b2c!important;
+  border-color:#49385e!important;
+  color:#e8dcf7!important;
+}
+:global(:root[data-theme="dark"]) .scope :global(.attendance-meeting-filters) button[data-active="true"]{
+  background:#7040b5!important;
+  color:#fff!important;
+}
+:global(:root[data-theme="dark"]) .scope :global(.attendance-meeting-total){
+  background:#332344!important;
+  color:#e8d7ff!important;
+}
+@media(max-width:650px){
+  .scope :global(.attendance-meeting-option){min-height:84px;padding:11px 12px!important}
+  .scope :global(.attendance-meeting-option)[data-selected="true"]{padding:10px 11px!important}
+}
