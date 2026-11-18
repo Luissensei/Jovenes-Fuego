@@ -1,7 +1,7 @@
 import styles from './styles/DevotionalsPage.module.css';
 import YouthDevotionalInbox from './YouthDevotionalInbox';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import {
   BookOpen,
   Plus,
@@ -33,6 +33,8 @@ function getLocalDate() {
 export default function DevotionalsPage() {
   const [devotionals, setDevotionals] = useState<DevotionalRecord[]>([]);
   const [search, setSearch] = useState('');
+  const deferredSearch = useDeferredValue(search);
+  const [visibleCount, setVisibleCount] = useState(24);
   const [category, setCategory] = useState('Todos');
   const [selected, setSelected] = useState<DevotionalRecord | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -85,21 +87,33 @@ export default function DevotionalsPage() {
     return () => { mountedRef.current = false; };
   }, []);
 
+  // Normaliza el texto una sola vez: no volver a recorrer reflexiones extensas
+  // ni cadenas de imágenes base64 en cada pulsación del buscador.
+  const searchableDevotionals = useMemo(() => devotionals.map((item) => ({
+    item,
+    title: item.title.toLocaleLowerCase('es'),
+    reference: item.reference.toLocaleLowerCase('es'),
+    content: item.content.toLocaleLowerCase('es'),
+  })), [devotionals]);
+
   const filtered = useMemo(() => {
-    const term = search.toLowerCase().trim();
+    const term = deferredSearch.toLocaleLowerCase('es').trim();
+    return searchableDevotionals
+      .filter(({item, title: searchableTitle, reference: searchableReference, content: searchableContent}) => {
+        const matchesSearch = !term ||
+          searchableTitle.includes(term) ||
+          searchableReference.includes(term) ||
+          searchableContent.includes(term);
+        return matchesSearch && (category === 'Todos' || item.category === category);
+      })
+      .map(({item}) => item);
+  }, [searchableDevotionals, deferredSearch, category]);
 
-    return devotionals.filter((item) => {
-      const matchesSearch =
-        item.title.toLowerCase().includes(term) ||
-        item.reference.toLowerCase().includes(term) ||
-        item.content.toLowerCase().includes(term);
+  useEffect(() => {
+    setVisibleCount(24);
+  }, [search, category]);
 
-      const matchesCategory =
-        category === 'Todos' || item.category === category;
-
-      return matchesSearch && matchesCategory;
-    });
-  }, [devotionals, search, category]);
+  const visibleDevotionals = filtered.slice(0, visibleCount);
 
   function resetForm() {
     setTitle('');
@@ -341,7 +355,7 @@ export default function DevotionalsPage() {
           <div className="devotionals-empty">
             Cargando devocionales...
           </div>
-        ) : filtered.map((item) => (
+        ) : visibleDevotionals.map((item) => (
           <article className="devotional-card" key={item.id}>
             <div className="devotional-card-top">
               <span className="devotional-category">{item.category}</span>
@@ -385,6 +399,14 @@ export default function DevotionalsPage() {
                 ? 'Todavía no se han publicado devocionales.'
                 : 'Intenta con otra búsqueda o categoría.'}
             </p>
+          </div>
+        )}
+        {!loading && filtered.length > visibleDevotionals.length && (
+          <div className="devotionals-load-more">
+            <span>Mostrando {visibleDevotionals.length} de {filtered.length}</span>
+            <button type="button" onClick={() => setVisibleCount((count) => count + 24)}>
+              Cargar 24 más
+            </button>
           </div>
         )}
       </section>

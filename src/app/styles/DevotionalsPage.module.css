@@ -381,3 +381,66 @@
 }
 .scope :global(.devotional-card-actions) :global(.devotional-card-delete):disabled{opacity:.55;cursor:wait}
 .scope :global(.devotional-publish-cta):disabled{opacity:.6;cursor:wait}
+
+
+/* Corrección de composición y rendimiento móvil del módulo Devocionales. */
+.scope:global(.devotionals-page) { min-width:0; align-content:start; gap:clamp(14px,2vw,22px); }
+.scope :global(.devotionals-hero) { min-width:0; flex-wrap:wrap; align-items:flex-start; }
+.scope :global(.devotionals-hero)>div,
+.scope :global(.devotional-publisher-copy),
+.scope :global(.devotional-flyer-upload) { min-width:0; }
+.scope :global(.devotional-publisher-card) {
+  display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); align-items:start;
+  gap:20px; min-width:0; padding:clamp(16px,2.4vw,24px); border:1px solid var(--jf-line);
+  border-radius:16px; background:var(--jf-surface); box-shadow:var(--jf-shadow);
+}
+.scope :global(.devotional-publisher-copy) h2 { margin:8px 0; color:var(--jf-ink); font-size:clamp(18px,2.5vw,23px); line-height:1.25; }
+.scope :global(.devotional-publisher-copy) p,
+.scope :global(.devotional-flyer-empty) { color:var(--jf-muted); line-height:1.55; }
+.scope :global(.devotional-publisher-kicker) { display:inline-flex; align-items:center; gap:7px; color:var(--jf-brand); font-size:10px; font-weight:850; letter-spacing:.08em; }
+.scope :global(.devotional-flyer-upload) { display:grid; gap:12px; }
+.scope :global(.devotional-flyer-picker) { display:grid; justify-items:center; gap:7px; padding:18px; border:1px dashed var(--jf-line-strong); border-radius:13px; color:var(--jf-brand); background:var(--jf-surface-2); text-align:center; cursor:pointer; }
+.scope :global(.devotional-flyer-picker) small { color:var(--jf-muted); font-size:11px; }
+.scope :global(.devotional-flyer-upload)>input[type="file"] { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+.scope :global(.devotional-story-previews) { display:grid; grid-template-columns:repeat(auto-fit,minmax(88px,1fr)); gap:9px; min-width:0; }
+.scope :global(.devotional-flyer-preview) { display:grid; gap:5px; min-width:0; font-size:11px; color:var(--jf-muted); }
+.scope :global(.devotional-flyer-preview) img { width:100%; aspect-ratio:4/5; object-fit:cover; border-radius:9px; }
+.scope :global(.devotional-flyer-preview) button { min-height:34px; color:var(--jf-ember-strong); }
+.scope :global(.devotional-flyer-ready) { grid-column:1/-1; color:var(--jf-success); font-size:11px; font-weight:750; }
+.scope :global(.devotional-publish-cta) { width:100%; min-height:44px; }
+.scope :global(.devotionals-grid) { grid-template-columns:repeat(2,minmax(0,1fr)); align-items:stretch; }
+.scope :global(.devotional-card) { min-width:0; overflow:hidden; overflow-wrap:anywhere; contain:layout paint; }
+.scope :global(.devotional-admin-flyer) { display:block; width:100%; max-height:260px; aspect-ratio:16/9; object-fit:cover; border-radius:10px; background:var(--jf-surface-2); }
+.scope :global(.devotional-preview) { display:-webkit-box; overflow:hidden; -webkit-box-orient:vertical; -webkit-line-clamp:4; }
+.scope :global(.devotional-card-footer) { flex-wrap:wrap; align-items:flex-end; }
+.scope :global(.devotional-card-actions) { display:flex; flex-wrap:wrap; gap:8px; min-width:0; }
+.scope :global(.devotionals-load-more) { grid-column:1/-1; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:12px; padding:8px; color:var(--jf-muted); font-size:12px; }
+.scope :global(.devotionals-load-more) button { min-height:42px; padding:9px 16px; border:1px solid var(--jf-line-strong); border-radius:10px; color:var(--jf-brand-ink); background:var(--jf-brand-soft); font-weight:750; }
+.scope :global(.devotionals-overlay) { overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom)); }
+.scope :global(.devotionals-modal) { width:min(100%,620px); max-height:min(88dvh,820px); min-width:0; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+.scope :global(.devotionals-modal) :is(input,select,textarea) { width:100%; min-width:0; max-width:100%; box-sizing:border-box; }
+.scope :global(.devotionals-modal) textarea { resize:vertical; min-height:88px; }
+.scope :global(.devotionals-modal) button { min-height:42px; }
+@media(max-width:760px) {
+  .scope:global(.devotionals-page) { gap:15px; }
+  .scope :global(.devotionals-hero) { align-items:stretch; }
+  .scope :global(.devotionals-hero)>button { width:100%; min-height:46px; }
+  .scope :global(.devotional-publisher-card) { grid-template-columns:minmax(0,1fr); gap:12px; }
+  .scope :global(.devotionals-feature) { align-items:flex-start; padding:17px; }
+  .scope :global(.devotionals-grid) { grid-template-columns:minmax(0,1fr); gap:12px; }
+  .scope :global(.devotional-card) { padding:15px; }
+  .scope :global(.devotional-card-footer) { align-items:flex-start; }
+  .scope :global(.devotional-card-actions) { width:100%; justify-content:space-between; }
+  .scope :global(.devotional-card-actions) button { min-height:42px; }
+  .scope :global(.devotionals-modal) { padding:17px; border-radius:14px; }
+}
+@media(max-width:380px) {
+  .scope :global(.devotionals-categories) { gap:6px; }
+  .scope :global(.devotionals-categories) button { padding:8px 10px; font-size:12px; }
+  .scope :global(.devotional-card-actions) { gap:4px; }
+  .scope :global(.devotional-card-actions) button { padding-inline:7px; font-size:11px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .scope :global(.devotional-card),
+  .scope :global(.devotionals-load-more) button { transition:none!important; }
+}
