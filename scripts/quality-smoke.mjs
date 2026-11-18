@@ -4,13 +4,16 @@ import { resolve } from 'node:path';
 
 const root = process.cwd();
 const read = (path) => readFile(resolve(root, path), 'utf8');
-const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource] = await Promise.all([
+const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, themePreference] = await Promise.all([
   read('public/manifest.webmanifest'),
   read('public/sw.js'),
   read('src/services/firebase/client.ts'),
   read('src/app/modules.ts'),
   read('src/app/App.tsx'),
+  read('src/app/useThemePreference.ts'),
 ]);
+
+assert.match(themePreference, /theme === 'dark' \? '#0B0720' : '#F2E9FF'/, 'El color de la barra del navegador debe coincidir con la paleta oficial.');
 
 const manifest = JSON.parse(manifestText);
 assert.equal(manifest.name, 'Jóvenes de Fuego', 'El manifiesto debe identificar la aplicación.');
