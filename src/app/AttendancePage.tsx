@@ -169,18 +169,79 @@ export default function AttendancePage() {
     return [...ids].some((memberId) => savedAttendance[memberId] !== attendance[memberId]);
   }, [savedAttendance, attendance]);
 
+  const scheduledMeetings = useMemo<AttendanceMeeting[]>(() => {
+    if (meetings.length === 0) return [];
+    const today = localDateInput();
+    const firstDate = meetings.reduce((earliest, meeting) =>
+      meeting.date && meeting.date < earliest ? meeting.date : earliest, today);
+    const lastDate = today;
+    const existing = new Set(meetings.map((meeting) => `${meeting.date}|${meeting.name.trim().toLocaleLowerCase('es')}`));
+    const schedule: Array<{weekday: number; name: string}> = [
+      {weekday: 2, name: 'Discipulado'},
+      {weekday: 3, name: 'Servicio de miércoles'},
+      {weekday: 5, name: 'Servicio de viernes'},
+      {weekday: 6, name: 'Servicio de jóvenes'},
+      {weekday: 0, name: 'Escuela dominical'},
+    ];
+    const generated: AttendanceMeeting[] = [];
+    const cursor = new Date(`${firstDate}T12:00:00Z`);
+    const end = new Date(`${lastDate}T12:00:00Z`);
+    for (; cursor <= end; cursor.setUTCDate(cursor.getUTCDate() + 1)) {
+      const date = cursor.toISOString().slice(0, 10);
+      const day = cursor.getUTCDay();
+      const event = schedule.find((item) => item.weekday === day);
+      if (event && !existing.has(`${date}|${event.name.toLocaleLowerCase('es')}`)) {
+        generated.push({
+          id: `scheduled_${date}_${event.weekday}`,
+          name: event.name,
+          date,
+          createdAt: '',
+          participants: [],
+        });
+      }
+    }
+
+    // El ayuno juvenil se programa cada 15 días tomando como referencia
+    // la fecha de un ayuno que ya exista en el historial real.
+    const fastingDates = meetings
+      .filter((meeting) => /ayuno.*juvenil|ayuno y servicio de jóvenes/i.test(meeting.name))
+      .map((meeting) => meeting.date)
+      .filter(Boolean)
+      .sort();
+    if (fastingDates.length > 0) {
+      const anchor = new Date(`${fastingDates[0]}T12:00:00Z`);
+      const current = new Date(anchor);
+      while (current <= end) {
+        const date = current.toISOString().slice(0, 10);
+        const name = 'Ayuno juvenil';
+        if (date >= firstDate && !existing.has(`${date}|${name.toLocaleLowerCase('es')}`) &&
+          !existing.has(`${date}|ayuno y servicio de jóvenes`)) {
+          generated.push({id: `scheduled_${date}_fast`, name, date, createdAt: '', participants: []});
+        }
+        current.setUTCDate(current.getUTCDate() + 15);
+      }
+    }
+    return generated;
+  }, [meetings]);
+
+  const allMeetings = useMemo(
+    () => [...meetings, ...scheduledMeetings],
+    [meetings, scheduledMeetings],
+  );
+
   const sortedMeetings = useMemo(
-    () => [...meetings].sort((left, right) =>
+    () => [...allMeetings].sort((left, right) =>
       right.date.localeCompare(left.date) || left.name.localeCompare(right.name, 'es'),
     ),
-    [meetings],
+    [allMeetings],
   );
 
   const filteredMeetings = useMemo(() => {
     const term = meetingSearch.trim().toLocaleLowerCase('es');
     return sortedMeetings.filter((meeting) => {
+      const isScheduled = meeting.id.startsWith('scheduled_');
       const registered = new Set(meeting.participants.map((participant) => participant.memberId)).size;
-      const incomplete = registered < members.length;
+      const incomplete = isScheduled || registered < members.length;
       const matchesFilter = meetingFilter === 'all' ||
         (meetingFilter === 'pending' ? incomplete : !incomplete);
       const matchesSearch = !term ||
@@ -227,16 +288,31 @@ export default function AttendancePage() {
     setMessage('');
   }
 
-  function handleMeetingSelection(nextMeetingId: string) {
+  async function handleMeetingSelection(nextMeetingId: string) {
     if (nextMeetingId === selectedMeetingId) return;
     if (hasUnsavedChanges && !window.confirm(
       'Hay marcas sin guardar en esta reunión. ¿Quieres descartarlas y abrir la reunión seleccionada?',
     )) return;
     clearAttendanceDraft(selectedMeetingId);
-    setSelectedMeetingId(nextMeetingId);
     setMemberSearch('');
     setMessage('');
     setError('');
+    const scheduled = scheduledMeetings.find((meeting) => meeting.id === nextMeetingId);
+    if (scheduled) {
+      setSaving(true);
+      try {
+        const result = await createAttendanceMeeting({name: scheduled.name, date: scheduled.date});
+        await loadData(result.meetingId, false, true);
+        setSelectedMeetingId(result.meetingId);
+        setMessage('Servicio programado creado. Ya puedes registrar la asistencia.');
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : 'No se pudo preparar el servicio seleccionado.');
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+    setSelectedMeetingId(nextMeetingId);
   }
 
   async function handleCreateMeeting(event: FormEvent<HTMLFormElement>) {
@@ -406,7 +482,7 @@ export default function AttendancePage() {
             <h2>Elegir reunión para asistencia</h2>
             <p>Busca cualquier servicio anterior y abre también los que todavía están pendientes.</p>
           </div>
-          <span className="attendance-meeting-total">{meetings.length} reuniones</span>
+          <span className="attendance-meeting-total">{allMeetings.length} fechas</span>
         </div>
         {loading ? (
           <p>Consultando reuniones y jóvenes...</p>
@@ -429,10 +505,10 @@ export default function AttendancePage() {
             </label>
             <div className="attendance-meeting-filters" role="group" aria-label="Filtrar reuniones">
               <button type="button" data-active={meetingFilter === 'all'} onClick={() => setMeetingFilter('all')}>
-                Todas <span>{meetings.length}</span>
+                Todas <span>{allMeetings.length}</span>
               </button>
               <button type="button" data-active={meetingFilter === 'pending'} onClick={() => setMeetingFilter('pending')}>
-                Pendientes <span>{meetings.filter((meeting) =>
+                Pendientes <span>{allMeetings.filter((meeting) => meeting.id.startsWith('scheduled_') ||
                   new Set(meeting.participants.map((participant) => participant.memberId)).size < members.length,
                 ).length}</span>
               </button>
@@ -444,6 +520,7 @@ export default function AttendancePage() {
             </div>
             <div className="attendance-meeting-list" aria-label="Reuniones disponibles">
               {filteredMeetings.map((meeting) => {
+                const isScheduled = meeting.id.startsWith('scheduled_');
                 const registered = new Set(meeting.participants.map((participant) => participant.memberId)).size;
                 const pending = Math.max(0, members.length - registered);
                 const isSelected = selectedMeetingId === meeting.id;
@@ -453,14 +530,14 @@ export default function AttendancePage() {
                     key={meeting.id}
                     className="attendance-meeting-option"
                     data-selected={isSelected}
-                    onClick={() => handleMeetingSelection(meeting.id)}
+                    onClick={() => void handleMeetingSelection(meeting.id)}
                     disabled={saving || loading}
                     aria-pressed={isSelected}
                   >
                     <span className="attendance-meeting-option-date">{formatMeetingDate(meeting.date)}</span>
                     <strong>{meeting.name}</strong>
                     <span className={pending > 0 ? 'attendance-meeting-state is-pending' : 'attendance-meeting-state is-complete'}>
-                      {pending > 0 ? (registered === 0 ? 'Sin asistencia' : `${pending} pendientes`) : 'Asistencia completa'}
+                      {isScheduled ? 'Servicio por crear' : pending > 0 ? (registered === 0 ? 'Sin asistencia' : `${pending} pendientes`) : 'Asistencia completa'}
                     </span>
                     <span className="attendance-meeting-option-arrow" aria-hidden="true">›</span>
                   </button>
