@@ -49,12 +49,12 @@
 .scope :global(.attendance-member-status){display:grid;gap:6px;min-width:0}
 .scope :global(.attendance-unmarked){color:var(--jf-warning,#94621c);font-size:10px;font-weight:750}
 .scope :global(.attendance-status-options){display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;min-width:0}
-.scope :global(.attendance-member) :global(.attendance-status-button){min-width:0;min-height:39px;padding:7px 6px;border:1px solid color-mix(in srgb,var(--status-tone) 36%,var(--jf-line))!important;border-radius:8px;background:color-mix(in srgb,var(--status-tone) 8%,var(--jf-surface))!important;color:var(--status-ink)!important;font-size:clamp(9px,.78vw,11px);font-weight:750;line-height:1.2;white-space:normal;overflow-wrap:anywhere;box-shadow:none}
-.scope :global(.attendance-member) :global(.tone-present){--status-tone:#16865c;--status-ink:#126746}
-.scope :global(.attendance-member) :global(.tone-late){--status-tone:#b77a14;--status-ink:#85570e}
-.scope :global(.attendance-member) :global(.tone-missing){--status-tone:#c34252;--status-ink:#a52f40}
-.scope :global(.attendance-member) :global(.tone-justified){--status-tone:#3479bd;--status-ink:#245e96}
-.scope :global(.attendance-member) :global(.tone-absent){--status-tone:#7b8795;--status-ink:#566271}
+.scope :global(.attendance-member) :global(.attendance-status-button){min-width:0;min-height:39px;padding:7px 6px;border:1px solid color-mix(in srgb,var(--status-tone) 36%,var(--jf-line))!important;border-radius:8px;background:color-mix(in srgb,var(--status-tone) 16%,var(--jf-surface))!important;color:var(--status-ink)!important;font-size:clamp(9px,.78vw,11px);font-weight:750;line-height:1.2;white-space:normal;overflow-wrap:anywhere;box-shadow:none}
+.scope :global(.attendance-member) :global(.tone-present){--status-tone:#16865c;--status-ink:#0d6846}
+.scope :global(.attendance-member) :global(.tone-late){--status-tone:#b77a14;--status-ink:#805006}
+.scope :global(.attendance-member) :global(.tone-missing){--status-tone:#c34252;--status-ink:#9f2638}
+.scope :global(.attendance-member) :global(.tone-justified){--status-tone:#3479bd;--status-ink:#205a91}
+.scope :global(.attendance-member) :global(.tone-absent){--status-tone:#7b8795;--status-ink:#4e5c6c}
 .scope :global(.attendance-member) :global(.attendance-status-button)[aria-pressed="true"]{border-color:var(--status-tone)!important;background:var(--status-tone)!important;color:#fff!important;box-shadow:0 3px 10px color-mix(in srgb,var(--status-tone) 20%,transparent)}
 .scope :global(.attendance-member) :global(.attendance-status-button):hover:not(:disabled){filter:brightness(.98);transform:translateY(-1px)}
 .scope :global(.attendance-unsaved-note){margin:12px 0 8px;padding:10px 12px;border:1px solid color-mix(in srgb,var(--jf-warning,#94621c) 28%,var(--jf-line));border-radius:9px;background:var(--jf-warning-soft,#f7efdf);color:var(--jf-warning,#94621c);font-size:11px;line-height:1.5}
@@ -89,8 +89,8 @@
     0 4px 12px color-mix(in srgb, var(--status-tone) 24%, transparent);
 }
 .scope :global(.attendance-member) :global(.attendance-status-button)[data-selected="false"] {
-  opacity: .88;
-  background: color-mix(in srgb, var(--status-tone) 7%, var(--jf-surface)) !important;
+  opacity: 1;
+  background: color-mix(in srgb, var(--status-tone) 16%, var(--jf-surface)) !important;
 }
 .scope :global(.attendance-clear-button) {
   justify-self: start;
