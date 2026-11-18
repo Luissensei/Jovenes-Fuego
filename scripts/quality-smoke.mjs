@@ -74,4 +74,37 @@ for (const restricted of ['assistant', 'community-moderation', 'youth-pins', 'pa
   assert.ok(!manageablePermissions.includes(restricted), 'El módulo restringido ' + restricted + ' no debe asignarse a líderes.');
 }
 
-console.log('Smoke checks correctos: PWA, Firebase original, caché privada y ' + moduleIds.length + ' módulos.');
+
+const functionsSource = await read('functions/src/index.ts');
+const callableBlocks = [...functionsSource.matchAll(/export const (\\w+) = onCall\\([\\s\\S]*?\\n\\}\\);/g)];
+assert.ok(callableBlocks.length >= 60, 'Debe auditarse el catálogo completo de Cloud Functions callable.');
+const publicCallableAllowlist = new Set([
+  'signInWithUsername', 'getMyApplicationProfile',
+  'getYouthProfilePinStatus', 'activateYouthProfilePin', 'verifyYouthProfilePin',
+  'getYouthCommunityAnnouncements', 'getYouthCommunityFeed', 'deleteYouthCommunityPost',
+  'createYouthCommunityPost', 'createYouthCommunityComment', 'toggleYouthCommunityReaction',
+  'reportYouthCommunityPost', 'saveYouthProfileAppearance', 'purchaseYouthLookItem',
+  'purchaseYouthLookBundle', 'getPublicProfiles', 'getPublicRankingMetrics',
+  'getPublicDevotionals', 'submitYouthDevotional', 'getPublicWeeklyActivities',
+  'setYouthWeeklyActivityAttendance', 'getYouthWeeklyActivityAttendance',
+  'submitPublicPrayerRequest', 'getPublicHallOfFame',
+]);
+const auditedCallables = new Set();
+for (const callable of callableBlocks) {
+  const name = callable[1];
+  const body = callable[0];
+  auditedCallables.add(name);
+  if (publicCallableAllowlist.has(name)) continue;
+  assert.match(body, /request\\.auth/, name + ' debe comprobar autenticación.');
+  assert.match(
+    body,
+    /require(?:Admin|AdminOrPastor|ModulePermission|YouthPinManager)\\(/,
+    name + ' debe comprobar permisos en backend.',
+  );
+}
+assert.equal(auditedCallables.size, callableBlocks.length, 'No puede haber nombres callable duplicados.');
+for (const publicName of publicCallableAllowlist) {
+  assert.ok(auditedCallables.has(publicName), 'La lista pública debe corresponder a una función existente: ' + publicName);
+}
+
+console.log('Smoke checks correctos: PWA, Firebase original, caché privada, ' + moduleIds.length + ' módulos y ' + callableBlocks.length + ' callables con control de acceso.');
