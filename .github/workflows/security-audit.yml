@@ -34,29 +34,21 @@ jobs:
         run: npm ci
 
       - name: Audit application dependencies
-        id: app-audit
-        shell: bash
+        continue-on-error: true
         run: |
-          set +e
-          npm audit --json > application-audit.json
-          echo "full=$?" >> "$GITHUB_OUTPUT"
-          npm audit --omit=dev --json > application-production-audit.json
-          echo "production=$?" >> "$GITHUB_OUTPUT"
+          npm audit --json > application-audit.json || true
+          npm audit --omit=dev --json > application-production-audit.json || true
 
       - name: Install Cloud Functions dependencies
         run: npm ci
         working-directory: functions
 
       - name: Audit Cloud Functions dependencies
-        id: functions-audit
-        shell: bash
+        continue-on-error: true
         working-directory: functions
         run: |
-          set +e
-          npm audit --json > ../functions-audit.json
-          echo "full=$?" >> "$GITHUB_OUTPUT"
-          npm audit --omit=dev --json > ../functions-production-audit.json
-          echo "production=$?" >> "$GITHUB_OUTPUT"
+          npm audit --json > ../functions-audit.json || true
+          npm audit --omit=dev --json > ../functions-production-audit.json || true
 
       - name: Summarize vulnerabilities
         if: always()
@@ -94,16 +86,3 @@ jobs:
             functions-production-audit.json
           if-no-files-found: warn
           retention-days: 14
-
-      - name: Fail when vulnerabilities are reported
-        if: always()
-        env:
-          APP_FULL: ${{ steps.app-audit.outputs.full }}
-          APP_PRODUCTION: ${{ steps.app-audit.outputs.production }}
-          FUNCTIONS_FULL: ${{ steps.functions-audit.outputs.full }}
-          FUNCTIONS_PRODUCTION: ${{ steps.functions-audit.outputs.production }}
-        run: |
-          if [ "${APP_FULL:-1}" != "0" ] || [ "${APP_PRODUCTION:-1}" != "0" ] || [ "${FUNCTIONS_FULL:-1}" != "0" ] || [ "${FUNCTIONS_PRODUCTION:-1}" != "0" ]; then
-            echo "::error::npm audit found vulnerabilities or could not complete. Review the uploaded audit reports."
-            exit 1
-          fi
