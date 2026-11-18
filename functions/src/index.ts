@@ -3379,7 +3379,7 @@ export const getAttendanceMeetings = onCall(async (request) => {
 
   const [modernSnapshot, legacySnapshot] = await Promise.all([
     db.collection("attendanceMeetings").orderBy("date", "desc").limit(300).get(),
-    db.collection("attendance").orderBy(FieldPath.documentId(), "desc").limit(1000).get(),
+    db.collection("attendance").limit(1000).get(),
   ]);
 
   // Resolve only member documents whose names are actually needed by this
@@ -3453,7 +3453,9 @@ export const getAttendanceMeetings = onCall(async (request) => {
     otr: "Otro servicio o actividad",
     gen: "Servicio",
   };
-  const legacy = legacySnapshot.docs.map((document) => {
+  const legacy = [...legacySnapshot.docs]
+    .sort((left, right) => right.id.localeCompare(left.id))
+    .map((document) => {
     const data = document.data();
     const [date = "", service = "gen"] = document.id.split("_");
     const records = data.r && typeof data.r === "object"
