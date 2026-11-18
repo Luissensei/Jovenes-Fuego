@@ -41,5 +41,8 @@ jobs:
       - name: Lint application
         run: npm run lint
 
+      - name: Run project smoke checks
+        run: npm run check:smoke
+
       - name: Lint Cloud Functions
         run: npm --prefix functions run lint
