@@ -23,9 +23,17 @@ const attendanceOptions: Array<{value: AttendanceStatus; label: string; tone: st
   {value: 'Ausente', label: 'Ausente', tone: 'absent'},
 ];
 
+// La fecha operativa de la iglesia se calcula siempre en Colombia,
+// aunque el dispositivo tenga configurada otra zona horaria.
 function localDateInput() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Bogota',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
 }
 
 export default function AttendancePage() {
@@ -151,11 +159,15 @@ export default function AttendancePage() {
   function formatMeetingDate(value: string) {
     const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
     if (!match) return value;
-    return new Date(`${value}T12:00:00`).toLocaleDateString('es-CO', {
+    // Construir desde componentes UTC evita que la fecha del servicio
+    // cambie al mostrarla en dispositivos con zonas horarias distintas.
+    const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+    return new Intl.DateTimeFormat('es-CO', {
+      timeZone: 'UTC',
       day: '2-digit',
       month: 'short',
       year: 'numeric',
-    });
+    }).format(date);
   }
 
   function updateMeetingDraft(memberId: string, status: AttendanceStatus | null) {
