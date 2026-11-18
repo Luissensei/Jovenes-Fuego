@@ -23,6 +23,8 @@ import './styles/admin-module-quality.css';
 import './styles/jdf-brand-palette.css';
 // Final applied visual layer: overrides legacy blue/green theme declarations.
 import './styles/jdf-applied-design.css';
+// Final touch-device performance and layout-stability layer.
+import './styles/mobile-runtime-stability.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';

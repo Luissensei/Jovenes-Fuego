@@ -95,7 +95,10 @@ const adminModulePreloaders: Record<string, () => Promise<unknown>> = {
 const preloadedAdminModules = new Set<string>();
 function preloadAdminModule(id: string) {
   const connection = (navigator as Navigator & {connection?: {saveData?: boolean; effectiveType?: string}}).connection;
-  if (connection?.saveData || connection?.effectiveType === 'slow-2g' || connection?.effectiveType === '2g' || preloadedAdminModules.has(id)) return;
+  // En pantallas táctiles el pointerenter se dispara al tocar enlaces:
+  // evitar descargas anticipadas que compiten con la navegación y el render.
+  const touchDevice = window.matchMedia('(max-width: 900px), (pointer: coarse)').matches;
+  if (touchDevice || connection?.saveData || connection?.effectiveType === 'slow-2g' || connection?.effectiveType === '2g' || preloadedAdminModules.has(id)) return;
   const preload = adminModulePreloaders[id];
   if (!preload) return;
   preloadedAdminModules.add(id);

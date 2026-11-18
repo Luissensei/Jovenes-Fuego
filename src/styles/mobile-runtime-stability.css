@@ -1,0 +1,85 @@
+/* Mobile runtime stability: reduce main-thread and GPU work on touch devices. */
+@media (max-width: 900px), (pointer: coarse) {
+  html, body {
+    scroll-behavior: auto !important;
+    -webkit-text-size-adjust: 100%;
+  }
+  body, #root, .layout, .main, .youth-portal {
+    min-height: 100svh;
+  }
+  .main, .jf-route-stage, .youth-portal {
+    min-width: 0;
+    transform: none !important;
+  }
+  .jf-route-stage,
+  .jf-route-stage > * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .main > .topline,
+  .mobile-header,
+  .scrim {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .main > .topline,
+  .mobile-header {
+    background: var(--jf-surface, #fff) !important;
+  }
+  .scrim {
+    background: rgba(8, 12, 18, .42) !important;
+  }
+  .sidebar {
+    transition: transform .16s ease, visibility .16s ease !important;
+    box-shadow: 8px 0 22px rgba(0, 0, 0, .18) !important;
+  }
+  .sidebar nav.jf-module-navigation,
+  .devotionals-overlay,
+  .devotionals-modal,
+  [role="dialog"] {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  .youth-profile-card,
+  .youth-profiles-exit,
+  .youth-profiles-exit .youth-profile-card {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .youth-profiles {
+    contain: layout style;
+  }
+  .main :is(button, a, input, select, textarea) {
+    touch-action: manipulation;
+  }
+  .main :is(.table-wrapper, [class*="table-wrapper"], [class*="TableWrapper"], .table-scroll) {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+  .youth-results-count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .youth-results-count button {
+    min-height: 40px;
+    padding: 8px 14px;
+    border: 1px solid var(--jf-line, #ddd);
+    border-radius: 10px;
+    background: var(--jf-surface, #fff);
+    color: var(--jf-brand, #6a2fc8);
+    font-weight: 750;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jf-route-stage,
+  .jf-route-stage > *,
+  .youth-profile-card {
+    animation: none !important;
+    transition: none !important;
+  }
+}

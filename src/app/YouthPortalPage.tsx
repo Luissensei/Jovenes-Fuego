@@ -510,6 +510,8 @@ export default function YouthPortalPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const deferredSearch = useDeferredValue(search);
+  const [visibleProfileCount, setVisibleProfileCount] = useState(30);
   const [selectedProfile, setSelectedProfile] = useState<PublicProfile | null>(null);
   const [pendingProfile, setPendingProfile] = useState<PublicProfile | null>(null);
   const [pinMode, setPinMode] = useState<'loading' | 'activate' | 'verify'>('loading');
@@ -691,11 +693,23 @@ export default function YouthPortalPage() {
     }
   }, [selectedProfile]);
 
+  const searchableProfiles = useMemo(() => profiles.map((profile) => ({
+    profile,
+    searchText: `${profile.name} ${profile.nick}`.toLocaleLowerCase('es'),
+  })), [profiles]);
+
   const filteredProfiles = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase('es');
-    if (!query) return profiles;
-    return profiles.filter((profile) => `${profile.name} ${profile.nick}`.toLocaleLowerCase('es').includes(query));
-  }, [profiles, search]);
+    const query = deferredSearch.trim().toLocaleLowerCase('es');
+    return searchableProfiles
+      .filter(({searchText}) => !query || searchText.includes(query))
+      .map(({profile}) => profile);
+  }, [searchableProfiles, deferredSearch]);
+
+  useEffect(() => {
+    setVisibleProfileCount(30);
+  }, [search]);
+
+  const visibleProfiles = filteredProfiles.slice(0, visibleProfileCount);
 
   const communityRanking = useMemo(() => {
     const sorted = [...profiles].sort((a, b) =>
@@ -1450,7 +1464,7 @@ export default function YouthPortalPage() {
           {!loading && !error && filteredProfiles.length > 0 && (
             <>
               <div className={`youth-profiles ${openingProfileId ? "youth-profiles-exit" : ""}`}>
-                {filteredProfiles.map((profile,index) => (
+                {visibleProfiles.map((profile,index) => (
                   <button type="button" className={`youth-profile-card float-card-${index % 4} ${openingProfileId === profile.id ? "is-opening" : ""}`} key={profile.id} disabled={Boolean(openingProfileId)} onClick={() => enterProfile(profile)} style={{animationDelay: `${Math.min(index,12) * 55}ms`}}>
                     <span className="youth-card-decoration"><Flame size={15}/></span>
                     <YouthAvatar profile={profile}/>
@@ -1460,7 +1474,15 @@ export default function YouthPortalPage() {
                   </button>
                 ))}
               </div>
-              <div className="youth-results-count">Mostrando {filteredProfiles.length} de {profiles.length} perfiles</div>
+              <div className="youth-results-count">
+                Mostrando {visibleProfiles.length} de {filteredProfiles.length} resultados
+                {visibleProfiles.length < filteredProfiles.length && (
+                  <button type="button" onClick={() => setVisibleProfileCount((count) => count + 30)}>
+                    Mostrar 30 más
+                  </button>
+                )}
+                <span className="jf-sr-only">Total de perfiles: {profiles.length}</span>
+              </div>
             </>
           )}
         </section>
