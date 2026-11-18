@@ -3545,6 +3545,16 @@ export const saveMeetingAttendance = onCall(async (request) => {
     if (id) previousById.set(id, item);
   });
 
+  // En reuniones antiguas, permitir conservar/actualizar a miembros que ya no
+  // están en el directorio activo, siempre que tengan un registro histórico.
+  const legacyRef = db.collection("attendance").doc(meetingId);
+  const legacySnapshotForValidation = !meetingSnapshot.exists ? await legacyRef.get() : null;
+  const legacyRecordsForValidation = legacySnapshotForValidation?.exists &&
+    legacySnapshotForValidation.data()?.r &&
+    typeof legacySnapshotForValidation.data()?.r === "object"
+    ? legacySnapshotForValidation.data()!.r as Record<string, unknown>
+    : {};
+
   const refs = participantIds.map((id) => db.collection("members").doc(id));
   const memberSnapshots = refs.length ? await db.getAll(...refs) : [];
   const participants = rawParticipants.map((item, index) => {
@@ -3561,12 +3571,17 @@ export const saveMeetingAttendance = onCall(async (request) => {
       const previous = previousById.get(participantIds[index]);
       const previousStatus = text(previous?.status, 20);
       const normalizedPreviousStatus = previousStatus === "Justificado" ? "Justificada" : previousStatus;
-      if (!previous || !validStatuses.includes(normalizedPreviousStatus)) {
-        throw new HttpsError("not-found", "Uno de los jóvenes ya no existe en la colección members.");
+      const legacyPrevious = legacyRecordsForValidation[participantIds[index]];
+      const legacyCode = legacyPrevious && typeof legacyPrevious === "object"
+        ? text((legacyPrevious as Record<string, unknown>).s, 10)
+        : "";
+      const hasLegacyRecord = ["P", "T", "F", "J", "A"].includes(legacyCode);
+      if ((!previous || !validStatuses.includes(normalizedPreviousStatus)) && !hasLegacyRecord) {
+        throw new HttpsError("not-found", "Uno de los jóvenes ya no existe en el directorio ni tiene un registro previo en esta reunión.");
       }
       return {
         memberId: participantIds[index],
-        name: text(previous.name, 120) || "Joven sin nombre",
+        name: text(previous?.name, 120) || text(row.name, 120) || participantIds[index],
         status,
       };
     }
@@ -3616,7 +3631,6 @@ export const saveMeetingAttendance = onCall(async (request) => {
       throw new HttpsError("not-found", "No se encontró el evento seleccionado.");
     }
 
-    const legacyRef = db.collection("attendance").doc(meetingId);
     await db.runTransaction(async (transaction) => {
       const legacySnapshot = await transaction.get(legacyRef);
       if (!legacySnapshot.exists) {
