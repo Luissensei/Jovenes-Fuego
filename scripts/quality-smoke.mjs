@@ -40,4 +40,38 @@ assert.equal(new Set(moduleIds).size, moduleIds.length, 'No puede haber IDs de m
 assert.equal(new Set(modulePaths).size, modulePaths.length, 'No puede haber rutas de módulos duplicadas.');
 for (const id of moduleIds) assert.ok(routeCases.has(id), 'El módulo ' + id + ' debe tener un renderizador explícito.');
 
+
+const permissionArray = (source, pattern, label) => {
+  const match = source.match(pattern);
+  assert.ok(match, 'Debe declararse ' + label + '.');
+  return [...match[1].matchAll(/['"]([^'"]+)['"]/g)].map((item) => item[1]);
+};
+const frontendLeaderPermissions = permissionArray(
+  await read('src/app/App.tsx'),
+  /const defaultLeaderModules = \[([\\s\\S]*?)\];/,
+  'los permisos predeterminados del líder en frontend',
+);
+const backendLeaderPermissions = permissionArray(
+  await read('functions/src/index.ts'),
+  /const defaultLeaderPermissions = \[([\\s\\S]*?)\];/,
+  'los permisos predeterminados del líder en backend',
+);
+const manageablePermissions = permissionArray(
+  await read('functions/src/index.ts'),
+  /const manageablePermissions = \[([\\s\\S]*?)\];/,
+  'el catálogo de permisos administrables',
+);
+assert.deepEqual(
+  [...frontendLeaderPermissions].sort(),
+  [...backendLeaderPermissions].sort(),
+  'Frontend y backend deben compartir exactamente los permisos predeterminados del líder.',
+);
+assert.equal(new Set(manageablePermissions).size, manageablePermissions.length, 'No puede haber permisos administrables duplicados.');
+for (const permission of manageablePermissions) {
+  assert.ok(moduleIds.includes(permission), 'El permiso ' + permission + ' debe corresponder a un módulo registrado.');
+}
+for (const restricted of ['assistant', 'community-moderation', 'youth-pins', 'pastoral', 'bonus', 'leaders', 'audit', 'settings', 'prayers', 'inbox']) {
+  assert.ok(!manageablePermissions.includes(restricted), 'El módulo restringido ' + restricted + ' no debe asignarse a líderes.');
+}
+
 console.log('Smoke checks correctos: PWA, Firebase original, caché privada y ' + moduleIds.length + ' módulos.');
