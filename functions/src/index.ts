@@ -3446,6 +3446,7 @@ export const getAttendanceMeetings = onCall(async (request) => {
   const serviceNames: Record<string, string> = {
     dis: "Discipulado",
     mie: "Servicio de miércoles",
+    sab: "Servicio de jóvenes",
     vie: "Servicio de viernes",
     ayj: "Ayuno y servicio de jóvenes",
     ayc: "Ayuno de la congregación",
