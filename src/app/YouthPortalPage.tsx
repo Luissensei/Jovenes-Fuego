@@ -1,6 +1,6 @@
 import styles from './styles/YouthPortalPage.module.css';
 import dashboardStyles from './styles/YouthPortalDashboard.module.css';
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import type {FormEvent} from 'react';
 
 import {
