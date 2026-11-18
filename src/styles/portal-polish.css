@@ -194,3 +194,55 @@ body .youth-portal .youth-tab-page {
   position:absolute; width:1px; height:1px; padding:0; margin:-1px;
   overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
 }
+
+
+/* Superficies sólidas y navegación clara: sin desenfoque pesado en el portal. */
+body .youth-portal :is(.youth-bottom-navigation,.youth-bottom-navigation button,
+  .youth-pin-backdrop,.jf-community-hero-mark) {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+body .youth-portal .youth-bottom-navigation {
+  background: #F2E9FF;
+  border-color: #D1B8FF;
+  box-shadow: 0 8px 26px rgba(37,19,77,.14);
+}
+:root[data-theme="dark"] body .youth-portal .youth-bottom-navigation {
+  background: #25134D;
+  border-color: #6A2FC8;
+  box-shadow: 0 8px 26px rgba(0,0,0,.28);
+}
+body .youth-portal .youth-bottom-navigation button {
+  min-height: 48px;
+  color: #25134D;
+}
+:root[data-theme="dark"] body .youth-portal .youth-bottom-navigation button {
+  color: #D1B8FF;
+}
+body .youth-portal .youth-bottom-navigation button.active {
+  color: #fff;
+  background: #6A2FC8;
+}
+:root[data-theme="dark"] body .youth-portal .youth-bottom-navigation button.active {
+  color: #fff;
+  background: #6A2FC8;
+}
+body .youth-portal :is(button,a,[role="button"],input,textarea,select):focus-visible {
+  outline: 3px solid #9D71E8 !important;
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  body .youth-portal .jf-community-layout {
+    grid-template-columns: minmax(0,1fr) !important;
+  }
+  body .youth-portal .jf-community-sidebar {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 10px;
+  }
+}
+@media (max-width: 380px) {
+  body .youth-portal .jf-community-sidebar {
+    grid-template-columns: minmax(0,1fr);
+  }
+}
