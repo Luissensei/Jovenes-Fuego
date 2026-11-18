@@ -19,6 +19,8 @@ import './styles/navigation-modern-blue.css';
 import './styles/brand-blue-refinement.css';
 import './styles/app-quality-accessibility.css';
 import './styles/admin-module-quality.css';
+// Final brand palette: violet + forest green, shared by admin and youth portal.
+import './styles/jdf-brand-palette.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
