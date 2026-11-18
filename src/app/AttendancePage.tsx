@@ -48,6 +48,8 @@ export default function AttendancePage() {
     Record<string, Record<string, AttendanceStatus | null>>
   >({});
   const [memberSearch, setMemberSearch] = useState('');
+  const [meetingSearch, setMeetingSearch] = useState('');
+  const [meetingFilter, setMeetingFilter] = useState<'all' | 'pending' | 'complete'>('all');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -173,6 +175,20 @@ export default function AttendancePage() {
     ),
     [meetings],
   );
+
+  const filteredMeetings = useMemo(() => {
+    const term = meetingSearch.trim().toLocaleLowerCase('es');
+    return sortedMeetings.filter((meeting) => {
+      const registered = new Set(meeting.participants.map((participant) => participant.memberId)).size;
+      const incomplete = registered < members.length;
+      const matchesFilter = meetingFilter === 'all' ||
+        (meetingFilter === 'pending' ? incomplete : !incomplete);
+      const matchesSearch = !term ||
+        `${meeting.name} ${meeting.date} ${formatMeetingDate(meeting.date)}`
+          .toLocaleLowerCase('es').includes(term);
+      return matchesFilter && matchesSearch;
+    });
+  }, [sortedMeetings, meetingSearch, meetingFilter, members.length]);
 
   function clearAttendanceDraft(meetingId: string) {
     if (!meetingId) return;
@@ -384,27 +400,77 @@ export default function AttendancePage() {
         </form>
       </section>
 
-      <section className="attendance-card">
-        <h2>Seleccionar reunión</h2>
+      <section className="attendance-card attendance-meeting-picker">
+        <div className="attendance-picker-heading">
+          <div>
+            <h2>Elegir reunión para asistencia</h2>
+            <p>Busca cualquier servicio anterior y abre también los que todavía están pendientes.</p>
+          </div>
+          <span className="attendance-meeting-total">{meetings.length} reuniones</span>
+        </div>
         {loading ? (
           <p>Consultando reuniones y jóvenes...</p>
         ) : meetings.length === 0 ? (
           <p>Todavía no hay reuniones registradas. Crea una para comenzar.</p>
         ) : (
-          <select
-            id="attendance-meeting"
-            aria-label="Seleccionar reunión para registrar asistencia"
-            value={selectedMeetingId}
-            onChange={(event) => handleMeetingSelection(event.target.value)}
-            disabled={saving || loading}
-          >
-            <option value="" disabled>Selecciona una reunión</option>
-            {sortedMeetings.map((meeting) => (
-              <option key={meeting.id} value={meeting.id}>
-                {formatMeetingDate(meeting.date)} · {meeting.name}
-              </option>
-            ))}
-          </select>
+          <>
+            <label className="attendance-meeting-search">
+              <Search size={17} aria-hidden="true" />
+              <input
+                type="search"
+                value={meetingSearch}
+                onChange={(event) => setMeetingSearch(event.target.value)}
+                placeholder="Buscar por servicio o fecha (ej. 18 nov 2025)..."
+                aria-label="Buscar reuniones por nombre o fecha"
+              />
+              {meetingSearch && (
+                <button type="button" onClick={() => setMeetingSearch('')} aria-label="Limpiar búsqueda">×</button>
+              )}
+            </label>
+            <div className="attendance-meeting-filters" role="group" aria-label="Filtrar reuniones">
+              <button type="button" data-active={meetingFilter === 'all'} onClick={() => setMeetingFilter('all')}>
+                Todas <span>{meetings.length}</span>
+              </button>
+              <button type="button" data-active={meetingFilter === 'pending'} onClick={() => setMeetingFilter('pending')}>
+                Pendientes <span>{meetings.filter((meeting) =>
+                  new Set(meeting.participants.map((participant) => participant.memberId)).size < members.length,
+                ).length}</span>
+              </button>
+              <button type="button" data-active={meetingFilter === 'complete'} onClick={() => setMeetingFilter('complete')}>
+                Completas <span>{meetings.filter((meeting) =>
+                  new Set(meeting.participants.map((participant) => participant.memberId)).size >= members.length,
+                ).length}</span>
+              </button>
+            </div>
+            <div className="attendance-meeting-list" aria-label="Reuniones disponibles">
+              {filteredMeetings.map((meeting) => {
+                const registered = new Set(meeting.participants.map((participant) => participant.memberId)).size;
+                const pending = Math.max(0, members.length - registered);
+                const isSelected = selectedMeetingId === meeting.id;
+                return (
+                  <button
+                    type="button"
+                    key={meeting.id}
+                    className="attendance-meeting-option"
+                    data-selected={isSelected}
+                    onClick={() => handleMeetingSelection(meeting.id)}
+                    disabled={saving || loading}
+                    aria-pressed={isSelected}
+                  >
+                    <span className="attendance-meeting-option-date">{formatMeetingDate(meeting.date)}</span>
+                    <strong>{meeting.name}</strong>
+                    <span className={pending > 0 ? 'attendance-meeting-state is-pending' : 'attendance-meeting-state is-complete'}>
+                      {pending > 0 ? (registered === 0 ? 'Sin asistencia' : `${pending} pendientes`) : 'Asistencia completa'}
+                    </span>
+                    <span className="attendance-meeting-option-arrow" aria-hidden="true">›</span>
+                  </button>
+                );
+              })}
+              {filteredMeetings.length === 0 && (
+                <p className="attendance-no-results">No hay reuniones que coincidan con esa búsqueda o filtro.</p>
+              )}
+            </div>
+          </>
         )}
       </section>
 
