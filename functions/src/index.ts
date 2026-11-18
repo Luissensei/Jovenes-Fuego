@@ -3378,7 +3378,7 @@ export const getAttendanceMeetings = onCall(async (request) => {
 
   const [modernSnapshot, legacySnapshot] = await Promise.all([
     db.collection("attendanceMeetings").orderBy("date", "desc").limit(300).get(),
-    db.collection("attendance").limit(1000).get(),
+    db.collection("attendance").orderBy(FieldPath.documentId(), "desc").limit(1000).get(),
   ]);
 
   // Resolve only member documents whose names are actually needed by this
@@ -3611,7 +3611,7 @@ export const saveMeetingAttendance = onCall(async (request) => {
   } else {
     // Los eventos históricos usan IDs con formato YYYY-MM-DD_codigo.
     // Conservan los registros anteriores y actualizan solo los IDs enviados.
-    const legacyIdMatch = /^(\d{4}-\d{2}-\d{2})_(dis|mie|vie|ayj|ayc|esc|otr|gen)$/.exec(meetingId);
+    const legacyIdMatch = /^(\d{4}-\d{2}-\d{2})(?:_[a-z0-9-]+)?$/i.exec(meetingId);
     if (!legacyIdMatch || !isValidDate(legacyIdMatch[1])) {
       throw new HttpsError("not-found", "No se encontró el evento seleccionado.");
     }
