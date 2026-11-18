@@ -3456,32 +3456,35 @@ export const getAttendanceMeetings = onCall(async (request) => {
   const legacy = [...legacySnapshot.docs]
     .sort((left, right) => right.id.localeCompare(left.id))
     .map((document) => {
-    const data = document.data();
-    const [date = "", service = "gen"] = document.id.split("_");
-    const records = data.r && typeof data.r === "object"
-      ? data.r as Record<string, unknown>
-      : {};
-    const participants = Object.entries(records).flatMap(([memberId, value]) => {
-      if (!value || typeof value !== "object") return [];
-      const statusCode = text((value as Record<string, unknown>).s, 10);
-      const statusMap: Record<string, "Presente" | "Tarde" | "Falta" | "Justificada" | "Ausente"> = {
-        P: "Presente", T: "Tarde", F: "Falta", J: "Justificada", A: "Ausente",
+      const data = document.data();
+      const [date = "", service = "gen"] = document.id.split("_");
+      const records = data.r && typeof data.r === "object"
+        ? data.r as Record<string, unknown>
+        : {};
+      const participants = Object.entries(records).flatMap(([memberId, value]) => {
+        if (!value || typeof value !== "object") return [];
+        const statusCode = text((value as Record<string, unknown>).s, 10);
+        const statusMap: Record<
+          string,
+          "Presente" | "Tarde" | "Falta" | "Justificada" | "Ausente"
+        > = {
+          P: "Presente", T: "Tarde", F: "Falta", J: "Justificada", A: "Ausente",
+        };
+        const status = statusMap[statusCode];
+        return status ? [{
+          memberId,
+          name: memberNames.get(memberId) ?? memberId,
+          status,
+        }] : [];
+      });
+      return {
+        id: document.id,
+        name: serviceNames[service] ?? serviceNames.gen,
+        date,
+        createdAt: "",
+        participants,
       };
-      const status = statusMap[statusCode];
-      return status ? [{
-        memberId,
-        name: memberNames.get(memberId) ?? memberId,
-        status,
-      }] : [];
     });
-    return {
-      id: document.id,
-      name: serviceNames[service] ?? serviceNames.gen,
-      date,
-      createdAt: "",
-      participants,
-    };
-  });
 
   const merged = new Map<string, typeof modern[number]>();
   [...legacy, ...modern].forEach((meeting) => merged.set(meeting.id, meeting));
@@ -3503,15 +3506,33 @@ export const createAttendanceMeeting = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "Debes indicar un nombre y una fecha real válidos.");
   }
 
-  const meeting = await db.collection("attendanceMeetings").add({
-    name: meetingName,
-    date: meetingDate,
-    createdBy: request.auth.uid,
-    createdAt: new Date().toISOString(),
-    participants: [],
+  // ID determinista: evita crear reuniones duplicadas cuando dos líderes
+  // abren asistencia al mismo tiempo para preparar el servicio semanal.
+  const meetingId = `meeting_${meetingDate}_${createHash("sha256")
+    .update(meetingName.toLocaleLowerCase("es"))
+    .digest("hex").slice(0, 16)}`;
+  const meetingRef = db.collection("attendanceMeetings").doc(meetingId);
+  const created = await db.runTransaction(async (transaction) => {
+    const existing = await transaction.get(meetingRef);
+    if (existing.exists) return false;
+    transaction.create(meetingRef, {
+      name: meetingName,
+      date: meetingDate,
+      createdBy: request.auth!.uid,
+      createdAt: new Date().toISOString(),
+      participants: [],
+    });
+    return true;
   });
-  await recordAudit("attendance.meeting.created", request.auth.uid, meeting.id, {date: meetingDate});
-  return {success: true, meetingId: meeting.id};
+  if (created) {
+    await recordAudit(
+      "attendance.meeting.created",
+      request.auth.uid,
+      meetingId,
+      {date: meetingDate},
+    );
+  }
+  return {success: true, meetingId};
 });
 
 export const saveMeetingAttendance = onCall(async (request) => {

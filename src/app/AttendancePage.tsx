@@ -75,7 +75,35 @@ export default function AttendancePage() {
       if (!mountedRef.current || sequence !== loadSequenceRef.current) return;
       if (meetingResult.status === 'rejected') throw meetingResult.reason;
 
-      const meetingRows = meetingResult.value;
+      let meetingRows = meetingResult.value;
+
+      // El servicio semanal del miércoles debe estar disponible al abrir
+      // asistencia, incluso si todavía no se ha creado manualmente.
+      const today = localDateInput();
+      const weekday = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Bogota',
+        weekday: 'short',
+      }).format(new Date());
+      if (weekday === 'Wed' && !meetingRows.some((meeting) =>
+        meeting.date === today &&
+        meeting.name.trim().toLocaleLowerCase('es') ===
+          'servicio de miércoles',
+      )) {
+        try {
+          await createAttendanceMeeting({
+            name: 'Servicio de miércoles',
+            date: today,
+          });
+          meetingRows = await listAttendanceMeetings('attendance', true);
+        } catch (meetingError) {
+          console.error('No se pudo preparar el servicio de hoy:', meetingError);
+          setError(
+            meetingError instanceof Error
+              ? `No se pudo preparar el servicio de hoy: ${meetingError.message}`
+              : 'No se pudo preparar el servicio de hoy.',
+          );
+        }
+      }
       setMeetings(meetingRows);
       if (memberResult.status === 'fulfilled') {
         if (memberResult.value) setMembers(memberResult.value);
