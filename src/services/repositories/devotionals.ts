@@ -53,12 +53,20 @@ function validateDevotional(data: CreateDevotionalInput) {
   }
 }
 
-export async function listDevotionals(): Promise<DevotionalRecord[]> {
-  const response = await call<Record<string, never>, {devotionals: DevotionalRecord[]}>(
+export type DevotionalPage = {
+  devotionals: DevotionalRecord[];
+  nextCursor: string | null;
+};
+
+export async function listDevotionals(cursor?: string): Promise<DevotionalPage> {
+  const response = await call<{cursor?: string}, {devotionals: DevotionalRecord[]; nextCursor?: string | null}>(
     'adminListDevotionals',
-    {},
+    cursor ? {cursor} : {},
   );
-  return Array.isArray(response.devotionals) ? response.devotionals : [];
+  return {
+    devotionals: Array.isArray(response.devotionals) ? response.devotionals : [],
+    nextCursor: typeof response.nextCursor === 'string' ? response.nextCursor : null,
+  };
 }
 
 export async function getPublicDevotionals(): Promise<DevotionalRecord[]> {

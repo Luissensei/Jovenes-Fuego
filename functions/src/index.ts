@@ -2423,7 +2423,20 @@ export const adminListYouthDevotionalSubmissions = onCall(async (request) => {
 export const adminListDevotionals = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireModulePermission(request.auth.uid, "devotionals");
-  const snapshot = await db.collection("devotionals").limit(300).get();
+
+  // Paginación para no descargar cientos de documentos con imágenes Base64
+  // en una sola llamada desde dispositivos móviles.
+  const pageSize = 12;
+  const cursor = text(request.data?.cursor, 150);
+  let query = db.collection("devotionals").orderBy("date", "desc").limit(pageSize);
+  if (cursor) {
+    const cursorSnapshot = await db.collection("devotionals").doc(cursor).get();
+    if (!cursorSnapshot.exists) {
+      throw new HttpsError("not-found", "No se encontró el punto de continuación. Actualiza la lista.");
+    }
+    query = query.startAfter(cursorSnapshot);
+  }
+  const snapshot = await query.get();
   const devotionals = snapshot.docs.map((document) => {
     const data = document.data();
     return {
@@ -2442,7 +2455,11 @@ export const adminListDevotionals = onCall(async (request) => {
   }).sort((left, right) =>
     right.date.localeCompare(left.date) || right.createdAt.localeCompare(left.createdAt),
   );
-  return {devotionals};
+  const lastDocument = snapshot.docs[snapshot.docs.length - 1];
+  return {
+    devotionals,
+    nextCursor: snapshot.size === pageSize ? lastDocument?.id ?? null : null,
+  };
 });
 
 export const adminCreateDevotional = onCall(async (request) => {

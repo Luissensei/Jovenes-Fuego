@@ -49,6 +49,8 @@ export default function DevotionalsPage() {
   const [flyerError, setFlyerError] = useState('');
 
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
@@ -62,7 +64,8 @@ export default function DevotionalsPage() {
       setError('');
     }
     try {
-      const items = await listDevotionals();
+      const response = await listDevotionals();
+      const items = response.devotionals;
       // No mostrar documentos antiguos/vacíos como tarjetas sin título ni reflexión.
       const usableItems = items.filter((item) => Boolean(
         item.title?.trim() &&
@@ -71,7 +74,11 @@ export default function DevotionalsPage() {
         item.content?.trim() &&
         item.category?.trim(),
       ));
-      if (mountedRef.current) setDevotionals(usableItems);
+      if (mountedRef.current) {
+        setDevotionals(usableItems);
+        setNextCursor(response.nextCursor);
+        setVisibleCount(24);
+      }
     } catch (cause) {
       if (mountedRef.current) {
         setError(cause instanceof Error ? cause.message : 'No se pudieron cargar los devocionales.');
@@ -114,6 +121,36 @@ export default function DevotionalsPage() {
   }, [search, category]);
 
   const visibleDevotionals = filtered.slice(0, visibleCount);
+
+  async function loadMoreDevotionals() {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    setError('');
+    try {
+      const response = await listDevotionals(nextCursor);
+      const usableItems = response.devotionals.filter((item) => Boolean(
+        item.title?.trim() &&
+        item.verse?.trim() &&
+        item.reference?.trim() &&
+        item.content?.trim() &&
+        item.category?.trim(),
+      ));
+      if (mountedRef.current) {
+        setDevotionals((current) => {
+          const existingIds = new Set(current.map((item) => item.id));
+          return [...current, ...usableItems.filter((item) => !existingIds.has(item.id))];
+        });
+        setNextCursor(response.nextCursor);
+        setVisibleCount((count) => count + 12);
+      }
+    } catch (cause) {
+      if (mountedRef.current) {
+        setError(cause instanceof Error ? cause.message : 'No se pudieron cargar más devocionales.');
+      }
+    } finally {
+      if (mountedRef.current) setLoadingMore(false);
+    }
+  }
 
   function resetForm() {
     setTitle('');
@@ -401,11 +438,21 @@ export default function DevotionalsPage() {
             </p>
           </div>
         )}
-        {!loading && filtered.length > visibleDevotionals.length && (
+        {!loading && (filtered.length > visibleDevotionals.length || nextCursor) && (
           <div className="devotionals-load-more">
-            <span>Mostrando {visibleDevotionals.length} de {filtered.length}</span>
-            <button type="button" onClick={() => setVisibleCount((count) => count + 24)}>
-              Cargar 24 más
+            <span>Mostrando {visibleDevotionals.length}{nextCursor ? ' · hay más disponibles' : ` de ${filtered.length}`}</span>
+            <button
+              type="button"
+              disabled={loadingMore}
+              onClick={() => {
+                if (filtered.length > visibleDevotionals.length) {
+                  setVisibleCount((count) => count + 12);
+                } else {
+                  void loadMoreDevotionals();
+                }
+              }}
+            >
+              {loadingMore ? 'Cargando...' : 'Cargar más devocionales'}
             </button>
           </div>
         )}
