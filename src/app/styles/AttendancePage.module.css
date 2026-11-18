@@ -125,3 +125,32 @@
   min-height: 48px;
   font-weight: 650;
 }
+
+
+/* Searchable historical meeting picker */
+.scope :global(.attendance-picker-heading){display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.scope :global(.attendance-picker-heading) h2{margin-bottom:5px}
+.scope :global(.attendance-picker-heading) p{margin:0;color:var(--jf-muted,#657168);font-size:12px;line-height:1.5}
+.scope :global(.attendance-meeting-total){flex:none;padding:6px 9px;border-radius:999px;background:var(--jf-surface-2,#f3f5f1);color:var(--jf-muted,#657168);font-size:10px;font-weight:800}
+.scope :global(.attendance-meeting-search){display:flex;align-items:center;gap:9px;min-height:46px;padding:0 12px;border:1px solid var(--jf-line-strong,#c8d2c8);border-radius:10px;background:var(--jf-surface-2,#f8f9f6);color:var(--jf-muted,#657168)}
+.scope :global(.attendance-meeting-search) svg{flex:none;color:var(--jf-brand,#246447)}
+.scope :global(.attendance-meeting-search) input{min-height:42px;padding:0;border:0;background:transparent;box-shadow:none}
+.scope :global(.attendance-meeting-search) input:focus{box-shadow:none}
+.scope :global(.attendance-meeting-search) button{width:30px;min-height:30px;padding:0;border:0;background:transparent;color:var(--jf-muted,#657168)}
+.scope :global(.attendance-meeting-filters){display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.scope :global(.attendance-meeting-filters) button{min-height:34px;padding:6px 11px;border:1px solid var(--jf-line-strong,#c8d2c8);border-radius:999px;background:var(--jf-surface-2,#f8f9f6);color:var(--jf-muted,#657168);font-size:11px}
+.scope :global(.attendance-meeting-filters) button[data-active="true"]{border-color:var(--jf-brand,#246447);background:var(--jf-brand,#246447);color:#fff}
+.scope :global(.attendance-meeting-filters) span{font-variant-numeric:tabular-nums;font-weight:850}
+.scope :global(.attendance-meeting-list){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-height:440px;overflow:auto;padding:2px 3px 2px 0;overscroll-behavior:contain}
+.scope :global(.attendance-meeting-option){position:relative;display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-content:start;gap:4px 10px;min-width:0;min-height:92px;padding:12px 14px!important;border:1px solid var(--jf-line,#dce2da)!important;border-radius:11px!important;background:var(--jf-surface-2,#f8f9f6)!important;color:var(--jf-ink,#1d2a23)!important;text-align:left;box-shadow:none!important}
+.scope :global(.attendance-meeting-option):hover:not(:disabled){border-color:var(--jf-brand,#246447)!important;background:color-mix(in srgb,var(--jf-brand,#246447) 6%,var(--jf-surface))!important;transform:translateY(-1px)}
+.scope :global(.attendance-meeting-option)[data-selected="true"]{border:2px solid var(--jf-brand,#246447)!important;background:color-mix(in srgb,var(--jf-brand,#246447) 9%,var(--jf-surface))!important;padding:11px 13px!important}
+.scope :global(.attendance-meeting-option-date){grid-column:1/-1;color:var(--jf-muted,#657168);font-size:10px;font-weight:750;text-transform:capitalize}
+.scope :global(.attendance-meeting-option)>strong{min-width:0;overflow-wrap:anywhere;font-size:12px;line-height:1.4}
+.scope :global(.attendance-meeting-state){align-self:center;justify-self:start;padding:4px 7px;border-radius:6px;font-size:9px;font-weight:800}
+.scope :global(.attendance-meeting-state.is-pending){background:rgba(183,122,20,.12);color:#98600a}
+.scope :global(.attendance-meeting-state.is-complete){background:rgba(22,134,92,.12);color:#14704e}
+.scope :global(.attendance-meeting-option-arrow){grid-column:2;grid-row:2/4;align-self:center;color:var(--jf-brand,#246447);font-size:22px}
+:global(:root[data-theme="dark"]) .scope :global(.attendance-meeting-state.is-pending){color:#f2cc83}
+:global(:root[data-theme="dark"]) .scope :global(.attendance-meeting-state.is-complete){color:#9be7c7}
+@media(max-width:650px){.scope :global(.attendance-meeting-list){grid-template-columns:minmax(0,1fr);max-height:390px}.scope :global(.attendance-picker-heading){flex-direction:column}.scope :global(.attendance-meeting-total){align-self:flex-start}}
