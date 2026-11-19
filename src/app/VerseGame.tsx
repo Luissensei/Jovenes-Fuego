@@ -1,5 +1,5 @@
 import {playGameTone} from './gameAudio';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { shuffleBibleQuestions, type VerseChallenge } from './bibleQuestionBank';
 import { expandedBibleVerseChallenges } from './extendedBibleQuestionBank';
 import {
@@ -21,14 +21,22 @@ export default function VerseGame({
   onExit,
 }: {
   onExit: () => void;
+  onComplete?: (score: number) => void;
 }) {
   const [questions, setQuestions] = useState<Question[]>(() => shuffleBibleQuestions(expandedBibleVerseChallenges));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
+  const resultReported = useRef(false);
 
   const currentQuestion = questions[currentIndex];
+
+  useEffect(() => {
+    if (!finished || resultReported.current) return;
+    resultReported.current = true;
+    onComplete?.(score);
+  }, [finished, onComplete, score]);
 
   const progress =
     ((currentIndex + (selectedAnswer !== null ? 1 : 0)) /
@@ -62,6 +70,7 @@ export default function VerseGame({
   }
 
   function restartGame() {
+    resultReported.current = false;
     setQuestions(shuffleBibleQuestions(expandedBibleVerseChallenges));
     setCurrentIndex(0);
     setSelectedAnswer(null);
