@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jdf-shell-v3';
+const CACHE_NAME = 'jdf-shell-v4';
 const SHELL_URLS = ['/', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
 
 // Solo cacheamos el shell estático. No interceptamos ni guardamos llamadas a Firebase,
