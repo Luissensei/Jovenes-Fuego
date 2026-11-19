@@ -155,3 +155,171 @@
 :global(.youth-game-history li small){color:var(--jf-muted);font-size:.67rem}
 :global(.youth-game-history li>strong){align-self:center;color:var(--jf-accent-ink);font-size:.78rem;white-space:nowrap}
 :global(.youth-game-history li>span){grid-column:1/-1;color:var(--jf-muted);font-size:.68rem}
+
+
+/* Portal juvenil — primera capa visual Fuego en vidrio. */
+.scope:global(.youth-portal) {
+  color: var(--jdf-text);
+  background: var(--jdf-canvas);
+}
+.scope:global(.youth-portal) :global(.youth-container) {
+  width: min(100% - 28px, 1160px);
+  padding-block: clamp(12px, 2vw, 24px);
+}
+.scope:global(.youth-portal) :global(.youth-home-toolbar) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: .65rem;
+  margin-bottom: 1rem;
+}
+.scope:global(.youth-portal) :global(.youth-back),
+.scope:global(.youth-portal) :global(.youth-sound-toggle),
+.scope:global(.youth-portal) :global(.youth-theme-toggle) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-height: 40px;
+  padding: .6rem .85rem;
+  border: 1px solid var(--jdf-border);
+  border-radius: .8rem;
+  color: var(--jdf-text);
+  background: var(--jdf-surface);
+  font-size: .78rem;
+  font-weight: 800;
+  transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
+}
+.scope:global(.youth-portal) :global(.youth-back:hover),
+.scope:global(.youth-portal) :global(.youth-sound-toggle:hover),
+.scope:global(.youth-portal) :global(.youth-theme-toggle:hover) {
+  border-color: var(--jdf-fire);
+  transform: translateY(-1px);
+}
+.scope:global(.youth-portal) :global(.youth-welcome) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.2rem;
+  min-height: 210px;
+  padding: clamp(1.35rem, 4vw, 2.65rem);
+  border: 1px solid color-mix(in srgb, var(--jdf-fire) 38%, var(--jdf-border));
+  border-radius: 1.4rem;
+  color: #fff;
+  background:
+    radial-gradient(circle at 88% 10%, rgb(255 212 94 / 22%), transparent 25%),
+    radial-gradient(circle at 72% 115%, rgb(255 113 59 / 30%), transparent 38%),
+    linear-gradient(118deg, #211a3e 0%, #39234d 56%, #71313a 125%);
+  box-shadow: var(--jdf-shadow-raised);
+}
+.scope:global(.youth-portal) :global(.youth-welcome)::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: 9%;
+  bottom: -210px;
+  width: 270px;
+  height: 270px;
+  border: 1px solid rgb(255 255 255 / 13%);
+  border-radius: 50%;
+  box-shadow: 0 0 0 22px rgb(255 255 255 / 3%), 0 0 0 48px rgb(255 255 255 / 2%);
+}
+.scope:global(.youth-portal) :global(.youth-welcome h1),
+.scope:global(.youth-portal) :global(.youth-welcome h2) {
+  color: #fff;
+  letter-spacing: -.04em;
+}
+.scope:global(.youth-portal) :global(.youth-welcome p) { color: rgb(255 255 255 / 78%); }
+.scope:global(.youth-portal) :global(.youth-welcome-decoration) {
+  display: grid;
+  place-items: center;
+  width: 78px;
+  height: 78px;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 25px;
+  color: var(--jdf-gold);
+  background: rgb(255 255 255 / 9%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 14%);
+}
+.scope:global(.youth-portal) :global(.youth-customize-trigger) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-height: 42px;
+  padding: .7rem 1rem;
+  border: 1px solid rgb(255 255 255 / 58%);
+  border-radius: .85rem;
+  color: #552b34;
+  background: #fff5ed;
+  font-size: .78rem;
+  font-weight: 850;
+}
+.scope:global(.youth-portal) :global(.youth-profile-quickstats) {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .8rem;
+}
+.scope:global(.youth-portal) :global(.youth-profile-quickstats > *) {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--jdf-border);
+  border-radius: 1rem;
+  color: var(--jdf-text);
+  background: var(--jdf-surface);
+  box-shadow: var(--jdf-shadow-card);
+}
+.scope:global(.youth-portal) :global(.youth-profile-avatar-card),
+.scope:global(.youth-portal) :global(.youth-personal-goal),
+.scope:global(.youth-portal) :global(.youth-prayer-panel),
+.scope:global(.youth-portal) :global(.youth-journal-panel) {
+  border-color: var(--jdf-border);
+  border-radius: 1.1rem;
+  color: var(--jdf-text);
+  background: var(--jdf-surface);
+  box-shadow: var(--jdf-shadow-card);
+}
+.scope:global(.youth-portal) :global(.youth-ranking-tab),
+.scope:global(.youth-portal) :global(.youth-immersive-ranking) {
+  border-color: var(--jdf-border);
+  border-radius: 1.1rem;
+  color: var(--jdf-text);
+  background: var(--jdf-surface);
+  box-shadow: var(--jdf-shadow-card);
+}
+.scope:global(.youth-portal) :global(.youth-ranking-live) { color: var(--jdf-progress); }
+.scope:global(.youth-portal) :global(.youth-my-standing-card) {
+  border-color: color-mix(in srgb, var(--jdf-gold) 40%, var(--jdf-border));
+  background: color-mix(in srgb, var(--jdf-gold) 9%, var(--jdf-surface));
+}
+.scope:global(.youth-portal) :global(.youth-ranking-row),
+.scope:global(.youth-portal) :global(.youth-faithful-list li) {
+  border-color: var(--jdf-border);
+  background: var(--jdf-surface-raised);
+}
+.scope:global(.youth-portal) :global(.youth-bottom-navigation) {
+  border-top: 1px solid var(--jdf-border);
+  background: var(--jdf-surface);
+  box-shadow: 0 -8px 28px rgb(0 0 0 / 12%);
+}
+.scope:global(.youth-portal) :global(.youth-bottom-navigation button) { color: var(--jdf-muted); }
+.scope:global(.youth-portal) :global(.youth-bottom-navigation button.active) { color: var(--jdf-fire); }
+@media (max-width: 680px) {
+  .scope:global(.youth-portal) :global(.youth-container) { width: min(100% - 20px, 1160px); padding-block: 10px; }
+  .scope:global(.youth-portal) :global(.youth-home-toolbar) { justify-content: space-between; gap: .45rem; }
+  .scope:global(.youth-portal) :global(.youth-home-toolbar > *) { flex: 1 1 auto; font-size: .7rem; padding-inline: .55rem; }
+  .scope:global(.youth-portal) :global(.youth-welcome) { min-height: 180px; grid-template-columns: minmax(0, 1fr) 58px; gap: .7rem; padding: 1.15rem; border-radius: 1.1rem; }
+  .scope:global(.youth-portal) :global(.youth-welcome-decoration) { width: 54px; height: 54px; border-radius: 18px; }
+  .scope:global(.youth-portal) :global(.youth-welcome-decoration svg) { width: 20px; height: 20px; }
+  .scope:global(.youth-portal) :global(.youth-customize-trigger) { grid-column: 1 / -1; justify-self: start; }
+  .scope:global(.youth-portal) :global(.youth-profile-quickstats) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scope:global(.youth-portal) :global(.youth-back),
+  .scope:global(.youth-portal) :global(.youth-sound-toggle),
+  .scope:global(.youth-portal) :global(.youth-theme-toggle) { transition: none; }
+}
