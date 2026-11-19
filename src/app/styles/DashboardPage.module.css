@@ -128,3 +128,179 @@
 :global(:root[data-theme="dark"]) .chartRow>div>i[data-index="2"],
 :global(:root[data-theme="dark"]) .chartRow>div>i[data-index="3"]{background:#D9D9D9!important}
 @media(max-width:700px){.welcome{padding:22px 18px!important}.metrics{gap:9px!important}}
+
+
+/* Fuego en vidrio — dashboard administrativo */
+.scope {
+  color: var(--jdf-text);
+  background: var(--jdf-canvas);
+}
+.scope .welcome {
+  isolation: isolate;
+  border-color: color-mix(in srgb, var(--jdf-fire) 42%, var(--jdf-border));
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 86% 8%, color-mix(in srgb, var(--jdf-gold) 24%, transparent), transparent 27%),
+    radial-gradient(circle at 72% 120%, color-mix(in srgb, var(--jdf-fire) 28%, transparent), transparent 42%),
+    linear-gradient(118deg, #211a3e 0%, #39234d 58%, #71313a 125%);
+  box-shadow: var(--jdf-shadow-raised);
+}
+.scope .welcome::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  right: 12%;
+  bottom: -215px;
+  width: 280px;
+  height: 280px;
+  border: 1px solid rgb(255 255 255 / 13%);
+  border-radius: 50%;
+  box-shadow: 0 0 0 24px rgb(255 255 255 / 3%), 0 0 0 52px rgb(255 255 255 / 2%);
+  pointer-events: none;
+}
+.scope .welcomeCopy { z-index: 1; }
+.scope .eyebrow,
+.scope .kicker { color: var(--jdf-fire); }
+.scope .welcome .eyebrow { color: #ffd7bd; }
+.scope .welcome h1 { color: #fff !important; }
+.scope .welcome h1 em { color: #ffd45e; }
+.scope .welcomeCopy > p { color: rgb(255 255 255 / 78%) !important; }
+.scope .primaryAction {
+  border-color: var(--jdf-fire);
+  background: var(--jdf-fire);
+  color: #25152b;
+}
+.scope .primaryAction:hover { background: #ff895e; }
+.scope .secondaryAction {
+  border-color: rgb(255 255 255 / 30%);
+  background: rgb(255 255 255 / 9%);
+  color: #fff;
+}
+.scope .welcomeVisual { z-index: 1; color: var(--jdf-gold); }
+.scope .visualCore {
+  width: 94px;
+  height: 94px;
+  border-color: rgb(255 212 94 / 45%);
+  border-radius: 27px;
+  background: rgb(255 255 255 / 9%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 14%);
+}
+.scope .welcomeVisual > span { color: rgb(255 255 255 / 70%); }
+.scope .metricCard,
+.scope .panel,
+.scope .assistantCard,
+.scope .systemCard {
+  border-color: var(--jdf-border);
+  border-radius: 15px;
+  color: var(--jdf-text);
+  background: var(--jdf-surface);
+  box-shadow: var(--jdf-shadow-card);
+}
+.scope .metricCard { position: relative; overflow: hidden; }
+.scope .metricCard::after {
+  content: "";
+  position: absolute;
+  top: -42px;
+  right: -35px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--tone) 12%, transparent);
+  pointer-events: none;
+}
+.scope .metricTop { color: var(--jdf-muted); }
+.scope .metricTop i {
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--tone) 16%, var(--jdf-surface-raised));
+  color: var(--tone);
+}
+.scope .metricCard > strong { color: var(--jdf-text); }
+.scope .metricCard > small { color: var(--jdf-muted); }
+.scope .panelHeading h2,
+.scope .assistantCard h2 { color: var(--jdf-text); }
+.scope .panelHeading p,
+.scope .eventInfo p,
+.scope .eventInfo small,
+.scope .chartRow > span,
+.scope .chartFoot,
+.scope .assistantCard p,
+.scope .systemCard p,
+.scope .systemCard > small { color: var(--jdf-muted); }
+.scope .panelHeading > a {
+  border-color: var(--jdf-border);
+  border-radius: 9px;
+  background: var(--jdf-surface-raised);
+  color: var(--jdf-info);
+}
+.scope .avatar {
+  border-color: var(--jdf-gold);
+  background: var(--jdf-surface-raised);
+  color: var(--jdf-text);
+}
+.scope .podiumPerson > b,
+.scope .chartRow > b,
+.scope .eventInfo > b,
+.scope .shortcuts > a b,
+.scope .systemCard > div { color: var(--jdf-text); }
+.scope .podiumBase {
+  border-color: var(--jdf-border);
+  background: var(--jdf-surface-raised);
+  color: var(--jdf-gold);
+}
+.scope .podiumPerson[data-place="1"] .podiumBase {
+  border-color: color-mix(in srgb, var(--jdf-gold) 55%, var(--jdf-border));
+  background: color-mix(in srgb, var(--jdf-gold) 14%, var(--jdf-surface));
+  color: var(--jdf-gold);
+}
+.scope .chartRow > div { background: var(--jdf-surface-raised); }
+.scope .chartRow > div > i { background: linear-gradient(90deg, var(--jdf-community), var(--jdf-fire)); }
+.scope .chartRow > div > i[data-index="1"] { background: var(--jdf-info); }
+.scope .chartRow > div > i[data-index="2"] { background: var(--jdf-progress); }
+.scope .chartRow > div > i[data-index="3"] { background: var(--jdf-gold); }
+.scope .chartFoot { border-color: var(--jdf-border); }
+.scope .eventRow { border-color: var(--jdf-border); }
+.scope .dateTile {
+  border-color: var(--jdf-border);
+  background: color-mix(in srgb, var(--jdf-community) 13%, var(--jdf-surface));
+}
+.scope .dateTile b,
+.scope .dateTile span { color: var(--jdf-community); }
+.scope .shortcuts > a {
+  border-color: var(--jdf-border);
+  border-radius: 11px;
+  background: var(--jdf-surface-raised);
+  color: var(--jdf-text);
+}
+.scope .shortcuts > a:hover {
+  border-color: color-mix(in srgb, var(--jdf-fire) 50%, var(--jdf-border));
+  background: color-mix(in srgb, var(--jdf-fire) 8%, var(--jdf-surface-raised));
+}
+.scope .shortcuts > a > i {
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--jdf-fire) 14%, var(--jdf-surface));
+  color: var(--jdf-fire);
+}
+.scope .shortcuts > a small { color: var(--jdf-muted); }
+.scope .assistantIcon {
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--jdf-community) 18%, var(--jdf-surface));
+  color: var(--jdf-community);
+}
+.scope .assistantCard > a { color: var(--jdf-fire); }
+.scope .systemCard > div svg { color: var(--jdf-progress); }
+.scope .empty { color: var(--jdf-fire); }
+.scope .empty b { color: var(--jdf-text); }
+.scope .empty span { color: var(--jdf-muted); }
+.scope .error {
+  border-color: color-mix(in srgb, #e45d6b 35%, var(--jdf-border));
+  background: color-mix(in srgb, #e45d6b 10%, var(--jdf-surface));
+  color: #e9828d;
+}
+@media (max-width: 700px) {
+  .scope .welcome { border-radius: 15px; }
+  .scope .metricCard,
+  .scope .panel { border-radius: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scope * { scroll-behavior: auto; }
+}
