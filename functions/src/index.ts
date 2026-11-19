@@ -1734,7 +1734,7 @@ export const recordYouthGameResult = onCall(async (request) => {
     const versePositions = new Map<string, Set<number>>();
     for (const entry of answers) {
       const questionId = text(entry?.questionId, 40);
-      const match = /^(order-\\d{2})-(\\d{2})$/.exec(questionId);
+      const match = /^(order-\d{2})-(\d{2})$/.exec(questionId);
       const answerIndex = Number(entry?.answerIndex);
       if (!match || !youthOrderVerseBank[match[1]] ||
           !Number.isInteger(answerIndex) || answerIndex < 0 ||

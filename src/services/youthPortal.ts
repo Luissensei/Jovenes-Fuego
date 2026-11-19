@@ -435,11 +435,11 @@ export async function updatePrayerRequestStatus(
 
 export async function recordYouthGameResult(
   communitySession: string, gameId: 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami', score: number, runId: string,
-  answers?: Record<string, string | number>[],
+  answers?: Array<{questionId?: string; answerIndex?: number; firstPair?: number; secondPair?: number; hintCount?: number}>,
 ): Promise<{reward: number; verificationStatus: 'pending'; alreadyRecorded: boolean}> {
   if (!functions) throw new Error('Firebase Functions no está configurado.');
   const call = httpsCallable<
-    {communitySession: string; gameId: 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami'; score: number; runId: string; answers?: Record<string, string | number>[]},
+    {communitySession: string; gameId: 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami'; score: number; runId: string; answers?: Array<{questionId?: string; answerIndex?: number; firstPair?: number; secondPair?: number; hintCount?: number}>},
     {success: boolean; reward: number; verificationStatus: 'pending'; alreadyRecorded: boolean}
   >(functions, 'recordYouthGameResult');
   const response = await call({communitySession, gameId, score, runId, ...(answers ? {answers} : {})});

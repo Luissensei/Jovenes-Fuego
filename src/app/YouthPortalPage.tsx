@@ -1078,7 +1078,7 @@ export default function YouthPortalPage() {
   }
 
   if (selectedProfile && activeGame) {
-    const completeGame = async (gameId: 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami', score: number, answers?: Record<string, string | number>[]) => {
+    const completeGame = async (gameId: 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami', score: number, answers?: Array<{questionId?: string; answerIndex?: number; firstPair?: number; secondPair?: number; hintCount?: number}>) => {
       if (!communitySession) return;
       const runId = typeof crypto !== 'undefined' && 'randomUUID' in crypto
         ? crypto.randomUUID() : `run_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
