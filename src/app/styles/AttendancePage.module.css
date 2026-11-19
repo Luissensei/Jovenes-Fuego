@@ -269,3 +269,39 @@
 :global(:root[data-theme="dark"]) .scope :global(.attendance-meeting-total){background:#333333!important;color:#FFFFFF!important}
 :global(:root[data-theme="dark"]) .scope :global(.attendance-meeting-state.is-pending),
 :global(:root[data-theme="dark"]) .scope :global(.attendance-meeting-state.is-complete){background:#333333!important;color:#FFFFFF!important}
+
+
+/* Compact date-first attendance selector: optimized for mobile screens. */
+.scope :global(.attendance-calendar-picker){
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;
+  align-items:end;
+  gap:12px;
+  padding:16px;
+  border:1px solid var(--jf-line,#dce2da);
+  border-radius:13px;
+  background:var(--jf-surface-2,#f8f9f6);
+}
+.scope :global(.attendance-calendar-field){display:grid;gap:7px;min-width:0}
+.scope :global(.attendance-calendar-field) label{color:var(--jf-ink,#1d2a23);font-size:12px;font-weight:800}
+.scope :global(.attendance-calendar-field) input,
+.scope :global(.attendance-calendar-field) select{
+  width:100%;min-width:0;min-height:48px;padding:10px 12px;
+  border:1px solid var(--jf-line-strong,#c8d2c8);border-radius:10px;
+  background:var(--jf-surface,#fff);color:var(--jf-ink,#1d2a23);
+  font:inherit;font-size:14px;font-weight:650;
+}
+.scope :global(.attendance-calendar-open){
+  min-height:48px!important;padding:10px 18px!important;
+  border-radius:10px!important;background:var(--jf-brand,#246447)!important;
+  color:#fff!important;white-space:nowrap;
+}
+.scope :global(.attendance-calendar-hint){
+  grid-column:1/-1;margin:0!important;color:var(--jf-muted,#657168);
+  font-size:11px!important;line-height:1.5;
+}
+@media(max-width:650px){
+  .scope :global(.attendance-calendar-picker){grid-template-columns:minmax(0,1fr);gap:11px;padding:13px}
+  .scope :global(.attendance-calendar-open){width:100%}
+  .scope :global(.attendance-calendar-hint){grid-column:auto}
+}
