@@ -2430,6 +2430,49 @@ export const adminCreateManagedRecord = onCall(async (request) => {
   return {success: true, id: ref.id};
 });
 
+/** Crea un seguimiento idempotente desde una alerta de inasistencia. */
+export const adminCreateAbsenceFollowup = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireModulePermission(request.auth.uid, "followups");
+  const memberId = text(request.data?.memberId, 150);
+  const lastAbsenceDate = text(request.data?.lastAbsenceDate, 10);
+  const consecutive = Number(request.data?.consecutive ?? 0);
+  if (!memberId || !isValidDate(lastAbsenceDate) ||
+      !Number.isInteger(consecutive) || consecutive < 2 || consecutive > 30) {
+    throw new HttpsError("invalid-argument", "Los datos de la alerta no son válidos.");
+  }
+  const memberRef = db.collection("members").doc(memberId);
+  const memberSnapshot = await memberRef.get();
+  if (!memberSnapshot.exists) throw new HttpsError("not-found", "El joven ya no está en el directorio.");
+  const memberName = text(memberSnapshot.data()?.name, 120) || "Joven";
+  const followupId = createHash("sha256")
+    .update("absence-followup:" + memberId + ":" + lastAbsenceDate)
+    .digest("hex");
+  const followupRef = db.collection("followups").doc(followupId);
+  const now = new Date().toISOString();
+  let created = false;
+  await db.runTransaction(async (transaction) => {
+    const existing = await transaction.get(followupRef);
+    if (existing.exists) return;
+    transaction.create(followupRef, {
+      name: memberName,
+      memberId,
+      date: lastAbsenceDate,
+      reason: "Alerta de inasistencia: " + consecutive + " reuniones consecutivas",
+      notes: "Seguimiento generado desde la alerta de asistencia. Contactar al joven o a su familia con cuidado pastoral y registrar el resultado.",
+      status: "Pendiente",
+      source: "attendance-alert",
+      createdAt: now,
+      updatedAt: now,
+      createdBy: request.auth!.uid,
+      updatedBy: request.auth!.uid,
+    });
+    created = true;
+  });
+  if (created) await recordAudit("attendance.absence-followup.created", request.auth.uid, followupId, {memberId, consecutive, lastAbsenceDate});
+  return {success: true, created, id: followupId};
+});
+
 export const adminUpdateManagedRecord = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   const {module, definition} = managedDefinition(request.data?.module);
