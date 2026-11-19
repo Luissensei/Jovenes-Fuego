@@ -1,4 +1,6 @@
-import { BadgeCheck, BookMarked, BookOpen, Brain, Flame, Gamepad2, Layers, Timer, Trophy, UserSearch, Swords } from 'lucide-react';
+import { BadgeCheck, BookMarked, BookOpen, Brain, Flame, Gamepad2, Layers, Timer, Trophy, UserSearch, Swords, History, RefreshCw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { getYouthGameHistory, type YouthGameHistoryEntry } from '../../services/youthPortal';
 
 export type MiniGame = 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami';
 
@@ -14,7 +16,28 @@ const games: {id: MiniGame; title: string; subtitle: string; icon: typeof Trophy
   {id:'whoami',title:'¿Quién soy?',subtitle:'Descubre el personaje con pistas',icon:UserSearch},
 ];
 
-export default function GamesTab({onStartGame}:{onStartGame:(game:MiniGame)=>void}) {
+export default function GamesTab({onStartGame, communitySession}:{onStartGame:(game:MiniGame)=>void;communitySession:string}) {
+  const [history, setHistory] = useState<YouthGameHistoryEntry[]>([]);
+  const [historyError, setHistoryError] = useState('');
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  useEffect(() => {
+    let active = true;
+    if (!communitySession) return;
+    setLoadingHistory(true);
+    getYouthGameHistory(communitySession).then((items) => {
+      if (active) setHistory(items);
+    }).catch((cause: unknown) => {
+      if (active) setHistoryError(cause instanceof Error ? cause.message : 'No se pudo cargar el historial.');
+    }).finally(() => {
+      if (active) setLoadingHistory(false);
+    });
+    return () => { active = false; };
+  }, [communitySession]);
+  const gameNames: Record<string, string> = {
+    trivia: 'Trivia bíblica', verse: 'Completa el versículo', memory: 'Memoria bíblica',
+    challenge: 'Reto de 60 segundos', survival: 'Supervivencia', duel: 'Duelo 1 contra 1',
+    order: 'Ordena el versículo', truefalse: 'Verdadero o falso', whoami: '¿Quién soy?',
+  };
   return (
     <div className="youth-tab-page youth-games-tab">
       <section className="youth-game-hub">
@@ -27,6 +50,20 @@ export default function GamesTab({onStartGame}:{onStartGame:(game:MiniGame)=>voi
             </button>;
           })}
         </div>
+      </section>
+      <section className="youth-game-history">
+        <header><div><span>TU ACTIVIDAD</span><h2><History size={19}/> Historial de partidas</h2></div>
+          {loadingHistory && <RefreshCw size={17} aria-label="Cargando"/>}
+        </header>
+        {historyError && <p role="alert">{historyError}</p>}
+        {!loadingHistory && !historyError && history.length === 0 && <p>Aún no tienes partidas registradas. ¡Juega tu primer desafío!</p>}
+        {history.length > 0 && <ul>
+          {history.map((item) => <li key={item.id}>
+            <div><b>{gameNames[item.gameId] ?? 'Juego bíblico'}</b><small>{item.createdAt ? new Date(item.createdAt).toLocaleString() : 'Fecha no disponible'}</small></div>
+            <strong>{item.score} pts</strong>
+            <span>{item.verificationStatus === 'verified' ? 'Validado' : item.verificationStatus === 'rejected' ? 'No validado' : 'Pendiente de validación'}</span>
+          </li>)}
+        </ul>}
       </section>
     </div>
   );
