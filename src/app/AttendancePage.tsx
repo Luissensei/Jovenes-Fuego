@@ -393,28 +393,36 @@ export default function AttendancePage() {
       return;
     }
 
-    const unregistered = members.filter((member) => !attendance[member.id]);
+    const unregistered = members.filter((member) =>
+      !attendance[member.id] && !savedAttendance[member.id],
+    );
     if (unregistered.length > 0) {
-      setError(`Hay ${unregistered.length} jóvenes sin estado. Marca cada uno o utiliza una acción rápida antes de guardar.`);
+      setError(`Hay ${unregistered.length} jóvenes sin estado. Marca cada uno antes de guardar.`);
       return;
     }
+    const clearedMemberIds = members
+      .filter((member) => savedAttendance[member.id] && !attendance[member.id])
+      .map((member) => member.id);
 
     setError('');
     setMessage('');
     setSaving(true);
     try {
-      const participants: AttendanceParticipant[] = members.map((member) => ({
-        memberId: member.id,
-        name: String(member.name ?? 'Sin nombre'),
-        status: attendance[member.id] as AttendanceStatus,
-      }));
-      await saveMeetingAttendance(selectedMeeting.id, participants);
+      const participants: AttendanceParticipant[] = members
+        .filter((member) => Boolean(attendance[member.id]))
+        .map((member) => ({
+          memberId: member.id,
+          name: String(member.name ?? 'Sin nombre'),
+          status: attendance[member.id] as AttendanceStatus,
+        }));
+      await saveMeetingAttendance(selectedMeeting.id, participants, clearedMemberIds);
       if (!mountedRef.current) return;
 
       // Mantener la selección visible tras guardar y basarla en lo recién enviado.
       const submittedDraft = Object.fromEntries(
         participants.map((participant) => [participant.memberId, participant.status]),
-      );
+      ) as Record<string, AttendanceStatus | null>;
+      clearedMemberIds.forEach((memberId) => { submittedDraft[memberId] = null; });
       setAttendanceDrafts((previous) => ({
         ...previous,
         [selectedMeeting.id]: submittedDraft,
