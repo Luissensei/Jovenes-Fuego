@@ -3939,10 +3939,10 @@ export const createAttendanceMeeting = onCall(async (request) => {
  * Otorga puntos de asistencia una sola vez por joven y reunión.
  * Presente y Tarde cuentan como asistencia; las ediciones repetidas no duplican puntos.
  * @param {string} meetingId Identificador de la reunión.
- * @param {Array<{memberId: string; name: string; status: string}>} participants Lista de jóvenes y estados.
- * @param {string[]} clearedMemberIds Jóvenes cuyas marcas se quitaron.
+ * @param {Array} participants Lista de jóvenes y estados.
+ * @param {Array} clearedMemberIds Jóvenes cuyas marcas se quitaron.
  * @param {string} actorUid Usuario administrativo que guarda los cambios.
- * @return {Promise<void>} Confirma cuando los puntos quedan ajustados.
+ * @return {Promise} Confirma cuando los puntos quedan ajustados.
  */
 async function awardAttendancePoints(
   meetingId: string,
@@ -4020,10 +4020,10 @@ async function awardAttendancePoints(
  * Otorga Llamas por asistencia con ajuste idempotente por reunión y joven.
  * Los cambios de estado recalculan la diferencia; nunca duplican el saldo.
  * @param {string} meetingId Identificador de la reunión.
- * @param {Array<{memberId: string; name: string; status: string}>} participants Lista de jóvenes y estados.
- * @param {string[]} clearedMemberIds Jóvenes cuyas marcas se quitaron.
+ * @param {Array} participants Lista de jóvenes y estados.
+ * @param {Array} clearedMemberIds Jóvenes cuyas marcas se quitaron.
  * @param {string} actorUid Usuario administrativo que guarda los cambios.
- * @return {Promise<void>} Confirma cuando las Llamas quedan ajustadas.
+ * @return {Promise} Confirma cuando las Llamas quedan ajustadas.
  */
 async function awardAttendanceFlames(
   meetingId: string,
