@@ -1,5 +1,5 @@
 import {playGameTone} from './gameAudio';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { shuffleBibleQuestions } from './bibleQuestionBank';
 import { expandedBibleQuestionBank } from './extendedBibleQuestionBank';
 import {
@@ -121,12 +121,42 @@ function makeMemoryCards(): MemoryCard[] {
   ]));
 }
 
-export function MemoryGame({ onExit }: { onExit: () => void }) {
+export function MemoryGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number) => void }) {
   const [cards, setCards] = useState(makeMemoryCards);
   const [opened, setOpened] = useState<number[]>([]);
   const [matched, setMatched] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
   const [finished, setFinished] = useState(false);
+  const orderVerseGameReported = useRef(false);
+  useEffect(() => {
+    if (!finished || orderVerseGameReported.current) return;
+    orderVerseGameReported.current = true;
+    onComplete?.(score);
+  }, [finished, onComplete, score]);
+  const duelGameReported = useRef(false);
+  useEffect(() => {
+    if (!finished || duelGameReported.current) return;
+    duelGameReported.current = true;
+    onComplete?.(scores[0] + scores[1]);
+  }, [finished, onComplete, scores[0] + scores[1]]);
+  const survivalGameReported = useRef(false);
+  useEffect(() => {
+    if (!finished || survivalGameReported.current) return;
+    survivalGameReported.current = true;
+    onComplete?.(score);
+  }, [finished, onComplete, score]);
+  const challengeGameReported = useRef(false);
+  useEffect(() => {
+    if (!finished || challengeGameReported.current) return;
+    challengeGameReported.current = true;
+    onComplete?.(score);
+  }, [finished, onComplete, score]);
+  const memoryGameReported = useRef(false);
+  useEffect(() => {
+    if (!finished || memoryGameReported.current) return;
+    memoryGameReported.current = true;
+    onComplete?.(Math.max(0, 160 - moves * 5));
+  }, [finished, onComplete, Math.max(0, 160 - moves * 5)]);
   const [busy, setBusy] = useState(false);
 
   function flip(card: MemoryCard) {
@@ -159,7 +189,12 @@ export function MemoryGame({ onExit }: { onExit: () => void }) {
     }, 850);
   }
 
-  function restart() {
+  function restart() { 
+    orderVerseGameReported.current = false; 
+    duelGameReported.current = false; 
+    survivalGameReported.current = false; 
+    challengeGameReported.current = false; 
+    memoryGameReported.current = false;
     setCards(makeMemoryCards());
     setOpened([]);
     setMatched([]);
@@ -208,7 +243,7 @@ export function MemoryGame({ onExit }: { onExit: () => void }) {
 }
 
 /* RETO DE 60 SEGUNDOS */
-export function ChallengeGame({ onExit }: { onExit: () => void }) {
+export function ChallengeGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number) => void }) {
   const [seconds, setSeconds] = useState(60);
   const [index, setIndex] = useState(0);
   const [questions, setQuestions] = useState<Question[]>(makeQuestionBank);
@@ -272,7 +307,7 @@ export function ChallengeGame({ onExit }: { onExit: () => void }) {
 }
 
 /* SUPERVIVENCIA */
-export function SurvivalGame({ onExit }: { onExit: () => void }) {
+export function SurvivalGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number) => void }) {
   const [index, setIndex] = useState(0);
   const [questions, setQuestions] = useState<Question[]>(makeQuestionBank);
   const [lives, setLives] = useState(3);
@@ -340,7 +375,7 @@ export function SurvivalGame({ onExit }: { onExit: () => void }) {
 }
 
 /* DUELO 1 CONTRA 1: LOCAL EN UN MISMO DISPOSITIVO */
-export function DuelGame({ onExit }: { onExit: () => void }) {
+export function DuelGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number) => void }) {
   const [names, setNames] = useState(['Jugador 1', 'Jugador 2']);
   const [started, setStarted] = useState(false);
   const [turn, setTurn] = useState(0);
@@ -480,7 +515,7 @@ function makeWords(level: number, source: typeof verseLevels = verseLevels): Wor
   return shuffle(source[level].text.split(' ').map((text, id) => ({ id, text })));
 }
 
-export function OrderVerseGame({ onExit }: { onExit: () => void }) {
+export function OrderVerseGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number) => void }) {
   const [roundVerses, setRoundVerses] = useState(() => shuffle(verseLevels));
   const [level, setLevel] = useState(0);
   const [words, setWords] = useState(() => makeWords(0, roundVerses));
