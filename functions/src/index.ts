@@ -1809,6 +1809,12 @@ export const adminReviewYouthGameResult = onCall(async (request) => {
       transaction.set(photoRef, {w: nextBalance}, {merge: true});
       if (profileSnapshot.exists) transaction.set(profileRef, {flames: nextBalance}, {merge: true});
       if (memberSnapshot.exists) transaction.set(memberRef, {flames: nextBalance}, {merge: true});
+      const movementId = createHash("sha256").update("youth-game-flames:" + resultId).digest("hex");
+      transaction.create(db.collection("flameTransactions").doc(movementId), {
+        memberId, amount: reward, balanceAfter: nextBalance,
+        type: "game", description: "Recompensa por juego bíblico",
+        referenceId: resultId, createdAt: now, createdBy: request.auth!.uid,
+      });
       awarded = reward;
     }
     transaction.set(resultRef, {
@@ -1823,6 +1829,29 @@ export const adminReviewYouthGameResult = onCall(async (request) => {
     request.auth.uid, resultId, {memberId, reward: awarded},
   );
   return {success: true, verificationStatus: decision === "approve" ? "verified" : "rejected", reward: awarded};
+});
+
+/** Historial privado y verificable de movimientos de Llamas del joven. */
+export const getYouthFlameHistory = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  const snapshot = await db.collection("flameTransactions")
+    .where("memberId", "==", memberId)
+    .limit(100)
+    .get();
+  const movements = snapshot.docs.map((document) => {
+    const data = document.data();
+    const amount = Number(data.amount ?? 0);
+    const balanceAfter = Number(data.balanceAfter ?? 0);
+    return {
+      id: document.id,
+      amount: Number.isFinite(amount) ? Math.trunc(amount) : 0,
+      balanceAfter: Number.isFinite(balanceAfter) ? Math.max(0, Math.trunc(balanceAfter)) : 0,
+      type: text(data.type, 30),
+      description: text(data.description, 160),
+      createdAt: text(data.createdAt, 40),
+    };
+  }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return {movements};
 });
 
 export const getYouthGameHistory = onCall(async (request) => {
@@ -2663,6 +2692,12 @@ export const adminReviewYouthDevotionalSubmission = onCall(async (request) => {
       transaction.set(photoRef, {w: nextFlames, updatedAt: now}, {merge: true});
       if (publicSnapshot.exists) transaction.set(publicRef, {flames: nextFlames}, {merge: true});
       if (memberSnapshot.exists) transaction.set(memberRef, {flames: nextFlames}, {merge: true});
+      const movementId = createHash("sha256").update("devotional-flames:" + submissionId).digest("hex");
+      transaction.create(db.collection("flameTransactions").doc(movementId), {
+        memberId, amount: flamesReward, balanceAfter: nextFlames,
+        type: "devotional", description: "Devocional aprobado",
+        referenceId: submissionId, createdAt: now, createdBy: request.auth!.uid,
+      });
     }
     transaction.create(awardRef, {
       submissionId, memberId, points: 20, flames: flamesReward,
