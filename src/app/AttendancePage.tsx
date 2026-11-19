@@ -223,7 +223,11 @@ export default function AttendancePage() {
     // El ayuno juvenil se programa cada 15 días tomando como referencia
     // la fecha de un ayuno que ya exista en el historial real.
     const fastingDates = meetings
-      .filter((meeting) => /ayuno.*juvenil|ayuno y servicio de jóvenes/i.test(meeting.name))
+      .filter((meeting) => {
+        const normalized = normalizeMeetingName(meeting.name);
+        return normalized.includes('ayuno') &&
+          (normalized.includes('juvenil') || normalized.includes('jovenes'));
+      })
       .map((meeting) => meeting.date)
       .filter(Boolean)
       .sort();
@@ -240,7 +244,14 @@ export default function AttendancePage() {
             (normalized.includes('juvenil') || normalized.includes('jovenes'));
         });
         if (date >= firstDate && !hasFastingEvent) {
-          generated.push({id: `scheduled_${date}_fast`, name, date, createdAt: '', participants: []});
+          const saturdayService = generated.find((meeting) =>
+            meeting.date === date && meeting.name === 'Servicio de jóvenes',
+          );
+          if (saturdayService) {
+            saturdayService.name = 'Ayuno y servicio de jóvenes';
+          } else {
+            generated.push({id: `scheduled_${date}_fast`, name, date, createdAt: '', participants: []});
+          }
         }
         current.setUTCDate(current.getUTCDate() + 15);
       }
