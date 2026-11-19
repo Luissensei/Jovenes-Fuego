@@ -128,11 +128,12 @@ export function MemoryGame({ onExit, onComplete }: { onExit: () => void; onCompl
   const [moves, setMoves] = useState(0);
   const [finished, setFinished] = useState(false);
   const memoryGameReported = useRef(false);
+  const finalScore = Math.max(0, 160 - moves * 5);
   useEffect(() => {
     if (!finished || memoryGameReported.current) return;
     memoryGameReported.current = true;
-    onComplete?.(Math.max(0, 160 - moves * 5));
-  }, [finished, onComplete, Math.max(0, 160 - moves * 5)]);
+    onComplete?.(finalScore);
+  }, [finished, onComplete, finalScore]);
   const [busy, setBusy] = useState(false);
 
   function flip(card: MemoryCard) {
@@ -371,11 +372,12 @@ export function DuelGame({ onExit, onComplete }: { onExit: () => void; onComplet
   const [answered, setAnswered] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
   const duelGameReported = useRef(false);
+  const totalScore = scores[0] + scores[1];
   useEffect(() => {
     if (!finished || duelGameReported.current) return;
     duelGameReported.current = true;
-    onComplete?.(scores[0] + scores[1]);
-  }, [finished, onComplete, scores[0] + scores[1]]);
+    onComplete?.(totalScore);
+  }, [finished, onComplete, totalScore]);
 
   const question = questions[round % questions.length];
 
