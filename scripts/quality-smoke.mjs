@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 
 const root = process.cwd();
 const read = (path) => readFile(resolve(root, path), 'utf8');
-const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, themePreference, paletteSource] = await Promise.all([
+const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, themePreference, paletteSource, attendancePage, fuegoAssistant] = await Promise.all([
   read('public/manifest.webmanifest'),
   read('public/sw.js'),
   read('src/services/firebase/client.ts'),
@@ -12,6 +12,8 @@ const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, th
   read('src/app/App.tsx'),
   read('src/app/useThemePreference.ts'),
   read('src/styles/jdf-brand-palette.css'),
+  read('src/app/AttendancePage.tsx'),
+  read('src/app/components/FuegoAssistant.tsx'),
 ]);
 
 assert.match(themePreference, /theme === 'dark' \? '#0B0B0B' : '#FFFFFF'/, 'El color de la barra del navegador debe coincidir con las paletas verde y monocromática.');
@@ -26,6 +28,15 @@ assert.match(paletteSource, /--jf-brand:#235347/, 'El tema claro debe usar verde
 assert.match(paletteSource, /--jf-sidebar:#051F20/, 'La navegación clara debe usar verde profundo.');
 assert.match(paletteSource, /--jf-canvas:#0B0B0B/, 'El tema oscuro debe usar el fondo monocromático.');
 assert.match(paletteSource, /--jf-brand:#D9D9D9/, 'El tema oscuro debe usar acentos grises.');
+assert.match(attendancePage, /weekday: 2, name: 'Discipulado'/, 'El calendario debe incluir el discipulado del martes.');
+assert.match(attendancePage, /weekday: 3, name: 'Servicio de miércoles'/, 'El calendario debe incluir el servicio del miércoles.');
+assert.match(attendancePage, /weekday: 5, name: 'Servicio de viernes'/, 'El calendario debe incluir el servicio del viernes.');
+assert.match(attendancePage, /weekday: 6, name: 'Servicio de jóvenes'/, 'El calendario debe incluir el servicio de jóvenes del sábado.');
+assert.match(attendancePage, /weekday: 0, name: 'Escuela dominical'/, 'El calendario debe incluir la escuela dominical.');
+assert.match(attendancePage, /setUTCDate\(current\.getUTCDate\(\) \+ 15\)/, 'El ayuno juvenil debe conservar la periodicidad quincenal.');
+assert.match(attendancePage, /historyStart\.getUTCDate\(\) - 365/, 'El selector debe recuperar al menos un año de servicios pendientes.');
+assert.ok(attendancePage.includes('allMeetings.length === 0'), 'El selector debe mostrar reuniones generadas aunque el historial esté vacío.');
+assert.doesNotMatch(fuegoAssistant, /Firebase Staging|jovenes-de-fuego-staging/, 'Fuego AI no debe mencionar el proyecto staging.');
 assert.ok(Array.isArray(manifest.icons) && manifest.icons.length >= 2, 'La PWA necesita iconos instalables.');
 for (const icon of manifest.icons) {
   assert.ok(icon.src.startsWith('/'), 'Los iconos deben usar rutas locales absolutas.');
