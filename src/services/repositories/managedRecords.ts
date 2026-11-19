@@ -113,3 +113,21 @@ export async function deleteManagedRecord(
   });
   if (!response.success) throw new Error('No se pudo confirmar la eliminación.');
 }
+
+
+/** Registra una alerta como seguimiento pastoral pendiente, sin duplicarla. */
+export async function createAbsenceAlertFollowup(
+  memberId: string,
+  lastAbsenceDate: string,
+  consecutive: number,
+): Promise<{created: boolean; id: string}> {
+  assertFirebaseWritesAllowed();
+  const response = await call<
+    {memberId: string; lastAbsenceDate: string; consecutive: number},
+    {success: boolean; created: boolean; id: string}
+  >('adminCreateAbsenceFollowup', {memberId, lastAbsenceDate, consecutive});
+  if (!response.success || !response.id) {
+    throw new Error('No se pudo crear el seguimiento de inasistencia.');
+  }
+  return {created: response.created, id: response.id};
+}
