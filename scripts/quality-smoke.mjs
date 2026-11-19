@@ -35,7 +35,7 @@ assert.match(attendancePage, /weekday: 6, name: 'Servicio de jóvenes'/, 'El cal
 assert.match(attendancePage, /weekday: 0, name: 'Escuela dominical'/, 'El calendario debe incluir la escuela dominical.');
 assert.match(attendancePage, /setUTCDate\(current\.getUTCDate\(\) \+ 15\)/, 'El ayuno juvenil debe conservar la periodicidad quincenal.');
 assert.match(attendancePage, /historyStart\.getUTCDate\(\) - 365/, 'El selector debe recuperar al menos un año de servicios pendientes.');
-assert.match(attendancePage, /const allMeetings = useMemo\([\s\S]*?return \[\.\.\.meetings, \.\.\.scheduledMeetings\]/, 'El selector debe combinar las reuniones guardadas con las reuniones programadas generadas, aunque el historial esté vacío.');
+assert.match(attendancePage, /const allMeetings = useMemo\([\s\S]*?\(\)\s*=>\s*\[\.\.\.meetings, \.\.\.scheduledMeetings\]/, 'El selector debe combinar las reuniones guardadas con las reuniones programadas generadas, aunque el historial esté vacío.');
 assert.doesNotMatch(fuegoAssistant, /Firebase Staging|jovenes-de-fuego-staging/, 'Fuego AI no debe mencionar el proyecto staging.');
 assert.ok(Array.isArray(manifest.icons) && manifest.icons.length >= 2, 'La PWA necesita iconos instalables.');
 for (const icon of manifest.icons) {
