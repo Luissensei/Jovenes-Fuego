@@ -1,27 +1,4 @@
 /* App-wide accessibility and recovery layer. Keep this after the visual theme imports. */
-.jf-skip-link {
-  position: fixed;
-  z-index: 200;
-  top: 12px;
-  left: 12px;
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 10px 15px;
-  border: 2px solid var(--jf-focus, #287c57);
-  border-radius: 10px;
-  background: var(--jf-sidebar, #172a20);
-  color: var(--jf-sidebar-text, #fff);
-  font-size: 13px;
-  font-weight: 750;
-  text-decoration: none;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .22);
-  transform: translateY(calc(-100% - 24px));
-  transition: transform 160ms ease;
-}
-.jf-skip-link:focus {
-  transform: translateY(0);
-}
 .jf-route-stage {
   min-width: 0;
   scroll-margin-top: 16px;
@@ -123,12 +100,6 @@
     width: 100%;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .jf-skip-link {
-    transition: none;
-  }
-}
-
 
 /* El portal juvenil usa su propio árbol de rutas y recibe el mismo contrato accesible. */
 .youth-portal :is(button, a, input, select, textarea, summary, [tabindex]):focus-visible {

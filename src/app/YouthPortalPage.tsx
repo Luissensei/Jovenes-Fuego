@@ -1127,7 +1127,7 @@ export default function YouthPortalPage() {
     };
     return (
       <main className={`${styles.scope} youth-portal`}>
-        <a className="jf-skip-link" href="#jf-youth-main-content">Saltar al contenido principal</a>
+        
         <div className={`youth-container youth-game-shell ${gameExiting ? "youth-game-exit" : ""}`} id="jf-youth-main-content" tabIndex={-1}>
           <div className="youth-game-topbar">
             <button className="youth-back" type="button" onClick={exitGame}><ArrowLeft size={17}/> Volver a mi espacio</button>
@@ -1159,7 +1159,7 @@ export default function YouthPortalPage() {
       <main
         className={`${styles.scope} ${dashboardStyles.dashboard} youth-portal bg-[var(--jdf-canvas)] text-[var(--jdf-text)] ${portalExiting ? "youth-profile-exit" : ""}`}
       >
-        <a className="jf-skip-link" href="#jf-youth-main-content">Saltar al contenido principal</a>
+        
         <aside className={dashboardStyles.sideNav} aria-label="Navegación del portal joven">
           <div className={dashboardStyles.sideBrand}>
             <span className={dashboardStyles.sideBrandMark}><Flame size={22}/></span>
@@ -1593,7 +1593,7 @@ export default function YouthPortalPage() {
 
   return (
     <main className={`${styles.scope} youth-portal`}>
-      <a className="jf-skip-link" href="#jf-youth-main-content">Saltar al contenido principal</a>
+      
       <div className="youth-container" id="jf-youth-main-content" tabIndex={-1}>
         <header className="youth-header">
           <div className="youth-brand-icon church-portal-logo">

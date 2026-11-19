@@ -412,7 +412,7 @@ function AdminApp() {
 
   return (
     <div className={`layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''} ${menuOpen ? 'menu-open' : ''}`}>
-      <a className="jf-skip-link" href="#jf-main-content">Saltar al contenido principal</a>
+      
       <header className="mobile-header">
         <button
           className="icon-button"
