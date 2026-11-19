@@ -432,3 +432,20 @@ export async function updatePrayerRequestStatus(
 
 /** Guarda la apariencia a través de una función que valida el perfil y el saldo de Llamas. */
 
+
+export async function recordYouthGameResult(
+  communitySession: string, gameId: 'trivia' | 'verse', score: number, runId: string,
+): Promise<{reward: number; flames: number; alreadyRecorded: boolean}> {
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const call = httpsCallable<
+    {communitySession: string; gameId: 'trivia' | 'verse'; score: number; runId: string},
+    {success: boolean; reward: number; flames: number; alreadyRecorded: boolean}
+  >(functions, 'recordYouthGameResult');
+  const response = await call({communitySession, gameId, score, runId});
+  if (!response.data.success) throw new Error('No se pudo guardar el resultado.');
+  return {
+    reward: response.data.reward,
+    flames: response.data.flames,
+    alreadyRecorded: response.data.alreadyRecorded,
+  };
+}
