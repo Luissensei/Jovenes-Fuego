@@ -449,3 +449,19 @@ export async function recordYouthGameResult(
     alreadyRecorded: response.data.alreadyRecorded,
   };
 }
+
+export type YouthGameHistoryEntry = {
+  id: string;
+  gameId: string;
+  score: number;
+  verificationStatus: 'pending' | 'verified' | 'rejected';
+  createdAt: string;
+};
+export async function getYouthGameHistory(communitySession: string): Promise<YouthGameHistoryEntry[]> {
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const call = httpsCallable<{communitySession: string}, {results: YouthGameHistoryEntry[]}>(
+    functions, 'getYouthGameHistory',
+  );
+  const response = await call({communitySession});
+  return Array.isArray(response.data.results) ? response.data.results : [];
+}
