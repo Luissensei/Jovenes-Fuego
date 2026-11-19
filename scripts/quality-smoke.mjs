@@ -107,12 +107,17 @@ const publicCallableAllowlist = new Set([
   'setYouthWeeklyActivityAttendance', 'getYouthWeeklyActivityAttendance',
   'submitPublicPrayerRequest', 'getPublicHallOfFame',
 ]);
+const youthSessionCallables = new Set(['recordYouthGameResult']);
 const auditedCallables = new Set();
 for (const callable of callableBlocks) {
   const name = callable[1];
   const body = callable[0];
   auditedCallables.add(name);
   if (publicCallableAllowlist.has(name)) continue;
+  if (youthSessionCallables.has(name)) {
+    assert.match(body, /requireYouthCommunitySession/, name + ' debe validar la sesión juvenil firmada.');
+    continue;
+  }
   assert.match(body, /request\.auth/, name + ' debe comprobar autenticación.');
   assert.match(
     body,
