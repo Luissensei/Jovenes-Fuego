@@ -9,6 +9,7 @@ export type YouthDevotionalSubmission = {
   imageDataUrl: string;
   status: string;
   createdAt: string;
+  pointsAwarded?: number;
 };
 
 export async function submitYouthDevotional(input: {
@@ -47,4 +48,19 @@ export async function listYouthDevotionalSubmissions(): Promise<YouthDevotionalS
   );
   const response = await load({});
   return Array.isArray(response.data.submissions) ? response.data.submissions : [];
+}
+
+export async function reviewYouthDevotionalSubmission(
+  submissionId: string,
+  decision: 'approve' | 'reject',
+): Promise<{status: string; pointsAwarded: number}> {
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  if (!submissionId.trim()) throw new Error('Selecciona una entrega válida.');
+  const review = httpsCallable<
+    {submissionId: string; decision: 'approve' | 'reject'},
+    {success: boolean; status: string; pointsAwarded: number}
+  >(functions, 'adminReviewYouthDevotionalSubmission');
+  const response = await review({submissionId: submissionId.trim(), decision});
+  if (!response.data.success) throw new Error('No se pudo confirmar la revisión.');
+  return {status: response.data.status, pointsAwarded: response.data.pointsAwarded};
 }
