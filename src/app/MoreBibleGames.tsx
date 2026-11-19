@@ -512,7 +512,7 @@ const verseLevels = [
   { ref: 'Salmo 121:1', text: 'Alzaré mis ojos a los montes de dónde vendrá mi socorro' },
   { ref: '1 Tesalonicenses 5:16', text: 'Estad siempre gozosos' },
   { ref: '1 Tesalonicenses 5:17', text: 'Orad sin cesar' },
-];
+].map((verse, index) => ({...verse, id: `order-${String(index + 1).padStart(2, '0')}`}));
 
 type Word = { id: number; text: string };
 
@@ -520,7 +520,7 @@ function makeWords(level: number, source: typeof verseLevels = verseLevels): Wor
   return shuffle(source[level].text.split(' ').map((text, id) => ({ id, text })));
 }
 
-export function OrderVerseGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number) => void }) {
+export function OrderVerseGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number, answers: {questionId:string;answerIndex:number}[]) => void }) {
   const [roundVerses, setRoundVerses] = useState(() => shuffle(verseLevels));
   const [level, setLevel] = useState(0);
   const [words, setWords] = useState(() => makeWords(0, roundVerses));
@@ -528,12 +528,13 @@ export function OrderVerseGame({ onExit, onComplete }: { onExit: () => void; onC
   const [feedback, setFeedback] = useState('');
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [answers, setAnswers] = useState<{questionId:string;answerIndex:number}[]>([]);
   const orderVerseGameReported = useRef(false);
   useEffect(() => {
     if (!finished || orderVerseGameReported.current) return;
     orderVerseGameReported.current = true;
-    onComplete?.(score);
-  }, [finished, onComplete, score]);
+    onComplete?.(score, answers);
+  }, [finished, onComplete, score, answers]);
 
   const current = roundVerses[level];
   const arranged = selected.map((id) => words.find((word) => word.id === id)?.text ?? '');
@@ -561,6 +562,7 @@ export function OrderVerseGame({ onExit, onComplete }: { onExit: () => void; onC
       playGameTone('success');
       setFeedback('correcto');
       setScore((value) => value + 20);
+      setAnswers((previous) => [...previous, ...selected.map((wordId, position) => ({questionId: `${current.id}-${String(position).padStart(2, '0')}`, answerIndex: wordId}))]);
     } else {
       playGameTone('incorrect');
       setFeedback('Inténtalo otra vez. El orden todavía no es correcto.');
@@ -588,6 +590,7 @@ export function OrderVerseGame({ onExit, onComplete }: { onExit: () => void; onC
     setSelected([]);
     setFeedback('');
     setScore(0);
+    setAnswers([]);
     setFinished(false);
   }
 

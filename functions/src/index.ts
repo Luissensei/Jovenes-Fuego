@@ -8,6 +8,7 @@ import {youthTriviaQuestionBank} from "./youthTriviaQuestionBank.js";
 import {youthTrueFalseAnswerBank} from "./youthTrueFalseAnswerBank.js";
 import {youthVerseAnswerBank} from "./youthVerseAnswerBank.js";
 import {youthWhoAmIAnswerBank} from "./youthWhoAmIAnswerBank.js";
+import {youthOrderVerseBank} from "./youthOrderVerseBank.js";
 
 setGlobalOptions({maxInstances: 10});
 
@@ -1724,6 +1725,38 @@ export const recordYouthGameResult = onCall(async (request) => {
 
   let scoreValue = reportedScore;
   let answerValidation = "manual-review";
+  if (gameId === "order") {
+    const answers = request.data?.answers;
+    if (!Array.isArray(answers) || answers.length < 33 || answers.length > 1000) {
+      throw new HttpsError("invalid-argument", "Ordena el versículo debe incluir las palabras de sus 33 niveles.");
+    }
+    const seenWords = new Set<string>();
+    const versePositions = new Map<string, Set<number>>();
+    for (const entry of answers) {
+      const questionId = text(entry?.questionId, 40);
+      const match = /^(order-\\d{2})-(\\d{2})$/.exec(questionId);
+      const answerIndex = Number(entry?.answerIndex);
+      if (!match || !youthOrderVerseBank[match[1]] ||
+          !Number.isInteger(answerIndex) || answerIndex < 0 ||
+          answerIndex >= youthOrderVerseBank[match[1]].wordCount ||
+          seenWords.has(questionId)) {
+        throw new HttpsError("invalid-argument", "La secuencia contiene palabras inválidas o repetidas.");
+      }
+      seenWords.add(questionId);
+      const position = Number(match[2]);
+      const positions = versePositions.get(match[1]) ?? new Set<number>();
+      if (position >= youthOrderVerseBank[match[1]].wordCount || positions.has(position) || answerIndex !== position) {
+        throw new HttpsError("failed-precondition", "El orden de las palabras no coincide con el versículo.");
+      }
+      positions.add(position);
+      versePositions.set(match[1], positions);
+    }
+    if (versePositions.size !== 33 || [...versePositions.entries()].some(([id, positions]) => positions.size !== youthOrderVerseBank[id].wordCount)) {
+      throw new HttpsError("failed-precondition", "Debes completar correctamente los 33 versículos.");
+    }
+    scoreValue = 33 * 20;
+    answerValidation = "server-validated";
+  }
   if (gameId === "memory") {
     const attempts = request.data?.answers;
     if (!Array.isArray(attempts) || attempts.length < 8 || attempts.length > 100) {
@@ -1856,7 +1889,7 @@ export const recordYouthGameResult = onCall(async (request) => {
       memberName: member.name,
       gameId,
       score: scoreValue,
-      ...(["trivia", "truefalse", "verse", "challenge", "survival", "whoami", "memory"].includes(gameId) ? {clientReportedScore: reportedScore} : {}),
+      ...(["trivia", "truefalse", "verse", "challenge", "survival", "whoami", "memory", "order"].includes(gameId) ? {clientReportedScore: reportedScore} : {}),
       answerValidation,
       verificationStatus: "pending",
       reward: 0,

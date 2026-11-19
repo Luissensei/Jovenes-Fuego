@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 
 const root = process.cwd();
 const read = (path) => readFile(resolve(root, path), 'utf8');
-const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, themePreference, paletteSource, attendancePage, fuegoAssistant, triviaGame, trustedTriviaBank, quickBibleGames, trustedTrueFalseBank, verseGame, trustedVerseBank, moreBibleGames, trustedWhoAmIBank] = await Promise.all([
+const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, themePreference, paletteSource, attendancePage, fuegoAssistant, triviaGame, trustedTriviaBank, quickBibleGames, trustedTrueFalseBank, verseGame, trustedVerseBank, moreBibleGames, trustedWhoAmIBank, trustedOrderVerseBank] = await Promise.all([
   read('public/manifest.webmanifest'),
   read('public/sw.js'),
   read('src/services/firebase/client.ts'),
@@ -22,6 +22,7 @@ const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, th
   read('functions/src/youthVerseAnswerBank.ts'),
   read('src/app/MoreBibleGames.tsx'),
   read('functions/src/youthWhoAmIAnswerBank.ts'),
+  read('functions/src/youthOrderVerseBank.ts'),
 ]);
 
 assert.match(themePreference, /theme === 'dark' \? '#0B0B0B' : '#FFFFFF'/, 'El color de la barra del navegador debe coincidir con las paletas verde y monocromática.');
@@ -159,6 +160,8 @@ assert.match(quickBibleGames, /questionId:current.id,answerIndex:current.options
 assert.match(trustedWhoAmIBank, /who-16/, 'El servidor debe validar los dieciséis personajes de ¿Quién soy?');
 assert.match(moreBibleGames, /firstPair:first.pair,secondPair:card.pair/, 'Memoria debe enviar los intentos de parejas al servidor.');
 assert.match(functionsSource, /successfulPairs.size !== 8/, 'El servidor debe comprobar ocho parejas distintas en Memoria.');
+assert.match(moreBibleGames, /questionId: `\$\{current.id\}-\$\{String\(position\)/, 'Ordena el versículo debe enviar la secuencia de palabras.');
+assert.match(trustedOrderVerseBank, /order-33/, 'El servidor debe conocer los 33 versículos ordenables.');
 assert.match(quickBibleGames, /questionId:current.id,answerIndex:value\?1:0/, 'Verdadero o falso debe enviar evidencia por pregunta.');
 assert.match(trustedTrueFalseBank, /tf-20/, 'El servidor debe tener las veinte respuestas de Verdadero o falso.');
 assert.match(functionsSource, /youthTrueFalseAnswerBank\[questionId\]/, 'Functions debe verificar las respuestas de Verdadero o falso.');
