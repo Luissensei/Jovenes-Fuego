@@ -1130,7 +1130,7 @@ export default function YouthPortalPage() {
   if (selectedProfile) {
     return (
       <main
-        className={`${styles.scope} ${dashboardStyles.dashboard} youth-portal ${portalExiting ? "youth-profile-exit" : ""}`}
+        className={`${styles.scope} ${dashboardStyles.dashboard} youth-portal bg-[var(--jdf-canvas)] text-[var(--jdf-text)] ${portalExiting ? "youth-profile-exit" : ""}`}
       >
         <a className="jf-skip-link" href="#jf-youth-main-content">Saltar al contenido principal</a>
         <div className="youth-container youth-home-enter" id="jf-youth-main-content" tabIndex={-1}>
