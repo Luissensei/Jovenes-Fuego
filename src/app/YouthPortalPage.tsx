@@ -1120,7 +1120,7 @@ export default function YouthPortalPage() {
             {activeGame === 'duel' && <DuelGame onExit={exitGame} onComplete={(score) => void completeGame('duel', score)}/>}
             {activeGame === 'order' && <OrderVerseGame onExit={exitGame} onComplete={(score) => void completeGame('order', score)}/>}
             {activeGame === 'truefalse' && <TrueFalseGame onExit={exitGame} onComplete={(score, answers) => void completeGame('truefalse', score, answers)}/>}
-            {activeGame === 'whoami' && <WhoAmIGame onExit={exitGame} onComplete={(score) => void completeGame('whoami', score)}/>}
+            {activeGame === 'whoami' && <WhoAmIGame onExit={exitGame} onComplete={(score, answers) => void completeGame('whoami', score, answers)}/>}
           </Suspense>
         </div>
       </main>

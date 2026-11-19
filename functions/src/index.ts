@@ -7,6 +7,7 @@ import {getAuth as getAdminAuth} from "firebase-admin/auth";
 import {youthTriviaQuestionBank} from "./youthTriviaQuestionBank.js";
 import {youthTrueFalseAnswerBank} from "./youthTrueFalseAnswerBank.js";
 import {youthVerseAnswerBank} from "./youthVerseAnswerBank.js";
+import {youthWhoAmIAnswerBank} from "./youthWhoAmIAnswerBank.js";
 
 setGlobalOptions({maxInstances: 10});
 
@@ -1723,6 +1724,28 @@ export const recordYouthGameResult = onCall(async (request) => {
 
   let scoreValue = reportedScore;
   let answerValidation = "manual-review";
+  if (gameId === "whoami") {
+    const answers = request.data?.answers;
+    if (!Array.isArray(answers) || answers.length !== 10) {
+      throw new HttpsError("invalid-argument", "¿Quién soy? debe incluir diez respuestas.");
+    }
+    const seenQuestions = new Set<string>();
+    scoreValue = 0;
+    for (const entry of answers) {
+      const questionId = text(entry?.questionId, 20);
+      const answerIndex = Number(entry?.answerIndex);
+      const hintCount = Number(entry?.hintCount);
+      const question = youthWhoAmIAnswerBank[questionId];
+      if (!question || seenQuestions.has(questionId) ||
+          !Number.isInteger(answerIndex) || answerIndex < 0 || answerIndex >= question.optionCount ||
+          !Number.isInteger(hintCount) || hintCount < 0 || hintCount > 2) {
+        throw new HttpsError("invalid-argument", "La evidencia de ¿Quién soy? no es válida.");
+      }
+      seenQuestions.add(questionId);
+      if (answerIndex === question.answerIndex) scoreValue += Math.max(5, 15 - hintCount * 5);
+    }
+    answerValidation = "server-validated";
+  }
   if (["verse", "challenge", "survival"].includes(gameId)) {
     const answers = request.data?.answers;
     if (!Array.isArray(answers) || answers.length < 1 || answers.length > 100) {
@@ -1812,7 +1835,7 @@ export const recordYouthGameResult = onCall(async (request) => {
       memberName: member.name,
       gameId,
       score: scoreValue,
-      ...(["trivia", "truefalse", "verse", "challenge", "survival"].includes(gameId) ? {clientReportedScore: reportedScore} : {}),
+      ...(["trivia", "truefalse", "verse", "challenge", "survival", "whoami"].includes(gameId) ? {clientReportedScore: reportedScore} : {}),
       answerValidation,
       verificationStatus: "pending",
       reward: 0,
