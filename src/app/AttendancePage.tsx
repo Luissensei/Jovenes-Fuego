@@ -170,10 +170,13 @@ export default function AttendancePage() {
   }, [savedAttendance, attendance]);
 
   const scheduledMeetings = useMemo<AttendanceMeeting[]>(() => {
-    if (meetings.length === 0) return [];
     const today = localDateInput();
-    const firstDate = meetings.reduce((earliest, meeting) =>
-      meeting.date && meeting.date < earliest ? meeting.date : earliest, today);
+    const fallbackStart = new Date(`${today}T12:00:00Z`);
+    fallbackStart.setUTCDate(fallbackStart.getUTCDate() - 84);
+    const firstDate = meetings.length
+      ? meetings.reduce((earliest, meeting) =>
+        meeting.date && meeting.date < earliest ? meeting.date : earliest, today)
+      : fallbackStart.toISOString().slice(0, 10);
     const lastDate = today;
     const existing = new Set(meetings.map((meeting) => `${meeting.date}|${meeting.name.trim().toLocaleLowerCase('es')}`));
     const schedule: Array<{weekday: number; name: string}> = [
