@@ -107,7 +107,7 @@ const publicCallableAllowlist = new Set([
   'setYouthWeeklyActivityAttendance', 'getYouthWeeklyActivityAttendance',
   'submitPublicPrayerRequest', 'getPublicHallOfFame',
 ]);
-const youthSessionCallables = new Set(['recordYouthGameResult', 'getYouthFlameHistory']);
+const youthSessionCallables = new Set(['recordYouthGameResult', 'getYouthFlameHistory', 'getYouthGameHistory']);
 const auditedCallables = new Set();
 for (const callable of callableBlocks) {
   const name = callable[1];
