@@ -237,3 +237,195 @@
   .scope:global(.ranking-hub) :global(.ranking-player-card),
   .scope:global(.ranking-hub) :global(.ranking-podium-player) { animation: none; transition: none; }
 }
+
+
+/* Podio y cuadro de honor: jerarquía visual completa, sin blur decorativo. */
+.scope:global(.ranking-hub) :global(.ranking-info-grid article) {
+  display:flex; flex-direction:column; align-items:flex-start; gap:.35rem;
+  min-height:116px; padding:1rem 1.1rem;
+  background:linear-gradient(145deg,var(--jdf-surface-raised),var(--jdf-surface))!important;
+}
+.scope:global(.ranking-hub) :global(.ranking-info-grid article > svg) {
+  color:var(--jdf-fire); width:22px; height:22px;
+}
+.scope:global(.ranking-hub) :global(.ranking-info-grid article strong) {
+  color:var(--jdf-text); font-size:clamp(1.45rem,3vw,2rem); line-height:1.05;
+  font-variant-numeric:tabular-nums;
+}
+.scope:global(.ranking-hub) :global(.ranking-info-grid article span) {
+  color:var(--jdf-muted); font-size:.78rem; font-weight:700;
+}
+.scope:global(.ranking-hub) :global(.ranking-progress-panel) {
+  margin-top:1rem; padding:1.1rem 1.2rem;
+}
+.scope:global(.ranking-hub) :global(.ranking-progress-panel > header) {
+  display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:1rem;
+}
+.scope:global(.ranking-hub) :global(.ranking-progress-panel header span:first-child) {
+  color:var(--jdf-fire); font-size:.64rem; font-weight:900; letter-spacing:.14em;
+}
+.scope:global(.ranking-hub) :global(.ranking-progress-panel h3) {
+  margin:.25rem 0; color:var(--jdf-text); font-size:1.08rem;
+}
+.scope:global(.ranking-hub) :global(.ranking-progress-panel p) { margin:0; color:var(--jdf-muted); font-size:.82rem; }
+.scope:global(.ranking-hub) :global(.ranking-progress-bands) {
+  display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:.8rem;
+}
+.scope:global(.ranking-hub) :global(.ranking-progress-band) { min-width:0; }
+.scope:global(.ranking-hub) :global(.ranking-progress-band > div) {
+  display:flex; flex-direction:column; gap:.2rem; margin-bottom:.45rem;
+}
+.scope:global(.ranking-hub) :global(.ranking-progress-band b) { color:var(--jdf-text); font-size:.72rem; }
+.scope:global(.ranking-hub) :global(.ranking-progress-band span) { color:var(--jdf-muted); font-size:.68rem; }
+.scope:global(.ranking-hub) :global(.ranking-progress-band i) {
+  display:block; overflow:hidden; height:8px; border-radius:99px; background:var(--jdf-border);
+}
+.scope:global(.ranking-hub) :global(.ranking-progress-band em) {
+  display:block; height:100%; min-width:0; border-radius:inherit;
+  background:linear-gradient(90deg,var(--jdf-community),var(--jdf-fire));
+}
+.scope:global(.ranking-hub) :global(.ranking-hall-grid) {
+  display:grid; grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);
+  gap:1rem; margin-top:1rem;
+}
+.scope:global(.ranking-hub) :global(.youth-hall-card) {
+  min-width:0; padding:1.15rem; border:1px solid var(--jdf-border);
+  border-radius:1.1rem; background:var(--jdf-surface);
+  box-shadow:var(--jdf-shadow-card);
+}
+.scope:global(.ranking-hub) :global(.youth-hall-card > header) {
+  display:flex; align-items:center; gap:.7rem;
+}
+.scope:global(.ranking-hub) :global(.youth-hall-card > header > svg) {
+  flex:0 0 auto; color:var(--jdf-fire);
+}
+.scope:global(.ranking-hub) :global(.youth-hall-card > header span) {
+  color:var(--jdf-gold); font-size:.62rem; font-weight:900; letter-spacing:.13em;
+}
+.scope:global(.ranking-hub) :global(.youth-hall-card > header h2) {
+  margin:.2rem 0 0; color:var(--jdf-text); font-size:1.12rem;
+}
+.scope:global(.ranking-hub) :global(.youth-hall-caption) {
+  margin:.65rem 0 1rem; color:var(--jdf-muted); font-size:.8rem;
+}
+.scope:global(.ranking-hub) :global(.ranking-podium-stage) {
+  display:flex; align-items:flex-end; justify-content:center; gap:.65rem;
+  min-height:235px; margin:0; padding:1rem .6rem .6rem; list-style:none;
+}
+.scope:global(.ranking-hub) :global(.ranking-podium-player) {
+  position:relative; display:flex; flex:1 1 0; min-width:0; flex-direction:column;
+  align-items:center; gap:.45rem; padding:.8rem .45rem .55rem;
+  border:1px solid var(--jdf-border); border-radius:1rem 1rem .65rem .65rem;
+  background:var(--jdf-surface-raised); text-align:center;
+}
+.scope:global(.ranking-hub) :global(.ranking-podium-player.podium-first) {
+  min-height:205px; border-color:color-mix(in srgb,var(--jdf-gold) 55%,var(--jdf-border));
+  background:linear-gradient(180deg,color-mix(in srgb,var(--jdf-gold) 15%,var(--jdf-surface)),var(--jdf-surface-raised));
+  box-shadow:0 10px 24px color-mix(in srgb,var(--jdf-gold) 12%,transparent);
+}
+.scope:global(.ranking-hub) :global(.ranking-podium-player.podium-second) { min-height:176px; }
+.scope:global(.ranking-hub) :global(.ranking-podium-player.podium-third) { min-height:154px; }
+.scope:global(.ranking-hub) :global(.ranking-podium-rank) { color:var(--jdf-gold); }
+.scope:global(.ranking-hub) :global(.ranking-podium-avatar) {
+  display:grid; place-items:center; width:clamp(42px,5vw,58px); aspect-ratio:1;
+  overflow:hidden; border:2px solid var(--jdf-fire); border-radius:50%;
+  color:var(--jdf-text); background:var(--jdf-surface); font-weight:900;
+}
+.scope:global(.ranking-hub) :global(.ranking-podium-avatar img) { width:100%; height:100%; object-fit:cover; }
+.scope:global(.ranking-hub) :global(.ranking-podium-details) { display:flex; flex-direction:column; min-width:0; gap:.2rem; }
+.scope:global(.ranking-hub) :global(.ranking-podium-details strong) {
+  overflow:hidden; max-width:100%; color:var(--jdf-text); font-size:.78rem;
+  text-overflow:ellipsis; white-space:nowrap;
+}
+.scope:global(.ranking-hub) :global(.ranking-podium-details small) {
+  color:var(--jdf-gold); font-size:.72rem; font-weight:850;
+}
+.scope:global(.ranking-hub) :global(.ranking-podium-place) {
+  color:var(--jdf-muted); font-size:.57rem; font-weight:900; letter-spacing:.07em;
+}
+.scope:global(.ranking-hub) :global(.ranking-podium-base) {
+  display:grid; place-items:center; width:100%; min-height:27px; margin-top:auto;
+  border:1px solid var(--jdf-border); border-radius:.5rem;
+  color:var(--jdf-text); background:var(--jdf-surface);
+}
+.scope:global(.ranking-hub) :global(.youth-faithful-list) {
+  display:flex; flex-direction:column; gap:.4rem; margin:0; padding:0; list-style:none;
+}
+.scope:global(.ranking-hub) :global(.youth-faithful-list li) {
+  display:grid; grid-template-columns:28px minmax(0,1fr) auto; align-items:center;
+  gap:.55rem; min-width:0; padding:.55rem .6rem;
+  border:1px solid var(--jdf-border); border-radius:.7rem; background:var(--jdf-surface-raised);
+}
+.scope:global(.ranking-hub) :global(.youth-faithful-rank) {
+  display:grid; place-items:center; width:26px; height:26px; border-radius:50%;
+  color:var(--jdf-text); background:color-mix(in srgb,var(--jdf-community) 18%,var(--jdf-surface));
+  font-size:.72rem; font-weight:900;
+}
+.scope:global(.ranking-hub) :global(.youth-faithful-name) {
+  overflow:hidden; color:var(--jdf-text); font-size:.78rem; font-weight:750; text-overflow:ellipsis; white-space:nowrap;
+}
+.scope:global(.ranking-hub) :global(.youth-faithful-list strong) {
+  color:var(--jdf-progress); font-size:.68rem; text-align:right;
+}
+.scope:global(.ranking-hub) :global(.ranking-visual-toolbar) {
+  display:flex; align-items:center; justify-content:space-between; gap:.75rem; margin:.9rem 0;
+}
+.scope:global(.ranking-hub) :global(.ranking-search) {
+  display:flex; align-items:center; gap:.5rem; flex:1 1 280px; min-width:0;
+  padding:0 .75rem; border:1px solid var(--jdf-border); border-radius:.75rem;
+  color:var(--jdf-muted); background:var(--jdf-surface);
+}
+.scope:global(.ranking-hub) :global(.ranking-search input) {
+  width:100%; min-width:0; min-height:42px; border:0!important; outline:0;
+  color:var(--jdf-text); background:transparent!important; box-shadow:none!important;
+}
+.scope:global(.ranking-hub) :global(.ranking-view-filters) { display:flex; flex-wrap:wrap; gap:.35rem; }
+.scope:global(.ranking-hub) :global(.ranking-view-filters button) {
+  min-height:38px; padding:.5rem .75rem; border:1px solid var(--jdf-border);
+  border-radius:.65rem; color:var(--jdf-muted); background:var(--jdf-surface);
+  font-size:.75rem; font-weight:800;
+}
+.scope:global(.ranking-hub) :global(.ranking-view-filters button.active) {
+  border-color:var(--jdf-fire); color:var(--jdf-fire);
+  background:color-mix(in srgb,var(--jdf-fire) 11%,var(--jdf-surface));
+}
+.scope:global(.ranking-hub) :global(.ranking-card-grid) { margin-top:.8rem; }
+.scope:global(.ranking-hub) :global(.ranking-player-card:hover) {
+  border-color:color-mix(in srgb,var(--jdf-fire) 45%,var(--jdf-border))!important;
+  box-shadow:0 14px 30px color-mix(in srgb,var(--jdf-fire) 10%,transparent)!important;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-avatar) {
+  border:2px solid color-mix(in srgb,var(--jdf-community) 65%,var(--jdf-border));
+}
+.scope:global(.ranking-hub) :global(.ranking-card-champion) {
+  color:var(--jdf-gold)!important;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-position) {
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:34px; min-height:30px; padding:.2rem .45rem;
+  border:1px solid var(--jdf-border); border-radius:.6rem;
+  color:var(--jdf-text)!important; background:var(--jdf-surface);
+  font-weight:900;
+}
+.scope:global(.ranking-hub) :global(.ranking-state),
+.scope:global(.ranking-hub) :global(.ranking-empty) { padding:1.5rem; text-align:center; }
+.scope:global(.ranking-hub) :global(.ranking-hero-art) { backdrop-filter:none!important; }
+@media (max-width:900px) {
+  .scope:global(.ranking-hub) :global(.ranking-hall-grid) { grid-template-columns:1fr; }
+  .scope:global(.ranking-hub) :global(.ranking-progress-bands) { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media (max-width:620px) {
+  .scope:global(.ranking-hub) :global(.ranking-info-grid) { grid-template-columns:repeat(3,minmax(0,1fr)); gap:.45rem; }
+  .scope:global(.ranking-hub) :global(.ranking-info-grid article) { min-height:100px; padding:.7rem; }
+  .scope:global(.ranking-hub) :global(.ranking-info-grid article strong) { font-size:1.35rem; }
+  .scope:global(.ranking-hub) :global(.ranking-info-grid article span) { font-size:.65rem; }
+  .scope:global(.ranking-hub) :global(.ranking-progress-bands) { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .scope:global(.ranking-hub) :global(.ranking-podium-stage) { gap:.35rem; padding:.65rem .25rem .35rem; }
+  .scope:global(.ranking-hub) :global(.ranking-podium-player) { padding:.65rem .25rem .45rem; }
+  .scope:global(.ranking-hub) :global(.ranking-podium-details strong) { font-size:.68rem; }
+  .scope:global(.ranking-hub) :global(.ranking-podium-place) { font-size:.5rem; }
+  .scope:global(.ranking-hub) :global(.youth-faithful-list li) { grid-template-columns:26px minmax(0,1fr); }
+  .scope:global(.ranking-hub) :global(.youth-faithful-list strong) { grid-column:2; text-align:left; }
+  .scope:global(.ranking-hub) :global(.ranking-visual-toolbar) { align-items:stretch; flex-direction:column; }
+  .scope:global(.ranking-hub) :global(.ranking-view-filters button) { flex:1; }
+}
