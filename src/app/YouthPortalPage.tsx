@@ -1078,15 +1078,13 @@ export default function YouthPortalPage() {
   }
 
   if (selectedProfile && activeGame) {
-    const completeGame = async (gameId: 'trivia' | 'verse', score: number) => {
+    const completeGame = async (gameId: 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami', score: number) => {
       if (!communitySession) return;
       const runId = typeof crypto !== 'undefined' && 'randomUUID' in crypto
         ? crypto.randomUUID() : `run_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
       try {
         const result = await recordYouthGameResult(communitySession, gameId, score, runId);
-        setGameRewardNotice(result.reward > 0
-          ? `¡Ganaste ${result.reward} Llamas! Saldo: ${result.flames}.`
-          : `Partida guardada. Sigue practicando para ganar Llamas.`);
+        setGameRewardNotice('Resultado guardado. Está pendiente de validación; todavía no genera Llamas.');
       } catch (cause) {
         setGameRewardNotice(cause instanceof Error ? cause.message : 'No se pudo guardar el resultado.');
       }
@@ -1116,13 +1114,13 @@ export default function YouthPortalPage() {
             {gameRewardNotice && <div role="status" aria-live="polite" className="youth-game-reward-notice">{gameRewardNotice}</div>}
             {activeGame === 'trivia' && <TriviaGame onExit={exitGame} onComplete={(score) => void completeGame('trivia', score)}/>}
             {activeGame === 'verse' && <VerseGame onExit={exitGame} onComplete={(score) => void completeGame('verse', score)}/>}
-            {activeGame === 'memory' && <MemoryGame onExit={exitGame}/>}
-            {activeGame === 'challenge' && <ChallengeGame onExit={exitGame}/>}
-            {activeGame === 'survival' && <SurvivalGame onExit={exitGame}/>}
-            {activeGame === 'duel' && <DuelGame onExit={exitGame}/>}
-            {activeGame === 'order' && <OrderVerseGame onExit={exitGame}/>}
-            {activeGame === 'truefalse' && <TrueFalseGame onExit={exitGame}/>}
-            {activeGame === 'whoami' && <WhoAmIGame onExit={exitGame}/>}
+            {activeGame === 'memory' && <MemoryGame onExit={exitGame} onComplete={(score) => void completeGame('memory', score)}/>}
+            {activeGame === 'challenge' && <ChallengeGame onExit={exitGame} onComplete={(score) => void completeGame('challenge', score)}/>}
+            {activeGame === 'survival' && <SurvivalGame onExit={exitGame} onComplete={(score) => void completeGame('survival', score)}/>}
+            {activeGame === 'duel' && <DuelGame onExit={exitGame} onComplete={(score) => void completeGame('duel', score)}/>}
+            {activeGame === 'order' && <OrderVerseGame onExit={exitGame} onComplete={(score) => void completeGame('order', score)}/>}
+            {activeGame === 'truefalse' && <TrueFalseGame onExit={exitGame} onComplete={(score) => void completeGame('truefalse', score)}/>}
+            {activeGame === 'whoami' && <WhoAmIGame onExit={exitGame} onComplete={(score) => void completeGame('whoami', score)}/>}
           </Suspense>
         </div>
       </main>
