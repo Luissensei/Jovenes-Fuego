@@ -321,7 +321,13 @@
 .absenceAlerts p { margin:3px 0 0; font-size:12px; line-height:1.45; color:#9a3412; }
 .absenceAlerts > header > strong { display:grid; place-items:center; min-width:32px; height:32px; border-radius:50%; background:#ffedd5; color:#9a3412; }
 .absenceAlerts ul { display:grid; gap:7px; margin:13px 0 0; padding:0; list-style:none; }
-.absenceAlerts li { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px 12px; border:1px solid #fed7aa; border-radius:11px; background:#fff; }
+.absenceAlerts li { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; padding:10px 12px; border:1px solid #fed7aa; border-radius:11px; background:#fff; }
+.absenceAlerts li button { min-height:36px; padding:7px 12px; border:0; border-radius:9px; background:#9a3412; color:#fff; font:inherit; font-size:11px; font-weight:800; cursor:pointer; }
+.absenceAlerts li button:disabled { opacity:.6; cursor:wait; }
+@media(max-width:520px) {
+  .absenceAlerts li > span:first-child { flex:1 1 100%; }
+  .absenceAlerts li button { flex:1 1 100%; }
+}
 .absenceAlerts li > span:first-child { display:grid; gap:3px; min-width:0; }
 .absenceAlerts li b { overflow-wrap:anywhere; font-size:13px; }
 .absenceAlerts li small { color:#9a3412; font-size:11px; }
