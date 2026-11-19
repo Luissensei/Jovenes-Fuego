@@ -305,3 +305,31 @@
   .scope :global(.attendance-calendar-open){width:100%}
   .scope :global(.attendance-calendar-hint){grid-column:auto}
 }
+
+
+.absenceAlerts {
+  margin: 18px 0;
+  padding: 16px;
+  border: 1px solid #fed7aa;
+  border-radius: 16px;
+  background: #fff7ed;
+  color: #7c2d12;
+}
+.absenceAlerts > header { display:flex; align-items:center; gap:11px; }
+.absenceAlerts > header > div { flex:1; min-width:0; }
+.absenceAlerts h2 { margin:0; font-size:16px; }
+.absenceAlerts p { margin:3px 0 0; font-size:12px; line-height:1.45; color:#9a3412; }
+.absenceAlerts > header > strong { display:grid; place-items:center; min-width:32px; height:32px; border-radius:50%; background:#ffedd5; color:#9a3412; }
+.absenceAlerts ul { display:grid; gap:7px; margin:13px 0 0; padding:0; list-style:none; }
+.absenceAlerts li { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px 12px; border:1px solid #fed7aa; border-radius:11px; background:#fff; }
+.absenceAlerts li > span:first-child { display:grid; gap:3px; min-width:0; }
+.absenceAlerts li b { overflow-wrap:anywhere; font-size:13px; }
+.absenceAlerts li small { color:#9a3412; font-size:11px; }
+.absenceCount { flex:none; padding:5px 8px; border-radius:8px; background:#ffedd5; color:#9a3412; font-size:11px; font-weight:800; }
+.absenceMore { margin:10px 0 0; font-weight:700; }
+@media (prefers-color-scheme: dark) {
+  .absenceAlerts { background:#2b1b10; border-color:#7c2d12; color:#ffedd5; }
+  .absenceAlerts p,.absenceAlerts li small { color:#fdba74; }
+  .absenceAlerts li { background:#1f2937; border-color:#7c2d12; }
+  .absenceAlerts > header > strong,.absenceCount { background:#431407; color:#fed7aa; }
+}
