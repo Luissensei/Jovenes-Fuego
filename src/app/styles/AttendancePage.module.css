@@ -339,3 +339,138 @@
   .absenceAlerts li { background:#1f2937; border-color:#7c2d12; }
   .absenceAlerts > header > strong,.absenceCount { background:#431407; color:#fed7aa; }
 }
+
+
+/* Fuego en vidrio — espacio de asistencia */
+.scope:global(.attendance-page) {
+  color: var(--jdf-text);
+  background: var(--jdf-canvas);
+}
+.scope:global(.attendance-page) :global(.attendance-header) {
+  border-color: color-mix(in srgb, var(--jdf-fire) 38%, var(--jdf-border));
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 90% 8%, color-mix(in srgb, var(--jdf-gold) 20%, transparent), transparent 28%),
+    linear-gradient(118deg, #211a3e 0%, #39234d 58%, #71313a 125%);
+  box-shadow: var(--jdf-shadow-raised);
+}
+.scope:global(.attendance-page) :global(.attendance-header) h1 { color: #fff; }
+.scope:global(.attendance-page) :global(.attendance-header) p { color: rgb(255 255 255 / 78%); }
+.scope:global(.attendance-page) :global(.attendance-refresh) {
+  border-color: rgb(255 255 255 / 34%);
+  background: rgb(255 255 255 / 9%);
+  color: #fff;
+}
+.scope:global(.attendance-page) :global(.attendance-refresh):hover:not(:disabled) {
+  border-color: rgb(255 255 255 / 60%);
+  background: rgb(255 255 255 / 16%);
+}
+.scope:global(.attendance-page) :global(.attendance-card),
+.scope:global(.attendance-page) :global(.absenceAlerts) {
+  border-color: var(--jdf-border);
+  border-radius: 14px;
+  background: var(--jdf-surface);
+  color: var(--jdf-text);
+  box-shadow: var(--jdf-shadow-card);
+}
+.scope:global(.attendance-page) :global(.attendance-card) h2,
+.scope:global(.attendance-page) :global(.attendance-card) label { color: var(--jdf-text); }
+.scope:global(.attendance-page) :global(.attendance-card) h3,
+.scope:global(.attendance-page) :global(.attendance-card) > p { color: var(--jdf-muted); }
+.scope:global(.attendance-page) :global(.attendance-card) input,
+.scope:global(.attendance-page) :global(.attendance-card) select,
+.scope:global(.attendance-page) :global(.attendance-member-search) {
+  border-color: var(--jdf-border);
+  background: var(--jdf-surface-raised);
+  color: var(--jdf-text);
+}
+.scope:global(.attendance-page) :global(.attendance-card) input::placeholder { color: var(--jdf-muted); }
+.scope:global(.attendance-page) :global(.attendance-member) {
+  border-color: var(--jdf-border);
+  border-radius: 11px;
+  background: var(--jdf-surface-raised);
+}
+.scope:global(.attendance-page) :global(.attendance-member-info) strong { color: var(--jdf-text); }
+.scope:global(.attendance-page) :global(.attendance-member-info) > span { color: var(--jdf-muted); }
+.scope:global(.attendance-page) :global(.attendance-count-card) {
+  border-color: var(--jdf-border);
+  background: var(--jdf-surface);
+}
+.scope:global(.attendance-page) :global(.attendance-count-card) h3 { color: var(--jdf-muted); }
+.scope:global(.attendance-page) :global(.attendance-count-card)[data-tone="present"] { --count-tone: var(--jdf-progress); }
+.scope:global(.attendance-page) :global(.attendance-count-card)[data-tone="late"] { --count-tone: var(--jdf-gold); }
+.scope:global(.attendance-page) :global(.attendance-count-card)[data-tone="absent"] { --count-tone: #f07886; }
+.scope:global(.attendance-page) :global(.attendance-count-card)[data-tone="justified"] { --count-tone: var(--jdf-info); }
+.scope:global(.attendance-page) :global(.attendance-count-card)[data-tone="pending"] { --count-tone: var(--jdf-muted); }
+.scope:global(.attendance-page) :global(.attendance-count-card) strong { color: var(--count-tone); }
+.scope:global(.attendance-page) :global(.attendance-bulk-actions) button {
+  border-color: var(--jdf-border);
+  background: var(--jdf-surface-raised);
+  color: var(--jdf-text);
+}
+.scope:global(.attendance-page) :global(.attendance-bulk-actions) button:first-child {
+  border-color: color-mix(in srgb, var(--jdf-progress) 38%, var(--jdf-border));
+  background: color-mix(in srgb, var(--jdf-progress) 13%, var(--jdf-surface));
+  color: var(--jdf-progress);
+}
+.scope:global(.attendance-page) :global(.attendance-bulk-actions) button:last-child {
+  border-color: color-mix(in srgb, #f07886 38%, var(--jdf-border));
+  background: color-mix(in srgb, #f07886 11%, var(--jdf-surface));
+  color: #f07886;
+}
+.scope:global(.attendance-page) :global(.attendance-member) :global(.attendance-status-button) {
+  border-radius: 8px;
+  font-weight: 800;
+}
+.scope:global(.attendance-page) :global(.attendance-member) :global(.tone-present) {
+  --status-tone: #16865c;
+  --status-ink: #0d6846;
+}
+.scope:global(.attendance-page) :global(.attendance-member) :global(.tone-late) {
+  --status-tone: #b77a14;
+  --status-ink: #805006;
+}
+.scope:global(.attendance-page) :global(.attendance-member) :global(.tone-missing) {
+  --status-tone: #c34252;
+  --status-ink: #9f2638;
+}
+.scope:global(.attendance-page) :global(.attendance-member) :global(.tone-justified) {
+  --status-tone: #3479bd;
+  --status-ink: #205a91;
+}
+.scope:global(.attendance-page) :global(.attendance-member) :global(.tone-absent) {
+  --status-tone: #7b8795;
+  --status-ink: #4e5c6c;
+}
+:global(:root[data-theme="dark"]) .scope:global(.attendance-page) :global(.attendance-member) :global(.tone-present) { --status-ink: #9be7c7; }
+:global(:root[data-theme="dark"]) .scope:global(.attendance-page) :global(.attendance-member) :global(.tone-late) { --status-ink: #f5d18b; }
+:global(:root[data-theme="dark"]) .scope:global(.attendance-page) :global(.attendance-member) :global(.tone-missing) { --status-ink: #ffadb8; }
+:global(:root[data-theme="dark"]) .scope:global(.attendance-page) :global(.attendance-member) :global(.tone-justified) { --status-ink: #add2ff; }
+:global(:root[data-theme="dark"]) .scope:global(.attendance-page) :global(.attendance-member) :global(.tone-absent) { --status-ink: #c3ccd7; }
+.scope:global(.attendance-page) :global(.attendance-save-button) {
+  border-color: var(--jdf-fire) !important;
+  background: var(--jdf-fire) !important;
+  color: #25152b !important;
+}
+.scope:global(.attendance-page) :global(.attendance-save-button):hover:not(:disabled) {
+  border-color: var(--jdf-fire-strong) !important;
+  background: var(--jdf-fire-strong) !important;
+}
+.scope:global(.attendance-page) :global(.attendance-unsaved-note) {
+  border-color: color-mix(in srgb, var(--jdf-gold) 38%, var(--jdf-border));
+  background: color-mix(in srgb, var(--jdf-gold) 10%, var(--jdf-surface));
+  color: var(--jdf-gold);
+}
+.scope:global(.attendance-page) :global(.attendance-error) {
+  border-color: color-mix(in srgb, #f07886 36%, var(--jdf-border));
+  background: color-mix(in srgb, #f07886 10%, var(--jdf-surface));
+  color: #f07886;
+}
+.scope:global(.attendance-page) :global(.attendance-success) {
+  border-color: color-mix(in srgb, var(--jdf-progress) 36%, var(--jdf-border));
+  background: color-mix(in srgb, var(--jdf-progress) 10%, var(--jdf-surface));
+  color: var(--jdf-progress);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scope:global(.attendance-page) :global(.attendance-member) { transition: none; }
+}
