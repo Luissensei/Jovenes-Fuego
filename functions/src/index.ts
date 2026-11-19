@@ -3553,9 +3553,17 @@ export const saveMeetingAttendance = onCall(async (request) => {
       ? text((item as Record<string, unknown>).memberId, 150)
       : "",
   );
+  const rawClearedIds = request.data?.clearedMemberIds;
+  const clearedMemberIds = Array.isArray(rawClearedIds)
+    ? rawClearedIds.map((id: unknown) => text(id, 150))
+    : [];
   if (participantIds.some((id) => !id) ||
-    new Set(participantIds).size !== participantIds.length) {
-    throw new HttpsError("invalid-argument", "Hay jóvenes vacíos o repetidos en la lista.");
+    new Set(participantIds).size !== participantIds.length ||
+    clearedMemberIds.length > 500 ||
+    clearedMemberIds.some((id) => !id) ||
+    new Set(clearedMemberIds).size !== clearedMemberIds.length ||
+    clearedMemberIds.some((id) => participantIds.includes(id))) {
+    throw new HttpsError("invalid-argument", "Hay jóvenes vacíos, repetidos o marcas incompatibles.");
   }
 
   const validStatuses = ["Presente", "Tarde", "Falta", "Justificada", "Ausente"];
@@ -3620,6 +3628,7 @@ export const saveMeetingAttendance = onCall(async (request) => {
       if (!currentMeeting.exists) {
         throw new HttpsError("not-found", "La reunión ya no existe.");
       }
+      const clearedIds = new Set(clearedMemberIds);
       const mergedParticipants = new Map(
         participants.map((participant) => [participant.memberId, participant]),
       );
@@ -3632,7 +3641,7 @@ export const saveMeetingAttendance = onCall(async (request) => {
         const memberId = text(item.memberId, 150);
         const status = text(item.status, 20);
         const normalizedStatus = status === "Justificado" ? "Justificada" : status;
-        if (!memberId || mergedParticipants.has(memberId) || !validStatuses.includes(normalizedStatus)) return;
+        if (!memberId || clearedIds.has(memberId) || mergedParticipants.has(memberId) || !validStatuses.includes(normalizedStatus)) return;
         mergedParticipants.set(memberId, {
           memberId,
           name: text(item.name, 120) || "Joven sin nombre",
@@ -3673,6 +3682,7 @@ export const saveMeetingAttendance = onCall(async (request) => {
         Ausente: "A",
       };
       const nextRecords: Record<string, unknown> = {...previousRecords};
+      clearedMemberIds.forEach((memberId) => { delete nextRecords[memberId]; });
       participants.forEach((participant) => {
         const previous = previousRecords[participant.memberId];
         const previousRecord = previous && typeof previous === "object"
