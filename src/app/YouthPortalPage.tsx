@@ -1286,7 +1286,7 @@ export default function YouthPortalPage() {
 
           {activeYouthSection === 'devotional' && (
             <Suspense fallback={<SkeletonList/>}>
-              <DevotionalFlyerTab memberId={selectedProfile.id} memberName={selectedProfile.name} />
+              <DevotionalFlyerTab communitySession={communitySession} memberName={profileExtras.displayName || selectedProfile.name} />
             </Suspense>
           )}
 

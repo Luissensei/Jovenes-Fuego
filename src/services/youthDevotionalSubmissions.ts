@@ -14,14 +14,17 @@ export type YouthDevotionalSubmission = {
 };
 
 export async function submitYouthDevotional(input: {
-  memberId: string;
+  communitySession: string;
   message: string;
   imageDataUrl?: string;
 }): Promise<void> {
   if (!functions) throw new Error('Firebase Functions no está configurado.');
-  const memberId = input.memberId.trim();
+  const communitySession = input.communitySession.trim();
   const message = input.message.trim();
-  if (!memberId || message.length < 20 || message.length > 5000) {
+  if (!communitySession) {
+    throw new Error('Tu sesión juvenil venció. Vuelve a ingresar con tu PIN.');
+  }
+  if (message.length < 20 || message.length > 5000) {
     throw new Error('Escribe tu reflexión (mínimo 20 caracteres) antes de enviarla.');
   }
   if (input.imageDataUrl && (
@@ -30,11 +33,11 @@ export async function submitYouthDevotional(input: {
   )) throw new Error('La imagen supera el tamaño permitido. Selecciona otra foto.');
 
   const send = httpsCallable<
-    {memberId: string; message: string; imageDataUrl?: string},
+    {communitySession: string; message: string; imageDataUrl?: string},
     {success: boolean; id: string}
   >(functions, 'submitYouthDevotional');
   const response = await send({
-    memberId, message,
+    communitySession, message,
     ...(input.imageDataUrl ? {imageDataUrl: input.imageDataUrl} : {}),
   });
   if (!response.data.success || !response.data.id) {

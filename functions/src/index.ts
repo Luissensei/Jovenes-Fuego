@@ -2592,7 +2592,7 @@ export const getPublicDevotionals = onCall(async () => {
 });
 
 export const submitYouthDevotional = onCall(async (request) => {
-  const memberId = text(request.data?.memberId, 150);
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
   const message = text(request.data?.message, 5000);
   const imageDataUrl = text(request.data?.imageDataUrl, 420000);
   if (!memberId || memberId.length >= 40 || memberId.startsWith("public-profile-")) {

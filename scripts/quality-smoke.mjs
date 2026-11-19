@@ -95,6 +95,11 @@ for (const restricted of ['assistant', 'community-moderation', 'youth-pins', 'pa
 
 
 const functionsSource = await read('functions/src/index.ts');
+const [youthDevotionalService, devotionalTab, youthPortalPage] = await Promise.all([
+  read('src/services/youthDevotionalSubmissions.ts'),
+  read('src/app/portal/DevotionalFlyerTab.tsx'),
+  read('src/app/YouthPortalPage.tsx'),
+]);
 const callableBlocks = [...functionsSource.matchAll(/export const (\w+) = onCall\([\s\S]*?\n\}\);/g)];
 assert.ok(callableBlocks.length >= 60, 'Debe auditarse el catálogo completo de Cloud Functions callable.');
 const publicCallableAllowlist = new Set([
@@ -104,11 +109,11 @@ const publicCallableAllowlist = new Set([
   'createYouthCommunityPost', 'createYouthCommunityComment', 'toggleYouthCommunityReaction',
   'reportYouthCommunityPost', 'saveYouthProfileAppearance', 'purchaseYouthLookItem',
   'purchaseYouthLookBundle', 'getPublicProfiles', 'getPublicRankingMetrics',
-  'getPublicDevotionals', 'submitYouthDevotional', 'getPublicWeeklyActivities',
+  'getPublicDevotionals', 'getPublicWeeklyActivities',
   'setYouthWeeklyActivityAttendance', 'getYouthWeeklyActivityAttendance',
   'submitPublicPrayerRequest', 'getPublicHallOfFame',
 ]);
-const youthSessionCallables = new Set(['recordYouthGameResult', 'getYouthFlameHistory', 'getYouthGameHistory']);
+const youthSessionCallables = new Set(['recordYouthGameResult', 'getYouthFlameHistory', 'getYouthGameHistory', 'submitYouthDevotional']);
 const auditedCallables = new Set();
 for (const callable of callableBlocks) {
   const name = callable[1];
@@ -131,4 +136,9 @@ for (const publicName of publicCallableAllowlist) {
   assert.ok(auditedCallables.has(publicName), 'La lista pública debe corresponder a una función existente: ' + publicName);
 }
 
-console.log('Smoke checks correctos: PWA, Firebase original, caché privada, ' + moduleIds.length + ' módulos y ' + callableBlocks.length + ' callables con control de acceso.');
+assert.match(youthDevotionalService, /communitySession:\s*string/, 'El servicio debe enviar una sesión juvenil, no aceptar un identificador de perfil como prueba de identidad.');
+assert.match(youthDevotionalService, /send\(\{\s*communitySession,/, 'La entrega de devocionales debe enviar la sesión juvenil firmada.');
+assert.match(devotionalTab, /submitYouthDevotional\(\{communitySession,/, 'La pantalla devocional debe usar la sesión juvenil activa.');
+assert.match(youthPortalPage, /<DevotionalFlyerTab communitySession=\{communitySession\}/, 'El portal debe pasar la sesión juvenil a la pantalla devocional.');
+
+console.log('Smoke checks correctos: PWA, Firebase original, caché privada, devocionales con sesión PIN, ' + moduleIds.length + ' módulos y ' + callableBlocks.length + ' callables con control de acceso.');

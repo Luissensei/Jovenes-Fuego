@@ -43,7 +43,7 @@ function DevotionalStory({item}: {item: DevotionalRecord}) {
   );
 }
 
-export default function DevotionalFlyerTab({memberId, memberName}: {memberId: string; memberName: string}) {
+export default function DevotionalFlyerTab({communitySession, memberName}: {communitySession: string; memberName: string}) {
   const [items, setItems] = useState<DevotionalRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -119,7 +119,7 @@ export default function DevotionalFlyerTab({memberId, memberName}: {memberId: st
     setMessage('');
     setSending(true);
     try {
-      await submitYouthDevotional({memberId, message: submission, ...(photo ? {imageDataUrl: photo} : {})});
+      await submitYouthDevotional({communitySession, message: submission, ...(photo ? {imageDataUrl: photo} : {})});
       setSubmission('');
       setPhoto('');
       setSuccess('¡Tu devocional fue entregado! El equipo podrá revisarlo.');
