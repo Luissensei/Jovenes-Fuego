@@ -305,7 +305,7 @@ export function MembersPage({canEdit = false}: {canEdit?: boolean}) {
   }
 
   return (
-    <section className={`${styles.scope} members-page`}>
+    <section className={`${styles.scope} members-page bg-[var(--jdf-canvas)] text-[var(--jdf-text)]`}>
       <header className="members-hero">
         <div className="members-hero-copy">
           <span className="members-kicker"><Flame size={15}/> NUESTRA COMUNIDAD</span>

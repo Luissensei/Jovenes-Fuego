@@ -444,3 +444,40 @@
   .scope :global(.devotional-card),
   .scope :global(.devotionals-load-more) button { transition:none!important; }
 }
+
+
+/* Fuego en vidrio — biblioteca de devocionales */
+.scope:global(.devotionals-page){color:var(--jdf-text);background:var(--jdf-canvas)}
+.scope:global(.devotionals-page) :global(.devotionals-hero){
+ padding:28px;border:1px solid color-mix(in srgb,var(--jdf-fire) 38%,var(--jdf-border));border-radius:19px;
+ background:radial-gradient(circle at 88% 8%,color-mix(in srgb,var(--jdf-gold) 20%,transparent),transparent 28%),linear-gradient(118deg,#211a3e 0%,#39234d 58%,#71313a 125%);
+ box-shadow:var(--jdf-shadow-raised)
+}
+.scope:global(.devotionals-page) :global(.devotionals-hero) h1{color:#fff}
+.scope:global(.devotionals-page) :global(.devotionals-hero) p{color:rgb(255 255 255 / 78%)}
+.scope:global(.devotionals-page) :global(.devotionals-eyebrow){color:#ffd7bd}
+.scope:global(.devotionals-page) :global(.devotionals-feature),
+.scope:global(.devotionals-page) :global(.devotional-card),
+.scope:global(.devotionals-page) :global(.devotionals-empty){
+ border-color:var(--jdf-border);border-radius:15px;background:var(--jdf-surface);color:var(--jdf-text);box-shadow:var(--jdf-shadow-card)
+}
+.scope:global(.devotionals-page) :global(.devotional-card h2),
+.scope:global(.devotionals-page) :global(.devotional-card h3),
+.scope:global(.devotionals-page) :global(.devotionals-feature h2){color:var(--jdf-text)}
+.scope:global(.devotionals-page) :global(.devotional-card p),
+.scope:global(.devotionals-page) :global(.devotionals-feature p),
+.scope:global(.devotionals-page) :global(.devotional-reference),
+.scope:global(.devotionals-page) :global(.devotional-author){color:var(--jdf-muted)}
+.scope:global(.devotionals-page) :global(.devotionals-controls),
+.scope:global(.devotionals-page) :global(.devotionals-search){border-color:var(--jdf-border);background:var(--jdf-surface);color:var(--jdf-text)}
+.scope:global(.devotionals-page) :global(.devotionals-search input){color:var(--jdf-text)}
+.scope:global(.devotionals-page) :global(.devotionals-search input::placeholder){color:var(--jdf-muted)}
+.scope:global(.devotionals-page) :global(.devotionals-categories) button{border-color:var(--jdf-border);background:var(--jdf-surface-raised);color:var(--jdf-muted)}
+.scope:global(.devotionals-page) :global(.devotionals-categories) button.active{border-color:var(--jdf-fire);background:color-mix(in srgb,var(--jdf-fire) 14%,var(--jdf-surface));color:var(--jdf-fire)}
+.scope:global(.devotionals-page) :global(.devotionals-primary){border-color:var(--jdf-fire);background:var(--jdf-fire);color:#25152b}
+.scope:global(.devotionals-page) :global(.devotional-card-actions) button{border-color:var(--jdf-border)}
+.scope:global(.devotionals-page) :global(.devotional-card-actions) button:hover{border-color:var(--jdf-fire);color:var(--jdf-fire)}
+.scope:global(.devotionals-page) :global(.devotionals-notice){border-color:var(--jdf-border);background:var(--jdf-surface-raised);color:var(--jdf-muted)}
+.scope:global(.devotionals-page) :global(.devotionals-modal){border:1px solid var(--jdf-border);background:var(--jdf-surface);color:var(--jdf-text)}
+.scope:global(.devotionals-page) :global(.devotionals-modal) :is(input,select,textarea){border-color:var(--jdf-border);background:var(--jdf-surface-raised);color:var(--jdf-text)}
+@media(prefers-reduced-motion:reduce){.scope:global(.devotionals-page) :global(.devotional-card){transition:none!important}.scope:global(.devotionals-page) :global(.devotional-card):hover{transform:none!important}}

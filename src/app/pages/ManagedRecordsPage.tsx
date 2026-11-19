@@ -282,7 +282,7 @@ export default function ManagedRecordsPage({ config }: Props) {
   }
 
   return (
-    <main className={`${styles.scope} managed-page`}>
+    <main className={`${styles.scope} managed-page bg-[var(--jdf-canvas)] text-[var(--jdf-text)]`}>
       <header className="managed-hero">
         <div>
           <span className="managed-eyebrow">{config.eyebrow}</span>

@@ -279,7 +279,7 @@ export default function DevotionalsPage() {
   }
 
   return (
-    <main className={`${styles.scope} devotionals-page`}>
+    <main className={`${styles.scope} devotionals-page bg-[var(--jdf-canvas)] text-[var(--jdf-text)]`}>
       <header className="devotionals-hero">
         <div>
           <span className="devotionals-eyebrow">

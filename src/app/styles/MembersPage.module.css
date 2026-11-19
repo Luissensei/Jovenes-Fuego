@@ -906,3 +906,39 @@
 .historyDot{border-color:var(--jf-brand)!important;background:var(--jf-surface)!important}
 .historyList li small{background:var(--jf-brand-soft)!important;color:var(--jf-brand-ink)!important}
 
+
+
+/* Fuego en vidrio — directorio y ficha administrativa */
+.scope:global(.members-page){color:var(--jdf-text);background:var(--jdf-canvas)}
+.scope:global(.members-page) :global(.members-hero){
+ border:1px solid color-mix(in srgb,var(--jdf-fire) 38%,var(--jdf-border));
+ border-radius:19px;
+ background:radial-gradient(circle at 88% 8%,color-mix(in srgb,var(--jdf-gold) 20%,transparent),transparent 28%),linear-gradient(118deg,#211a3e 0%,#39234d 58%,#71313a 125%);
+ box-shadow:var(--jdf-shadow-raised)
+}
+.scope:global(.members-page) :global(.members-hero h1){color:#fff}
+.scope:global(.members-page) :global(.members-hero p){color:rgb(255 255 255 / 78%)}
+.scope:global(.members-page) :global(.members-kicker){color:#ffd7bd}
+.scope:global(.members-page) :global(.members-total-card),
+.scope:global(.members-page) :global(.member-card){
+ border-color:var(--jdf-border);background:var(--jdf-surface);color:var(--jdf-text);box-shadow:var(--jdf-shadow-card)
+}
+.scope:global(.members-page) :global(.members-total-card span),
+.scope:global(.members-page) :global(.member-card p),
+.scope:global(.members-page) :global(.member-card small){color:var(--jdf-muted)}
+.scope:global(.members-page) :global(.members-total-card strong),
+.scope:global(.members-page) :global(.member-card h3),
+.scope:global(.members-page) :global(.member-card strong){color:var(--jdf-text)}
+.scope:global(.members-page) :global(.members-controls),
+.scope:global(.members-page) :global(.members-search){border-color:var(--jdf-border);background:var(--jdf-surface);color:var(--jdf-text)}
+.scope:global(.members-page) :global(.members-search input){color:var(--jdf-text)}
+.scope:global(.members-page) :global(.members-search input::placeholder){color:var(--jdf-muted)}
+.scope:global(.members-page) :global(.member-detail-button){border-color:var(--jdf-border);background:var(--jdf-surface-raised);color:var(--jdf-info)}
+.scope:global(.members-page) :global(.members-footer){color:var(--jdf-muted)}
+.scope:global(.members-page) :global(.members-error){border-color:#a94352;background:color-mix(in srgb,#a94352 12%,var(--jdf-surface));color:#ef8d9a}
+.scope:global(.members-page) :global(.members-notice){border-color:color-mix(in srgb,var(--jdf-info) 35%,var(--jdf-border));background:color-mix(in srgb,var(--jdf-info) 9%,var(--jdf-surface));color:var(--jdf-text)}
+.scope:global(.members-page) :global(.member-card:hover){border-color:color-mix(in srgb,var(--jdf-fire) 55%,var(--jdf-border))}
+:global(:root[data-theme="light"]) .scope:global(.members-page) :global(.members-total-card),
+:global(:root[data-theme="light"]) .scope:global(.members-page) :global(.member-card){background:var(--jdf-surface)}
+.scope:global(.members-page) :global(.member-detail-backdrop){color:var(--jdf-text)}
+@media(prefers-reduced-motion:reduce){.scope:global(.members-page) :global(.member-card){transition:none!important}.scope:global(.members-page) :global(.member-card):hover{transform:none!important}}
