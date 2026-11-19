@@ -724,7 +724,7 @@ function createYouthCommunitySession(memberId: string): string {
     memberId,
     expiresAt: Date.now() + 24 * 60 * 60 * 1000,
   })).toString("base64url");
-  const signature = createHmac("sha256", youthPinPepper).update(payload).digest("base64url");
+  const signature = createHmac("sha256", getYouthPinPepper()).update(payload).digest("base64url");
   return payload + "." + signature;
 }
 
@@ -739,7 +739,7 @@ function requireYouthCommunitySession(value: unknown): string {
   if (!payload || !signature || extra) {
     throw new HttpsError("unauthenticated", "Tu sesión juvenil venció. Ingresa nuevamente con tu PIN.");
   }
-  const expected = createHmac("sha256", youthPinPepper).update(payload).digest();
+  const expected = createHmac("sha256", getYouthPinPepper()).update(payload).digest();
   let supplied: Buffer;
   try {
     supplied = Buffer.from(signature, "base64url");
