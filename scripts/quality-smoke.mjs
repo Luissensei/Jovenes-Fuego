@@ -13,12 +13,14 @@ const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, th
   read('src/app/useThemePreference.ts'),
 ]);
 
-assert.match(themePreference, /theme === 'dark' \? '#0B0720' : '#F2E9FF'/, 'El color de la barra del navegador debe coincidir con la paleta oficial.');
+assert.match(themePreference, /theme === 'dark' \? '#0B0B0B' : '#FFFFFF'/, 'El color de la barra del navegador debe coincidir con la paletas verde y monocromática.');
 
 const manifest = JSON.parse(manifestText);
 assert.equal(manifest.name, 'Jóvenes de Fuego', 'El manifiesto debe identificar la aplicación.');
 assert.equal(manifest.lang, 'es-CO', 'El idioma de la aplicación debe ser español de Colombia.');
 assert.equal(manifest.display, 'standalone', 'La PWA debe abrir en modo independiente.');
+assert.equal(manifest.background_color, '#FFFFFF', 'La PWA debe iniciar con el fondo claro oficial.');
+assert.equal(manifest.theme_color, '#FFFFFF', 'El color base del navegador debe usar el nuevo tema.');
 assert.ok(Array.isArray(manifest.icons) && manifest.icons.length >= 2, 'La PWA necesita iconos instalables.');
 for (const icon of manifest.icons) {
   assert.ok(icon.src.startsWith('/'), 'Los iconos deben usar rutas locales absolutas.');
