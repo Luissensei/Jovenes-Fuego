@@ -1,146 +1,135 @@
-/* Jóvenes de Fuego — paleta oficial violeta + verde.
-   Última capa de tokens para mantener coherencia entre módulos sin reescribirlos.
-   Sin blur decorativo: superficies sólidas, contraste y profundidad por sombras. */
+/* Jóvenes de Fuego — identidad visual unificada: verde bosque + monocromático.
+   Aplicación compartida en administración y portal juvenil.
+   Superficies sólidas, contraste alto y sin desenfoques decorativos. */
 :root,
 :root[data-theme="light"] {
   color-scheme: light;
-  --jf-canvas: #F2E9FF;
-  --jf-surface: #FFFFFF;
-  --jf-surface-2: #FAF7FF;
-  --jf-surface-3: #EDE2FF;
-  --jf-ink: #25134D;
-  --jf-muted: #66577E;
-  --jf-line: #DCCEF2;
-  --jf-line-strong: #C7B2E8;
-  --jf-brand: #6A2FC8;
-  --jf-brand-strong: #25134D;
-  --jf-brand-soft: #F2E9FF;
-  --jf-brand-ink: #4B2098;
-  --jf-ember: #235347;
-  --jf-ember-strong: #163832;
-  --jf-ember-soft: #DAF1DE;
-  --jf-gold: #98702F;
-  --jf-success: #235347;
-  --jf-success-soft: #DAF1DE;
-  --jf-focus: #6A2FC8;
-  --jf-sidebar: #0B0720;
-  --jf-sidebar-text: #F2E9FF;
-  --jf-sidebar-muted: #D1B8FF;
-  --jf-sidebar-hover: #25134D;
-  --jf-sidebar-active: #3C216D;
-  --jf-text: var(--jf-ink);
-  --jf-border: var(--jf-line);
-  --jf-input: var(--jf-surface-2);
-  --jf-glass-edge: var(--jf-line);
-  --jf-shadow-hover: var(--jf-shadow-raised);
-  --jf-accent: var(--jf-brand);
-  --jf-surface-raised: var(--jf-surface-2);
-  --text-primary: var(--jf-ink);
-  --text-secondary: var(--jf-muted);
-  --text: var(--jf-ink);
-  --muted: var(--jf-muted);
-  --surface: var(--jf-surface);
-  --card: var(--jf-surface);
-  --card-bg: var(--jf-surface);
-  --border: var(--jf-line);
-  --border-color: var(--jf-line);
-  --accent: var(--jf-brand);
-  --surface-2: var(--jf-surface-2);
-  --surface-3: var(--jf-surface-3);
-  --surface-elevated: var(--jf-surface-2);
-  --surface-card: var(--jf-surface);
-  --border-subtle: var(--jf-line);
-  --jf-glass: var(--jf-surface);
-  --jf-glass-border: var(--jf-line);
+  --jf-canvas:#FFFFFF;
+  --jf-surface:#FFFFFF;
+  --jf-surface-2:#F7F8F7;
+  --jf-surface-3:#DAF1DE;
+  --jf-ink:#1A1A1A;
+  --jf-muted:#6B6B6B;
+  --jf-line:#D9D9D9;
+  --jf-line-strong:#AAB7AE;
+  --jf-brand:#235347;
+  --jf-brand-strong:#163832;
+  --jf-brand-soft:#DAF1DE;
+  --jf-brand-ink:#051F20;
+  --jf-ember:#0B2B26;
+  --jf-ember-strong:#051F20;
+  --jf-ember-soft:#DAF1DE;
+  --jf-gold:#6B6B6B;
+  --jf-success:#235347;
+  --jf-success-soft:#DAF1DE;
+  --jf-warning:#6B6B6B;
+  --jf-warning-soft:#D9D9D9;
+  --jf-danger:#333333;
+  --jf-danger-soft:#D9D9D9;
+  --jf-info:#235347;
+  --jf-info-soft:#DAF1DE;
+  --jf-focus:#235347;
+  --jf-sidebar:#051F20;
+  --jf-sidebar-text:#FFFFFF;
+  --jf-sidebar-muted:#8EB69B;
+  --jf-sidebar-hover:#0B2B26;
+  --jf-sidebar-active:#163832;
+  --jf-shadow:0 2px 8px rgba(5,31,32,.05),0 12px 30px rgba(5,31,32,.07);
+  --jf-shadow-raised:0 12px 28px rgba(5,31,32,.13);
+  --jf-text:var(--jf-ink);--jf-border:var(--jf-line);--jf-input:var(--jf-surface-2);
+  --jf-accent:var(--jf-brand);--jf-surface-raised:var(--jf-surface-2);
+  --text-primary:var(--jf-ink);--text-secondary:var(--jf-muted);--text:var(--jf-ink);
+  --muted:var(--jf-muted);--surface:var(--jf-surface);--card:var(--jf-surface);
+  --card-bg:var(--jf-surface);--border:var(--jf-line);--border-color:var(--jf-line);
+  --accent:var(--jf-brand);--surface-2:var(--jf-surface-2);--surface-3:var(--jf-surface-3);
+  --surface-elevated:var(--jf-surface-2);--surface-card:var(--jf-surface);
+  --jf-glass:var(--jf-surface);--jf-glass-edge:var(--jf-line);--jf-glass-border:var(--jf-line);
+  --jf-sidebar-active-shadow:none;
 }
-:root[data-theme="dark"],
-:root.dark {
-  color-scheme: dark;
-  --jf-canvas: #0B0720;
-  --jf-surface: #160F2C;
-  --jf-surface-2: #25134D;
-  --jf-surface-3: #352064;
-  --jf-ink: #F2E9FF;
-  --jf-muted: #D1B8FF;
-  --jf-line: #49366D;
-  --jf-line-strong: #654C91;
-  --jf-brand: #9D71E8;
-  --jf-brand-strong: #D1B8FF;
-  --jf-brand-soft: #25134D;
-  --jf-brand-ink: #F2E9FF;
-  --jf-ember: #8EB69B;
-  --jf-ember-strong: #DAF1DE;
-  --jf-ember-soft: #163832;
-  --jf-gold: #E5C47E;
-  --jf-success: #8EB69B;
-  --jf-success-soft: #163832;
-  --jf-focus: #D1B8FF;
-  --jf-sidebar: #051F20;
-  --jf-sidebar-text: #DAF1DE;
-  --jf-sidebar-muted: #8EB69B;
-  --jf-sidebar-hover: #0B2B26;
-  --jf-sidebar-active: #163832;
-  --jf-text: var(--jf-ink);
-  --jf-border: var(--jf-line);
-  --jf-input: var(--jf-surface-2);
-  --jf-glass-edge: var(--jf-line);
-  --jf-shadow-hover: var(--jf-shadow-raised);
-  --jf-accent: var(--jf-brand);
-  --jf-surface-raised: var(--jf-surface-2);
-  --text-primary: var(--jf-ink);
-  --text-secondary: var(--jf-muted);
-  --text: var(--jf-ink);
-  --muted: var(--jf-muted);
-  --surface: var(--jf-surface);
-  --card: var(--jf-surface);
-  --card-bg: var(--jf-surface);
-  --border: var(--jf-line);
-  --border-color: var(--jf-line);
-  --accent: var(--jf-brand);
-  --surface-2: var(--jf-surface-2);
-  --surface-3: var(--jf-surface-3);
-  --surface-elevated: var(--jf-surface-2);
-  --surface-card: var(--jf-surface);
-  --border-subtle: var(--jf-line);
-  --jf-glass: var(--jf-surface);
-  --jf-glass-border: var(--jf-line);
+:root[data-theme="dark"],:root.dark {
+  color-scheme:dark;
+  --jf-canvas:#0B0B0B;
+  --jf-surface:#1A1A1A;
+  --jf-surface-2:#252525;
+  --jf-surface-3:#333333;
+  --jf-ink:#FFFFFF;
+  --jf-muted:#D9D9D9;
+  --jf-line:#454545;
+  --jf-line-strong:#6B6B6B;
+  --jf-brand:#8EB69B;
+  --jf-brand-strong:#DAF1DE;
+  --jf-brand-soft:#163832;
+  --jf-brand-ink:#FFFFFF;
+  --jf-ember:#235347;
+  --jf-ember-strong:#8EB69B;
+  --jf-ember-soft:#0B2B26;
+  --jf-gold:#D9D9D9;
+  --jf-success:#8EB69B;
+  --jf-success-soft:#163832;
+  --jf-warning:#D9D9D9;
+  --jf-warning-soft:#333333;
+  --jf-danger:#D9D9D9;
+  --jf-danger-soft:#333333;
+  --jf-info:#8EB69B;
+  --jf-info-soft:#163832;
+  --jf-focus:#8EB69B;
+  --jf-sidebar:#051F20;
+  --jf-sidebar-text:#FFFFFF;
+  --jf-sidebar-muted:#8EB69B;
+  --jf-sidebar-hover:#0B2B26;
+  --jf-sidebar-active:#163832;
+  --jf-shadow:0 2px 8px rgba(0,0,0,.22),0 12px 30px rgba(0,0,0,.28);
+  --jf-shadow-raised:0 12px 28px rgba(0,0,0,.38);
+  --jf-text:var(--jf-ink);--jf-border:var(--jf-line);--jf-input:var(--jf-surface-2);
+  --jf-accent:var(--jf-brand);--jf-surface-raised:var(--jf-surface-2);
+  --text-primary:var(--jf-ink);--text-secondary:var(--jf-muted);--text:var(--jf-ink);
+  --muted:var(--jf-muted);--surface:var(--jf-surface);--card:var(--jf-surface);
+  --card-bg:var(--jf-surface);--border:var(--jf-line);--border-color:var(--jf-line);
+  --accent:var(--jf-brand);--surface-2:var(--jf-surface-2);--surface-3:var(--jf-surface-3);
+  --surface-elevated:var(--jf-surface-2);--surface-card:var(--jf-surface);
+  --jf-glass:var(--jf-surface);--jf-glass-edge:var(--jf-line);--jf-glass-border:var(--jf-line);
 }
-
-html, body, #root, .layout, .main {
-  background: var(--jf-canvas) !important;
-  color: var(--jf-ink) !important;
+html,body,#root,.layout,.main,.jf-route-stage,.youth-portal {
+  background:var(--jf-canvas)!important;color:var(--jf-ink)!important;
 }
-.sidebar, .mobile-header {
-  background: var(--jf-sidebar) !important;
-  color: var(--jf-sidebar-text) !important;
+.sidebar,.mobile-header {
+  background:var(--jf-sidebar)!important;color:var(--jf-sidebar-text)!important;
 }
-.sidebar .brand small, .sidebar .safe-note small { color: var(--jf-sidebar-muted) !important; }
-.sidebar .env-chip, .sidebar .safe-note {
-  background: var(--jf-sidebar-hover) !important;
-  border-color: color-mix(in srgb, var(--jf-sidebar-muted) 24%, transparent) !important;
-  color: var(--jf-sidebar-text) !important;
+.sidebar .brand small,.sidebar .safe-note small {color:var(--jf-sidebar-muted)!important}
+.sidebar .env-chip,.sidebar .safe-note {
+  background:var(--jf-sidebar-hover)!important;
+  border:1px solid color-mix(in srgb,var(--jf-sidebar-muted) 24%,transparent)!important;
+  color:var(--jf-sidebar-text)!important;
 }
-.sidebar .nav-item { color: var(--jf-sidebar-muted) !important; }
-.sidebar .nav-item:hover, .sidebar .nav-item.active {
-  background: var(--jf-sidebar-active) !important;
-  color: #FFFFFF !important;
-  box-shadow: none !important;
+.sidebar .nav-item {color:var(--jf-sidebar-muted)!important}
+.sidebar .nav-item:hover,.sidebar .nav-item.active {
+  background:var(--jf-sidebar-active)!important;color:#fff!important;
+  box-shadow:inset 3px 0 var(--jf-brand)!important;
 }
-.sidebar .theme-toggle { color: var(--jf-sidebar-text) !important; border-color: var(--jf-sidebar-active) !important; }
-.brand-mark { background: linear-gradient(140deg, #6A2FC8, #235347) !important; }
+.sidebar .theme-toggle {color:var(--jf-sidebar-text)!important;border-color:var(--jf-sidebar-active)!important}
+.brand-mark {background:linear-gradient(135deg,#051F20,#235347)!important}
 .main .jf-route-stage :is(button,.btn,[role="button"]).primary,
-.main .jf-route-stage :is(button,.btn).primary,
-.login-submit {
-  background: var(--jf-brand) !important;
-  border-color: var(--jf-brand) !important;
-  color: #FFFFFF !important;
+.main .jf-route-stage :is(button,.btn).primary,.login-submit {
+  background:var(--jf-brand)!important;border-color:var(--jf-brand)!important;color:#fff!important;
 }
 .main .jf-route-stage :is(button,.btn,[role="button"]):focus-visible,
-.main .jf-route-stage :is(a,input,select,textarea):focus-visible {
-  outline-color: var(--jf-focus) !important;
+.main .jf-route-stage :is(a,input,select,textarea):focus-visible {outline-color:var(--jf-focus)!important}
+.main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,.shared-stat-card,article,[class*="card"],[class*="Card"]) {
+  border-color:var(--jf-line)!important;box-shadow:var(--jf-shadow)!important;
 }
-/* Sustituye los desenfoques decorativos por superficies limpias. */
-.jf-community-hero-mark, .youth-pin-backdrop { backdrop-filter: none !important; }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+.main .jf-route-stage :is(input:not([type=checkbox]):not([type=radio]),select,textarea) {
+  background:var(--jf-surface)!important;color:var(--jf-ink)!important;border-color:var(--jf-line-strong)!important;
+}
+.youth-portal :is(.youth-card,.youth-panel,.youth-activity-card,.youth-profile-card,.youth-game-tile,.youth-hall-card,article) {
+  border-color:var(--jf-line)!important;box-shadow:var(--jf-shadow)!important;
+}
+.youth-portal :is(button,.btn,[role="button"]).primary {
+  background:var(--jf-brand)!important;border-color:var(--jf-brand)!important;color:#fff!important;
+}
+.youth-portal :is(input,select,textarea) {
+  background:var(--jf-surface)!important;color:var(--jf-ink)!important;border-color:var(--jf-line-strong)!important;
+}
+.jf-community-hero-mark,.youth-pin-backdrop {backdrop-filter:none!important}
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after {scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
 }
