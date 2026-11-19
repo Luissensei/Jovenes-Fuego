@@ -192,3 +192,20 @@ body .youth-portal :is(.jf-community-composer,.jf-community-post,.jf-community-s
 ) {
   border-color:#6B6B6B!important;background:#333333!important;color:#FFFFFF!important;
 }
+
+
+/* Monochrome theme clean-up for legacy portal accents and podium highlights. */
+:root[data-theme="dark"] body .youth-portal .youth-ranking-live i,
+:root.dark body .youth-portal .youth-ranking-live i {background:#D9D9D9!important}
+:root[data-theme="dark"] body .youth-portal .youth-ranking-podium-card.place-1,
+:root.dark body .youth-portal .youth-ranking-podium-card.place-1 {
+  border-color:#6B6B6B!important;background:#333333!important;
+}
+:root[data-theme="dark"] body .youth-portal .jf-community-avatar,
+:root.dark body .youth-portal .jf-community-avatar {background:#333333!important}
+:root[data-theme="dark"] body .youth-portal .jf-community-post-actions button.liked,
+:root.dark body .youth-portal .jf-community-post-actions button.liked {color:#FFFFFF!important}
+:root[data-theme="dark"] body .youth-portal .jf-community-own-post-action,
+:root.dark body .youth-portal .jf-community-own-post-action {
+  border-color:#6B6B6B!important;color:#D9D9D9!important;
+}
