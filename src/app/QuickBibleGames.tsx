@@ -46,7 +46,7 @@ const characterBank: CharacterQuestion[] = [
   {answer:'Zaqueo',clues:['Era jefe de publicanos.','Era pequeño de estatura.','Subí a un sicómoro para ver a Jesús.'],options:['Mateo','Zaqueo','Bartimeo','Nicodemo'],reference:'Lucas 19:1-10',explanation:'Jesús fue a la casa de Zaqueo y anunció salvación para su hogar.'},
   {answer:'Lidia',clues:['Vivía en Filipos.','Mi negocio estaba relacionado con telas de púrpura.','Abrí mi casa para recibir a Pablo y sus compañeros.'],options:['Priscila','Lidia','Febe','Dorcas'],reference:'Hechos 16:11-15',explanation:'Lidia escuchó el mensaje, creyó y ofreció hospitalidad.'},
   {answer:'Tomás',clues:['Fui uno de los doce discípulos.','No estaba presente en una de las primeras apariciones de Jesús.','Quise ver las heridas antes de creer.'],options:['Tomás','Mateo','Felipe','Judas'],reference:'Juan 20:24-29',explanation:'Jesús se apareció a Tomás y lo invitó a creer.'},
-];
+].map((question, index) => ({...question, id: `who-${String(index + 1).padStart(2, '0')}`}));
 
 function shuffle<T>(items:T[]):T[]{const result=[...items];for(let i=result.length-1;i>0;i-=1){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}return result;}
 function GameHeader({title,description,onExit}:{title:string;description:string;onExit:()=>void}){return <header className="qbg-header"><button type="button" className="qbg-back" onClick={onExit}><ChevronLeft size={17}/> Volver a los juegos</button><span className="qbg-eyebrow"><Sparkles size={14}/> RETO DE CONOCIMIENTO BÍBLICO</span><h2>{title}</h2><p>{description}</p></header>;}
