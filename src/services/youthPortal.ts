@@ -450,6 +450,35 @@ export async function recordYouthGameResult(
   };
 }
 
+export type AdminYouthGameResult = {
+  id: string;
+  memberId: string;
+  memberName: string;
+  gameId: string;
+  score: number;
+  verificationStatus: 'pending';
+  reward: number;
+  createdAt: string;
+};
+export async function listAdminYouthGameResults(): Promise<AdminYouthGameResult[]> {
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const call = httpsCallable<Record<string, never>, {results: AdminYouthGameResult[]}>(functions, 'adminListYouthGameResults');
+  const response = await call({});
+  return Array.isArray(response.data.results) ? response.data.results : [];
+}
+export async function reviewAdminYouthGameResult(
+  resultId: string, decision: 'approve' | 'reject', reward = 0,
+): Promise<{success: boolean; verificationStatus: 'verified' | 'rejected'; reward: number}> {
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const call = httpsCallable<
+    {resultId: string; decision: 'approve' | 'reject'; reward: number},
+    {success: boolean; verificationStatus: 'verified' | 'rejected'; reward: number}
+  >(functions, 'adminReviewYouthGameResult');
+  const response = await call({resultId, decision, reward});
+  if (!response.data.success) throw new Error('No se pudo revisar el resultado.');
+  return response.data;
+}
+
 export type YouthGameHistoryEntry = {
   id: string;
   gameId: string;
