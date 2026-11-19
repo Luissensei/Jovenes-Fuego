@@ -476,7 +476,7 @@ export default function AttendancePage() {
   }, {present: 0, late: 0, absent: 0, justified: 0, unregistered: 0}), [members, attendance]);
 
   return (
-    <main className={`${styles.scope} attendance-page`}>
+    <main className={`${styles.scope} attendance-page bg-[var(--jdf-canvas)] text-[var(--jdf-text)]`}>
       <header className="attendance-header">
         <div>
           <h1>Control de asistencia</h1>
