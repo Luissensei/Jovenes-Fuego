@@ -11,7 +11,6 @@ const gameNames: Record<string, string> = {
 
 export default function YouthGameReview() {
   const [items, setItems] = useState<AdminYouthGameResult[]>([]);
-  const [rewards, setRewards] = useState<Record<string, string>>({});
   const [verifiedScores, setVerifiedScores] = useState<Record<string, string>>({});
   const [verificationNotes, setVerificationNotes] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -28,17 +27,14 @@ export default function YouthGameReview() {
   useEffect(() => { void load(); }, [load]);
 
   async function review(item: AdminYouthGameResult, decision: 'approve' | 'reject') {
-    const reward = decision === 'approve' ? Number(rewards[item.id] ?? '0') : 0;
-    if (decision === 'approve' && (!Number.isInteger(reward) || reward < 0 || reward > 1000)) {
-      setError('Escribe una recompensa entera entre 0 y 1000 Llamas.'); return;
-    }
+    const reward = decision === 'approve' ? 5 : 0;
     const verifiedScore = Number(verifiedScores[item.id] ?? String(item.score));
     const verificationNote = (verificationNotes[item.id] ?? '').trim();
     if (decision === 'approve' && (!Number.isInteger(verifiedScore) || verifiedScore < 0 || verifiedScore > 10000 || verificationNote.length < 10)) {
       setError('Registra la puntuación comprobada y una evidencia de al menos 10 caracteres antes de aprobar.');
       return;
     }
-    const action = decision === 'approve' ? 'validar la puntuación comprobada y acreditar ' + reward + ' Llamas' : 'rechazar este resultado';
+    const action = decision === 'approve' ? 'validar la puntuación comprobada y acreditar hasta 5 Llamas (máximo 15 al día)' : 'rechazar este resultado';
     if (!window.confirm('¿Confirmas ' + action + '? Esta revisión no se puede repetir.')) return;
     setBusyId(item.id); setError(''); setMessage('');
     try {
@@ -64,7 +60,7 @@ export default function YouthGameReview() {
         <div className={styles.score}><strong>{item.score}</strong><small>puntos declarados por el dispositivo</small></div>
         <label className={styles.reward}>Puntuación comprobada<input type="number" min="0" max="10000" step="1" value={verifiedScores[item.id] ?? String(item.score)} onChange={(event) => setVerifiedScores((old) => ({...old, [item.id]: event.target.value}))}/></label>
         <label className={styles.reward}>Evidencia de revisión<textarea rows={2} value={verificationNotes[item.id] ?? ''} onChange={(event) => setVerificationNotes((old) => ({...old, [item.id]: event.target.value}))} placeholder="Describe cómo contrastaste las respuestas o el resultado."/></label>
-        <label className={styles.reward}>Llamas a otorgar<input type="number" min="0" max="1000" step="1" value={rewards[item.id] ?? '0'} onChange={(event) => setRewards((old) => ({...old, [item.id]: event.target.value}))}/></label>
+        <p className={styles.reward}>Recompensa automática: <b>5 Llamas por partida aprobada</b> · máximo <b>15 Llamas al día</b>. El límite se aplica en el servidor.</p>
         <div className={styles.actions}>
           <button type="button" onClick={() => void review(item, 'approve')} disabled={Boolean(busyId)}><CheckCircle2 size={16}/> Validar</button>
           <button type="button" className={styles.reject} onClick={() => void review(item, 'reject')} disabled={Boolean(busyId)}><XCircle size={16}/> Rechazar</button>
