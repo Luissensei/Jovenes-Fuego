@@ -10,6 +10,7 @@ export type YouthDevotionalSubmission = {
   status: string;
   createdAt: string;
   pointsAwarded?: number;
+  flamesAwarded?: number;
 };
 
 export async function submitYouthDevotional(input: {
