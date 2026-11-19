@@ -129,3 +129,66 @@ body .youth-portal :is(.jf-community-composer,.jf-community-post,.jf-community-s
 :root.dark body .youth-portal .youth-pin-icon {background:#333333!important}
 :root[data-theme="dark"] body .youth-portal .youth-pin-form button,
 :root.dark body .youth-portal .youth-pin-form button {background:#6B6B6B!important;color:#fff!important}
+
+
+/* Shared admin module surfaces: consistent cards, controls, tables and focus states. */
+.main .jf-route-stage :is(
+  .page-card,.panel,.card,.stat-card,.statCard,.shared-stat-card,
+  [class*="card"],[class*="Card"]
+) {
+  border-color:var(--jf-line)!important;
+  background:var(--jf-surface)!important;
+  color:var(--jf-ink);
+  box-shadow:var(--jf-shadow)!important;
+}
+.main .jf-route-stage :is(
+  .toolbar,.filters,.filter-panel,.controls,.control-panel,
+  .table-wrap,.table-container,.empty-state,.emptyState
+) {
+  border-color:var(--jf-line)!important;
+  background:var(--jf-surface-2)!important;
+  color:var(--jf-ink);
+}
+.main .jf-route-stage :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) {
+  border-color:var(--jf-line-strong)!important;
+  background:var(--jf-surface)!important;
+  color:var(--jf-ink)!important;
+}
+.main .jf-route-stage :is(input,select,textarea)::placeholder {
+  color:var(--jf-muted)!important;opacity:1;
+}
+.main .jf-route-stage :is(button.primary,a.primary,.btn-primary,button[type="submit"],.primary-action) {
+  border-color:var(--jf-brand)!important;
+  background:var(--jf-brand)!important;
+  color:#FFFFFF!important;
+}
+.main .jf-route-stage :is(button.secondary,a.secondary,.btn-secondary,.secondary-action) {
+  border-color:var(--jf-line-strong)!important;
+  background:var(--jf-surface-2)!important;
+  color:var(--jf-ink)!important;
+}
+.main .jf-route-stage table {border-color:var(--jf-line)!important}
+.main .jf-route-stage thead th {
+  background:var(--jf-surface-2)!important;
+  color:var(--jf-ink)!important;
+  border-color:var(--jf-line)!important;
+}
+.main .jf-route-stage tbody td {
+  color:var(--jf-ink);
+  border-color:var(--jf-line)!important;
+}
+.main .jf-route-stage tbody tr:hover {background:var(--jf-surface-2)!important}
+.main .jf-route-stage :is(button,a,input,select,textarea):focus-visible {
+  outline:3px solid var(--jf-focus)!important;outline-offset:2px;
+}
+.main .jf-route-stage :is(.eyebrow,.kicker,.section-kicker,.module-kicker) {color:var(--jf-brand)!important}
+:root[data-theme="dark"] .main .jf-route-stage :is(
+  .toolbar,.filters,.filter-panel,.controls,.control-panel,
+  .table-wrap,.table-container,.empty-state,.emptyState
+),
+:root.dark .main .jf-route-stage :is(
+  .toolbar,.filters,.filter-panel,.controls,.control-panel,
+  .table-wrap,.table-container,.empty-state,.emptyState
+) {
+  border-color:#6B6B6B!important;background:#333333!important;color:#FFFFFF!important;
+}
