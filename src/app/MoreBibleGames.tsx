@@ -1,7 +1,6 @@
 import {playGameTone} from './gameAudio';
 import { useEffect, useRef, useState } from 'react';
 import { bibleQuestionBank, shuffleBibleQuestions } from './bibleQuestionBank';
-import { expandedBibleQuestionBank } from './extendedBibleQuestionBank';
 import {
   Heart, Swords, Trophy,
   ChevronLeft, ChevronRight, RotateCcw, CheckCircle2,
