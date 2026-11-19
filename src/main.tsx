@@ -32,6 +32,10 @@ try {
   document.documentElement.dataset.theme = initialTheme;
   document.documentElement.classList.toggle('dark', initialTheme === 'dark');
   document.documentElement.style.colorScheme = initialTheme;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute(
+    'content',
+    initialTheme === 'dark' ? '#0B0B0B' : '#FFFFFF',
+  );
 } catch {
   document.documentElement.dataset.theme = 'light';
   document.documentElement.classList.remove('dark');
