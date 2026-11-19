@@ -4,6 +4,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { App } from './app/App';
 import RouteErrorBoundary from './app/components/RouteErrorBoundary';
 
+// New Fuego en vidrio tokens are isolated from legacy theme variables.
+import './styles/tokens.css';
 // Global foundation and structural layout.
 import './styles/app.css';
 import './styles/layout.css';
