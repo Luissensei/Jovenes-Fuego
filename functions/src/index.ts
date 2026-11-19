@@ -2681,11 +2681,14 @@ export const adminReviewYouthDevotionalSubmission = onCall(async (request) => {
     }
     const submission = submissionSnapshot.data() ?? {};
     const status = text(submission.status, 30) || "Pendiente";
-    if (status === "Aprobado") return {
-      status, pointsAwarded: 20,
-      flamesAwarded: Math.max(0, Math.floor(Number(submission.flamesAwarded) || 0)),
-      changed: false,
-    };
+    if (status === "Aprobado") {
+      return {
+        status,
+        pointsAwarded: 20,
+        flamesAwarded: Math.max(0, Math.floor(Number(submission.flamesAwarded) || 0)),
+        changed: false,
+      };
+    }
     if (status === "Rechazado") {
       throw new HttpsError("failed-precondition", "Esta entrega ya fue rechazada.");
     }
@@ -3935,6 +3938,10 @@ export const createAttendanceMeeting = onCall(async (request) => {
 /**
  * Otorga puntos de asistencia una sola vez por joven y reunión.
  * Presente y Tarde cuentan como asistencia; las ediciones repetidas no duplican puntos.
+ * @param {string} meetingId Identificador de la reunión.
+ * @param {Array<{memberId: string; name: string; status: string}>} participants Lista de jóvenes y estados.
+ * @param {string[]} clearedMemberIds Jóvenes cuyas marcas se quitaron.
+ * @param {string} actorUid Usuario administrativo que guarda los cambios.
  */
 async function awardAttendancePoints(
   meetingId: string,
@@ -3944,10 +3951,15 @@ async function awardAttendancePoints(
 ) {
   const desiredByMember = new Map<string, {points: number; status: string}>();
   participants.forEach((participant) => {
-    const points = participant.status === "Presente" ? 10
-      : participant.status === "Tarde" ? 8
-      : participant.status === "Justificada" || participant.status === "Justificado" ? 2
-      : 0;
+    let points = 0;
+    if (participant.status === "Presente") {
+      points = 10;
+    } else if (participant.status === "Tarde") {
+      points = 8;
+    } else if (participant.status === "Justificada" ||
+      participant.status === "Justificado") {
+      points = 2;
+    }
     desiredByMember.set(participant.memberId, {points, status: participant.status});
   });
   clearedMemberIds.forEach((memberId) => desiredByMember.set(memberId, {points: 0, status: "Sin marca"}));
@@ -4006,6 +4018,10 @@ async function awardAttendancePoints(
 /**
  * Otorga Llamas por asistencia con ajuste idempotente por reunión y joven.
  * Los cambios de estado recalculan la diferencia; nunca duplican el saldo.
+ * @param {string} meetingId Identificador de la reunión.
+ * @param {Array<{memberId: string; name: string; status: string}>} participants Lista de jóvenes y estados.
+ * @param {string[]} clearedMemberIds Jóvenes cuyas marcas se quitaron.
+ * @param {string} actorUid Usuario administrativo que guarda los cambios.
  */
 async function awardAttendanceFlames(
   meetingId: string,
@@ -4015,10 +4031,15 @@ async function awardAttendanceFlames(
 ) {
   const desiredByMember = new Map<string, {flames: number; status: string}>();
   participants.forEach((participant) => {
-    const flames = participant.status === "Presente" ? 5
-      : participant.status === "Tarde" ? 3
-      : participant.status === "Justificada" || participant.status === "Justificado" ? 1
-      : 0;
+    let flames = 0;
+    if (participant.status === "Presente") {
+      flames = 5;
+    } else if (participant.status === "Tarde") {
+      flames = 3;
+    } else if (participant.status === "Justificada" ||
+      participant.status === "Justificado") {
+      flames = 1;
+    }
     desiredByMember.set(participant.memberId, {flames, status: participant.status});
   });
   clearedMemberIds.forEach((memberId) => {
@@ -4249,7 +4270,9 @@ export const saveMeetingAttendance = onCall(async (request) => {
         Ausente: "A",
       };
       const nextRecords: Record<string, unknown> = {...previousRecords};
-      clearedMemberIds.forEach((memberId) => { delete nextRecords[memberId]; });
+      clearedMemberIds.forEach((memberId) => {
+        delete nextRecords[memberId];
+      });
       participants.forEach((participant) => {
         const previous = previousRecords[participant.memberId];
         const previousRecord = previous && typeof previous === "object"
