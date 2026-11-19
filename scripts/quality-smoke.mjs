@@ -34,7 +34,7 @@ for (const icon of manifest.icons) {
 
 assert.match(firebaseClient, /projectId:\s*['"]jovenes-de-fuego['"]/, 'La app debe apuntar al Firebase original.');
 assert.doesNotMatch(firebaseClient, /jovenes-de-fuego-staging/, 'No debe quedar configurado el Firebase staging.');
-assert.match(serviceWorker, /jdf-shell-v\d+/, 'El service worker debe versionar su caché.');
+assert.match(serviceWorker, /jdf-shell-v4/, 'El service worker debe versionar su caché.');
 for (const privatePath of ['/__/','firestore','identitytoolkit']) {
   assert.ok(serviceWorker.includes(privatePath), 'El service worker debe excluir ' + privatePath + ' del caché.');
 }
