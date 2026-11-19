@@ -1692,49 +1692,40 @@ export const purchaseYouthLookBundle = onCall(async (request) => {
 });
 
 /** Registra resultados acotados de juegos y entrega Llamas una sola vez por partida. */
+/** Guarda un historial de partida. La puntuación del cliente no genera recompensas. */
 export const recordYouthGameResult = onCall(async (request) => {
   const memberId = requireYouthCommunitySession(request.data?.communitySession);
   await getCommunityMember(memberId);
   const gameId = text(request.data?.gameId, 30);
   const runId = text(request.data?.runId, 80);
   const scoreValue = Number(request.data?.score);
-  const limits: Record<string, number> = {trivia: 300, verse: 2000};
-  if (!Object.prototype.hasOwnProperty.call(limits, gameId) ||
+  const allowedGames = new Set([
+    "trivia", "verse", "memory", "challenge", "survival",
+    "duel", "order", "truefalse", "whoami",
+  ]);
+  if (!allowedGames.has(gameId) ||
       !/^[a-zA-Z0-9_-]{12,80}$/.test(runId) ||
-      !Number.isInteger(scoreValue) || scoreValue < 0 || scoreValue > limits[gameId]) {
+      !Number.isInteger(scoreValue) || scoreValue < 0 || scoreValue > 10000) {
     throw new HttpsError("invalid-argument", "El resultado del juego no es válido.");
   }
-  const score = scoreValue;
-  const reward = Math.min(10, Math.floor(score / 20));
   const resultRef = db.collection("youthGameResults").doc(memberId + "_" + runId);
-  const photoRef = db.collection("photos").doc(memberId);
-  let flames = 0;
   let alreadyRecorded = false;
   await db.runTransaction(async (transaction) => {
-    const [resultSnapshot, photoSnapshot, publicSnapshot, memberSnapshot] = await Promise.all([
-      transaction.get(resultRef), transaction.get(photoRef),
-      transaction.get(db.collection("publicProfiles").doc(memberId)),
-      transaction.get(db.collection("members").doc(memberId)),
-    ]);
-    if (resultSnapshot.exists) {
+    const existing = await transaction.get(resultRef);
+    if (existing.exists) {
       alreadyRecorded = true;
-      const saved = resultSnapshot.data() ?? {};
-      flames = Number(saved.flamesAfter ?? 0);
       return;
     }
-    const photo = photoSnapshot.data() ?? {};
-    const publicData = publicSnapshot.data() ?? {};
-    const memberData = memberSnapshot.data() ?? {};
-    const rawBalance = Number(photo.w ?? publicData.flames ?? memberData.flames ?? 0);
-    const balance = Number.isFinite(rawBalance) ? Math.max(0, Math.min(100000, Math.floor(rawBalance))) : 0;
-    flames = Math.min(100000, balance + reward);
-    transaction.set(resultRef, {
-      memberId, gameId, score, reward, flamesAfter: flames,
+    transaction.create(resultRef, {
+      memberId,
+      gameId,
+      score: scoreValue,
+      verificationStatus: "pending",
+      reward: 0,
       createdAt: new Date().toISOString(),
     });
-    transaction.set(photoRef, {w: flames, gameStatsUpdatedAt: new Date().toISOString()}, {merge: true});
   });
-  return {success: true, score, reward, flames, alreadyRecorded};
+  return {success: true, score: scoreValue, reward: 0, verificationStatus: "pending", alreadyRecorded};
 });
 
 export const getPublicProfiles = onCall(async () => {
