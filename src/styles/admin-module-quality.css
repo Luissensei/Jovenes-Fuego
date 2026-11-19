@@ -15,3 +15,111 @@
 :root[data-theme="dark"] .main .jf-route-stage :is(.table-wrap,.table-container,.data-table-wrap){border-color:var(--jf-line,#34463a);background:var(--jf-surface,#19251e)}
 @media(max-width:760px){.main .jf-route-stage :is(.shared-page-header,.page-header,.module-header){align-items:flex-start;flex-direction:column}.main .jf-route-stage :is(.shared-page-header-action,.page-header-action){width:100%}}
 @media(prefers-reduced-motion:reduce){.main .jf-route-stage :is(button,[role="button"]){transition:none}}
+
+
+/* Responsive finishing pass: management, attendance and devotionals. */
+.main .jf-route-stage .management-page,
+.main .jf-route-stage .managed-page,
+.main .jf-route-stage .attendance-page,
+.main .jf-route-stage .devotionals-page {
+  width: 100%;
+  max-width: 1500px;
+  min-width: 0;
+  margin-inline: auto;
+}
+.main .jf-route-stage .management-page :is(.management-header,.management-summary,.management-form,.management-records),
+.main .jf-route-stage .managed-page :is(.managed-hero,.managed-toolbar,.managed-record-list),
+.main .jf-route-stage .attendance-page :is(.attendance-header,.attendance-card,.attendance-summary),
+.main .jf-route-stage .devotionals-page :is(.devotionals-hero,.devotionals-controls,.devotionals-grid,.devotional-publisher-card) {
+  min-width: 0;
+  max-width: 100%;
+}
+.main .jf-route-stage .management-page .management-form,
+.main .jf-route-stage .managed-page .managed-modal,
+.main .jf-route-stage .devotionals-page .devotionals-modal {
+  box-sizing: border-box;
+}
+.main .jf-route-stage .management-page .management-record-top,
+.main .jf-route-stage .managed-page .managed-record-heading,
+.main .jf-route-stage .attendance-page .attendance-picker-heading,
+.main .jf-route-stage .devotionals-page .devotional-card-top {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.main .jf-route-stage .management-page .management-record-search,
+.main .jf-route-stage .managed-page .managed-search,
+.main .jf-route-stage .attendance-page .attendance-member-search,
+.main .jf-route-stage .devotionals-page .devotionals-search {
+  min-width: 0;
+  max-width: 100%;
+}
+.main .jf-route-stage .management-page .management-record-search input,
+.main .jf-route-stage .managed-page .managed-search input,
+.main .jf-route-stage .attendance-page .attendance-member-search input,
+.main .jf-route-stage .devotionals-page .devotionals-search input {
+  width: 100%;
+  min-width: 0;
+}
+.main .jf-route-stage .managed-page .managed-record-actions,
+.main .jf-route-stage .management-page .management-footer,
+.main .jf-route-stage .devotionals-page .devotional-card-actions {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.main .jf-route-stage .attendance-page .attendance-status-button {
+  min-width: 0;
+  white-space: normal;
+}
+.main .jf-route-stage .devotionals-page .devotional-admin-flyer {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+@media (max-width: 760px) {
+  .main .jf-route-stage .management-page .management-form,
+  .main .jf-route-stage .management-page .management-summary,
+  .main .jf-route-stage .managed-page .managed-stat-grid,
+  .main .jf-route-stage .attendance-page .attendance-summary {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .main .jf-route-stage .management-page .management-header,
+  .main .jf-route-stage .managed-page .managed-hero,
+  .main .jf-route-stage .attendance-page .attendance-header,
+  .main .jf-route-stage .devotionals-page .devotionals-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .main .jf-route-stage .management-page .management-submit,
+  .main .jf-route-stage .managed-page .managed-primary,
+  .main .jf-route-stage .attendance-page .attendance-save-button,
+  .main .jf-route-stage .devotionals-page .devotionals-primary {
+    width: 100%;
+    justify-content: center;
+  }
+  .main .jf-route-stage .management-page .management-record,
+  .main .jf-route-stage .managed-page .managed-record,
+  .main .jf-route-stage .attendance-page .attendance-member,
+  .main .jf-route-stage .devotionals-page .devotional-card {
+    overflow-wrap: anywhere;
+  }
+  .main .jf-route-stage .managed-page .managed-record-actions,
+  .main .jf-route-stage .devotionals-page .devotional-card-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+@media (max-width: 420px) {
+  .main .jf-route-stage .attendance-page .attendance-status-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .main .jf-route-stage .managed-page .managed-action-buttons {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .main .jf-route-stage .devotionals-page .devotionals-categories {
+    max-width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+}
