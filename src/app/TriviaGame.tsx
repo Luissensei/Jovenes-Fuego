@@ -23,9 +23,10 @@ type Question = BibleQuestion;
 
 type Props = {
   onExit: () => void;
+  onComplete?: (score: number) => void;
 };
 
-export default function TriviaGame({ onExit }: Props) {
+export default function TriviaGame({ onExit, onComplete }: Props) {
   const [started, setStarted] = useState(false);
   const [roundQuestions, setRoundQuestions] = useState<Question[]>(expandedBibleQuestionBank.slice(0, 10));
   const [current, setCurrent] = useState(0);
@@ -40,8 +41,15 @@ export default function TriviaGame({ onExit }: Props) {
   const [showHint, setShowHint] = useState(false);
   const [finished, setFinished] = useState(false);
 
+  const resultReported = useRef(false);
   const question = roundQuestions[current];
   const progress = ((current + 1) / roundQuestions.length) * 100;
+
+  useEffect(() => {
+    if (!finished || resultReported.current) return;
+    resultReported.current = true;
+    onComplete?.(score);
+  }, [finished, onComplete, score]);
 
   // Temporizador de cada pregunta.
   useEffect(() => {
@@ -81,6 +89,7 @@ export default function TriviaGame({ onExit }: Props) {
   }, [started, finished, selected, current, roundQuestions.length]);
 
   function startGame() {
+    resultReported.current = false;
     setRoundQuestions(shuffleBibleQuestions(expandedBibleQuestionBank).slice(0, 10));
     setStarted(true);
     setFinished(false);
