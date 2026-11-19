@@ -26,22 +26,23 @@ export default function GamesTab({onStartGame, communitySession}:{onStartGame:(g
     let active = true;
     if (!communitySession) return;
     setLoadingHistory(true);
-    Promise.all([
-      getYouthGameHistory(communitySession),
-      getYouthFlameHistory(communitySession),
-    ]).then(([items, movements]) => {
+    getYouthGameHistory(communitySession).then((items) => {
       if (active) {
         setHistory(items);
-        setFlameMovements(movements);
+        setHistoryError('');
       }
     }).catch((cause: unknown) => {
-      if (active) {
-        const message = cause instanceof Error ? cause.message : 'No se pudo cargar la actividad.';
-        setHistoryError(message);
-        setFlameError(message);
-      }
+      if (active) setHistoryError(cause instanceof Error ? cause.message : 'No se pudo cargar el historial de partidas.');
     }).finally(() => {
       if (active) setLoadingHistory(false);
+    });
+    getYouthFlameHistory(communitySession).then((movements) => {
+      if (active) {
+        setFlameMovements(movements);
+        setFlameError('');
+      }
+    }).catch((cause: unknown) => {
+      if (active) setFlameError(cause instanceof Error ? cause.message : 'No se pudo cargar el historial de Llamas.');
     });
     return () => { active = false; };
   }, [communitySession]);
