@@ -44,7 +44,7 @@ export default function YouthGameReview() {
 
   return <section className={styles.panel}>
     <header className={styles.header}>
-      <div><span>CONTROL DE RECOMPENSAS</span><h3>Partidas pendientes de revisión</h3><p>Verifica el resultado antes de aprobar Llamas. Cada partida solo puede revisarse una vez.</p></div>
+      <div><span>CONTROL DE RECOMPENSAS</span><h3>Partidas pendientes de revisión</h3><p>La puntuación todavía llega desde el dispositivo y no se valida respuesta por respuesta en el servidor. Esta aprobación es manual y debe contrastarse antes de entregar Llamas.</p></div>
       <button type="button" onClick={() => void load()} disabled={loading}><RefreshCw size={16}/> Actualizar</button>
     </header>
     {error && <p className={styles.error} role="alert">{error}</p>}
