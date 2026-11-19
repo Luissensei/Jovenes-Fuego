@@ -3882,6 +3882,89 @@ async function awardAttendancePoints(
   }
 }
 
+
+/**
+ * Otorga Llamas por asistencia con ajuste idempotente por reunión y joven.
+ * Los cambios de estado recalculan la diferencia; nunca duplican el saldo.
+ */
+async function awardAttendanceFlames(
+  meetingId: string,
+  participants: Array<{memberId: string; name: string; status: string}>,
+  clearedMemberIds: string[],
+  actorUid: string,
+) {
+  const desiredByMember = new Map<string, {flames: number; status: string}>();
+  participants.forEach((participant) => {
+    const flames = participant.status === "Presente" ? 5
+      : participant.status === "Tarde" ? 3
+      : participant.status === "Justificada" || participant.status === "Justificado" ? 1
+      : 0;
+    desiredByMember.set(participant.memberId, {flames, status: participant.status});
+  });
+  clearedMemberIds.forEach((memberId) => {
+    desiredByMember.set(memberId, {flames: 0, status: "Sin marca"});
+  });
+
+  for (const [memberId, desired] of desiredByMember) {
+    const awardId = createHash("sha256").update(`${meetingId}:${memberId}`).digest("hex");
+    const awardRef = db.collection("attendanceFlameAwards").doc(awardId);
+    const memberRef = db.collection("members").doc(memberId);
+    const publicRef = db.collection("publicProfiles").doc(memberId);
+    const photoRef = db.collection("photos").doc(memberId);
+
+    await db.runTransaction(async (transaction) => {
+      const [awardSnapshot, memberSnapshot, publicSnapshot, photoSnapshot] = await Promise.all([
+        transaction.get(awardRef),
+        transaction.get(memberRef),
+        transaction.get(publicRef),
+        transaction.get(photoRef),
+      ]);
+      if (!memberSnapshot.exists && !publicSnapshot.exists && !photoSnapshot.exists) return;
+
+      const previousValue = Number(awardSnapshot.data()?.flames ?? 0);
+      const previousFlames = Number.isFinite(previousValue)
+        ? Math.max(0, Math.floor(previousValue))
+        : 0;
+      const photo = photoSnapshot.data() ?? {};
+      const member = memberSnapshot.data() ?? {};
+      const profile = publicSnapshot.data() ?? {};
+      const rawBalance = photo.w ?? profile.flames ?? member.flames ?? 0;
+      const parsedBalance = Number(rawBalance);
+      const currentBalance = Number.isFinite(parsedBalance) && parsedBalance >= 0
+        ? Math.floor(parsedBalance)
+        : 0;
+      const nextBalance = Math.max(0, currentBalance + desired.flames - previousFlames);
+
+      if (photoSnapshot.exists || desired.flames > 0 || previousFlames > 0) {
+        transaction.set(photoRef, {w: nextBalance, updatedAt: new Date().toISOString()}, {merge: true});
+      }
+      if (memberSnapshot.exists) {
+        transaction.set(memberRef, {flames: nextBalance}, {merge: true});
+      }
+      if (publicSnapshot.exists) {
+        transaction.set(publicRef, {flames: nextBalance}, {merge: true});
+      }
+
+      if (desired.status === "Sin marca") {
+        if (awardSnapshot.exists) transaction.delete(awardRef);
+        return;
+      }
+      transaction.set(awardRef, {
+        meetingId,
+        memberId,
+        flames: desired.flames,
+        status: desired.status,
+        updatedAt: new Date().toISOString(),
+        updatedBy: actorUid,
+        ...(awardSnapshot.exists ? {} : {
+          createdAt: new Date().toISOString(),
+          createdBy: actorUid,
+        }),
+      }, {merge: true});
+    });
+  }
+}
+
 export const saveMeetingAttendance = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
@@ -4048,6 +4131,7 @@ export const saveMeetingAttendance = onCall(async (request) => {
   }
 
   await awardAttendancePoints(meetingId, participants, clearedMemberIds, request.auth.uid);
+  await awardAttendanceFlames(meetingId, participants, clearedMemberIds, request.auth.uid);
   await recordAudit("attendance.saved", request.auth.uid, meetingId, {participants: participants.length});
   return {success: true};
 });
