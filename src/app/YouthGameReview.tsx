@@ -50,7 +50,7 @@ export default function YouthGameReview() {
     } finally { setBusyId(''); }
   }
 
-  return <section className={styles.panel}>
+  return <section className={`${styles.panel} bg-[var(--jdf-surface)] text-[var(--jdf-text)]`}>
     <header className={styles.header}>
       <div><span>CONTROL DE RECOMPENSAS</span><h3>Partidas pendientes de revisión</h3><p>La puntuación original llega desde el dispositivo. Para aprobar debes registrar la puntuación comprobada y explicar la evidencia revisada. La validación automática respuesta por respuesta en el servidor aún no está habilitada.</p></div>
       <button type="button" onClick={() => void load()} disabled={loading}><RefreshCw size={16}/> Actualizar</button>
