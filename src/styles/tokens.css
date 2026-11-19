@@ -1,6 +1,22 @@
+@import "tailwindcss";
+
 /* Jóvenes de Fuego — Fuego en vidrio.
    Tokens nuevos y aislados: no pisan las variables legacy --jf-* mientras
    las pantallas se migran gradualmente a Tailwind. */
+@theme {
+  --color-jdf-canvas: #111126;
+  --color-jdf-surface: #1d1a3a;
+  --color-jdf-surface-raised: #272247;
+  --color-jdf-text: #f7f4ff;
+  --color-jdf-muted: #c7bfdf;
+  --color-jdf-border: #403765;
+  --color-jdf-fire: #ff713b;
+  --color-jdf-fire-strong: #e9572b;
+  --color-jdf-gold: #ffd45e;
+  --color-jdf-community: #a36bff;
+  --color-jdf-progress: #39d4a5;
+  --color-jdf-info: #43b0ff;
+}
 :root {
   --jdf-canvas: #111126;
   --jdf-surface: #1d1a3a;
@@ -40,12 +56,8 @@
   --jdf-glass-bg: rgb(255 255 255 / 88%);
   --jdf-glass-border: rgb(232 221 213 / 88%);
 }
-:root[data-theme="dark"] {
-  color-scheme: dark;
-}
-:root[data-theme="light"] {
-  color-scheme: light;
-}
+:root[data-theme="dark"] { color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }
 @media (prefers-reduced-motion: reduce) {
   :root { scroll-behavior: auto; }
 }
