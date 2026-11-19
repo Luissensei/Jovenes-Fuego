@@ -2569,6 +2569,8 @@ export const adminListYouthDevotionalSubmissions = onCall(async (request) => {
       imageDataUrl: text(data.imageDataUrl, 420000),
       status: text(data.status, 30) || "Pendiente",
       createdAt: text(data.createdAt, 40),
+      pointsAwarded: Math.max(0, Math.floor(Number(data.pointsAwarded) || 0)),
+      flamesAwarded: Math.max(0, Math.floor(Number(data.flamesAwarded) || 0)),
     };
   }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   return {submissions};
