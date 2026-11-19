@@ -1,6 +1,6 @@
 import {playGameTone} from './gameAudio';
 import { useEffect, useRef, useState } from 'react';
-import { shuffleBibleQuestions, type VerseChallenge } from './bibleQuestionBank';
+import { bibleVerseChallenges, shuffleBibleQuestions, type VerseChallenge } from './bibleQuestionBank';
 import { expandedBibleVerseChallenges } from './extendedBibleQuestionBank';
 import {
   BookOpen,
@@ -15,20 +15,21 @@ import {
 
 import './VerseGame.css';
 
-type Question = VerseChallenge;
+type Question = VerseChallenge & { id: string };
 
 export default function VerseGame({
   onExit,
   onComplete,
 }: {
   onExit: () => void;
-  onComplete?: (score: number) => void;
+  onComplete?: (score: number, answers: {questionId: string; answerIndex: number}[]) => void;
 }) {
-  const [questions, setQuestions] = useState<Question[]>(() => shuffleBibleQuestions(expandedBibleVerseChallenges));
+  const [questions, setQuestions] = useState<Question[]>(() => shuffleBibleQuestions(expandedBibleVerseChallenges.filter((q) => bibleVerseChallenges.includes(q)).map((q) => ({...q, id: `verse-${String(bibleVerseChallenges.indexOf(q) + 1).padStart(2, '0')}`}))));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [answers, setAnswers] = useState<{questionId: string; answerIndex: number}[]>([]);
   const resultReported = useRef(false);
 
   const currentQuestion = questions[currentIndex];
@@ -36,8 +37,8 @@ export default function VerseGame({
   useEffect(() => {
     if (!finished || resultReported.current) return;
     resultReported.current = true;
-    onComplete?.(score);
-  }, [finished, onComplete, score]);
+    onComplete?.(score, answers);
+  }, [finished, onComplete, score, answers]);
 
   const progress =
     ((currentIndex + (selectedAnswer !== null ? 1 : 0)) /
@@ -51,6 +52,7 @@ export default function VerseGame({
     if (selectedAnswer !== null) return;
 
     setSelectedAnswer(option);
+    setAnswers((previous) => [...previous, {questionId: currentQuestion.id, answerIndex: currentQuestion.options.indexOf(option)}]);
     playGameTone(option === currentQuestion.answer ? 'success' : 'incorrect');
 
     if (option === currentQuestion.answer) {
@@ -72,10 +74,11 @@ export default function VerseGame({
 
   function restartGame() {
     resultReported.current = false;
-    setQuestions(shuffleBibleQuestions(expandedBibleVerseChallenges));
+    setQuestions(shuffleBibleQuestions(bibleVerseChallenges.map((q, index) => ({...q, id: `verse-${String(index + 1).padStart(2, '0')}`}))));
     setCurrentIndex(0);
     setSelectedAnswer(null);
     setScore(0);
+    setAnswers([]);
     setFinished(false);
   }
 

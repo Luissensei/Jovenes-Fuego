@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 
 const root = process.cwd();
 const read = (path) => readFile(resolve(root, path), 'utf8');
-const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, themePreference, paletteSource, attendancePage, fuegoAssistant, triviaGame, trustedTriviaBank, quickBibleGames, trustedTrueFalseBank] = await Promise.all([
+const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, themePreference, paletteSource, attendancePage, fuegoAssistant, triviaGame, trustedTriviaBank, quickBibleGames, trustedTrueFalseBank, verseGame, trustedVerseBank, moreBibleGames] = await Promise.all([
   read('public/manifest.webmanifest'),
   read('public/sw.js'),
   read('src/services/firebase/client.ts'),
@@ -18,6 +18,9 @@ const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, th
   read('functions/src/youthTriviaQuestionBank.ts'),
   read('src/app/QuickBibleGames.tsx'),
   read('functions/src/youthTrueFalseAnswerBank.ts'),
+  read('src/app/VerseGame.tsx'),
+  read('functions/src/youthVerseAnswerBank.ts'),
+  read('src/app/MoreBibleGames.tsx'),
 ]);
 
 assert.match(themePreference, /theme === 'dark' \? '#0B0B0B' : '#FFFFFF'/, 'El color de la barra del navegador debe coincidir con las paletas verde y monocromática.');
@@ -147,7 +150,10 @@ assert.match(youthPortalPage, /<DevotionalFlyerTab communitySession=\{communityS
 assert.match(triviaGame, /setAnswerTranscript\(\(previous\) => \[\.\.\.previous, \{questionId: question\.id, answerIndex: index\}\]\)/, 'Trivia debe conservar las respuestas seleccionadas por pregunta.');
 assert.match(triviaGame, /shuffleBibleQuestions\(bibleQuestionBank\)/, 'Trivia debe usar el mismo banco confiable que el servidor.');
 assert.match(trustedTriviaBank, /jf-001/, 'El servidor debe tener el banco bíblico para verificar Trivia.');
-assert.match(functionsSource, /answerValidation = "server-validated"/, 'Functions debe validar las respuestas de Trivia y Verdadero o falso.');
+assert.match(functionsSource, /answerValidation = "server-validated"/, 'Functions debe validar las respuestas de los juegos con banco confiable.');
+assert.match(verseGame, /questionId: currentQuestion.id/, 'Completa el versículo debe enviar evidencia de cada respuesta.');
+assert.match(trustedVerseBank, /verse-27/, 'El servidor debe incluir las 27 respuestas de Completa el versículo.');
+assert.match(moreBibleGames, /questionId: question.id, answerIndex: question.options.indexOf\(option\)/, 'Los retos cronometrado y supervivencia deben enviar respuestas por pregunta.');
 assert.match(quickBibleGames, /questionId:current.id,answerIndex:value\?1:0/, 'Verdadero o falso debe enviar evidencia por pregunta.');
 assert.match(trustedTrueFalseBank, /tf-20/, 'El servidor debe tener las veinte respuestas de Verdadero o falso.');
 assert.match(functionsSource, /youthTrueFalseAnswerBank\[questionId\]/, 'Functions debe verificar las respuestas de Verdadero o falso.');

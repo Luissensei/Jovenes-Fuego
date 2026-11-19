@@ -1,6 +1,6 @@
 import {playGameTone} from './gameAudio';
 import { useEffect, useRef, useState } from 'react';
-import { shuffleBibleQuestions } from './bibleQuestionBank';
+import { bibleQuestionBank, shuffleBibleQuestions } from './bibleQuestionBank';
 import { expandedBibleQuestionBank } from './extendedBibleQuestionBank';
 import {
   Heart, Swords, Trophy,
@@ -11,6 +11,7 @@ import {
 import './MoreBibleGames.css';
 
 type Question = {
+  id: string;
   prompt: string;
   options: string[];
   answer: string;
@@ -28,7 +29,8 @@ function shuffle<T,>(items: T[]): T[] {
 }
 
 function makeQuestionBank(): Question[] {
-  return shuffleBibleQuestions(expandedBibleQuestionBank).map((question) => ({
+  return shuffleBibleQuestions(bibleQuestionBank).map((question) => ({
+    id: question.id,
     prompt: question.question,
     options: question.options,
     answer: question.options[question.answer],
@@ -216,19 +218,20 @@ export function MemoryGame({ onExit, onComplete }: { onExit: () => void; onCompl
 }
 
 /* RETO DE 60 SEGUNDOS */
-export function ChallengeGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number) => void }) {
+export function ChallengeGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number, answers: {questionId:string;answerIndex:number}[]) => void }) {
   const [seconds, setSeconds] = useState(60);
   const [index, setIndex] = useState(0);
   const [questions, setQuestions] = useState<Question[]>(makeQuestionBank);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
+  const [answers, setAnswers] = useState<{questionId:string;answerIndex:number}[]>([]);
   const challengeGameReported = useRef(false);
   useEffect(() => {
     if (!finished || challengeGameReported.current) return;
     challengeGameReported.current = true;
-    onComplete?.(score);
-  }, [finished, onComplete, score]);
+    onComplete?.(score, answers);
+  }, [finished, onComplete, score, answers]);
 
   useEffect(() => {
     if (finished) return;
@@ -247,6 +250,7 @@ export function ChallengeGame({ onExit, onComplete }: { onExit: () => void; onCo
   function answer(option: string) {
     if (answered !== null || finished) return;
     setAnswered(option);
+    setAnswers((previous) => [...previous, {questionId: question.id, answerIndex: question.options.indexOf(option)}]);
     playGameTone(option === question.answer ? 'success' : 'incorrect');
     if (option === question.answer) setScore((value) => value + 10);
   }
@@ -263,6 +267,7 @@ export function ChallengeGame({ onExit, onComplete }: { onExit: () => void; onCo
     setIndex(0);
     setQuestions(makeQuestionBank());
     setScore(0);
+    setAnswers([]);
     setAnswered(null);
     setFinished(false);
   }
@@ -287,19 +292,20 @@ export function ChallengeGame({ onExit, onComplete }: { onExit: () => void; onCo
 }
 
 /* SUPERVIVENCIA */
-export function SurvivalGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number) => void }) {
+export function SurvivalGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number, answers: {questionId:string;answerIndex:number}[]) => void }) {
   const [index, setIndex] = useState(0);
   const [questions, setQuestions] = useState<Question[]>(makeQuestionBank);
   const [lives, setLives] = useState(3);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
+  const [answers, setAnswers] = useState<{questionId:string;answerIndex:number}[]>([]);
   const survivalGameReported = useRef(false);
   useEffect(() => {
     if (!finished || survivalGameReported.current) return;
     survivalGameReported.current = true;
-    onComplete?.(score);
-  }, [finished, onComplete, score]);
+    onComplete?.(score, answers);
+  }, [finished, onComplete, score, answers]);
 
   const question = questions[index % questions.length];
   const correct = answered === question.answer;
@@ -307,6 +313,7 @@ export function SurvivalGame({ onExit, onComplete }: { onExit: () => void; onCom
   function answer(option: string) {
     if (answered !== null || finished) return;
     setAnswered(option);
+    setAnswers((previous) => [...previous, {questionId: question.id, answerIndex: question.options.indexOf(option)}]);
     playGameTone(option === question.answer ? 'success' : 'incorrect');
     if (option === question.answer) {
       setScore((value) => value + 10);
@@ -331,6 +338,7 @@ export function SurvivalGame({ onExit, onComplete }: { onExit: () => void; onCom
     setQuestions(makeQuestionBank());
     setLives(3);
     setScore(0);
+    setAnswers([]);
     setAnswered(null);
     setFinished(false);
   }

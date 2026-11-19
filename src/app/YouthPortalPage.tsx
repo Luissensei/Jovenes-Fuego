@@ -1113,10 +1113,10 @@ export default function YouthPortalPage() {
           <Suspense fallback={<div className="jf-page-loading" role="status" aria-live="polite"><span/><strong>Preparando el juego</strong><small>Un momento…</small></div>}>
             {gameRewardNotice && <div role="status" aria-live="polite" className="youth-game-reward-notice">{gameRewardNotice}</div>}
             {activeGame === 'trivia' && <TriviaGame onExit={exitGame} onComplete={(score, answers) => void completeGame('trivia', score, answers)}/>}
-            {activeGame === 'verse' && <VerseGame onExit={exitGame} onComplete={(score) => void completeGame('verse', score)}/>}
+            {activeGame === 'verse' && <VerseGame onExit={exitGame} onComplete={(score, answers) => void completeGame('verse', score, answers)}/>}
             {activeGame === 'memory' && <MemoryGame onExit={exitGame} onComplete={(score) => void completeGame('memory', score)}/>}
-            {activeGame === 'challenge' && <ChallengeGame onExit={exitGame} onComplete={(score) => void completeGame('challenge', score)}/>}
-            {activeGame === 'survival' && <SurvivalGame onExit={exitGame} onComplete={(score) => void completeGame('survival', score)}/>}
+            {activeGame === 'challenge' && <ChallengeGame onExit={exitGame} onComplete={(score, answers) => void completeGame('challenge', score, answers)}/>}
+            {activeGame === 'survival' && <SurvivalGame onExit={exitGame} onComplete={(score, answers) => void completeGame('survival', score, answers)}/>}
             {activeGame === 'duel' && <DuelGame onExit={exitGame} onComplete={(score) => void completeGame('duel', score)}/>}
             {activeGame === 'order' && <OrderVerseGame onExit={exitGame} onComplete={(score) => void completeGame('order', score)}/>}
             {activeGame === 'truefalse' && <TrueFalseGame onExit={exitGame} onComplete={(score, answers) => void completeGame('truefalse', score, answers)}/>}
