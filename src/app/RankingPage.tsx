@@ -250,7 +250,7 @@ export default function RankingPage({
   }
 
   return (
-    <section className={`${styles.scope} ranking-hub`}>
+    <section className={`${styles.scope} ranking-hub bg-[var(--jdf-canvas)] text-[var(--jdf-text)]`}>
 
       {/* ENCABEZADO PRINCIPAL */}
       <header className="ranking-hero">
