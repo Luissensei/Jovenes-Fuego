@@ -1,6 +1,6 @@
 import { BadgeCheck, BookMarked, BookOpen, Brain, Flame, Gamepad2, Layers, Timer, Trophy, UserSearch, Swords, History, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { getYouthGameHistory, type YouthGameHistoryEntry } from '../../services/youthPortal';
+import { getYouthGameHistory, getYouthFlameHistory, type YouthGameHistoryEntry, type YouthFlameMovement } from '../../services/youthPortal';
 
 export type MiniGame = 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami';
 
@@ -20,14 +20,26 @@ export default function GamesTab({onStartGame, communitySession}:{onStartGame:(g
   const [history, setHistory] = useState<YouthGameHistoryEntry[]>([]);
   const [historyError, setHistoryError] = useState('');
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [flameMovements, setFlameMovements] = useState<YouthFlameMovement[]>([]);
+  const [flameError, setFlameError] = useState('');
   useEffect(() => {
     let active = true;
     if (!communitySession) return;
     setLoadingHistory(true);
-    getYouthGameHistory(communitySession).then((items) => {
-      if (active) setHistory(items);
+    Promise.all([
+      getYouthGameHistory(communitySession),
+      getYouthFlameHistory(communitySession),
+    ]).then(([items, movements]) => {
+      if (active) {
+        setHistory(items);
+        setFlameMovements(movements);
+      }
     }).catch((cause: unknown) => {
-      if (active) setHistoryError(cause instanceof Error ? cause.message : 'No se pudo cargar el historial.');
+      if (active) {
+        const message = cause instanceof Error ? cause.message : 'No se pudo cargar la actividad.';
+        setHistoryError(message);
+        setFlameError(message);
+      }
     }).finally(() => {
       if (active) setLoadingHistory(false);
     });
@@ -50,6 +62,18 @@ export default function GamesTab({onStartGame, communitySession}:{onStartGame:(g
             </button>;
           })}
         </div>
+      </section>
+      <section className="youth-game-history">
+        <header><div><span>TU SALDO Y MOVIMIENTOS</span><h2><Flame size={19}/> Historial de Llamas</h2></div></header>
+        {flameError && <p role="alert">{flameError}</p>}
+        {!flameError && flameMovements.length === 0 && <p>Todavía no tienes movimientos de Llamas registrados.</p>}
+        {flameMovements.length > 0 && <ul>
+          {flameMovements.map((movement) => <li key={movement.id}>
+            <div><b>{movement.description || 'Movimiento de Llamas'}</b><small>{movement.createdAt ? new Date(movement.createdAt).toLocaleString('es-CO') : 'Fecha no disponible'}</small></div>
+            <strong>{movement.amount > 0 ? '+' : ''}{movement.amount} Llamas</strong>
+            <span>Saldo: {movement.balanceAfter}</span>
+          </li>)}
+        </ul>}
       </section>
       <section className="youth-game-history">
         <header><div><span>TU ACTIVIDAD</span><h2><History size={19}/> Historial de partidas</h2></div>
