@@ -48,8 +48,8 @@ export default function AttendancePage() {
     Record<string, Record<string, AttendanceStatus | null>>
   >({});
   const [memberSearch, setMemberSearch] = useState('');
-  const [meetingSearch, setMeetingSearch] = useState('');
-  const [meetingFilter, setMeetingFilter] = useState<'all' | 'pending' | 'complete'>('all');
+  const [calendarDate, setCalendarDate] = useState(localDateInput);
+  const [calendarMeetingId, setCalendarMeetingId] = useState('');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -294,20 +294,15 @@ export default function AttendancePage() {
     }));
   }, [sortedMeetings, members]);
 
-  const filteredMeetings = useMemo(() => {
-    const term = meetingSearch.trim().toLocaleLowerCase('es');
-    return sortedMeetings.filter((meeting) => {
-      const isScheduled = meeting.id.startsWith('scheduled_');
-      const progress = meetingProgress.get(meeting.id);
-      const incomplete = isScheduled || !progress?.complete;
-      const matchesFilter = meetingFilter === 'all' ||
-        (meetingFilter === 'pending' ? incomplete : !incomplete);
-      const matchesSearch = !term ||
-        `${meeting.name} ${meeting.date} ${formatMeetingDate(meeting.date)}`
-          .toLocaleLowerCase('es').includes(term);
-      return matchesFilter && matchesSearch;
-    });
-  }, [sortedMeetings, meetingSearch, meetingFilter, meetingProgress]);
+  const meetingsForCalendarDate = useMemo(
+    () => sortedMeetings.filter((meeting) => meeting.date === calendarDate),
+    [sortedMeetings, calendarDate],
+  );
+
+  useEffect(() => {
+    const exists = meetingsForCalendarDate.some((meeting) => meeting.id === calendarMeetingId);
+    if (!exists) setCalendarMeetingId(meetingsForCalendarDate[0]?.id ?? '');
+  }, [meetingsForCalendarDate, calendarMeetingId]);
 
   function clearAttendanceDraft(meetingId: string) {
     if (!meetingId) return;
@@ -352,7 +347,7 @@ export default function AttendancePage() {
       'Hay marcas sin guardar en esta reunión. ¿Quieres descartarlas y abrir la reunión seleccionada?',
     )) return;
     clearAttendanceDraft(selectedMeetingId);
-    setMemberSearch('');
+    setCalendarDate(nextMeetingId ? (allMeetings.find((meeting) => meeting.id === nextMeetingId)?.date ?? calendarDate) : calendarDate);
     setMessage('');
     setError('');
     const scheduled = scheduledMeetings.find((meeting) => meeting.id === nextMeetingId);
@@ -545,76 +540,60 @@ export default function AttendancePage() {
       <section className="attendance-card attendance-meeting-picker">
         <div className="attendance-picker-heading">
           <div>
-            <h2>Elegir reunión para asistencia</h2>
-            <p>Busca cualquier servicio anterior y abre también los que todavía están pendientes.</p>
+            <h2>Seleccionar fecha y servicio</h2>
+            <p>Elige un día en el calendario y después selecciona el servicio que deseas abrir.</p>
           </div>
-          <span className="attendance-meeting-total">{allMeetings.length} fechas</span>
         </div>
         {loading ? (
           <p>Consultando reuniones y jóvenes...</p>
-        ) : allMeetings.length === 0 ? (
-          <p>Todavía no hay reuniones registradas. Crea una para comenzar.</p>
         ) : (
-          <>
-            <label className="attendance-meeting-search">
-              <Search size={17} aria-hidden="true" />
+          <div className="attendance-calendar-picker">
+            <div className="attendance-calendar-field">
+              <label htmlFor="attendance-calendar-date">Fecha de la reunión</label>
               <input
-                type="search"
-                value={meetingSearch}
-                onChange={(event) => setMeetingSearch(event.target.value)}
-                placeholder="Buscar por servicio o fecha (ej. 18 nov 2025)..."
-                aria-label="Buscar reuniones por nombre o fecha"
+                id="attendance-calendar-date"
+                type="date"
+                value={calendarDate}
+                max={localDateInput()}
+                onChange={(event) => {
+                  setCalendarDate(event.target.value);
+                  setCalendarMeetingId('');
+                  setError('');
+                  setMessage('');
+                }}
               />
-              {meetingSearch && (
-                <button type="button" onClick={() => setMeetingSearch('')} aria-label="Limpiar búsqueda">×</button>
-              )}
-            </label>
-            <div className="attendance-meeting-filters" role="group" aria-label="Filtrar reuniones">
-              <button type="button" data-active={meetingFilter === 'all'} onClick={() => setMeetingFilter('all')}>
-                Todas <span>{allMeetings.length}</span>
-              </button>
-              <button type="button" data-active={meetingFilter === 'pending'} onClick={() => setMeetingFilter('pending')}>
-                Pendientes <span>{allMeetings.filter((meeting) =>
-                  meeting.id.startsWith('scheduled_') || !meetingProgress.get(meeting.id)?.complete,
-                ).length}</span>
-              </button>
-              <button type="button" data-active={meetingFilter === 'complete'} onClick={() => setMeetingFilter('complete')}>
-                Completas <span>{meetings.filter((meeting) =>
-                  meetingProgress.get(meeting.id)?.complete,
-                ).length}</span>
-              </button>
             </div>
-            <div className="attendance-meeting-list" aria-label="Reuniones disponibles">
-              {filteredMeetings.map((meeting) => {
-                const isScheduled = meeting.id.startsWith('scheduled_');
-                const progress = meetingProgress.get(meeting.id);
-                const registered = progress?.registered ?? 0;
-                const pending = progress?.pending ?? members.length;
-                const isSelected = selectedMeetingId === meeting.id;
-                return (
-                  <button
-                    type="button"
-                    key={meeting.id}
-                    className="attendance-meeting-option"
-                    data-selected={isSelected}
-                    onClick={() => void handleMeetingSelection(meeting.id)}
-                    disabled={saving || loading}
-                    aria-pressed={isSelected}
-                  >
-                    <span className="attendance-meeting-option-date">{formatMeetingDate(meeting.date)}</span>
-                    <strong>{meeting.name}</strong>
-                    <span className={pending > 0 ? 'attendance-meeting-state is-pending' : 'attendance-meeting-state is-complete'}>
-                      {isScheduled ? 'Servicio por crear' : pending > 0 ? (registered === 0 ? 'Sin asistencia' : `${pending} pendientes`) : progress?.complete ? 'Asistencia completa' : 'Sin jóvenes activos'}
-                    </span>
-                    <span className="attendance-meeting-option-arrow" aria-hidden="true">›</span>
-                  </button>
-                );
-              })}
-              {filteredMeetings.length === 0 && (
-                <p className="attendance-no-results">No hay reuniones que coincidan con esa búsqueda o filtro.</p>
-              )}
+            <div className="attendance-calendar-field">
+              <label htmlFor="attendance-calendar-service">Servicio de ese día</label>
+              <select
+                id="attendance-calendar-service"
+                value={calendarMeetingId}
+                onChange={(event) => setCalendarMeetingId(event.target.value)}
+                disabled={meetingsForCalendarDate.length === 0}
+              >
+                {meetingsForCalendarDate.length === 0 ? (
+                  <option value="">No hay un servicio programado</option>
+                ) : meetingsForCalendarDate.map((meeting) => (
+                  <option key={meeting.id} value={meeting.id}>
+                    {meeting.name}{meeting.id.startsWith('scheduled_') ? ' · Pendiente de crear' : ''}
+                  </option>
+                ))}
+              </select>
             </div>
-          </>
+            <button
+              type="button"
+              className="attendance-calendar-open"
+              onClick={() => void handleMeetingSelection(calendarMeetingId)}
+              disabled={!calendarMeetingId || saving || loading}
+            >
+              {saving ? 'Abriendo...' : 'Abrir asistencia'}
+            </button>
+            <p className="attendance-calendar-hint">
+              {meetingsForCalendarDate.length > 0
+                ? `${meetingsForCalendarDate.length} servicio(s) disponible(s) para esta fecha.`
+                : 'No hay servicios registrados para ese día. Puedes crearlo en “Crear reunión” arriba.'}
+            </p>
+          </div>
         )}
       </section>
 
