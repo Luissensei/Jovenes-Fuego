@@ -1078,7 +1078,7 @@ export default function YouthPortalPage() {
   }
 
   if (selectedProfile && activeGame) {
-    const completeGame = async (gameId: 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami', score: number, answers?: {questionId: string; answerIndex: number}[]) => {
+    const completeGame = async (gameId: 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami', score: number, answers?: Record<string, string | number>[]) => {
       if (!communitySession) return;
       const runId = typeof crypto !== 'undefined' && 'randomUUID' in crypto
         ? crypto.randomUUID() : `run_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
@@ -1114,7 +1114,7 @@ export default function YouthPortalPage() {
             {gameRewardNotice && <div role="status" aria-live="polite" className="youth-game-reward-notice">{gameRewardNotice}</div>}
             {activeGame === 'trivia' && <TriviaGame onExit={exitGame} onComplete={(score, answers) => void completeGame('trivia', score, answers)}/>}
             {activeGame === 'verse' && <VerseGame onExit={exitGame} onComplete={(score, answers) => void completeGame('verse', score, answers)}/>}
-            {activeGame === 'memory' && <MemoryGame onExit={exitGame} onComplete={(score, answers) => void completeGame('memory', score, answers as unknown as {questionId:string;answerIndex:number}[])}/>}
+            {activeGame === 'memory' && <MemoryGame onExit={exitGame} onComplete={(score, answers) => void completeGame('memory', score, answers)}/>}
             {activeGame === 'challenge' && <ChallengeGame onExit={exitGame} onComplete={(score, answers) => void completeGame('challenge', score, answers)}/>}
             {activeGame === 'survival' && <SurvivalGame onExit={exitGame} onComplete={(score, answers) => void completeGame('survival', score, answers)}/>}
             {activeGame === 'duel' && <DuelGame onExit={exitGame} onComplete={(score) => void completeGame('duel', score)}/>}
