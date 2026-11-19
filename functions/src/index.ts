@@ -1954,15 +1954,22 @@ export const adminReviewYouthGameResult = onCall(async (request) => {
   await requireModulePermission(request.auth.uid, "games");
   const resultId = text(request.data?.resultId, 200);
   const decision = text(request.data?.decision, 10);
-  const reward = Number(request.data?.reward ?? 0);
   const verifiedScore = Number(request.data?.verifiedScore);
   const verificationNote = text(request.data?.verificationNote, 1000);
   if (!resultId || !["approve", "reject"].includes(decision) ||
-      !Number.isInteger(reward) || reward < 0 || reward > 1000 ||
-      (decision === "reject" && reward !== 0) ||
       (decision === "approve" && (!Number.isInteger(verifiedScore) || verifiedScore < 0 || verifiedScore > 10000 || verificationNote.length < 10))) {
-    throw new HttpsError("invalid-argument", "La decisión, puntuación verificada, evidencia o recompensa no son válidas.");
+    throw new HttpsError("invalid-argument", "La decisión, puntuación verificada o evidencia no son válidas.");
   }
+
+  // Recompensas fijas para evitar que el cliente o el revisor alteren el balance.
+  const GAME_REWARD_PER_WIN = 5;
+  const GAME_REWARD_DAILY_LIMIT = 15;
+  const localDay = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Bogota",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 
   const resultRef = db.collection("youthGameResults").doc(resultId);
   let memberId = "";
@@ -1978,8 +1985,10 @@ export const adminReviewYouthGameResult = onCall(async (request) => {
     const memberRef = db.collection("members").doc(memberId);
     const profileRef = db.collection("publicProfiles").doc(memberId);
     const photoRef = db.collection("photos").doc(memberId);
-    const [memberSnapshot, profileSnapshot, photoSnapshot] = await Promise.all([
+    const dailyRewardRef = db.collection("youthGameDailyRewards").doc(memberId + "_" + localDay);
+    const [memberSnapshot, profileSnapshot, photoSnapshot, dailyRewardSnapshot] = await Promise.all([
       transaction.get(memberRef), transaction.get(profileRef), transaction.get(photoRef),
+      transaction.get(dailyRewardRef),
     ]);
     if (!memberSnapshot.exists && !profileSnapshot.exists) {
       throw new HttpsError("failed-precondition", "El perfil del joven ya no está disponible.");
@@ -1987,23 +1996,30 @@ export const adminReviewYouthGameResult = onCall(async (request) => {
     const status = decision === "approve" ? "verified" : "rejected";
     const now = new Date().toISOString();
     const clientReportedScore = Math.max(0, Math.floor(Number(data.score) || 0));
-    if (decision === "approve" && reward > 0) {
-      const member = memberSnapshot.data() ?? {};
-      const profile = profileSnapshot.data() ?? {};
-      const photo = photoSnapshot.data() ?? {};
-      const rawBalance = Number(photo.w ?? profile.flames ?? member.flames ?? 0);
-      const balance = Number.isFinite(rawBalance) ? Math.max(0, Math.min(1000000, Math.floor(rawBalance))) : 0;
-      const nextBalance = balance + reward;
-      transaction.set(photoRef, {w: nextBalance}, {merge: true});
-      if (profileSnapshot.exists) transaction.set(profileRef, {flames: nextBalance}, {merge: true});
-      if (memberSnapshot.exists) transaction.set(memberRef, {flames: nextBalance}, {merge: true});
-      const movementId = createHash("sha256").update("youth-game-flames:" + resultId).digest("hex");
-      transaction.create(db.collection("flameTransactions").doc(movementId), {
-        memberId, amount: reward, balanceAfter: nextBalance,
-        type: "game", description: "Recompensa por juego bíblico",
-        referenceId: resultId, createdAt: now, createdBy: request.auth!.uid,
-      });
-      awarded = reward;
+    if (decision === "approve") {
+      const dailyData = dailyRewardSnapshot.data() ?? {};
+      const alreadyAwardedToday = Math.max(0, Math.floor(Number(dailyData.awarded ?? 0)));
+      awarded = Math.min(GAME_REWARD_PER_WIN, Math.max(0, GAME_REWARD_DAILY_LIMIT - alreadyAwardedToday));
+      if (awarded > 0) {
+        const member = memberSnapshot.data() ?? {};
+        const profile = profileSnapshot.data() ?? {};
+        const photo = photoSnapshot.data() ?? {};
+        const rawBalance = Number(photo.w ?? profile.flames ?? member.flames ?? 0);
+        const balance = Number.isFinite(rawBalance) ? Math.max(0, Math.min(1000000, Math.floor(rawBalance))) : 0;
+        const nextBalance = balance + awarded;
+        transaction.set(photoRef, {w: nextBalance}, {merge: true});
+        if (profileSnapshot.exists) transaction.set(profileRef, {flames: nextBalance}, {merge: true});
+        if (memberSnapshot.exists) transaction.set(memberRef, {flames: nextBalance}, {merge: true});
+        const movementId = createHash("sha256").update("youth-game-flames:" + resultId).digest("hex");
+        transaction.create(db.collection("flameTransactions").doc(movementId), {
+          memberId, amount: awarded, balanceAfter: nextBalance,
+          type: "game", description: "Recompensa por juego bíblico",
+          referenceId: resultId, createdAt: now, createdBy: request.auth!.uid,
+        });
+        transaction.set(dailyRewardRef, {
+          memberId, localDay, awarded: alreadyAwardedToday + awarded, updatedAt: now,
+        }, {merge: true});
+      }
     }
     transaction.set(resultRef, {
       verificationStatus: status,
