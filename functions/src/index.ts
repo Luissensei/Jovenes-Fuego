@@ -3963,7 +3963,25 @@ async function awardAttendanceFlames(
       const currentBalance = Number.isFinite(parsedBalance) && parsedBalance >= 0
         ? Math.floor(parsedBalance)
         : 0;
-      const nextBalance = Math.max(0, currentBalance + desired.flames - previousFlames);
+      const delta = desired.flames - previousFlames;
+      const nextBalance = Math.max(0, currentBalance + delta);
+      const updatedAt = new Date().toISOString();
+      const movementId = createHash("sha256")
+        .update([awardId, text(awardSnapshot.data()?.updatedAt, 40), desired.status, desired.flames, updatedAt].join(":"))
+        .digest("hex");
+      const movementRef = db.collection("flameTransactions").doc(movementId);
+      if (delta !== 0) {
+        transaction.create(movementRef, {
+          memberId,
+          amount: delta,
+          balanceAfter: nextBalance,
+          type: "attendance",
+          description: "Asistencia: " + desired.status,
+          referenceId: meetingId,
+          createdAt: updatedAt,
+          createdBy: actorUid,
+        });
+      }
 
       if (photoSnapshot.exists || desired.flames > 0 || previousFlames > 0) {
         transaction.set(photoRef, {w: nextBalance, updatedAt: new Date().toISOString()}, {merge: true});
