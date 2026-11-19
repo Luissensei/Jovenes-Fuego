@@ -3540,66 +3540,68 @@ export const createAttendanceMeeting = onCall(async (request) => {
  * Otorga puntos de asistencia una sola vez por joven y reunión.
  * Presente y Tarde cuentan como asistencia; las ediciones repetidas no duplican puntos.
  */
-async function awardAttendancePoints(meetingId: string, participants: Array<{
-  memberId: string;
-  name: string;
-  status: string;
-}>, actorUid: string) {
-  const eligible = participants.filter((participant) =>
-    participant.status === "Presente" || participant.status === "Tarde",
-  );
-  for (const participant of eligible) {
-    const memberId = participant.memberId;
-    const awardId = createHash("sha256")
-      .update(`${meetingId}:${memberId}`)
-      .digest("hex");
+async function awardAttendancePoints(
+  meetingId: string,
+  participants: Array<{memberId: string; name: string; status: string}>,
+  clearedMemberIds: string[],
+  actorUid: string,
+) {
+  const desiredByMember = new Map<string, {points: number; status: string}>();
+  participants.forEach((participant) => {
+    const points = participant.status === "Presente" ? 10
+      : participant.status === "Tarde" ? 8
+      : participant.status === "Justificada" || participant.status === "Justificado" ? 2
+      : 0;
+    desiredByMember.set(participant.memberId, {points, status: participant.status});
+  });
+  clearedMemberIds.forEach((memberId) => desiredByMember.set(memberId, {points: 0, status: "Sin marca"}));
+
+  for (const [memberId, desired] of desiredByMember) {
+    const awardId = createHash("sha256").update(`${meetingId}:${memberId}`).digest("hex");
     const awardRef = db.collection("attendancePointAwards").doc(awardId);
     const memberRef = db.collection("members").doc(memberId);
     const publicRef = db.collection("publicProfiles").doc(memberId);
     const rankingRef = db.collection("public").doc("ranking");
     await db.runTransaction(async (transaction) => {
       const [awardSnapshot, memberSnapshot, publicSnapshot, rankingSnapshot] = await Promise.all([
-        transaction.get(awardRef),
-        transaction.get(memberRef),
-        transaction.get(publicRef),
-        transaction.get(rankingRef),
+        transaction.get(awardRef), transaction.get(memberRef),
+        transaction.get(publicRef), transaction.get(rankingRef),
       ]);
-      if (awardSnapshot.exists) return;
       if (!memberSnapshot.exists && !publicSnapshot.exists) return;
       const member = memberSnapshot.data() ?? {};
       const profile = publicSnapshot.data() ?? {};
       const ranking = rankingSnapshot.data() ?? {};
-      const legacyEntries = Array.isArray(ranking.all)
-        ? ranking.all as Array<Record<string, unknown>>
-        : [];
-      const legacyEntry = legacyEntries.find((entry) =>
-        text(entry.i, 150) === memberId,
-      );
-      const currentValue = profile.points ?? profile.puntos ??
-        legacyEntry?.t ?? member.points ?? member.puntos ?? 0;
-      const currentPoints = Number(currentValue);
-      const safePoints = Number.isFinite(currentPoints) && currentPoints >= 0
-        ? Math.floor(currentPoints)
-        : 0;
-      const nextPoints = safePoints + 10;
-      if (memberSnapshot.exists) {
-        transaction.set(memberRef, {points: nextPoints}, {merge: true});
+      const legacyEntries = Array.isArray(ranking.all) ? ranking.all as Array<Record<string, unknown>> : [];
+      const legacyEntry = legacyEntries.find((entry) => text(entry.i, 150) === memberId);
+      const previousAward = awardSnapshot.exists ? Number(awardSnapshot.data()?.points ?? 0) : 0;
+      const priorAward = Number.isFinite(previousAward) ? Math.max(0, Math.floor(previousAward)) : 0;
+      const currentValue = profile.points ?? profile.puntos ?? legacyEntry?.t ?? member.points ?? member.puntos ?? 0;
+      const current = Number(currentValue);
+      const safeCurrent = Number.isFinite(current) && current >= 0 ? Math.floor(current) : 0;
+      const delta = desired.points - priorAward;
+      if (delta === 0 && desired.points === priorAward) {
+        if (desired.points === 0 && awardSnapshot.exists) transaction.delete(awardRef);
+        return;
       }
-      transaction.set(publicRef, {points: nextPoints}, {merge: true});
+      const nextPoints = Math.max(0, safeCurrent + delta);
+      if (memberSnapshot.exists) transaction.set(memberRef, {points: nextPoints}, {merge: true});
+      if (publicSnapshot.exists || desired.points > 0) {
+        transaction.set(publicRef, {points: nextPoints}, {merge: true});
+      }
       if (legacyEntry) {
-        const nextEntries = legacyEntries.map((entry) =>
+        transaction.set(rankingRef, {all: legacyEntries.map((entry) =>
           text(entry.i, 150) === memberId ? {...entry, t: nextPoints} : entry,
-        );
-        transaction.set(rankingRef, {all: nextEntries}, {merge: true});
+        )}, {merge: true});
       }
-      transaction.create(awardRef, {
-        meetingId,
-        memberId,
-        points: 10,
-        status: participant.status,
-        createdAt: new Date().toISOString(),
-        createdBy: actorUid,
-      });
+      if (desired.points > 0) {
+        transaction.set(awardRef, {
+          meetingId, memberId, points: desired.points, status: desired.status,
+          updatedAt: new Date().toISOString(), updatedBy: actorUid,
+          ...(awardSnapshot.exists ? {} : {createdAt: new Date().toISOString(), createdBy: actorUid}),
+        }, {merge: true});
+      } else if (awardSnapshot.exists) {
+        transaction.delete(awardRef);
+      }
     });
   }
 }
@@ -3769,7 +3771,7 @@ export const saveMeetingAttendance = onCall(async (request) => {
     });
   }
 
-  await awardAttendancePoints(meetingId, participants, request.auth.uid);
+  await awardAttendancePoints(meetingId, participants, clearedMemberIds, request.auth.uid);
   await recordAudit("attendance.saved", request.auth.uid, meetingId, {participants: participants.length});
   return {success: true};
 });
