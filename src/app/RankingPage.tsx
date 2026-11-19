@@ -35,6 +35,7 @@ import {
   type FaithfulPlayer,
 } from '../services/youthPortal';
 
+const YouthGameReview = lazy(() => import('./YouthGameReview'));
 const TriviaGame = lazy(() => import('./TriviaGame'));
 const VerseGame = lazy(() => import('./VerseGame'));
 const TrueFalseGame = lazy(() => import('./QuickBibleGames').then((module) => ({default: module.TrueFalseGame})));
@@ -615,6 +616,12 @@ export default function RankingPage({
                   <Gamepad2 size={27} />
                 </span>
               </div>
+
+              {initialTab === 'games' && (
+                <Suspense fallback={<div className="jf-page-loading" role="status"><span/><strong>Cargando revisión de partidas…</strong></div>}>
+                  <YouthGameReview />
+                </Suspense>
+              )}
 
               {/* TARJETAS DE JUEGOS */}
               <div className="games-grid">
