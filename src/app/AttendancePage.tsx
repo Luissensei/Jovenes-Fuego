@@ -273,12 +273,33 @@ export default function AttendancePage() {
     [allMeetings],
   );
 
+  // El progreso se calcula contra los jóvenes activos, no comparando
+  // solamente cantidades: así los registros antiguos/inactivos no falsean
+  // el estado de una reunión como "completa".
+  const meetingProgress = useMemo(() => {
+    const activeMemberIds = new Set(members.map((member) => member.id));
+    return new Map(sortedMeetings.map((meeting) => {
+      const participantIds = new Set(
+        meeting.participants
+          .map((participant) => participant.memberId)
+          .filter((memberId) => activeMemberIds.has(memberId)),
+      );
+      const registered = participantIds.size;
+      const pending = Math.max(0, activeMemberIds.size - registered);
+      return [meeting.id, {
+        registered,
+        pending,
+        complete: activeMemberIds.size > 0 && pending === 0,
+      }] as const;
+    }));
+  }, [sortedMeetings, members]);
+
   const filteredMeetings = useMemo(() => {
     const term = meetingSearch.trim().toLocaleLowerCase('es');
     return sortedMeetings.filter((meeting) => {
       const isScheduled = meeting.id.startsWith('scheduled_');
-      const registered = new Set(meeting.participants.map((participant) => participant.memberId)).size;
-      const incomplete = isScheduled || registered < members.length;
+      const progress = meetingProgress.get(meeting.id);
+      const incomplete = isScheduled || !progress?.complete;
       const matchesFilter = meetingFilter === 'all' ||
         (meetingFilter === 'pending' ? incomplete : !incomplete);
       const matchesSearch = !term ||
@@ -286,7 +307,7 @@ export default function AttendancePage() {
           .toLocaleLowerCase('es').includes(term);
       return matchesFilter && matchesSearch;
     });
-  }, [sortedMeetings, meetingSearch, meetingFilter, members.length]);
+  }, [sortedMeetings, meetingSearch, meetingFilter, meetingProgress]);
 
   function clearAttendanceDraft(meetingId: string) {
     if (!meetingId) return;
@@ -553,21 +574,22 @@ export default function AttendancePage() {
                 Todas <span>{allMeetings.length}</span>
               </button>
               <button type="button" data-active={meetingFilter === 'pending'} onClick={() => setMeetingFilter('pending')}>
-                Pendientes <span>{allMeetings.filter((meeting) => meeting.id.startsWith('scheduled_') ||
-                  new Set(meeting.participants.map((participant) => participant.memberId)).size < members.length,
+                Pendientes <span>{allMeetings.filter((meeting) =>
+                  meeting.id.startsWith('scheduled_') || !meetingProgress.get(meeting.id)?.complete,
                 ).length}</span>
               </button>
               <button type="button" data-active={meetingFilter === 'complete'} onClick={() => setMeetingFilter('complete')}>
                 Completas <span>{meetings.filter((meeting) =>
-                  new Set(meeting.participants.map((participant) => participant.memberId)).size >= members.length,
+                  meetingProgress.get(meeting.id)?.complete,
                 ).length}</span>
               </button>
             </div>
             <div className="attendance-meeting-list" aria-label="Reuniones disponibles">
               {filteredMeetings.map((meeting) => {
                 const isScheduled = meeting.id.startsWith('scheduled_');
-                const registered = new Set(meeting.participants.map((participant) => participant.memberId)).size;
-                const pending = Math.max(0, members.length - registered);
+                const progress = meetingProgress.get(meeting.id);
+                const registered = progress?.registered ?? 0;
+                const pending = progress?.pending ?? members.length;
                 const isSelected = selectedMeetingId === meeting.id;
                 return (
                   <button
@@ -582,7 +604,7 @@ export default function AttendancePage() {
                     <span className="attendance-meeting-option-date">{formatMeetingDate(meeting.date)}</span>
                     <strong>{meeting.name}</strong>
                     <span className={pending > 0 ? 'attendance-meeting-state is-pending' : 'attendance-meeting-state is-complete'}>
-                      {isScheduled ? 'Servicio por crear' : pending > 0 ? (registered === 0 ? 'Sin asistencia' : `${pending} pendientes`) : 'Asistencia completa'}
+                      {isScheduled ? 'Servicio por crear' : pending > 0 ? (registered === 0 ? 'Sin asistencia' : `${pending} pendientes`) : progress?.complete ? 'Asistencia completa' : 'Sin jóvenes activos'}
                     </span>
                     <span className="attendance-meeting-option-arrow" aria-hidden="true">›</span>
                   </button>
