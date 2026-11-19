@@ -1,7 +1,7 @@
 import styles from './styles/TriviaGame.module.css';
 import {playGameTone} from './gameAudio';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { shuffleBibleQuestions, type BibleQuestion } from './bibleQuestionBank';
 import { expandedBibleQuestionBank } from './extendedBibleQuestionBank';
 import {
