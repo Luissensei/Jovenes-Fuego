@@ -13,6 +13,7 @@ import {
 } from '../services/attendance';
 
 import {getMembersForAdministration} from '../services/youthPortal';
+import {createAbsenceAlertFollowup} from '../services/repositories/managedRecords';
 import type {MemberAdminRecord} from '../services/youthPortal';
 
 const attendanceOptions: Array<{value: AttendanceStatus; label: string; tone: string}> = [
@@ -55,6 +56,7 @@ export default function AttendancePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [followupBusyId, setFollowupBusyId] = useState('');
 
   const mountedRef = useRef(false);
   const loadSequenceRef = useRef(0);
@@ -586,7 +588,31 @@ export default function AttendancePage() {
         <section className={styles.absenceAlerts} aria-labelledby="absence-alerts-title">
           <header><AlertTriangle size={19}/><div><h2 id="absence-alerts-title">Alertas de inasistencia</h2><p>Jóvenes con 2 o más reuniones consecutivas marcadas como falta o ausencia.</p></div><strong>{absenceAlerts.length}</strong></header>
           <ul>{absenceAlerts.slice(0, 12).map((item) => (
-            <li key={item.id}><span><b>{item.name}</b><small>{item.consecutive} reuniones seguidas · última: {item.dates[0]}</small></span><span className={styles.absenceCount}>{item.consecutive} faltas</span></li>
+            <li key={item.id}>
+              <span><b>{item.name}</b><small>{item.consecutive} reuniones seguidas · última: {item.dates[0]}</small></span>
+              <span className={styles.absenceCount}>{item.consecutive} faltas</span>
+              <button
+                type="button"
+                disabled={followupBusyId === item.id}
+                onClick={async () => {
+                  setFollowupBusyId(item.id);
+                  setError('');
+                  setMessage('');
+                  try {
+                    const result = await createAbsenceAlertFollowup(item.id, item.dates[0], item.consecutive);
+                    setMessage(result.created
+                      ? 'Seguimiento pastoral creado para ' + item.name + '.'
+                      : 'Ya existía un seguimiento para esta alerta de ' + item.name + '.');
+                  } catch (cause) {
+                    setError(cause instanceof Error ? cause.message : 'No se pudo crear el seguimiento.');
+                  } finally {
+                    setFollowupBusyId('');
+                  }
+                }}
+              >
+                {followupBusyId === item.id ? 'Creando…' : 'Crear seguimiento'}
+              </button>
+            </li>
           ))}</ul>
           {absenceAlerts.length > 12 && <p className={styles.absenceMore}>Y {absenceAlerts.length - 12} jóvenes más requieren seguimiento.</p>}
         </section>
