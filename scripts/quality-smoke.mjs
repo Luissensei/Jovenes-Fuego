@@ -162,6 +162,8 @@ assert.match(moreBibleGames, /firstPair:first.pair,secondPair:card.pair/, 'Memor
 assert.match(functionsSource, /successfulPairs.size !== 8/, 'El servidor debe comprobar ocho parejas distintas en Memoria.');
 assert.match(moreBibleGames, /questionId: `\$\{current.id\}-\$\{String\(position\)/, 'Ordena el versículo debe enviar la secuencia de palabras.');
 assert.match(trustedOrderVerseBank, /order-33/, 'El servidor debe conocer los 33 versículos ordenables.');
+assert.match(moreBibleGames, /playerIndex:turn/, 'El duelo debe registrar el jugador de cada turno.');
+assert.match(functionsSource, /playerIndex !== round % 2/, 'El servidor debe comprobar el orden de los turnos del duelo.');
 assert.match(quickBibleGames, /questionId:current.id,answerIndex:value\?1:0/, 'Verdadero o falso debe enviar evidencia por pregunta.');
 assert.match(trustedTrueFalseBank, /tf-20/, 'El servidor debe tener las veinte respuestas de Verdadero o falso.');
 assert.match(functionsSource, /youthTrueFalseAnswerBank\[questionId\]/, 'Functions debe verificar las respuestas de Verdadero o falso.');

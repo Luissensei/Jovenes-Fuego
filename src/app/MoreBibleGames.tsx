@@ -372,7 +372,7 @@ export function SurvivalGame({ onExit, onComplete }: { onExit: () => void; onCom
 }
 
 /* DUELO 1 CONTRA 1: LOCAL EN UN MISMO DISPOSITIVO */
-export function DuelGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number) => void }) {
+export function DuelGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number, answers: {questionId:string;answerIndex:number;playerIndex:number}[]) => void }) {
   const [names, setNames] = useState(['Jugador 1', 'Jugador 2']);
   const [started, setStarted] = useState(false);
   const [turn, setTurn] = useState(0);
@@ -381,19 +381,21 @@ export function DuelGame({ onExit, onComplete }: { onExit: () => void; onComplet
   const [scores, setScores] = useState([0, 0]);
   const [answered, setAnswered] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
+  const [answers, setAnswers] = useState<{questionId:string;answerIndex:number;playerIndex:number}[]>([]);
   const duelGameReported = useRef(false);
   const totalScore = scores[0] + scores[1];
   useEffect(() => {
     if (!finished || duelGameReported.current) return;
     duelGameReported.current = true;
-    onComplete?.(totalScore);
-  }, [finished, onComplete, totalScore]);
+    onComplete?.(totalScore, answers);
+  }, [finished, onComplete, totalScore, answers]);
 
   const question = questions[round % questions.length];
 
   function answer(option: string) {
     if (answered !== null) return;
     setAnswered(option);
+    setAnswers((previous) => [...previous, {questionId:question.id,answerIndex:question.options.indexOf(option),playerIndex:turn}]);
     playGameTone(option === question.answer ? 'success' : 'incorrect');
     if (option === question.answer) {
       setScores((old) => old.map((score, i) => i === turn ? score + 10 : score));
@@ -417,6 +419,7 @@ export function DuelGame({ onExit, onComplete }: { onExit: () => void; onComplet
     setRound(0);
     setQuestions(makeQuestionBank());
     setScores([0, 0]);
+    setAnswers([]);
     setAnswered(null);
     setFinished(false);
     setStarted(false);

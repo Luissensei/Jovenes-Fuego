@@ -1078,7 +1078,7 @@ export default function YouthPortalPage() {
   }
 
   if (selectedProfile && activeGame) {
-    const completeGame = async (gameId: 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami', score: number, answers?: Array<{questionId?: string; answerIndex?: number; firstPair?: number; secondPair?: number; hintCount?: number}>) => {
+    const completeGame = async (gameId: 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami', score: number, answers?: Array<{questionId?: string; answerIndex?: number; firstPair?: number; secondPair?: number; hintCount?: number; playerIndex?: number}>) => {
       if (!communitySession) return;
       const runId = typeof crypto !== 'undefined' && 'randomUUID' in crypto
         ? crypto.randomUUID() : `run_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
@@ -1117,7 +1117,7 @@ export default function YouthPortalPage() {
             {activeGame === 'memory' && <MemoryGame onExit={exitGame} onComplete={(score, answers) => void completeGame('memory', score, answers)}/>}
             {activeGame === 'challenge' && <ChallengeGame onExit={exitGame} onComplete={(score, answers) => void completeGame('challenge', score, answers)}/>}
             {activeGame === 'survival' && <SurvivalGame onExit={exitGame} onComplete={(score, answers) => void completeGame('survival', score, answers)}/>}
-            {activeGame === 'duel' && <DuelGame onExit={exitGame} onComplete={(score) => void completeGame('duel', score)}/>}
+            {activeGame === 'duel' && <DuelGame onExit={exitGame} onComplete={(score, answers) => void completeGame('duel', score, answers)}/>}
             {activeGame === 'order' && <OrderVerseGame onExit={exitGame} onComplete={(score, answers) => void completeGame('order', score, answers)}/>}
             {activeGame === 'truefalse' && <TrueFalseGame onExit={exitGame} onComplete={(score, answers) => void completeGame('truefalse', score, answers)}/>}
             {activeGame === 'whoami' && <WhoAmIGame onExit={exitGame} onComplete={(score, answers) => void completeGame('whoami', score, answers)}/>}

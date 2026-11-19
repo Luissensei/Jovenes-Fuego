@@ -1725,6 +1725,28 @@ export const recordYouthGameResult = onCall(async (request) => {
 
   let scoreValue = reportedScore;
   let answerValidation = "manual-review";
+  if (gameId === "duel") {
+    const answers = request.data?.answers;
+    if (!Array.isArray(answers) || answers.length !== 10) {
+      throw new HttpsError("invalid-argument", "El duelo debe incluir diez respuestas.");
+    }
+    const seenQuestions = new Set<string>();
+    scoreValue = 0;
+    for (const [round, entry] of answers.entries()) {
+      const questionId = text(entry?.questionId, 40);
+      const answerIndex = Number(entry?.answerIndex);
+      const playerIndex = Number(entry?.playerIndex);
+      const question = youthTriviaQuestionBank[questionId];
+      if (!question || seenQuestions.has(questionId) ||
+          !Number.isInteger(answerIndex) || answerIndex < 0 || answerIndex >= question.optionCount ||
+          playerIndex !== round % 2) {
+        throw new HttpsError("invalid-argument", "La evidencia del duelo no es válida o los turnos no coinciden.");
+      }
+      seenQuestions.add(questionId);
+      if (answerIndex === question.answer) scoreValue += 10;
+    }
+    answerValidation = "server-validated";
+  }
   if (gameId === "order") {
     const answers = request.data?.answers;
     if (!Array.isArray(answers) || answers.length < 33 || answers.length > 1000) {
@@ -1889,7 +1911,7 @@ export const recordYouthGameResult = onCall(async (request) => {
       memberName: member.name,
       gameId,
       score: scoreValue,
-      ...(["trivia", "truefalse", "verse", "challenge", "survival", "whoami", "memory", "order"].includes(gameId) ? {clientReportedScore: reportedScore} : {}),
+      ...(["trivia", "truefalse", "verse", "challenge", "survival", "whoami", "memory", "order", "duel"].includes(gameId) ? {clientReportedScore: reportedScore} : {}),
       answerValidation,
       verificationStatus: "pending",
       reward: 0,
