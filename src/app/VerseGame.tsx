@@ -19,6 +19,7 @@ type Question = VerseChallenge;
 
 export default function VerseGame({
   onExit,
+  onComplete,
 }: {
   onExit: () => void;
   onComplete?: (score: number) => void;
