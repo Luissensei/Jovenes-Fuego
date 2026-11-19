@@ -81,3 +81,50 @@
 :global(.main .jf-route-stage) .welcome h1{color:#f5f6ef!important}
 :global(.main .jf-route-stage) .welcomeCopy>p{color:#cbd6cd!important}
 :global(.main .jf-route-stage) .welcome .eyebrow{color:#efb092!important}
+
+
+/* Dashboard refresh — glassy reference layout, solid green surfaces, no blur. */
+.welcome{
+  background:linear-gradient(116deg,#051F20 0%,#0B2B26 52%,#235347 100%)!important;
+  border-color:#235347!important;
+  box-shadow:0 14px 34px rgba(5,31,32,.16)!important;
+}
+.eyebrow,.kicker{color:#DAF1DE!important}
+.eyebrow i{background:#8EB69B!important}
+.welcome h1 em,.welcomeVisual{color:#8EB69B!important}
+.welcomeCopy>p,.welcomeVisual>span{color:#DAF1DE!important}
+.primaryAction{background:#235347!important;border-color:#8EB69B!important;color:#fff!important}
+.secondaryAction{background:#0B2B26!important;border-color:#8EB69B!important;color:#DAF1DE!important}
+.visualCore{border-color:#8EB69B!important;background:#0B2B26!important}
+.metricCard,.panel,.assistantCard,.systemCard{
+  border-radius:14px!important;
+  box-shadow:var(--jf-shadow)!important;
+}
+.metricTop i,.assistantIcon{background:#DAF1DE!important;color:#235347!important}
+.podiumPerson[data-place="1"] .podiumBase{
+  border-color:#8EB69B!important;background:#DAF1DE!important;color:#051F20!important;
+}
+.chartRow>div>i[data-index="1"]{background:#235347!important}
+.chartRow>div>i[data-index="2"]{background:#8EB69B!important}
+.chartRow>div>i[data-index="3"]{background:#163832!important}
+.shortcuts>a:hover{border-color:#8EB69B!important;background:#DAF1DE!important}
+:global(:root[data-theme="dark"]) .welcome{
+  background:linear-gradient(116deg,#0B0B0B 0%,#1A1A1A 60%,#333333 100%)!important;
+  border-color:#6B6B6B!important;
+}
+:global(:root[data-theme="dark"]) .eyebrow,
+:global(:root[data-theme="dark"]) .kicker,
+:global(:root[data-theme="dark"]) .welcome h1 em,
+:global(:root[data-theme="dark"]) .welcomeVisual{color:#D9D9D9!important}
+:global(:root[data-theme="dark"]) .welcomeCopy>p,
+:global(:root[data-theme="dark"]) .welcomeVisual>span{color:#D9D9D9!important}
+:global(:root[data-theme="dark"]) .primaryAction,
+:global(:root[data-theme="dark"]) .secondaryAction{background:#333333!important;border-color:#6B6B6B!important;color:#fff!important}
+:global(:root[data-theme="dark"]) .visualCore{background:#1A1A1A!important;border-color:#6B6B6B!important}
+:global(:root[data-theme="dark"]) .metricTop i,
+:global(:root[data-theme="dark"]) .assistantIcon{background:#333333!important;color:#fff!important}
+:global(:root[data-theme="dark"]) .podiumPerson[data-place="1"] .podiumBase{background:#333333!important;border-color:#6B6B6B!important;color:#fff!important}
+:global(:root[data-theme="dark"]) .chartRow>div>i[data-index="1"],
+:global(:root[data-theme="dark"]) .chartRow>div>i[data-index="2"],
+:global(:root[data-theme="dark"]) .chartRow>div>i[data-index="3"]{background:#D9D9D9!important}
+@media(max-width:700px){.welcome{padding:22px 18px!important}.metrics{gap:9px!important}}
