@@ -1771,10 +1771,13 @@ export const adminReviewYouthGameResult = onCall(async (request) => {
   const resultId = text(request.data?.resultId, 200);
   const decision = text(request.data?.decision, 10);
   const reward = Number(request.data?.reward ?? 0);
+  const verifiedScore = Number(request.data?.verifiedScore);
+  const verificationNote = text(request.data?.verificationNote, 1000);
   if (!resultId || !["approve", "reject"].includes(decision) ||
       !Number.isInteger(reward) || reward < 0 || reward > 1000 ||
-      (decision === "reject" && reward !== 0)) {
-    throw new HttpsError("invalid-argument", "La decisión o la recompensa no son válidas.");
+      (decision === "reject" && reward !== 0) ||
+      (decision === "approve" && (!Number.isInteger(verifiedScore) || verifiedScore < 0 || verifiedScore > 10000 || verificationNote.length < 10))) {
+    throw new HttpsError("invalid-argument", "La decisión, puntuación verificada, evidencia o recompensa no son válidas.");
   }
 
   const resultRef = db.collection("youthGameResults").doc(resultId);
@@ -1799,6 +1802,7 @@ export const adminReviewYouthGameResult = onCall(async (request) => {
     }
     const status = decision === "approve" ? "verified" : "rejected";
     const now = new Date().toISOString();
+    const clientReportedScore = Math.max(0, Math.floor(Number(data.score) || 0));
     if (decision === "approve" && reward > 0) {
       const member = memberSnapshot.data() ?? {};
       const profile = profileSnapshot.data() ?? {};
@@ -1820,13 +1824,21 @@ export const adminReviewYouthGameResult = onCall(async (request) => {
     transaction.set(resultRef, {
       verificationStatus: status,
       reward: awarded,
+      ...(decision === "approve" ? {
+        clientReportedScore,
+        score: verifiedScore,
+        verificationNote,
+      } : {}),
       reviewedAt: now,
       reviewedBy: request.auth!.uid,
     }, {merge: true});
   });
   await recordAudit(
     decision === "approve" ? "youth-game.verified" : "youth-game.rejected",
-    request.auth.uid, resultId, {memberId, reward: awarded},
+    request.auth.uid, resultId, {
+      memberId, reward: awarded,
+      ...(decision === "approve" ? {verifiedScore, verificationNote} : {}),
+    },
   );
   return {success: true, verificationStatus: decision === "approve" ? "verified" : "rejected", reward: awarded};
 });
