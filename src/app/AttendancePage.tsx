@@ -293,20 +293,6 @@ export default function AttendancePage() {
     });
   }
 
-  function formatMeetingDate(value: string) {
-    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-    if (!match) return value;
-    // Construir desde componentes UTC evita que la fecha del servicio
-    // cambie al mostrarla en dispositivos con zonas horarias distintas.
-    const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
-    return new Intl.DateTimeFormat('es-CO', {
-      timeZone: 'UTC',
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    }).format(date);
-  }
-
   function updateMeetingDraft(memberId: string, status: AttendanceStatus | null) {
     if (!selectedMeetingId) return;
     setAttendanceDrafts((previous) => ({
