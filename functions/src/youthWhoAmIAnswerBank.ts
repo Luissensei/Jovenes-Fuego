@@ -1,5 +1,5 @@
 /** Banco de respuestas de ¿Quién soy? para validación en servidor. */
-export const youthWhoAmIAnswerBank: Record<string,{answerIndex: number;optionCount: number}> = {
+export const youthWhoAmIAnswerBank: Record<string, {answerIndex: number; optionCount: number}> = {
   "who-01": {answerIndex: 0, optionCount: 4},
   "who-02": {answerIndex: 1, optionCount: 4},
   "who-03": {answerIndex: 1, optionCount: 4},

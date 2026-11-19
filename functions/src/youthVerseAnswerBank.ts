@@ -1,5 +1,5 @@
 /** Banco confiable para validar Completa el versículo en servidor. */
-export const youthVerseAnswerBank: Record<string, {reference: string;answerIndex: number;optionCount: number}> = {
+export const youthVerseAnswerBank: Record<string, {reference: string; answerIndex: number; optionCount: number}> = {
   "verse-01": {reference: "Salmo 23:1", answerIndex: 0, optionCount: 4},
   "verse-02": {reference: "Filipenses 4:13", answerIndex: 3, optionCount: 4},
   "verse-03": {reference: "Proverbios 3:5", answerIndex: 2, optionCount: 4},

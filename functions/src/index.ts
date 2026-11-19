@@ -1937,6 +1937,7 @@ export const adminListYouthGameResults = onCall(async (request) => {
       gameId: text(data.gameId, 30),
       score: Math.max(0, Math.floor(Number(data.score) || 0)),
       verificationStatus: text(data.verificationStatus, 20) || "pending",
+      answerValidation: text(data.answerValidation, 30) || "manual-review",
       reward: Math.max(0, Math.floor(Number(data.reward) || 0)),
       createdAt: text(data.createdAt, 40),
     };

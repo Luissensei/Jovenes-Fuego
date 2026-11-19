@@ -52,7 +52,7 @@ export default function YouthGameReview() {
 
   return <section className={`${styles.panel} bg-[var(--jdf-surface)] text-[var(--jdf-text)]`}>
     <header className={styles.header}>
-      <div><span>CONTROL DE RECOMPENSAS</span><h3>Partidas pendientes de revisión</h3><p>La puntuación original llega desde el dispositivo. Para aprobar debes registrar la puntuación comprobada y explicar la evidencia revisada. La validación automática respuesta por respuesta en el servidor aún no está habilitada.</p></div>
+      <div><span>CONTROL DE RECOMPENSAS</span><h3>Partidas pendientes de revisión</h3><p>El servidor recalcula las respuestas de los nueve juegos y guarda la puntuación verificada. Cada resultado sigue pendiente de aprobación administrativa antes de acreditar Llamas.</p></div>
       <button type="button" onClick={() => void load()} disabled={loading}><RefreshCw size={16}/> Actualizar</button>
     </header>
     {error && <p className={styles.error} role="alert">{error}</p>}
@@ -60,7 +60,7 @@ export default function YouthGameReview() {
     {loading ? <p className={styles.empty}>Cargando resultados…</p> : items.length === 0
       ? <p className={styles.empty}>No hay partidas pendientes de revisión.</p>
       : <div className={styles.list}>{items.map((item) => <article className={styles.item} key={item.id}>
-        <div className={styles.identity}><span><ShieldCheck size={17}/></span><div><b>{item.memberName}</b><small>{gameNames[item.gameId] ?? 'Juego bíblico'} · {item.createdAt ? new Date(item.createdAt).toLocaleString('es-CO') : 'Fecha no disponible'}</small></div></div>
+        <div className={styles.identity}><span><ShieldCheck size={17}/></span><div><b>{item.memberName}</b><small>{gameNames[item.gameId] ?? 'Juego bíblico'} · {item.createdAt ? new Date(item.createdAt).toLocaleString('es-CO') : 'Fecha no disponible'} · {item.answerValidation === 'server-validated' ? 'Respuestas verificadas por servidor' : 'Revisión manual'}</small></div></div>
         <div className={styles.score}><strong>{item.score}</strong><small>puntos declarados por el dispositivo</small></div>
         <label className={styles.reward}>Puntuación comprobada<input type="number" min="0" max="10000" step="1" value={verifiedScores[item.id] ?? String(item.score)} onChange={(event) => setVerifiedScores((old) => ({...old, [item.id]: event.target.value}))}/></label>
         <label className={styles.reward}>Evidencia de revisión<textarea rows={2} value={verificationNotes[item.id] ?? ''} onChange={(event) => setVerificationNotes((old) => ({...old, [item.id]: event.target.value}))} placeholder="Describe cómo contrastaste las respuestas o el resultado."/></label>

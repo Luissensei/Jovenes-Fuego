@@ -1,5 +1,5 @@
 /** Cantidad de palabras esperada por versículo para validar Ordena el versículo. */
-export const youthOrderVerseBank: Record<string,{wordCount: number}> = {
+export const youthOrderVerseBank: Record<string, {wordCount: number}> = {
   "order-01": {wordCount: 7},
   "order-02": {wordCount: 8},
   "order-03": {wordCount: 2},

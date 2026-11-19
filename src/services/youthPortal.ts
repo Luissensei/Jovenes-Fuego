@@ -457,6 +457,7 @@ export type AdminYouthGameResult = {
   memberName: string;
   gameId: string;
   score: number;
+  answerValidation: 'server-validated' | 'manual-review';
   verificationStatus: 'pending';
   reward: number;
   createdAt: string;
