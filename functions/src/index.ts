@@ -665,12 +665,21 @@ export const adminUpdateLeader = onCall({enforceAppCheck: true}, async (request)
   return {success: true};
 });
 
-const youthPinPepper = createHash("sha256")
-  .update(
-    process.env.FIREBASE_SERVICE_ACCOUNT_JSON ??
-      "jovenes-de-fuego-backend",
-  )
-  .digest();
+/**
+ * Derives the PIN/session signing key from the server-only Firebase credential.
+ * Never falls back to a hard-coded public string.
+ * @return {Buffer} A stable keyed digest.
+ */
+function getYouthPinPepper(): Buffer {
+  const secret = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  if (!secret) {
+    throw new HttpsError(
+      "failed-precondition",
+      "La seguridad del PIN juvenil no está configurada. Configura FIREBASE_SERVICE_ACCOUNT_JSON en el entorno privado del servidor.",
+    );
+  }
+  return createHash("sha256").update(secret).digest();
+}
 
 /**
  * Creates a server-only digest for a youth PIN.
@@ -679,7 +688,7 @@ const youthPinPepper = createHash("sha256")
  * @return {string} The keyed digest.
  */
 function youthPinDigest(memberId: string, pin: string): string {
-  return createHmac("sha256", youthPinPepper)
+  return createHmac("sha256", getYouthPinPepper())
     .update(memberId + ":" + pin)
     .digest("hex");
 }
@@ -1695,7 +1704,7 @@ export const purchaseYouthLookBundle = onCall(async (request) => {
 /** Guarda un historial de partida. La puntuación del cliente no genera recompensas. */
 export const recordYouthGameResult = onCall(async (request) => {
   const memberId = requireYouthCommunitySession(request.data?.communitySession);
-  await getCommunityMember(memberId);
+  const member = await getCommunityMember(memberId);
   const gameId = text(request.data?.gameId, 30);
   const runId = text(request.data?.runId, 80);
   const scoreValue = Number(request.data?.score);
@@ -1718,6 +1727,7 @@ export const recordYouthGameResult = onCall(async (request) => {
     }
     transaction.create(resultRef, {
       memberId,
+      memberName: member.name,
       gameId,
       score: scoreValue,
       verificationStatus: "pending",
@@ -1726,6 +1736,93 @@ export const recordYouthGameResult = onCall(async (request) => {
     });
   });
   return {success: true, score: scoreValue, reward: 0, verificationStatus: "pending", alreadyRecorded};
+});
+
+/** Lista partidas pendientes para revisión pastoral/administrativa. */
+export const adminListYouthGameResults = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireModulePermission(request.auth.uid, "games");
+  const snapshot = await db.collection("youthGameResults").limit(250).get();
+  const results = snapshot.docs.map((document) => {
+    const data = document.data();
+    return {
+      id: document.id,
+      memberId: text(data.memberId, 150),
+      memberName: text(data.memberName, 120) || "Joven",
+      gameId: text(data.gameId, 30),
+      score: Math.max(0, Math.floor(Number(data.score) || 0)),
+      verificationStatus: text(data.verificationStatus, 20) || "pending",
+      reward: Math.max(0, Math.floor(Number(data.reward) || 0)),
+      createdAt: text(data.createdAt, 40),
+    };
+  }).filter((item) => item.verificationStatus === "pending")
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, 100);
+  return {results};
+});
+
+/**
+ * La revisión humana confirma el resultado y, si corresponde, acredita Llamas
+ * una sola vez. El valor de recompensa lo define el revisor autorizado.
+ */
+export const adminReviewYouthGameResult = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireModulePermission(request.auth.uid, "games");
+  const resultId = text(request.data?.resultId, 200);
+  const decision = text(request.data?.decision, 10);
+  const reward = Number(request.data?.reward ?? 0);
+  if (!resultId || !["approve", "reject"].includes(decision) ||
+      !Number.isInteger(reward) || reward < 0 || reward > 1000 ||
+      (decision === "reject" && reward !== 0)) {
+    throw new HttpsError("invalid-argument", "La decisión o la recompensa no son válidas.");
+  }
+
+  const resultRef = db.collection("youthGameResults").doc(resultId);
+  let memberId = "";
+  let awarded = 0;
+  await db.runTransaction(async (transaction) => {
+    const resultSnapshot = await transaction.get(resultRef);
+    if (!resultSnapshot.exists) throw new HttpsError("not-found", "La partida ya no existe.");
+    const data = resultSnapshot.data() ?? {};
+    if (text(data.verificationStatus, 20) !== "pending") {
+      throw new HttpsError("failed-precondition", "Esta partida ya fue revisada.");
+    }
+    memberId = validYouthMemberId(data.memberId);
+    const memberRef = db.collection("members").doc(memberId);
+    const profileRef = db.collection("publicProfiles").doc(memberId);
+    const photoRef = db.collection("photos").doc(memberId);
+    const [memberSnapshot, profileSnapshot, photoSnapshot] = await Promise.all([
+      transaction.get(memberRef), transaction.get(profileRef), transaction.get(photoRef),
+    ]);
+    if (!memberSnapshot.exists && !profileSnapshot.exists) {
+      throw new HttpsError("failed-precondition", "El perfil del joven ya no está disponible.");
+    }
+    const status = decision === "approve" ? "verified" : "rejected";
+    const now = new Date().toISOString();
+    if (decision === "approve" && reward > 0) {
+      const member = memberSnapshot.data() ?? {};
+      const profile = profileSnapshot.data() ?? {};
+      const photo = photoSnapshot.data() ?? {};
+      const rawBalance = Number(photo.w ?? profile.flames ?? member.flames ?? 0);
+      const balance = Number.isFinite(rawBalance) ? Math.max(0, Math.min(1000000, Math.floor(rawBalance))) : 0;
+      const nextBalance = balance + reward;
+      transaction.set(photoRef, {w: nextBalance}, {merge: true});
+      if (profileSnapshot.exists) transaction.set(profileRef, {flames: nextBalance}, {merge: true});
+      if (memberSnapshot.exists) transaction.set(memberRef, {flames: nextBalance}, {merge: true});
+      awarded = reward;
+    }
+    transaction.set(resultRef, {
+      verificationStatus: status,
+      reward: awarded,
+      reviewedAt: now,
+      reviewedBy: request.auth!.uid,
+    }, {merge: true});
+  });
+  await recordAudit(
+    decision === "approve" ? "youth-game.verified" : "youth-game.rejected",
+    request.auth.uid, resultId, {memberId, reward: awarded},
+  );
+  return {success: true, verificationStatus: decision === "approve" ? "verified" : "rejected", reward: awarded};
 });
 
 export const getYouthGameHistory = onCall(async (request) => {
