@@ -2580,8 +2580,11 @@ export const adminReviewYouthDevotionalSubmission = onCall(async (request) => {
 
   const submissionId = text(request.data?.submissionId, 150);
   const decision = text(request.data?.decision, 20);
-  if (!submissionId || !["approve", "reject"].includes(decision)) {
-    throw new HttpsError("invalid-argument", "La revisión solicitada no es válida.");
+  const flamesReward = Number(request.data?.flamesReward ?? 0);
+  if (!submissionId || !["approve", "reject"].includes(decision) ||
+      !Number.isInteger(flamesReward) || flamesReward < 0 || flamesReward > 1000 ||
+      (decision === "reject" && flamesReward !== 0)) {
+    throw new HttpsError("invalid-argument", "La revisión o la recompensa en Llamas no son válidas.");
   }
 
   const submissionRef = db.collection("devotionalSubmissions").doc(submissionId);
@@ -2592,7 +2595,11 @@ export const adminReviewYouthDevotionalSubmission = onCall(async (request) => {
     }
     const submission = submissionSnapshot.data() ?? {};
     const status = text(submission.status, 30) || "Pendiente";
-    if (status === "Aprobado") return {status, pointsAwarded: 20, changed: false};
+    if (status === "Aprobado") return {
+      status, pointsAwarded: 20,
+      flamesAwarded: Math.max(0, Math.floor(Number(submission.flamesAwarded) || 0)),
+      changed: false,
+    };
     if (status === "Rechazado") {
       throw new HttpsError("failed-precondition", "Esta entrega ya fue rechazada.");
     }
@@ -2607,9 +2614,10 @@ export const adminReviewYouthDevotionalSubmission = onCall(async (request) => {
     const rankingRef = db.collection("public").doc("ranking");
     const awardId = createHash("sha256").update("devotional:" + submissionId + ":" + memberId).digest("hex");
     const awardRef = db.collection("devotionalPointAwards").doc(awardId);
-    const [memberSnapshot, publicSnapshot, rankingSnapshot, awardSnapshot] = await Promise.all([
+    const photoRef = db.collection("photos").doc(memberId);
+    const [memberSnapshot, publicSnapshot, rankingSnapshot, awardSnapshot, photoSnapshot] = await Promise.all([
       transaction.get(memberRef), transaction.get(publicRef),
-      transaction.get(rankingRef), transaction.get(awardRef),
+      transaction.get(rankingRef), transaction.get(awardRef), transaction.get(photoRef),
     ]);
     if (!memberSnapshot.exists && !publicSnapshot.exists) {
       throw new HttpsError("failed-precondition", "El perfil del joven ya no está disponible.");
@@ -2620,7 +2628,7 @@ export const adminReviewYouthDevotionalSubmission = onCall(async (request) => {
       transaction.set(submissionRef, {
         status: "Rechazado", reviewedAt: now, reviewedBy: request.auth!.uid,
       }, {merge: true});
-      return {status: "Rechazado", pointsAwarded: 0, changed: true};
+      return {status: "Rechazado", pointsAwarded: 0, flamesAwarded: 0, changed: true};
     }
 
     if (awardSnapshot.exists) {
@@ -2643,22 +2651,42 @@ export const adminReviewYouthDevotionalSubmission = onCall(async (request) => {
         text(entry.i, 150) === memberId ? {...entry, t: nextPoints} : entry,
       )}, {merge: true});
     }
+    const photo = photoSnapshot.data() ?? {};
+    const currentFlamesValue = Number(photo.w ?? profile.flames ?? member.flames ?? 0);
+    const currentFlames = Number.isFinite(currentFlamesValue) && currentFlamesValue >= 0
+      ? Math.min(1000000, Math.floor(currentFlamesValue))
+      : 0;
+    const nextFlames = currentFlames + flamesReward;
+    if (flamesReward > 0) {
+      transaction.set(photoRef, {w: nextFlames, updatedAt: now}, {merge: true});
+      if (publicSnapshot.exists) transaction.set(publicRef, {flames: nextFlames}, {merge: true});
+      if (memberSnapshot.exists) transaction.set(memberRef, {flames: nextFlames}, {merge: true});
+    }
     transaction.create(awardRef, {
-      submissionId, memberId, points: 20, createdAt: now, createdBy: request.auth!.uid,
+      submissionId, memberId, points: 20, flames: flamesReward,
+      createdAt: now, createdBy: request.auth!.uid,
     });
     transaction.set(submissionRef, {
-      status: "Aprobado", reviewedAt: now, reviewedBy: request.auth!.uid, pointsAwarded: 20,
+      status: "Aprobado", reviewedAt: now, reviewedBy: request.auth!.uid,
+      pointsAwarded: 20, flamesAwarded: flamesReward,
     }, {merge: true});
-    return {status: "Aprobado", pointsAwarded: 20, changed: true};
+    return {status: "Aprobado", pointsAwarded: 20, flamesAwarded: flamesReward, changed: true};
   });
 
   if (result.changed) {
     await recordAudit(
       decision === "approve" ? "devotional-submission.approved" : "devotional-submission.rejected",
-      request.auth.uid, submissionId, {pointsAwarded: result.pointsAwarded},
+      request.auth.uid, submissionId, {
+        pointsAwarded: result.pointsAwarded,
+        flamesAwarded: result.flamesAwarded,
+      },
     );
   }
-  return {success: true, status: result.status, pointsAwarded: result.pointsAwarded};
+  return {
+    success: true, status: result.status,
+    pointsAwarded: result.pointsAwarded,
+    flamesAwarded: result.flamesAwarded,
+  };
 });
 
 export const adminListDevotionals = onCall(async (request) => {
