@@ -18,6 +18,7 @@ import {
   getYouthProfilePinStatus,
   activateYouthProfilePin,
   verifyYouthProfilePin,
+  recordYouthGameResult,
   type WeeklyActivity,
   type HallOfFamePlayer,
   type FaithfulPlayer,
@@ -523,6 +524,7 @@ export default function YouthPortalPage() {
   const [confirmPersonalPin, setConfirmPersonalPin] = useState('');
   const [activeYouthSection, setActiveYouthSection] = useState<YouthSection>('home');
   const [communitySession, setCommunitySession] = useState('');
+  const [gameRewardNotice, setGameRewardNotice] = useState('');
   const [openingProfileId, setOpeningProfileId] = useState<string | null>(null);
 
   const [activities, setActivities] = useState<WeeklyActivity[]>([]);
@@ -1076,10 +1078,24 @@ export default function YouthPortalPage() {
   }
 
   if (selectedProfile && activeGame) {
+    const completeGame = async (gameId: 'trivia' | 'verse', score: number) => {
+      if (!communitySession) return;
+      const runId = typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID() : `run_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
+      try {
+        const result = await recordYouthGameResult(communitySession, gameId, score, runId);
+        setGameRewardNotice(result.reward > 0
+          ? `¡Ganaste ${result.reward} Llamas! Saldo: ${result.flames}.`
+          : `Partida guardada. Sigue practicando para ganar Llamas.`);
+      } catch (cause) {
+        setGameRewardNotice(cause instanceof Error ? cause.message : 'No se pudo guardar el resultado.');
+      }
+    };
     const exitGame = () => {
       setGameExiting(true);
       window.setTimeout(() => {
         setActiveGame(null);
+        setGameRewardNotice('');
         setActiveYouthSection('games');
         setGameExiting(false);
       }, 300);
@@ -1097,8 +1113,9 @@ export default function YouthPortalPage() {
             </button>
           </div>
           <Suspense fallback={<div className="jf-page-loading" role="status" aria-live="polite"><span/><strong>Preparando el juego</strong><small>Un momento…</small></div>}>
-            {activeGame === 'trivia' && <TriviaGame onExit={exitGame}/>}
-            {activeGame === 'verse' && <VerseGame onExit={exitGame}/>}
+            {gameRewardNotice && <div role="status" aria-live="polite" className="youth-game-reward-notice">{gameRewardNotice}</div>}
+            {activeGame === 'trivia' && <TriviaGame onExit={exitGame} onComplete={(score) => void completeGame('trivia', score)}/>}
+            {activeGame === 'verse' && <VerseGame onExit={exitGame} onComplete={(score) => void completeGame('verse', score)}/>}
             {activeGame === 'memory' && <MemoryGame onExit={exitGame}/>}
             {activeGame === 'challenge' && <ChallengeGame onExit={exitGame}/>}
             {activeGame === 'survival' && <SurvivalGame onExit={exitGame}/>}
