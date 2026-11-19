@@ -12,6 +12,8 @@ const gameNames: Record<string, string> = {
 export default function YouthGameReview() {
   const [items, setItems] = useState<AdminYouthGameResult[]>([]);
   const [rewards, setRewards] = useState<Record<string, string>>({});
+  const [verifiedScores, setVerifiedScores] = useState<Record<string, string>>({});
+  const [verificationNotes, setVerificationNotes] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
@@ -30,11 +32,17 @@ export default function YouthGameReview() {
     if (decision === 'approve' && (!Number.isInteger(reward) || reward < 0 || reward > 1000)) {
       setError('Escribe una recompensa entera entre 0 y 1000 Llamas.'); return;
     }
-    const action = decision === 'approve' ? 'validar esta partida y acreditar ' + reward + ' Llamas' : 'rechazar este resultado';
+    const verifiedScore = Number(verifiedScores[item.id] ?? String(item.score));
+    const verificationNote = (verificationNotes[item.id] ?? '').trim();
+    if (decision === 'approve' && (!Number.isInteger(verifiedScore) || verifiedScore < 0 || verifiedScore > 10000 || verificationNote.length < 10)) {
+      setError('Registra la puntuación comprobada y una evidencia de al menos 10 caracteres antes de aprobar.');
+      return;
+    }
+    const action = decision === 'approve' ? 'validar la puntuación comprobada y acreditar ' + reward + ' Llamas' : 'rechazar este resultado';
     if (!window.confirm('¿Confirmas ' + action + '? Esta revisión no se puede repetir.')) return;
     setBusyId(item.id); setError(''); setMessage('');
     try {
-      const result = await reviewAdminYouthGameResult(item.id, decision, reward);
+      const result = await reviewAdminYouthGameResult(item.id, decision, reward, verifiedScore, verificationNote);
       setMessage(decision === 'approve' ? 'Partida validada. Se acreditaron ' + result.reward + ' Llamas.' : 'Resultado rechazado.');
       await load();
     } catch (cause) {
@@ -44,7 +52,7 @@ export default function YouthGameReview() {
 
   return <section className={styles.panel}>
     <header className={styles.header}>
-      <div><span>CONTROL DE RECOMPENSAS</span><h3>Partidas pendientes de revisión</h3><p>La puntuación todavía llega desde el dispositivo y no se valida respuesta por respuesta en el servidor. Esta aprobación es manual y debe contrastarse antes de entregar Llamas.</p></div>
+      <div><span>CONTROL DE RECOMPENSAS</span><h3>Partidas pendientes de revisión</h3><p>La puntuación original llega desde el dispositivo. Para aprobar debes registrar la puntuación comprobada y explicar la evidencia revisada. La validación automática respuesta por respuesta en el servidor aún no está habilitada.</p></div>
       <button type="button" onClick={() => void load()} disabled={loading}><RefreshCw size={16}/> Actualizar</button>
     </header>
     {error && <p className={styles.error} role="alert">{error}</p>}
@@ -53,7 +61,9 @@ export default function YouthGameReview() {
       ? <p className={styles.empty}>No hay partidas pendientes de revisión.</p>
       : <div className={styles.list}>{items.map((item) => <article className={styles.item} key={item.id}>
         <div className={styles.identity}><span><ShieldCheck size={17}/></span><div><b>{item.memberName}</b><small>{gameNames[item.gameId] ?? 'Juego bíblico'} · {item.createdAt ? new Date(item.createdAt).toLocaleString('es-CO') : 'Fecha no disponible'}</small></div></div>
-        <div className={styles.score}><strong>{item.score}</strong><small>puntos declarados</small></div>
+        <div className={styles.score}><strong>{item.score}</strong><small>puntos declarados por el dispositivo</small></div>
+        <label className={styles.reward}>Puntuación comprobada<input type="number" min="0" max="10000" step="1" value={verifiedScores[item.id] ?? String(item.score)} onChange={(event) => setVerifiedScores((old) => ({...old, [item.id]: event.target.value}))}/></label>
+        <label className={styles.reward}>Evidencia de revisión<textarea rows={2} value={verificationNotes[item.id] ?? ''} onChange={(event) => setVerificationNotes((old) => ({...old, [item.id]: event.target.value}))} placeholder="Describe cómo contrastaste las respuestas o el resultado."/></label>
         <label className={styles.reward}>Llamas a otorgar<input type="number" min="0" max="1000" step="1" value={rewards[item.id] ?? '0'} onChange={(event) => setRewards((old) => ({...old, [item.id]: event.target.value}))}/></label>
         <div className={styles.actions}>
           <button type="button" onClick={() => void review(item, 'approve')} disabled={Boolean(busyId)}><CheckCircle2 size={16}/> Validar</button>
