@@ -1389,7 +1389,7 @@ export default function YouthPortalPage() {
 
           {activeYouthSection === 'games' && (
             <Suspense fallback={<SkeletonCard/>}>
-              <GamesTab onStartGame={setActiveGame}/>
+              <GamesTab onStartGame={setActiveGame} communitySession={communitySession}/>
             </Suspense>
           )}
 
