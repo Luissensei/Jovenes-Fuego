@@ -3942,6 +3942,7 @@ export const createAttendanceMeeting = onCall(async (request) => {
  * @param {Array<{memberId: string; name: string; status: string}>} participants Lista de jóvenes y estados.
  * @param {string[]} clearedMemberIds Jóvenes cuyas marcas se quitaron.
  * @param {string} actorUid Usuario administrativo que guarda los cambios.
+ * @return {Promise<void>} Confirma cuando los puntos quedan ajustados.
  */
 async function awardAttendancePoints(
   meetingId: string,
@@ -4022,6 +4023,7 @@ async function awardAttendancePoints(
  * @param {Array<{memberId: string; name: string; status: string}>} participants Lista de jóvenes y estados.
  * @param {string[]} clearedMemberIds Jóvenes cuyas marcas se quitaron.
  * @param {string} actorUid Usuario administrativo que guarda los cambios.
+ * @return {Promise<void>} Confirma cuando las Llamas quedan ajustadas.
  */
 async function awardAttendanceFlames(
   meetingId: string,
