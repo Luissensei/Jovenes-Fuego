@@ -273,27 +273,6 @@ export default function AttendancePage() {
     [allMeetings],
   );
 
-  // El progreso se calcula contra los jóvenes activos, no comparando
-  // solamente cantidades: así los registros antiguos/inactivos no falsean
-  // el estado de una reunión como "completa".
-  const meetingProgress = useMemo(() => {
-    const activeMemberIds = new Set(members.map((member) => member.id));
-    return new Map(sortedMeetings.map((meeting) => {
-      const participantIds = new Set(
-        meeting.participants
-          .map((participant) => participant.memberId)
-          .filter((memberId) => activeMemberIds.has(memberId)),
-      );
-      const registered = participantIds.size;
-      const pending = Math.max(0, activeMemberIds.size - registered);
-      return [meeting.id, {
-        registered,
-        pending,
-        complete: activeMemberIds.size > 0 && pending === 0,
-      }] as const;
-    }));
-  }, [sortedMeetings, members]);
-
   const meetingsForCalendarDate = useMemo(
     () => sortedMeetings.filter((meeting) => meeting.date === calendarDate),
     [sortedMeetings, calendarDate],
