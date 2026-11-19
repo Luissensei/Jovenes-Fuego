@@ -1,0 +1,51 @@
+/* Jóvenes de Fuego — Fuego en vidrio.
+   Tokens nuevos y aislados: no pisan las variables legacy --jf-* mientras
+   las pantallas se migran gradualmente a Tailwind. */
+:root {
+  --jdf-canvas: #111126;
+  --jdf-surface: #1d1a3a;
+  --jdf-surface-raised: #272247;
+  --jdf-text: #f7f4ff;
+  --jdf-muted: #c7bfdf;
+  --jdf-border: #403765;
+  --jdf-fire: #ff713b;
+  --jdf-fire-strong: #e9572b;
+  --jdf-gold: #ffd45e;
+  --jdf-community: #a36bff;
+  --jdf-progress: #39d4a5;
+  --jdf-info: #43b0ff;
+  --jdf-radius-sm: 0.625rem;
+  --jdf-radius-md: 0.875rem;
+  --jdf-radius-lg: 1.25rem;
+  --jdf-shadow-card: 0 12px 32px rgb(7 6 24 / 22%);
+  --jdf-shadow-raised: 0 18px 42px rgb(7 6 24 / 30%);
+  --jdf-glass-bg: rgb(39 34 71 / 78%);
+  --jdf-glass-border: rgb(199 191 223 / 18%);
+}
+:root[data-theme="light"] {
+  --jdf-canvas: #f7f3ef;
+  --jdf-surface: #fff;
+  --jdf-surface-raised: #fffaf6;
+  --jdf-text: #28203d;
+  --jdf-muted: #625a78;
+  --jdf-border: #e8ddd5;
+  --jdf-fire: #d94f2b;
+  --jdf-fire-strong: #b93d20;
+  --jdf-gold: #94620a;
+  --jdf-community: #7042b8;
+  --jdf-progress: #147653;
+  --jdf-info: #2368b7;
+  --jdf-shadow-card: 0 8px 24px rgb(50 34 25 / 7%);
+  --jdf-shadow-raised: 0 14px 34px rgb(50 34 25 / 12%);
+  --jdf-glass-bg: rgb(255 255 255 / 88%);
+  --jdf-glass-border: rgb(232 221 213 / 88%);
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { scroll-behavior: auto; }
+}
