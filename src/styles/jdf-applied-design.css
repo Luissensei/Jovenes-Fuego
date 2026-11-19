@@ -1,90 +1,33 @@
-/* Aplicación visual efectiva — Jóvenes de Fuego.
-   Capa final compartida: usa los tokens violeta + verde en el shell,
-   módulos administrativos y portal juvenil. Sin blur decorativo. */
-:root,
-:root[data-theme="light"] {
-  --jf-canvas:#F2E9FF; --jf-surface:#FFFFFF; --jf-surface-2:#FAF7FF;
-  --jf-surface-3:#EDE2FF; --jf-ink:#25134D; --jf-muted:#66577E;
-  --jf-line:#DCCEF2; --jf-line-strong:#C7B2E8; --jf-brand:#6A2FC8;
-  --jf-brand-strong:#25134D; --jf-brand-soft:#F2E9FF; --jf-brand-ink:#4B2098;
-  --jf-ember:#235347; --jf-ember-strong:#163832; --jf-ember-soft:#DAF1DE;
-  --jf-focus:#6A2FC8; --jf-sidebar:#0B0720; --jf-sidebar-text:#F2E9FF;
-  --jf-sidebar-muted:#D1B8FF; --jf-sidebar-hover:#25134D; --jf-sidebar-active:#3C216D;
-  --jf-shadow:0 2px 8px rgba(37,19,77,.05),0 14px 34px rgba(37,19,77,.07);
-  --jf-shadow-raised:0 12px 28px rgba(37,19,77,.13);
-  --text-primary:var(--jf-ink);--text-secondary:var(--jf-muted);--text:var(--jf-ink);
-  --muted:var(--jf-muted);--surface:var(--jf-surface);--card:var(--jf-surface);
-  --card-bg:var(--jf-surface);--border:var(--jf-line);--border-color:var(--jf-line);
-  --accent:var(--jf-brand);--surface-2:var(--jf-surface-2);--surface-3:var(--jf-surface-3);
-  --surface-elevated:var(--jf-surface-2);--surface-card:var(--jf-surface);
+/* Final shared visual guardrails for the forest + monochrome brand palette.
+   The actual color tokens are defined once in jdf-brand-palette.css. */
+:root,:root[data-theme="light"] {
+  --jf-canvas:#FFFFFF;--jf-surface:#FFFFFF;--jf-surface-2:#F7F8F7;
+  --jf-surface-3:#DAF1DE;--jf-ink:#1A1A1A;--jf-muted:#6B6B6B;
+  --jf-line:#D9D9D9;--jf-line-strong:#AAB7AE;--jf-brand:#235347;
+  --jf-brand-strong:#163832;--jf-brand-soft:#DAF1DE;--jf-brand-ink:#051F20;
+  --jf-sidebar:#051F20;--jf-sidebar-text:#FFFFFF;--jf-sidebar-muted:#8EB69B;
+  --jf-sidebar-hover:#0B2B26;--jf-sidebar-active:#163832;
 }
 :root[data-theme="dark"],:root.dark {
-  --jf-canvas:#0B0720;--jf-surface:#160F2C;--jf-surface-2:#25134D;
-  --jf-surface-3:#352064;--jf-ink:#F2E9FF;--jf-muted:#D1B8FF;
-  --jf-line:#49366D;--jf-line-strong:#654C91;--jf-brand:#9D71E8;
-  --jf-brand-strong:#D1B8FF;--jf-brand-soft:#25134D;--jf-brand-ink:#F2E9FF;
-  --jf-ember:#8EB69B;--jf-ember-strong:#DAF1DE;--jf-ember-soft:#163832;
-  --jf-focus:#D1B8FF;--jf-sidebar:#051F20;--jf-sidebar-text:#DAF1DE;
-  --jf-sidebar-muted:#8EB69B;--jf-sidebar-hover:#0B2B26;--jf-sidebar-active:#163832;
-  --jf-shadow:0 2px 8px rgba(0,0,0,.18),0 14px 34px rgba(0,0,0,.22);
-  --jf-shadow-raised:0 12px 28px rgba(0,0,0,.3);
-  --text-primary:var(--jf-ink);--text-secondary:var(--jf-muted);--text:var(--jf-ink);
-  --muted:var(--jf-muted);--surface:var(--jf-surface);--card:var(--jf-surface);
-  --card-bg:var(--jf-surface);--border:var(--jf-line);--border-color:var(--jf-line);
-  --accent:var(--jf-brand);--surface-2:var(--jf-surface-2);--surface-3:var(--jf-surface-3);
-  --surface-elevated:var(--jf-surface-2);--surface-card:var(--jf-surface);
+  --jf-canvas:#0B0B0B;--jf-surface:#1A1A1A;--jf-surface-2:#252525;
+  --jf-surface-3:#333333;--jf-ink:#FFFFFF;--jf-muted:#D9D9D9;
+  --jf-line:#454545;--jf-line-strong:#6B6B6B;--jf-brand:#8EB69B;
+  --jf-brand-strong:#DAF1DE;--jf-brand-soft:#163832;--jf-brand-ink:#FFFFFF;
+  --jf-sidebar:#051F20;--jf-sidebar-text:#FFFFFF;--jf-sidebar-muted:#8EB69B;
+  --jf-sidebar-hover:#0B2B26;--jf-sidebar-active:#163832;
 }
-html,body,#root,.layout,.main,.jf-route-stage {background:var(--jf-canvas)!important;color:var(--jf-ink)!important}
-body{font-family:"DM Sans",system-ui,sans-serif}
-.sidebar{background:var(--jf-sidebar)!important;color:var(--jf-sidebar-text)!important;border-right:1px solid color-mix(in srgb,var(--jf-sidebar-muted) 20%,transparent)}
-.sidebar .brand strong,.sidebar .sidebar-collapse-toggle{color:var(--jf-sidebar-text)!important}
-.sidebar .brand small,.sidebar .safe-note small{color:var(--jf-sidebar-muted)!important}
-.sidebar .brand-mark{background:linear-gradient(135deg,#6A2FC8,#235347)!important}
-.sidebar .env-chip,.sidebar .safe-note{background:var(--jf-sidebar-hover)!important;border:1px solid color-mix(in srgb,var(--jf-sidebar-muted) 22%,transparent)!important;color:var(--jf-sidebar-text)!important}
-.sidebar .nav-item{color:var(--jf-sidebar-muted)!important;border-radius:11px}
-.sidebar .nav-item:hover,.sidebar .nav-item.active{background:var(--jf-sidebar-active)!important;color:#fff!important;box-shadow:inset 3px 0 #9D71E8!important}
-.sidebar .jf-nav-group>summary{color:var(--jf-sidebar-muted)!important}
-.sidebar .module-search input{background:var(--jf-sidebar-hover)!important;color:var(--jf-sidebar-text)!important;border-color:var(--jf-sidebar-active)!important}
-.mobile-header{background:var(--jf-sidebar)!important;color:var(--jf-sidebar-text)!important}
-.main>.topline{background:var(--jf-surface)!important;border-bottom:1px solid var(--jf-line)!important;backdrop-filter:none!important}
-.topline-status,.project-label{color:var(--jf-muted)!important}
-.project-label{background:var(--jf-surface-2)!important;border:1px solid var(--jf-line)!important}
-.topline-menu-button,.topline-theme-toggle{background:var(--jf-surface)!important;color:var(--jf-ink)!important;border:1px solid var(--jf-line)!important;border-radius:12px!important}
-.main .jf-route-stage :is(h1,h2,h3,h4){color:var(--jf-ink)!important}
-.main .jf-route-stage :is(p,small,label,.muted,.subtitle,.description){color:var(--jf-muted)}
-.main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,.shared-stat-card,article,[class*="card"],[class*="Card"]){border-color:var(--jf-line)!important}
-.main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,.shared-stat-card,article,[class*="card"],[class*="Card"]){box-shadow:var(--jf-shadow)!important}
-.main .jf-route-stage :is(input:not([type=checkbox]):not([type=radio]),select,textarea){background:var(--jf-surface)!important;color:var(--jf-ink)!important;border:1px solid var(--jf-line-strong)!important;border-radius:11px!important}
-.main .jf-route-stage :is(input,select,textarea):focus-visible{outline:2px solid var(--jf-focus)!important;outline-offset:2px}
-.main .jf-route-stage :is(button,.btn,[role=button]){border-radius:11px;transition:background-color .16s ease,border-color .16s ease,color .16s ease,transform .16s ease}
-.main .jf-route-stage :is(button,.btn).primary,.main .jf-route-stage :is(button,[role=button])[data-variant=primary],.main .jf-route-stage .login-submit{background:var(--jf-brand)!important;border-color:var(--jf-brand)!important;color:#fff!important}
-.main .jf-route-stage :is(button,.btn).secondary{background:var(--jf-ember-soft)!important;border-color:color-mix(in srgb,var(--jf-ember) 35%,var(--jf-line))!important;color:var(--jf-ember-strong)!important}
-.main .jf-route-stage :is(table,th,td){border-color:var(--jf-line)!important}
-.main .jf-route-stage th{background:var(--jf-surface-2)!important;color:var(--jf-ink)!important}
-.main .jf-route-stage tr:hover td{background:var(--jf-brand-soft)!important}
-.main .jf-route-stage :is(.eyebrow,.section-kicker,.module-kicker){color:var(--jf-brand)!important}
-.main .jf-route-stage :is(.notice,.info-box,.empty-state){background:var(--jf-surface-2)!important;border-color:var(--jf-line)!important;color:var(--jf-ink)!important}
-.main .jf-route-stage :is(.stat-card,.dashboard-stat,.ranking-player,.member-card,.attendance-card,.visitor-card,.devotional-card,.game-card){border-radius:16px!important}
-.main .jf-route-stage :is(.stat-card,.dashboard-stat) :is(svg,.icon){color:var(--jf-brand)!important}
-.main .jf-route-stage :is(.success,.status-success,.badge-success){background:var(--jf-ember-soft)!important;color:var(--jf-ember-strong)!important}
-.main .jf-route-stage :is(.primary,.active,.is-active):not(button):not(a){accent-color:var(--jf-brand)}
-/* Portal juvenil: identidad completa fuera del shell administrativo. */
-.youth-portal{background:var(--jf-canvas)!important;color:var(--jf-ink)!important}
-.youth-portal :is(h1,h2,h3,h4,strong){color:inherit}
-.youth-portal :is(.youth-container,.youth-tab-page){color:var(--jf-ink)}
-.youth-portal :is(article,[class*="card"],[class*="Card"],[class*="panel"],[class*="Panel"]){border-color:var(--jf-line)}
-.youth-portal :is(input,select,textarea){background:var(--jf-surface)!important;color:var(--jf-ink)!important;border-color:var(--jf-line-strong)!important}
-.youth-portal :is(button,.btn,[role=button]){border-radius:12px}
-.youth-portal :is(.youth-pin-backdrop){backdrop-filter:none!important}
-.youth-portal :is(.youth-pin-dialog){background:var(--jf-surface)!important;color:var(--jf-ink)!important;border-color:var(--jf-line)!important}
-.youth-portal :is(.youth-pin-dialog h2,.youth-pin-dialog strong){color:var(--jf-ink)!important}
-.youth-portal :is(.youth-pin-dialog p){color:var(--jf-muted)!important}
-.youth-portal :is(.youth-pin-icon){background:linear-gradient(135deg,#6A2FC8,#235347)!important}
-@media(max-width:900px){
- .main{padding:0 14px 28px!important}
- .main>.topline{min-height:62px;margin-bottom:18px;gap:9px;flex-wrap:wrap}
- .project-label{max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
- .topline-theme-toggle span{display:none}
- .main .jf-route-stage{padding-bottom:20px}
+html,body,#root,.layout,.main,.jf-route-stage,.youth-portal {
+  background:var(--jf-canvas)!important;color:var(--jf-ink)!important;
 }
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.main .jf-route-stage :is(h1,h2,h3,h4),
+.youth-portal :is(h1,h2,h3,h4) {color:var(--jf-ink)!important}
+.main .jf-route-stage :is(p,small,label,.muted,.subtitle,.description),
+.youth-portal :is(p,small,label,.muted,.subtitle,.description) {color:var(--jf-muted)}
+.main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,article,[class*="card"],[class*="Card"]),
+.youth-portal :is(.page-card,.panel,.card,.stat-card,.statCard,article,[class*="card"],[class*="Card"]) {
+  border-color:var(--jf-line)!important;box-shadow:var(--jf-shadow)!important;
+}
+.main .jf-route-stage :is(button,.btn,[role="button"]).primary,
+.youth-portal :is(button,.btn,[role="button"]).primary {
+  background:var(--jf-brand)!important;border-color:var(--jf-brand)!important;color:#fff!important;
+}
