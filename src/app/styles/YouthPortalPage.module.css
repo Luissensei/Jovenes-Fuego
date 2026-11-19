@@ -140,3 +140,18 @@
 :global(.youth-activity-attendance button.selected){background:var(--jf-accent-soft);border-color:var(--jf-accent);color:var(--jf-accent-ink)}
 :global(.youth-activity-attendance button:disabled){opacity:.55;cursor:wait}
 :global(.youth-activity-attendance small){display:flex;align-items:center;gap:5px;color:var(--jf-muted);font-size:.72rem}
+
+
+:global(.youth-game-history){display:grid;gap:13px;margin-top:20px;padding:18px;border:1px solid var(--jf-line);border-radius:18px;background:var(--jf-surface-1)}
+:global(.youth-game-history>header){display:flex;align-items:center;justify-content:space-between;gap:12px}
+:global(.youth-game-history>header>div){display:grid;gap:4px}
+:global(.youth-game-history>header span){color:var(--jf-muted);font-size:.65rem;font-weight:850;letter-spacing:.13em}
+:global(.youth-game-history h2){display:flex;align-items:center;gap:8px;margin:0;color:var(--jf-ink);font-size:1.05rem}
+:global(.youth-game-history>p){margin:0;color:var(--jf-muted);font-size:.8rem;line-height:1.55}
+:global(.youth-game-history ul){display:grid;gap:8px;margin:0;padding:0;list-style:none}
+:global(.youth-game-history li){display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 12px;padding:11px 12px;border:1px solid var(--jf-line);border-radius:12px;background:var(--jf-surface-2)}
+:global(.youth-game-history li>div){display:grid;gap:3px;min-width:0}
+:global(.youth-game-history li b){overflow:hidden;color:var(--jf-ink);font-size:.8rem;text-overflow:ellipsis;white-space:nowrap}
+:global(.youth-game-history li small){color:var(--jf-muted);font-size:.67rem}
+:global(.youth-game-history li>strong){align-self:center;color:var(--jf-accent-ink);font-size:.78rem;white-space:nowrap}
+:global(.youth-game-history li>span){grid-column:1/-1;color:var(--jf-muted);font-size:.68rem}
