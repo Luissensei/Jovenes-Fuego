@@ -4,16 +4,17 @@ import { resolve } from 'node:path';
 
 const root = process.cwd();
 const read = (path) => readFile(resolve(root, path), 'utf8');
-const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, themePreference] = await Promise.all([
+const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, themePreference, paletteSource] = await Promise.all([
   read('public/manifest.webmanifest'),
   read('public/sw.js'),
   read('src/services/firebase/client.ts'),
   read('src/app/modules.ts'),
   read('src/app/App.tsx'),
   read('src/app/useThemePreference.ts'),
+  read('src/styles/jdf-brand-palette.css'),
 ]);
 
-assert.match(themePreference, /theme === 'dark' \? '#0B0B0B' : '#FFFFFF'/, 'El color de la barra del navegador debe coincidir con la paletas verde y monocromática.');
+assert.match(themePreference, /theme === 'dark' \? '#0B0B0B' : '#FFFFFF'/, 'El color de la barra del navegador debe coincidir con las paletas verde y monocromática.');
 
 const manifest = JSON.parse(manifestText);
 assert.equal(manifest.name, 'Jóvenes de Fuego', 'El manifiesto debe identificar la aplicación.');
@@ -21,6 +22,10 @@ assert.equal(manifest.lang, 'es-CO', 'El idioma de la aplicación debe ser espa�
 assert.equal(manifest.display, 'standalone', 'La PWA debe abrir en modo independiente.');
 assert.equal(manifest.background_color, '#FFFFFF', 'La PWA debe iniciar con el fondo claro oficial.');
 assert.equal(manifest.theme_color, '#FFFFFF', 'El color base del navegador debe usar el nuevo tema.');
+assert.match(paletteSource, /--jf-brand:#235347/, 'El tema claro debe usar verde bosque.');
+assert.match(paletteSource, /--jf-sidebar:#051F20/, 'La navegación clara debe usar verde profundo.');
+assert.match(paletteSource, /--jf-canvas:#0B0B0B/, 'El tema oscuro debe usar el fondo monocromático.');
+assert.match(paletteSource, /--jf-brand:#D9D9D9/, 'El tema oscuro debe usar acentos grises.');
 assert.ok(Array.isArray(manifest.icons) && manifest.icons.length >= 2, 'La PWA necesita iconos instalables.');
 for (const icon of manifest.icons) {
   assert.ok(icon.src.startsWith('/'), 'Los iconos deben usar rutas locales absolutas.');
