@@ -1083,7 +1083,7 @@ export default function YouthPortalPage() {
       const runId = typeof crypto !== 'undefined' && 'randomUUID' in crypto
         ? crypto.randomUUID() : `run_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
       try {
-        const result = await recordYouthGameResult(communitySession, gameId, score, runId);
+        await recordYouthGameResult(communitySession, gameId, score, runId);
         setGameRewardNotice('Resultado guardado. Está pendiente de validación; todavía no genera Llamas.');
       } catch (cause) {
         setGameRewardNotice(cause instanceof Error ? cause.message : 'No se pudo guardar el resultado.');
