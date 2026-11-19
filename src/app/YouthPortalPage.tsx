@@ -311,15 +311,35 @@ type YouthSection = 'home' | 'community' | 'activities' | 'devotional' | 'rankin
 
 const youthNavigation: Array<{id: YouthSection; label: string; icon: typeof Home}> = [
   {id: 'home', label: 'Inicio', icon: Home},
-  {id: 'community', label: 'Comunidad', icon: MessageCircle},
   {id: 'activities', label: 'Actividades', icon: CalendarDays},
   {id: 'devotional', label: 'Devocional', icon: BookMarked},
+  {id: 'games', label: 'Retos bíblicos', icon: Gamepad2},
   {id: 'ranking', label: 'Ranking', icon: Trophy},
-  {id: 'games', label: 'Juegos', icon: Gamepad2},
+  {id: 'community', label: 'Comunidad', icon: MessageCircle},
   {id: 'space', label: 'Mi espacio', icon: UserRound},
 ];
 
+const youthMobileNavigation: Array<{id: YouthSection; label: string; icon: typeof Home}> = [
+  {id: 'home', label: 'Inicio', icon: Home},
+  {id: 'games', label: 'Retos', icon: Gamepad2},
+  {id: 'ranking', label: 'Ranking', icon: Trophy},
+  {id: 'community', label: 'Comunidad', icon: MessageCircle},
+  {id: 'space', label: 'Perfil', icon: UserRound},
+];
+
 const weeklyGrowthDayIds = ['day-1','day-2','day-3','day-4','day-5','day-6','day-7'];
+
+function activityTimestamp(activity: WeeklyActivity): number {
+  const raw = activity.date.includes('T') ? activity.date : `${activity.date}T${activity.time || '12:00'}`;
+  const timestamp = Date.parse(raw);
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+function formatYouthActivityDate(value: string): string {
+  const date = new Date(`${value.slice(0, 10)}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat('es-CO', {weekday: 'short', day: '2-digit', month: 'short'}).format(date);
+}
 
 const defaultLook: ProfileLook = {frame: 'fuego', background: 'brasa', avatar: '', title: 'chispa', ownedItems: [], flames: 0, effects: 'ember', badge: 'flame', hair: 'natural', outfit: 'basic', accessory: 'none'};
 
@@ -635,8 +655,9 @@ export default function YouthPortalPage() {
 
   useEffect(() => {
     if (!selectedProfile) return;
-    if (activeYouthSection === 'activities') void loadActivities();
-    if (activeYouthSection === 'ranking') void loadRanking();
+    // Inicio carga la agenda y el ranking publicados para mostrar un resumen real.
+    if (activeYouthSection === 'home' || activeYouthSection === 'activities') void loadActivities();
+    if (activeYouthSection === 'home' || activeYouthSection === 'ranking') void loadRanking();
   }, [selectedProfile, activeYouthSection, loadActivities, loadRanking]);
 
   useEffect(() => {
@@ -751,6 +772,12 @@ export default function YouthPortalPage() {
     ...player,
     pic: player.pic || profiles.find((profile) => profile.id === player.id)?.pic || '',
   })), [faithful, profiles]);
+
+  const homeActivities = useMemo(() => activities
+    .filter((activity) => activity.published)
+    .slice()
+    .sort((left, right) => activityTimestamp(left) - activityTimestamp(right))
+    .slice(0, 4), [activities]);
 
 
 
@@ -1133,8 +1160,36 @@ export default function YouthPortalPage() {
         className={`${styles.scope} ${dashboardStyles.dashboard} youth-portal bg-[var(--jdf-canvas)] text-[var(--jdf-text)] ${portalExiting ? "youth-profile-exit" : ""}`}
       >
         <a className="jf-skip-link" href="#jf-youth-main-content">Saltar al contenido principal</a>
+        <aside className={dashboardStyles.sideNav} aria-label="Navegación del portal joven">
+          <div className={dashboardStyles.sideBrand}>
+            <span className={dashboardStyles.sideBrandMark}><Flame size={22}/></span>
+            <span><strong>Jóvenes de Fuego</strong><small>Portal joven</small></span>
+          </div>
+          <div className={dashboardStyles.sideGroup}>
+            <span className={dashboardStyles.sideGroupLabel}>MI ESPACIO</span>
+            {youthNavigation.filter((item) => ['home', 'activities', 'devotional'].includes(item.id)).map((item) => {
+              const Icon = item.icon;
+              return <button key={item.id} type="button" className={`${dashboardStyles.sideNavItem} ${activeYouthSection === item.id ? dashboardStyles.sideNavActive : ''}`} aria-current={activeYouthSection === item.id ? 'page' : undefined} onClick={() => {setActiveYouthSection(item.id);if(item.id !== 'space') setEditingLook(false);}}>
+                <Icon size={19}/><span>{item.label}</span>
+              </button>;
+            })}
+          </div>
+          <div className={dashboardStyles.sideGroup}>
+            <span className={dashboardStyles.sideGroupLabel}>DESCUBRIR</span>
+            {youthNavigation.filter((item) => ['games', 'ranking', 'community', 'space'].includes(item.id)).map((item) => {
+              const Icon = item.icon;
+              return <button key={item.id} type="button" className={`${dashboardStyles.sideNavItem} ${activeYouthSection === item.id ? dashboardStyles.sideNavActive : ''}`} aria-current={activeYouthSection === item.id ? 'page' : undefined} onClick={() => {setActiveYouthSection(item.id);if(item.id !== 'space') setEditingLook(false);}}>
+                <Icon size={19}/><span>{item.label}</span>
+              </button>;
+            })}
+          </div>
+          <div className={dashboardStyles.sideWallet}>
+            <span><Flame size={16}/> Llamas disponibles</span>
+            <strong>{look.flames.toLocaleString('es-CO')}</strong>
+          </div>
+        </aside>
         <div className="youth-container youth-home-enter" id="jf-youth-main-content" tabIndex={-1}>
-          <div className="youth-home-toolbar">
+          <div className={`${dashboardStyles.topToolbar} youth-home-toolbar`}>
             <button type="button" className="youth-back" onClick={leaveProfile}>
               <ArrowLeft size={17}/> Cambiar de perfil
             </button>
@@ -1147,33 +1202,131 @@ export default function YouthPortalPage() {
               <span>{nextThemeLabel}</span>
             </button>
           </div>
-          {activeYouthSection === 'home' && (<div className="youth-tab-page youth-home-tab">
-          <section className="youth-welcome youth-home">
-            <div className="youth-welcome-decoration"><Sparkles size={24}/></div>
-            <button type="button" className="youth-customize-trigger" onClick={() => {setActiveYouthSection('space');setEditingLook(true);}}>
-              <Palette size={17}/> Personalizar perfil
-            </button>
-            <div className="youth-profile-avatar-card" aria-label="Avatar del perfil">
-              <YouthAvatar profile={{...selectedProfile, frame: look.frame, avatar: look.avatar}} large/>
-            </div>
-            <span className="youth-profile-badge">MIEMBRO DE LA COMUNIDAD</span>
-            <span className="youth-brand-label">COMUNIDAD JÓVENES DE FUEGO</span>
-            <h1 className="jf-title-reveal">¡Hola, <span className="jf-name-reveal">{profileExtras.displayName || selectedProfile.name}</span>!</h1>
-            <p>Tu espacio para crecer, servir, aprender y compartir.</p>
-            {(profileExtras.nickname || selectedProfile.nick) && <span className="youth-profile-nick">@{profileExtras.nickname || selectedProfile.nick}</span>}
-            {profileExtras.motto && <p className="youth-profile-motto">“{profileExtras.motto}”</p>}
-            {look.title && <span className="youth-profile-title">{({chispa:'Chispa Encendida',valiente:'Valiente',guerrero:'Guerrero de Fe',intercesor:'Intercesor',adorador:'Adorador',sabio:'Sabio de la Palabra',leyenda:'Leyenda de Fuego'} as Record<string,string>)[look.title] ?? look.title}</span>}
-            <div className="youth-profile-quickstats">
-              <span><Star size={15}/> {selectedProfile.points > 0 ? `${selectedProfile.points} puntos públicos` : 'Puntos aún no publicados'}</span>
-              <span><Flame size={15}/> {look.flames} Llamas</span>
-              <span><ShieldCheck size={15}/> Perfil comunitario</span>
-            </div>
-          </section>
+          {activeYouthSection === 'home' && (
+            <section className={dashboardStyles.homePage} aria-label="Inicio de mi espacio joven">
+              <section className={dashboardStyles.hero}>
+                <div className={dashboardStyles.heroCopy}>
+                  <span className={dashboardStyles.heroEyebrow}><Flame size={16}/> TU ESPACIO JOVEN</span>
+                  <h1>Hola, {profileExtras.displayName || selectedProfile.name}</h1>
+                  <p>{profileExtras.motto || 'Cada día es una oportunidad para crecer en la fe y compartir lo que Dios hace en tu vida.'}</p>
+                  <div className={dashboardStyles.heroActions}>
+                    <button type="button" className={dashboardStyles.heroPrimary} onClick={() => setActiveYouthSection('activities')}>
+                      <CalendarDays size={17}/> Ver agenda de la semana
+                    </button>
+                    <button type="button" className={dashboardStyles.heroSecondary} onClick={() => {setActiveYouthSection('space');setEditingLook(true);}}>
+                      <Palette size={17}/> Personalizar
+                    </button>
+                  </div>
+                  {profileExtras.weeklyGoal && <span className={dashboardStyles.heroGoal}>Mi meta: {profileExtras.weeklyGoal}</span>}
+                </div>
+                <div className={dashboardStyles.heroProgress}>
+                  <div className={dashboardStyles.progressRing} role="img" aria-label={`Has completado ${growthDone.length} de 7 pasos de tu plan personal semanal`}>
+                    <svg viewBox="0 0 120 120" aria-hidden="true">
+                      <circle className={dashboardStyles.progressTrack} cx="60" cy="60" r="48" fill="none" strokeWidth="8"/>
+                      <circle className={dashboardStyles.progressValue} cx="60" cy="60" r="48" fill="none" strokeWidth="8" strokeDasharray="301.59" strokeDashoffset={301.59 * (1 - growthProgress / 100)} transform="rotate(-90 60 60)"/>
+                    </svg>
+                    <div><strong>{growthProgress}%</strong><span>plan personal</span></div>
+                  </div>
+                  <small>{growthDone.length} de 7 pasos marcados</small>
+                  <button type="button" onClick={() => setActiveYouthSection('activities')}>Continuar plan <ChevronRight size={15}/></button>
+                </div>
+              </section>
 
-          {lookNotice && <p className="youth-look-notice" role="status">{lookNotice}</p>}
+              <section className={dashboardStyles.summaryGrid} aria-label="Mi resumen">
+                <article className={dashboardStyles.summaryCard}>
+                  <span className={dashboardStyles.summaryLabel}><Star size={16}/> Puntos públicos</span>
+                  <strong className={dashboardStyles.summaryValue}>{personalPoints.toLocaleString('es-CO')}</strong>
+                  <small>Publicados en la comunidad</small>
+                </article>
+                <article className={dashboardStyles.summaryCard}>
+                  <span className={dashboardStyles.summaryLabel}><Flame size={16}/> Llamas disponibles</span>
+                  <strong className={dashboardStyles.summaryValue}>{look.flames.toLocaleString('es-CO')}</strong>
+                  <small>Saldo de tu perfil</small>
+                </article>
+                <article className={dashboardStyles.summaryCard}>
+                  <span className={dashboardStyles.summaryLabel}><Trophy size={16}/> Mi puesto</span>
+                  <strong className={dashboardStyles.summaryValue}>{personalStanding ? `#${personalStanding.position}` : '—'}</strong>
+                  <small>{personalStanding ? 'En el ranking público' : 'Sin posición publicada'}</small>
+                </article>
+              </section>
 
-          {profileExtras.weeklyGoal && <section className="youth-personal-goal"><span>MI META DE LA SEMANA</span><p>{profileExtras.weeklyGoal}</p></section>}
-          </div>)}
+              <div className={dashboardStyles.homeColumns}>
+                <section className={dashboardStyles.contentPanel}>
+                  <header className={dashboardStyles.panelHeading}>
+                    <div><span className={dashboardStyles.panelEyebrow}>AGENDA</span><h2>Próximas actividades</h2></div>
+                    <button type="button" onClick={() => setActiveYouthSection('activities')}>Ver todo <ChevronRight size={16}/></button>
+                  </header>
+                  {activitiesLoading && <div className={dashboardStyles.activityLoading} role="status">Cargando actividades publicadas…</div>}
+                  {activitiesError && <div className={dashboardStyles.activityError} role="alert"><span>{activitiesError}</span><button type="button" onClick={() => void loadActivities()}>Reintentar</button></div>}
+                  {!activitiesLoading && !activitiesError && homeActivities.length > 0 && (
+                    <div className={dashboardStyles.activityList}>
+                      {homeActivities.map((activity) => (
+                        <article className={dashboardStyles.activityRow} key={activity.id}>
+                          <div className={dashboardStyles.activityDate}><strong>{formatYouthActivityDate(activity.date)}</strong><span>{activity.time || 'Hora por confirmar'}</span></div>
+                          <div className={dashboardStyles.activityDetails}>
+                            <strong>{activity.title}</strong>
+                            {activity.description && <p>{activity.description}</p>}
+                            {activity.location && <small>{activity.location}</small>}
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  )}
+                  {!activitiesLoading && !activitiesError && homeActivities.length === 0 && (
+                    <div className={dashboardStyles.activityEmpty}><CalendarDays size={22}/><strong>No hay actividades publicadas</strong><span>La agenda aparecerá aquí cuando el equipo la publique.</span></div>
+                  )}
+                </section>
+
+                <div className={dashboardStyles.homeSideColumn}>
+                  <section className={dashboardStyles.contentPanel}>
+                    <header className={dashboardStyles.panelHeading}>
+                      <div><span className={dashboardStyles.panelEyebrow}>ACCESOS RÁPIDOS</span><h2>¿Qué quieres hacer?</h2></div>
+                    </header>
+                    <div className={dashboardStyles.quickGrid}>
+                      <button type="button" className={dashboardStyles.quickLink} onClick={() => setActiveYouthSection('devotional')}>
+                        <span className={dashboardStyles.quickIcon}><BookMarked size={19}/></span><span><strong>Devocional</strong><small>Lee y comparte la Palabra</small></span><ChevronRight size={17}/>
+                      </button>
+                      <button type="button" className={dashboardStyles.quickLink} onClick={() => setActiveYouthSection('games')}>
+                        <span className={dashboardStyles.quickIcon}><Gamepad2 size={19}/></span><span><strong>Retos bíblicos</strong><small>Aprende mientras juegas</small></span><ChevronRight size={17}/>
+                      </button>
+                      <button type="button" className={dashboardStyles.quickLink} onClick={() => setActiveYouthSection('community')}>
+                        <span className={dashboardStyles.quickIcon}><HeartHandshake size={19}/></span><span><strong>Comunidad</strong><small>Comparte y acompaña</small></span><ChevronRight size={17}/>
+                      </button>
+                      <button type="button" className={dashboardStyles.quickLink} onClick={() => setActiveYouthSection('ranking')}>
+                        <span className={dashboardStyles.quickIcon}><Trophy size={19}/></span><span><strong>Ranking</strong><small>Consulta la clasificación</small></span><ChevronRight size={17}/>
+                      </button>
+                    </div>
+                  </section>
+
+                  <section className={dashboardStyles.contentPanel}>
+                    <header className={dashboardStyles.panelHeading}>
+                      <div><span className={dashboardStyles.panelEyebrow}>COMUNIDAD</span><h2>Top 3 de puntos</h2></div>
+                      <button type="button" onClick={() => setActiveYouthSection('ranking')}>Ranking <ChevronRight size={16}/></button>
+                    </header>
+                    {rankingLoading && <div className={dashboardStyles.activityLoading} role="status">Cargando clasificación…</div>}
+                    {rankingError && <div className={dashboardStyles.activityError} role="alert"><span>{rankingError}</span><button type="button" onClick={() => void loadRanking()}>Reintentar</button></div>}
+                    {!rankingLoading && !rankingError && topPlayersWithPhotos.length > 0 && (
+                      <ol className={dashboardStyles.topThree}>
+                        {topPlayersWithPhotos.slice(0, 3).map((player, index) => (
+                          <li className={dashboardStyles.topPlayer} key={player.id}>
+                            <span>#{index + 1}</span>
+                            {player.pic ? <img src={player.pic} alt="" width={36} height={36} loading="lazy" decoding="async"/> : <b>{getInitials(player.name)}</b>}
+                            <strong>{player.name}</strong>
+                            <small>{player.points.toLocaleString('es-CO')} pts</small>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                    {!rankingLoading && !rankingError && topPlayersWithPhotos.length === 0 && (
+                      <p className={dashboardStyles.emptyRanking}>Todavía no hay puntuaciones públicas para mostrar.</p>
+                    )}
+                  </section>
+                </div>
+              </div>
+
+              {lookNotice && <p className="youth-look-notice" role="status">{lookNotice}</p>}
+            </section>
+          )}
 
           {activeYouthSection === 'space' && editingLook && (
             <section className="youth-customizer">
@@ -1408,14 +1561,14 @@ export default function YouthPortalPage() {
           </div>)}
           <div className="youth-security-note"><ShieldCheck size={17}/> Este acceso muestra únicamente información pública. No revela datos privados ni acredita la identidad; los puntos de partidas no se incorporan automáticamente al ranking oficial.</div>
         </div>
-        <nav className="youth-bottom-navigation" aria-label="Navegación de mi perfil">
-          {youthNavigation.map((item) => {
+        <nav className={dashboardStyles.mobileNavigation} aria-label="Navegación principal del portal joven">
+          {youthMobileNavigation.map((item) => {
             const Icon = item.icon;
             return (
               <button
                 type="button"
                 key={item.id}
-                className={activeYouthSection === item.id ? 'active' : ''}
+                className={`${dashboardStyles.mobileNavItem} ${activeYouthSection === item.id ? dashboardStyles.mobileNavActive : ''}`}
                 aria-current={activeYouthSection === item.id ? 'page' : undefined}
                 onPointerEnter={() => {
                   const connection = (navigator as Navigator & {connection?: {saveData?: boolean}}).connection;
