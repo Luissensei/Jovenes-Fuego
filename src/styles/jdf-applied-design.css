@@ -33,3 +33,99 @@ html,body,#root,.layout,.main,.jf-route-stage,.youth-portal {
 .youth-portal :is(button,.btn,[role="button"]).primary {
   background:var(--jf-brand)!important;border-color:var(--jf-brand)!important;color:#fff!important;
 }
+
+
+/* Final experience layer: the youth portal's local tokens use the same two palettes. */
+body .youth-portal {
+  --yp-bg:#F7F8F7;
+  --yp-surface:#FFFFFF;
+  --yp-surface-2:#DAF1DE;
+  --yp-text:#051F20;
+  --yp-muted:#235347;
+  --yp-line:#8EB69B;
+  --yp-green:#235347;
+  --yp-green-2:#163832;
+  --yp-green-soft:#DAF1DE;
+  --yp-gold:#6B6B6B;
+  --yp-shadow:0 2px 8px rgba(5,31,32,.05),0 12px 30px rgba(5,31,32,.07);
+}
+:root[data-theme="dark"] body .youth-portal,
+:root.dark body .youth-portal {
+  --yp-bg:#0B0B0B;
+  --yp-surface:#1A1A1A;
+  --yp-surface-2:#333333;
+  --yp-text:#FFFFFF;
+  --yp-muted:#D9D9D9;
+  --yp-line:#6B6B6B;
+  --yp-green:#D9D9D9;
+  --yp-green-2:#FFFFFF;
+  --yp-green-soft:#333333;
+  --yp-gold:#D9D9D9;
+  --yp-shadow:0 2px 8px rgba(0,0,0,.28),0 12px 30px rgba(0,0,0,.34);
+}
+
+/* Login and common shell components */
+.login-shell {background:var(--jf-canvas)!important}
+.login-card {background:var(--jf-surface)!important;border-color:var(--jf-line)!important;color:var(--jf-ink)!important;box-shadow:var(--jf-shadow-raised)!important}
+.login-logo,.brand-mark {background:linear-gradient(135deg,var(--jf-sidebar),var(--jf-brand))!important}
+.login-submit,.setup-warning,.preview-warning,.notice {border-color:var(--jf-line)!important}
+.login-submit {background:var(--jf-brand)!important;color:#fff!important}
+.login-card input {background:var(--jf-surface-2)!important;color:var(--jf-ink)!important;border-color:var(--jf-line-strong)!important}
+.login-card input:focus {border-color:var(--jf-focus)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--jf-focus) 18%,transparent)!important}
+.eyebrow {color:var(--jf-brand)!important}
+.notice,.setup-warning,.preview-warning {background:var(--jf-brand-soft)!important;color:var(--jf-ink)!important}
+.notice svg,.spinner {color:var(--jf-brand)!important}
+.spinner {border-top-color:var(--jf-brand)!important}
+.topline-status .dot,.pulse {background:var(--jf-sidebar-muted)!important}
+
+/* Keep youth portal visuals consistent with the active theme. */
+body .youth-portal .youth-welcome {
+  background:linear-gradient(118deg,#051F20 0%,#0B2B26 56%,#235347 100%)!important;
+  border:1px solid #235347!important;
+  color:#FFFFFF!important;
+}
+body .youth-portal .youth-welcome :is(h1,h2,h3,p,span,strong) {color:#FFFFFF!important}
+body .youth-portal .youth-welcome :is(.youth-profile-badge,.youth-brand-label) {color:#DAF1DE!important}
+body .youth-portal :is(.youth-customize-trigger,.youth-back,.youth-sound-toggle,.youth-theme-toggle) {
+  border-color:var(--yp-line)!important;
+  background:var(--yp-surface)!important;
+  color:var(--yp-text)!important;
+}
+body .youth-portal .youth-profile-card {
+  background:var(--yp-surface)!important;
+  border-color:var(--yp-line)!important;
+  color:var(--yp-text)!important;
+  box-shadow:var(--yp-shadow)!important;
+}
+body .youth-portal .youth-pin-backdrop {backdrop-filter:none!important}
+body .youth-portal .youth-pin-dialog {
+  background:var(--yp-surface)!important;border-color:var(--yp-line)!important;
+  color:var(--yp-text)!important;
+}
+body .youth-portal .youth-pin-icon {background:linear-gradient(135deg,var(--yp-green-2),var(--yp-green))!important}
+body .youth-portal .youth-pin-kicker {color:var(--yp-green)!important}
+body .youth-portal .youth-pin-form button {background:var(--yp-green-2)!important;color:#fff!important}
+body .youth-portal .jf-community-hero {
+  background:linear-gradient(118deg,#051F20 0%,#0B2B26 54%,#235347 100%)!important;
+  border-color:#235347!important;
+}
+body .youth-portal .jf-community-eyebrow,
+body .youth-portal .jf-community-hero-mark span {color:#DAF1DE!important}
+body .youth-portal .jf-community-hero-mark {backdrop-filter:none!important;background:#0B2B26!important}
+body .youth-portal :is(.jf-community-composer,.jf-community-post,.jf-community-sidebar section) {
+  background:var(--yp-surface)!important;border-color:var(--yp-line)!important;
+}
+:root[data-theme="dark"] body .youth-portal .youth-welcome,
+:root.dark body .youth-portal .youth-welcome {
+  background:linear-gradient(118deg,#0B0B0B 0%,#1A1A1A 62%,#333333 100%)!important;
+  border-color:#6B6B6B!important;
+}
+:root[data-theme="dark"] body .youth-portal .jf-community-hero,
+:root.dark body .youth-portal .jf-community-hero {
+  background:linear-gradient(118deg,#0B0B0B 0%,#1A1A1A 62%,#333333 100%)!important;
+  border-color:#6B6B6B!important;
+}
+:root[data-theme="dark"] body .youth-portal .youth-pin-icon,
+:root.dark body .youth-portal .youth-pin-icon {background:#333333!important}
+:root[data-theme="dark"] body .youth-portal .youth-pin-form button,
+:root.dark body .youth-portal .youth-pin-form button {background:#6B6B6B!important;color:#fff!important}
