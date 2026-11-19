@@ -14,3 +14,12 @@
 .state,.error{display:grid;justify-items:center;gap:8px;padding:26px;border:1px solid var(--jf-border);border-radius:12px;color:var(--jf-muted);text-align:center}
 .error{color:#c34c3d}
 @media(max-width:560px){.section{padding:16px}.header{flex-direction:column}}
+
+.status{justify-self:start;padding:5px 9px;border-radius:999px;background:var(--jf-surface);color:var(--jf-muted);font-size:12px;font-weight:750}
+.status[data-status="Aprobado"]{color:#168653;background:rgba(22,134,83,.1)}
+.status[data-status="Rechazado"]{color:#c34c3d;background:rgba(195,76,61,.1)}
+.actions{display:flex;gap:9px;flex-wrap:wrap}
+.actions button{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 12px;border:1px solid var(--jf-border);border-radius:9px;background:var(--jf-surface);color:var(--jf-text);font-weight:700;cursor:pointer}
+.actions button:first-child{border-color:rgba(22,134,83,.3);color:#168653}
+.actions button:last-child{border-color:rgba(195,76,61,.3);color:#c34c3d}
+.actions button:disabled{opacity:.55;cursor:wait}
