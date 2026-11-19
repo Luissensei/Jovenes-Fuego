@@ -233,8 +233,13 @@ export default function AttendancePage() {
       while (current <= end) {
         const date = current.toISOString().slice(0, 10);
         const name = 'Ayuno juvenil';
-        if (date >= firstDate && !existing.has(`${date}|${name.toLocaleLowerCase('es')}`) &&
-          !existing.has(`${date}|ayuno y servicio de jóvenes`)) {
+        const hasFastingEvent = meetings.some((meeting) => {
+          if (meeting.date !== date) return false;
+          const normalized = normalizeMeetingName(meeting.name);
+          return normalized.includes('ayuno') &&
+            (normalized.includes('juvenil') || normalized.includes('jovenes'));
+        });
+        if (date >= firstDate && !hasFastingEvent) {
           generated.push({id: `scheduled_${date}_fast`, name, date, createdAt: '', participants: []});
         }
         current.setUTCDate(current.getUTCDate() + 15);
