@@ -5,7 +5,7 @@ import type {FormEvent} from 'react';
 
 import {
   Search, Users, AlertCircle, ArrowLeft, Flame, Trophy,
-  Gamepad2, RefreshCw, ChevronRight, ShieldCheck, Sparkles,
+  Gamepad2, RefreshCw, ChevronRight, ShieldCheck,
   CalendarDays, HeartHandshake, Send, Medal, Crown,
   Palette, Volume2, VolumeX, Star, X,
   BookMarked, Moon, Sun, CheckCircle2, UserRound, Save, Trash2, Home, MessageCircle,
