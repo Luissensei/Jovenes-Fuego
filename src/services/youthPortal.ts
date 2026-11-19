@@ -434,18 +434,18 @@ export async function updatePrayerRequestStatus(
 
 
 export async function recordYouthGameResult(
-  communitySession: string, gameId: 'trivia' | 'verse', score: number, runId: string,
-): Promise<{reward: number; flames: number; alreadyRecorded: boolean}> {
+  communitySession: string, gameId: 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami', score: number, runId: string,
+): Promise<{reward: number; verificationStatus: 'pending'; alreadyRecorded: boolean}> {
   if (!functions) throw new Error('Firebase Functions no está configurado.');
   const call = httpsCallable<
-    {communitySession: string; gameId: 'trivia' | 'verse'; score: number; runId: string},
-    {success: boolean; reward: number; flames: number; alreadyRecorded: boolean}
+    {communitySession: string; gameId: 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami'; score: number; runId: string},
+    {success: boolean; reward: number; verificationStatus: 'pending'; alreadyRecorded: boolean}
   >(functions, 'recordYouthGameResult');
   const response = await call({communitySession, gameId, score, runId});
   if (!response.data.success) throw new Error('No se pudo guardar el resultado.');
   return {
     reward: response.data.reward,
-    flames: response.data.flames,
+    verificationStatus: response.data.verificationStatus,
     alreadyRecorded: response.data.alreadyRecorded,
   };
 }
