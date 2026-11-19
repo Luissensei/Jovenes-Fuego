@@ -116,16 +116,17 @@ const memoryPairs = [
 type MemoryCard = { id: number; pair: number; text: string; symbol: string };
 
 function makeMemoryCards(): MemoryCard[] {
-  return shuffle(shuffle(memoryPairs).slice(0, 8).flatMap((pair, index) => [
+  return shuffle(shuffle(memoryPairs.map((pair, index) => ({pair,index}))).slice(0, 8).flatMap(({pair,index}) => [
     { id: index * 2, pair: index, text: pair[0], symbol: pair[2] },
     { id: index * 2 + 1, pair: index, text: pair[1], symbol: pair[2] },
   ]));
 }
 
-export function MemoryGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number) => void }) {
+export function MemoryGame({ onExit, onComplete }: { onExit: () => void; onComplete?: (score: number, attempts: {firstPair:number;secondPair:number}[]) => void }) {
   const [cards, setCards] = useState(makeMemoryCards);
   const [opened, setOpened] = useState<number[]>([]);
   const [matched, setMatched] = useState<number[]>([]);
+  const [attempts, setAttempts] = useState<{firstPair:number;secondPair:number}[]>([]);
   const [moves, setMoves] = useState(0);
   const [finished, setFinished] = useState(false);
   const memoryGameReported = useRef(false);
@@ -133,8 +134,8 @@ export function MemoryGame({ onExit, onComplete }: { onExit: () => void; onCompl
   useEffect(() => {
     if (!finished || memoryGameReported.current) return;
     memoryGameReported.current = true;
-    onComplete?.(finalScore);
-  }, [finished, onComplete, finalScore]);
+    onComplete?.(finalScore, attempts);
+  }, [finished, onComplete, finalScore, attempts]);
   const [busy, setBusy] = useState(false);
 
   function flip(card: MemoryCard) {
@@ -149,6 +150,7 @@ export function MemoryGame({ onExit, onComplete }: { onExit: () => void; onCompl
     if (!first) return;
 
     setOpened([opened[0], card.id]);
+    setAttempts((previous) => [...previous, {firstPair:first.pair,secondPair:card.pair}]);
     setMoves((value) => value + 1);
     setBusy(true);
 
@@ -172,6 +174,7 @@ export function MemoryGame({ onExit, onComplete }: { onExit: () => void; onCompl
     setCards(makeMemoryCards());
     setOpened([]);
     setMatched([]);
+    setAttempts([]);
     setMoves(0);
     setFinished(false);
     setBusy(false);

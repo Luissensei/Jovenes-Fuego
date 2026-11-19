@@ -1724,6 +1724,27 @@ export const recordYouthGameResult = onCall(async (request) => {
 
   let scoreValue = reportedScore;
   let answerValidation = "manual-review";
+  if (gameId === "memory") {
+    const attempts = request.data?.answers;
+    if (!Array.isArray(attempts) || attempts.length < 8 || attempts.length > 100) {
+      throw new HttpsError("invalid-argument", "La partida de memoria debe incluir sus intentos.");
+    }
+    const successfulPairs = new Set<number>();
+    for (const attempt of attempts) {
+      const firstPair = Number(attempt?.firstPair);
+      const secondPair = Number(attempt?.secondPair);
+      if (!Number.isInteger(firstPair) || firstPair < 0 || firstPair >= 35 ||
+          !Number.isInteger(secondPair) || secondPair < 0 || secondPair >= 35) {
+        throw new HttpsError("invalid-argument", "La evidencia de memoria contiene parejas inválidas.");
+      }
+      if (firstPair === secondPair) successfulPairs.add(firstPair);
+    }
+    if (successfulPairs.size !== 8) {
+      throw new HttpsError("failed-precondition", "La partida debe demostrar ocho parejas distintas completadas.");
+    }
+    scoreValue = Math.max(0, 160 - attempts.length * 5);
+    answerValidation = "server-validated";
+  }
   if (gameId === "whoami") {
     const answers = request.data?.answers;
     if (!Array.isArray(answers) || answers.length !== 10) {
@@ -1835,7 +1856,7 @@ export const recordYouthGameResult = onCall(async (request) => {
       memberName: member.name,
       gameId,
       score: scoreValue,
-      ...(["trivia", "truefalse", "verse", "challenge", "survival", "whoami"].includes(gameId) ? {clientReportedScore: reportedScore} : {}),
+      ...(["trivia", "truefalse", "verse", "challenge", "survival", "whoami", "memory"].includes(gameId) ? {clientReportedScore: reportedScore} : {}),
       answerValidation,
       verificationStatus: "pending",
       reward: 0,

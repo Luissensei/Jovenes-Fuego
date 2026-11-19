@@ -157,6 +157,8 @@ assert.match(trustedVerseBank, /verse-27/, 'El servidor debe incluir las 27 resp
 assert.match(moreBibleGames, /questionId: question.id, answerIndex: question.options.indexOf\(option\)/, 'Los retos cronometrado y supervivencia deben enviar respuestas por pregunta.');
 assert.match(quickBibleGames, /questionId:current.id,answerIndex:current.options.indexOf\(value\),hintCount:hintIndex/, '¿Quién soy? debe enviar evidencia de respuesta y pistas usadas.');
 assert.match(trustedWhoAmIBank, /who-16/, 'El servidor debe validar los dieciséis personajes de ¿Quién soy?');
+assert.match(moreBibleGames, /firstPair:first.pair,secondPair:card.pair/, 'Memoria debe enviar los intentos de parejas al servidor.');
+assert.match(functionsSource, /successfulPairs.size !== 8/, 'El servidor debe comprobar ocho parejas distintas en Memoria.');
 assert.match(quickBibleGames, /questionId:current.id,answerIndex:value\?1:0/, 'Verdadero o falso debe enviar evidencia por pregunta.');
 assert.match(trustedTrueFalseBank, /tf-20/, 'El servidor debe tener las veinte respuestas de Verdadero o falso.');
 assert.match(functionsSource, /youthTrueFalseAnswerBank\[questionId\]/, 'Functions debe verificar las respuestas de Verdadero o falso.');

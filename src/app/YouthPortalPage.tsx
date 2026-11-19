@@ -1114,7 +1114,7 @@ export default function YouthPortalPage() {
             {gameRewardNotice && <div role="status" aria-live="polite" className="youth-game-reward-notice">{gameRewardNotice}</div>}
             {activeGame === 'trivia' && <TriviaGame onExit={exitGame} onComplete={(score, answers) => void completeGame('trivia', score, answers)}/>}
             {activeGame === 'verse' && <VerseGame onExit={exitGame} onComplete={(score, answers) => void completeGame('verse', score, answers)}/>}
-            {activeGame === 'memory' && <MemoryGame onExit={exitGame} onComplete={(score) => void completeGame('memory', score)}/>}
+            {activeGame === 'memory' && <MemoryGame onExit={exitGame} onComplete={(score, answers) => void completeGame('memory', score, answers as unknown as {questionId:string;answerIndex:number}[])}/>}
             {activeGame === 'challenge' && <ChallengeGame onExit={exitGame} onComplete={(score, answers) => void completeGame('challenge', score, answers)}/>}
             {activeGame === 'survival' && <SurvivalGame onExit={exitGame} onComplete={(score, answers) => void completeGame('survival', score, answers)}/>}
             {activeGame === 'duel' && <DuelGame onExit={exitGame} onComplete={(score) => void completeGame('duel', score)}/>}
