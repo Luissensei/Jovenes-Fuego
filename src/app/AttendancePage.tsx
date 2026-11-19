@@ -181,7 +181,7 @@ export default function AttendancePage() {
     const normalizeMeetingName = (value: string) => value.trim()
       .toLocaleLowerCase('es')
       .normalize('NFD')
-      .replace(/[\\u0300-\\u036f]/g, '');
+      .replace(/[\u0300-\u036f]/g, '');
     const schedule: Array<{weekday: number; name: string}> = [
       {weekday: 2, name: 'Discipulado'},
       {weekday: 3, name: 'Servicio de miércoles'},
