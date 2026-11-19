@@ -1742,7 +1742,9 @@ export const recordYouthGameResult = onCall(async (request) => {
 export const adminListYouthGameResults = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireModulePermission(request.auth.uid, "games");
-  const snapshot = await db.collection("youthGameResults").limit(250).get();
+  const snapshot = await db.collection("youthGameResults")
+    .where("verificationStatus", "==", "pending")
+    .limit(100).get();
   const results = snapshot.docs.map((document) => {
     const data = document.data();
     return {
@@ -1755,9 +1757,7 @@ export const adminListYouthGameResults = onCall(async (request) => {
       reward: Math.max(0, Math.floor(Number(data.reward) || 0)),
       createdAt: text(data.createdAt, 40),
     };
-  }).filter((item) => item.verificationStatus === "pending")
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .slice(0, 100);
+  }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   return {results};
 });
 
