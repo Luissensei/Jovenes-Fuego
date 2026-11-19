@@ -224,8 +224,9 @@ export default function AttendancePage() {
       }
     }
 
-    // El ayuno juvenil se programa cada 15 días tomando como referencia
-    // la fecha de un ayuno que ya exista en el historial real.
+    // El ayuno juvenil se realiza los domingos de forma quincenal.
+    // Se toma como referencia el primer ayuno real y se avanza de domingo
+    // en domingo alterno; sumar 15 días desplazaba el evento a sábados.
     const fastingDates = meetings
       .filter((meeting) => {
         const normalized = normalizeMeetingName(meeting.name);
@@ -237,6 +238,9 @@ export default function AttendancePage() {
       .sort();
     if (fastingDates.length > 0) {
       const anchor = new Date(`${fastingDates[0]}T12:00:00Z`);
+      while (anchor.getUTCDay() !== 0) {
+        anchor.setUTCDate(anchor.getUTCDate() + 1);
+      }
       const current = new Date(anchor);
       while (current <= end) {
         const date = current.toISOString().slice(0, 10);
@@ -248,16 +252,9 @@ export default function AttendancePage() {
             (normalized.includes('juvenil') || normalized.includes('jovenes'));
         });
         if (date >= firstDate && !hasFastingEvent) {
-          const saturdayService = generated.find((meeting) =>
-            meeting.date === date && meeting.name === 'Servicio de jóvenes',
-          );
-          if (saturdayService) {
-            saturdayService.name = 'Ayuno y servicio de jóvenes';
-          } else {
-            generated.push({id: `scheduled_${date}_fast`, name, date, createdAt: '', participants: []});
-          }
+          generated.push({id: `scheduled_${date}_fast`, name, date, createdAt: '', participants: []});
         }
-        current.setUTCDate(current.getUTCDate() + 15);
+        current.setUTCDate(current.getUTCDate() + 14);
       }
     }
     return generated;
