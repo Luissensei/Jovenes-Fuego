@@ -178,7 +178,10 @@ export default function AttendancePage() {
         meeting.date && meeting.date < earliest ? meeting.date : earliest, today)
       : fallbackStart.toISOString().slice(0, 10);
     const lastDate = today;
-    const existing = new Set(meetings.map((meeting) => `${meeting.date}|${meeting.name.trim().toLocaleLowerCase('es')}`));
+    const normalizeMeetingName = (value: string) => value.trim()
+      .toLocaleLowerCase('es')
+      .normalize('NFD')
+      .replace(/[\\u0300-\\u036f]/g, '');
     const schedule: Array<{weekday: number; name: string}> = [
       {weekday: 2, name: 'Discipulado'},
       {weekday: 3, name: 'Servicio de miércoles'},
@@ -186,6 +189,19 @@ export default function AttendancePage() {
       {weekday: 6, name: 'Servicio de jóvenes'},
       {weekday: 0, name: 'Escuela dominical'},
     ];
+    const alreadyHasScheduledType = (date: string, weekday: number) => meetings.some((meeting) => {
+      if (meeting.date !== date) return false;
+      const name = normalizeMeetingName(meeting.name);
+      if (weekday === 2) return name.includes('discipul');
+      if (weekday === 3) return name.includes('miercoles');
+      if (weekday === 5) return name.includes('viernes');
+      if (weekday === 6) return (
+        (name.includes('servicio') && name.includes('jovenes')) ||
+        (name.includes('ayuno') && name.includes('juvenil'))
+      );
+      if (weekday === 0) return name.includes('escuela') && name.includes('dominical');
+      return false;
+    });
     const generated: AttendanceMeeting[] = [];
     const cursor = new Date(`${firstDate}T12:00:00Z`);
     const end = new Date(`${lastDate}T12:00:00Z`);
@@ -193,7 +209,7 @@ export default function AttendancePage() {
       const date = cursor.toISOString().slice(0, 10);
       const day = cursor.getUTCDay();
       const event = schedule.find((item) => item.weekday === day);
-      if (event && !existing.has(`${date}|${event.name.toLocaleLowerCase('es')}`)) {
+      if (event && !alreadyHasScheduledType(date, event.weekday)) {
         generated.push({
           id: `scheduled_${date}_${event.weekday}`,
           name: event.name,
