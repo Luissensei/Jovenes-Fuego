@@ -479,3 +479,54 @@
 @media (prefers-reduced-motion: reduce) {
   .dashboard :global(*) { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+
+/* Ajustes de navegación y tarjetas para móviles estrechos. */
+@media (max-width: 1000px) {
+  .mobileNavigation {
+    left: 0;
+    right: 0;
+    width: calc(100% - 18px);
+    max-width: 620px;
+    margin-inline: auto;
+    box-sizing: border-box;
+    transform: none;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding: 6px;
+    gap: 3px;
+    background: var(--jdf-surface);
+  }
+  .mobileNavItem {
+    min-width: 0;
+    padding: 5px 0;
+    gap: 4px;
+    font-size: clamp(10px, 2.7vw, 12px);
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+  .mobileNavItem span {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 720px) {
+  .summaryLabel {
+    min-width: 0;
+    font-size: clamp(11px, 3.1vw, 13px);
+    line-height: 1.25;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .summaryLabel span {
+    min-width: 0;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .summaryCard small {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+}
