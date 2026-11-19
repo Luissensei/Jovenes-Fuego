@@ -1734,12 +1734,16 @@ export const recordYouthGameResult = onCall(async (request) => {
       const questionId = text(entry?.questionId, 40);
       const answerIndex = Number(entry?.answerIndex);
       const question = gameId === "verse" ? youthVerseAnswerBank[questionId] : youthTriviaQuestionBank[questionId];
+      const optionCount = question?.optionCount;
+      const expectedAnswerIndex = gameId === "verse"
+        ? youthVerseAnswerBank[questionId]?.answerIndex
+        : youthTriviaQuestionBank[questionId]?.answer;
       if (!question || seenQuestions.has(questionId) ||
-          !Number.isInteger(answerIndex) || answerIndex < 0 || answerIndex >= question.optionCount) {
+          !Number.isInteger(answerIndex) || answerIndex < 0 || answerIndex >= optionCount!) {
         throw new HttpsError("invalid-argument", "La evidencia del juego contiene preguntas o respuestas inválidas.");
       }
       seenQuestions.add(questionId);
-      if (answerIndex === question.answerIndex) scoreValue += gameId === "verse" ? 10 : 10;
+      if (answerIndex === expectedAnswerIndex) scoreValue += 10;
     }
     if (gameId === "verse" && answers.length !== 27) {
       throw new HttpsError("invalid-argument", "Completa el versículo debe registrar sus 27 preguntas.");
