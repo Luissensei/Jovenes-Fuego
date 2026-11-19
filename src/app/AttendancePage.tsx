@@ -1,7 +1,7 @@
 import styles from './styles/AttendancePage.module.css';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import type {FormEvent} from 'react';
-import {RefreshCw, Search, CheckCheck, XCircle} from 'lucide-react';
+import {RefreshCw, Search, CheckCheck, XCircle, AlertTriangle} from 'lucide-react';
 
 import {
   createAttendanceMeeting,
@@ -443,6 +443,26 @@ export default function AttendancePage() {
     setMessage('');
   }
 
+  const absenceAlerts = useMemo(() => {
+    const recentMeetings = [...meetings].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 12);
+    if (recentMeetings.length < 2) return [];
+    return members.flatMap((member) => {
+      let consecutive = 0;
+      const dates: string[] = [];
+      for (const meeting of recentMeetings) {
+        const participant = meeting.participants.find((row) => row.memberId === member.id);
+        if (!participant) break;
+        if (participant.status === 'Ausente' || participant.status === 'Falta') {
+          consecutive += 1;
+          dates.push(meeting.date);
+        } else {
+          break;
+        }
+      }
+      return consecutive >= 2 ? [{id: member.id, name: member.name || 'Joven', consecutive, dates}] : [];
+    }).sort((a, b) => b.consecutive - a.consecutive || a.name.localeCompare(b.name, 'es'));
+  }, [meetings, members]);
+
   const attendanceCounts = useMemo(() => members.reduce((counts, member) => {
     const status = attendance[member.id];
     if (!status) counts.unregistered += 1;
@@ -561,6 +581,16 @@ export default function AttendancePage() {
           </div>
         )}
       </section>
+
+      {absenceAlerts.length > 0 && (
+        <section className={styles.absenceAlerts} aria-labelledby="absence-alerts-title">
+          <header><AlertTriangle size={19}/><div><h2 id="absence-alerts-title">Alertas de inasistencia</h2><p>Jóvenes con 2 o más reuniones consecutivas marcadas como falta o ausencia.</p></div><strong>{absenceAlerts.length}</strong></header>
+          <ul>{absenceAlerts.slice(0, 12).map((item) => (
+            <li key={item.id}><span><b>{item.name}</b><small>{item.consecutive} reuniones seguidas · última: {item.dates[0]}</small></span><span className={styles.absenceCount}>{item.consecutive} faltas</span></li>
+          ))}</ul>
+          {absenceAlerts.length > 12 && <p className={styles.absenceMore}>Y {absenceAlerts.length - 12} jóvenes más requieren seguimiento.</p>}
+        </section>
+      )}
 
       {selectedMeeting && (
         <section className="attendance-summary" aria-label="Resumen de asistencia">
