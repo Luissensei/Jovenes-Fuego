@@ -1698,7 +1698,7 @@ export const recordYouthGameResult = onCall(async (request) => {
   const gameId = text(request.data?.gameId, 30);
   const runId = text(request.data?.runId, 80);
   const scoreValue = Number(request.data?.score);
-  const limits: Record<string, number> = {trivia: 300, verse: 100};
+  const limits: Record<string, number> = {trivia: 300, verse: 2000};
   if (!Object.prototype.hasOwnProperty.call(limits, gameId) ||
       !/^[a-zA-Z0-9_-]{12,80}$/.test(runId) ||
       !Number.isInteger(scoreValue) || scoreValue < 0 || scoreValue > limits[gameId]) {
