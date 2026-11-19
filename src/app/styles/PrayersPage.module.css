@@ -1,0 +1,31 @@
+.scope{width:100%;min-width:0;max-width:1120px;margin:0 auto;padding:0 0 32px;box-sizing:border-box;color:var(--jf-ink)}
+.scope:global(.prayers-admin-page){display:grid;gap:16px}
+.scope :global(.management-header){display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0;padding:clamp(20px,3vw,30px);border:1px solid var(--jf-line);border-radius:22px;background:var(--jf-surface-2);color:var(--jf-ink)}
+.scope :global(.management-kicker){color:var(--jf-ember);font-size:10px;font-weight:850;letter-spacing:.13em}
+.scope :global(.management-header) h1{margin:7px 0;font-size:clamp(24px,4vw,34px);line-height:1.15;font-weight:850}
+.scope :global(.management-header) p{max-width:620px;margin:0;color:var(--jf-muted);font-size:13px;line-height:1.65}
+.scope :global(.prayers-admin-icon){display:grid;place-items:center;flex:0 0 62px;width:62px;height:62px;border:1px solid var(--jf-line);border-radius:18px;background:var(--jf-brand-soft);color:var(--jf-brand)}
+.scope :global(.prayers-admin-summary){display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 18px;border:1px solid var(--jf-line);border-radius:16px;background:var(--jf-surface);color:var(--jf-muted);font-size:12px}
+.scope :global(.prayers-admin-summary)>span{display:inline-flex;align-items:center;gap:8px}
+.scope :global(.prayers-admin-summary)>span svg{color:var(--jf-brand)}
+.scope :global(.prayers-admin-summary) button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:0 13px;border:1px solid var(--jf-line);border-radius:10px;background:var(--jf-surface-2);color:var(--jf-ink);font:inherit;font-weight:750;cursor:pointer}
+.scope :global(.prayers-admin-summary) button:disabled{opacity:.55;cursor:wait}
+.scope :global(.prayers-admin-alert){margin:0;padding:13px 15px;border:1px solid var(--jf-line);border-radius:13px;background:var(--jf-surface-2);color:var(--jf-muted);font-size:12px;line-height:1.6}
+.scope :global(.prayers-admin-alert.error){border-color:var(--jf-danger);background:var(--jf-danger-soft);color:var(--jf-ink)}
+.scope :global(.prayers-admin-empty){display:grid;place-items:center;gap:10px;min-height:190px;padding:24px;border:1px dashed var(--jf-line-strong);border-radius:18px;background:var(--jf-surface);color:var(--jf-muted);text-align:center;font-size:13px}
+.scope :global(.prayers-admin-empty) strong{color:var(--jf-ink);font-size:15px}
+.scope :global(.prayers-admin-list){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.scope :global(.prayer-admin-card){display:grid;align-content:start;gap:16px;min-width:0;padding:19px;border:1px solid var(--jf-line);border-radius:18px;background:var(--jf-surface);box-shadow:var(--jf-shadow)}
+.scope :global(.prayer-admin-card)>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.scope :global(.prayer-admin-card)>header>div{min-width:0}
+.scope :global(.prayer-admin-card)>header span{display:inline-flex;margin-bottom:7px;padding:5px 9px;border-radius:30px;background:var(--jf-brand-soft);color:var(--jf-brand);font-size:10px;font-weight:800}
+.scope :global(.prayer-admin-card) h2{margin:0;color:var(--jf-ink);font-size:16px;font-weight:800;overflow-wrap:anywhere}
+.scope :global(.prayer-admin-card)>header small{display:inline-flex;align-items:center;gap:5px;flex:none;color:var(--jf-muted);font-size:10px}
+.scope :global(.prayer-admin-card)>p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--jf-ink);font-size:13px;line-height:1.75}
+.scope :global(.prayer-admin-card)>footer{display:flex;align-items:center;justify-content:flex-end;padding-top:13px;border-top:1px solid var(--jf-line)}
+.scope :global(.prayer-status-control){display:grid;grid-template-columns:auto minmax(130px,1fr);align-items:center;gap:8px;color:var(--jf-muted);font-size:11px;font-weight:750}
+.scope :global(.prayer-status-control) select{min-height:38px;max-width:100%;padding:0 10px;border:1px solid var(--jf-line);border-radius:10px;background:var(--jf-surface-2);color:var(--jf-ink);font:inherit}
+.scope :global(.prayer-status-control) small{grid-column:2;color:var(--jf-muted);font-weight:500}
+@media(max-width:720px){.scope :global(.prayers-admin-list){grid-template-columns:1fr}.scope :global(.prayer-admin-card){padding:16px}}
+@media(max-width:480px){.scope :global(.management-header){align-items:flex-start}.scope :global(.prayers-admin-icon){flex-basis:48px;width:48px;height:48px}.scope :global(.prayers-admin-summary){align-items:flex-start;flex-direction:column}.scope :global(.prayers-admin-summary) button{width:100%}.scope :global(.prayer-admin-card)>header{flex-direction:column}.scope :global(.prayer-status-control){width:100%;grid-template-columns:1fr}.scope :global(.prayer-status-control) select{width:100%}}
+@media(prefers-reduced-motion:reduce){.scope *,.scope *:before,.scope *:after{animation:none!important;transition:none!important}}

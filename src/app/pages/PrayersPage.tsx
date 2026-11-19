@@ -1,4 +1,5 @@
 import {useEffect, useRef, useState} from 'react';
+import styles from '../styles/PrayersPage.module.css';
 import {HeartHandshake, RefreshCw, ShieldCheck, Clock3, MessageCircle} from 'lucide-react';
 import {
   getPrayerRequestsForAdministration,
@@ -58,7 +59,7 @@ export default function PrayersPage() {
 
 
   return (
-    <main className="prayers-admin-page">
+    <main className={`${styles.scope} prayers-admin-page bg-[var(--jf-canvas)] text-[var(--jf-ink)]`}>
       <header className="management-header">
         <div><span className="management-kicker">ACOMPAÑAMIENTO ESPIRITUAL</span><h1>Peticiones de oración</h1><p>Recibe las peticiones enviadas desde el portal juvenil y acompaña cada solicitud.</p></div>
         <div className="prayers-admin-icon"><HeartHandshake size={32}/></div>
