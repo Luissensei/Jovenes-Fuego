@@ -2484,9 +2484,7 @@ export const adminReviewYouthDevotionalSubmission = onCall(async (request) => {
     const nextPoints = safeCurrent + 20;
 
     if (memberSnapshot.exists) transaction.set(memberRef, {points: nextPoints}, {merge: true});
-    if (publicSnapshot.exists || !publicSnapshot.exists) {
-      transaction.set(publicRef, {points: nextPoints}, {merge: true});
-    }
+    transaction.set(publicRef, {points: nextPoints}, {merge: true});
     if (legacyEntry) {
       transaction.set(rankingRef, {all: legacyEntries.map((entry) =>
         text(entry.i, 150) === memberId ? {...entry, t: nextPoints} : entry,
