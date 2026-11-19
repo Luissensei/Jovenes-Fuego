@@ -2421,6 +2421,95 @@ export const adminListYouthDevotionalSubmissions = onCall(async (request) => {
   return {submissions};
 });
 
+export const adminReviewYouthDevotionalSubmission = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  await requireModulePermission(request.auth.uid, "devotionals");
+
+  const submissionId = text(request.data?.submissionId, 150);
+  const decision = text(request.data?.decision, 20);
+  if (!submissionId || !["approve", "reject"].includes(decision)) {
+    throw new HttpsError("invalid-argument", "La revisión solicitada no es válida.");
+  }
+
+  const submissionRef = db.collection("devotionalSubmissions").doc(submissionId);
+  const result = await db.runTransaction(async (transaction) => {
+    const submissionSnapshot = await transaction.get(submissionRef);
+    if (!submissionSnapshot.exists) {
+      throw new HttpsError("not-found", "No se encontró la entrega del devocional.");
+    }
+    const submission = submissionSnapshot.data() ?? {};
+    const status = text(submission.status, 30) || "Pendiente";
+    if (status === "Aprobado") return {status, pointsAwarded: 20, changed: false};
+    if (status === "Rechazado") {
+      throw new HttpsError("failed-precondition", "Esta entrega ya fue rechazada.");
+    }
+    if (status !== "Pendiente") {
+      throw new HttpsError("failed-precondition", "La entrega ya fue revisada.");
+    }
+
+    const memberId = text(submission.memberId, 150);
+    if (!memberId) throw new HttpsError("failed-precondition", "La entrega no tiene un joven asociado.");
+    const memberRef = db.collection("members").doc(memberId);
+    const publicRef = db.collection("publicProfiles").doc(memberId);
+    const rankingRef = db.collection("public").doc("ranking");
+    const awardId = createHash("sha256").update("devotional:" + submissionId + ":" + memberId).digest("hex");
+    const awardRef = db.collection("devotionalPointAwards").doc(awardId);
+    const [memberSnapshot, publicSnapshot, rankingSnapshot, awardSnapshot] = await Promise.all([
+      transaction.get(memberRef), transaction.get(publicRef),
+      transaction.get(rankingRef), transaction.get(awardRef),
+    ]);
+    if (!memberSnapshot.exists && !publicSnapshot.exists) {
+      throw new HttpsError("failed-precondition", "El perfil del joven ya no está disponible.");
+    }
+
+    const now = new Date().toISOString();
+    if (decision === "reject") {
+      transaction.set(submissionRef, {
+        status: "Rechazado", reviewedAt: now, reviewedBy: request.auth!.uid,
+      }, {merge: true});
+      return {status: "Rechazado", pointsAwarded: 0, changed: true};
+    }
+
+    if (awardSnapshot.exists) {
+      throw new HttpsError("failed-precondition", "Esta entrega ya tiene un registro de puntos.");
+    }
+    const member = memberSnapshot.data() ?? {};
+    const profile = publicSnapshot.data() ?? {};
+    const ranking = rankingSnapshot.data() ?? {};
+    const legacyEntries = Array.isArray(ranking.all) ? ranking.all as Array<Record<string, unknown>> : [];
+    const legacyEntry = legacyEntries.find((entry) => text(entry.i, 150) === memberId);
+    const currentValue = profile.points ?? profile.puntos ?? legacyEntry?.t ?? member.points ?? member.puntos ?? 0;
+    const current = Number(currentValue);
+    const safeCurrent = Number.isFinite(current) && current >= 0 ? Math.floor(current) : 0;
+    const nextPoints = safeCurrent + 20;
+
+    if (memberSnapshot.exists) transaction.set(memberRef, {points: nextPoints}, {merge: true});
+    if (publicSnapshot.exists || !publicSnapshot.exists) {
+      transaction.set(publicRef, {points: nextPoints}, {merge: true});
+    }
+    if (legacyEntry) {
+      transaction.set(rankingRef, {all: legacyEntries.map((entry) =>
+        text(entry.i, 150) === memberId ? {...entry, t: nextPoints} : entry,
+      )}, {merge: true});
+    }
+    transaction.create(awardRef, {
+      submissionId, memberId, points: 20, createdAt: now, createdBy: request.auth!.uid,
+    });
+    transaction.set(submissionRef, {
+      status: "Aprobado", reviewedAt: now, reviewedBy: request.auth!.uid, pointsAwarded: 20,
+    }, {merge: true});
+    return {status: "Aprobado", pointsAwarded: 20, changed: true};
+  });
+
+  if (result.changed) {
+    await recordAudit(
+      decision === "approve" ? "devotional-submission.approved" : "devotional-submission.rejected",
+      request.auth.uid, submissionId, {pointsAwarded: result.pointsAwarded},
+    );
+  }
+  return {success: true, status: result.status, pointsAwarded: result.pointsAwarded};
+});
+
 export const adminListDevotionals = onCall(async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   await requireModulePermission(request.auth.uid, "devotionals");
