@@ -1078,12 +1078,12 @@ export default function YouthPortalPage() {
   }
 
   if (selectedProfile && activeGame) {
-    const completeGame = async (gameId: 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami', score: number) => {
+    const completeGame = async (gameId: 'trivia' | 'verse' | 'memory' | 'challenge' | 'survival' | 'duel' | 'order' | 'truefalse' | 'whoami', score: number, answers?: {questionId: string; answerIndex: number}[]) => {
       if (!communitySession) return;
       const runId = typeof crypto !== 'undefined' && 'randomUUID' in crypto
         ? crypto.randomUUID() : `run_${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
       try {
-        await recordYouthGameResult(communitySession, gameId, score, runId);
+        await recordYouthGameResult(communitySession, gameId, score, runId, answers);
         setGameRewardNotice('Resultado guardado. Está pendiente de validación; todavía no genera Llamas.');
       } catch (cause) {
         setGameRewardNotice(cause instanceof Error ? cause.message : 'No se pudo guardar el resultado.');
@@ -1112,7 +1112,7 @@ export default function YouthPortalPage() {
           </div>
           <Suspense fallback={<div className="jf-page-loading" role="status" aria-live="polite"><span/><strong>Preparando el juego</strong><small>Un momento…</small></div>}>
             {gameRewardNotice && <div role="status" aria-live="polite" className="youth-game-reward-notice">{gameRewardNotice}</div>}
-            {activeGame === 'trivia' && <TriviaGame onExit={exitGame} onComplete={(score) => void completeGame('trivia', score)}/>}
+            {activeGame === 'trivia' && <TriviaGame onExit={exitGame} onComplete={(score, answers) => void completeGame('trivia', score, answers)}/>}
             {activeGame === 'verse' && <VerseGame onExit={exitGame} onComplete={(score) => void completeGame('verse', score)}/>}
             {activeGame === 'memory' && <MemoryGame onExit={exitGame} onComplete={(score) => void completeGame('memory', score)}/>}
             {activeGame === 'challenge' && <ChallengeGame onExit={exitGame} onComplete={(score) => void completeGame('challenge', score)}/>}

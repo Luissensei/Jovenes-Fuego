@@ -4,6 +4,7 @@ import {onCall, HttpsError} from "./vercelAdapter.js";
 import {initializeApp, getApps, cert} from "firebase-admin/app";
 import {getFirestore, FieldValue, FieldPath, type QueryDocumentSnapshot} from "firebase-admin/firestore";
 import {getAuth as getAdminAuth} from "firebase-admin/auth";
+import {youthTriviaQuestionBank} from "./youthTriviaQuestionBank.js";
 
 setGlobalOptions({maxInstances: 10});
 
@@ -1707,15 +1708,47 @@ export const recordYouthGameResult = onCall(async (request) => {
   const member = await getCommunityMember(memberId);
   const gameId = text(request.data?.gameId, 30);
   const runId = text(request.data?.runId, 80);
-  const scoreValue = Number(request.data?.score);
+  const reportedScore = Number(request.data?.score);
   const allowedGames = new Set([
     "trivia", "verse", "memory", "challenge", "survival",
     "duel", "order", "truefalse", "whoami",
   ]);
   if (!allowedGames.has(gameId) ||
       !/^[a-zA-Z0-9_-]{12,80}$/.test(runId) ||
-      !Number.isInteger(scoreValue) || scoreValue < 0 || scoreValue > 10000) {
+      !Number.isInteger(reportedScore) || reportedScore < 0 || reportedScore > 10000) {
     throw new HttpsError("invalid-argument", "El resultado del juego no es válido.");
+  }
+
+  let scoreValue = reportedScore;
+  let answerValidation = "manual-review";
+  if (gameId === "trivia") {
+    const answers = request.data?.answers;
+    if (!Array.isArray(answers) || answers.length !== 10) {
+      throw new HttpsError("invalid-argument", "La partida de Trivia debe incluir las diez respuestas.");
+    }
+    const seenQuestions = new Set<string>();
+    let streak = 0;
+    scoreValue = 0;
+    for (const entry of answers) {
+      const questionId = text(entry?.questionId, 40);
+      const answerIndex = Number(entry?.answerIndex);
+      const question = youthTriviaQuestionBank[questionId];
+      if (!question || seenQuestions.has(questionId) ||
+          !Number.isInteger(answerIndex) ||
+          answerIndex < -1 || answerIndex >= question.optionCount) {
+        throw new HttpsError("invalid-argument", "La evidencia de Trivia contiene una pregunta o respuesta inválida.");
+      }
+      seenQuestions.add(questionId);
+      if (answerIndex === question.answer) {
+        streak += 1;
+        const basePoints = question.level === "Básico" ? 10 :
+          question.level === "Intermedio" ? 15 : 20;
+        scoreValue += basePoints + (streak % 3 === 0 ? 5 : 0);
+      } else {
+        streak = 0;
+      }
+    }
+    answerValidation = "server-validated";
   }
   const resultRef = db.collection("youthGameResults").doc(memberId + "_" + runId);
   let alreadyRecorded = false;
@@ -1730,12 +1763,14 @@ export const recordYouthGameResult = onCall(async (request) => {
       memberName: member.name,
       gameId,
       score: scoreValue,
+      ...(gameId === "trivia" ? {clientReportedScore: reportedScore} : {}),
+      answerValidation,
       verificationStatus: "pending",
       reward: 0,
       createdAt: new Date().toISOString(),
     });
   });
-  return {success: true, score: scoreValue, reward: 0, verificationStatus: "pending", alreadyRecorded};
+  return {success: true, score: scoreValue, answerValidation, reward: 0, verificationStatus: "pending", alreadyRecorded};
 });
 
 /** Lista partidas pendientes para revisión pastoral/administrativa. */

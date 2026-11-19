@@ -2,8 +2,7 @@ import styles from './styles/TriviaGame.module.css';
 import {playGameTone} from './gameAudio';
 
 import { useEffect, useRef, useState } from 'react';
-import { shuffleBibleQuestions, type BibleQuestion } from './bibleQuestionBank';
-import { expandedBibleQuestionBank } from './extendedBibleQuestionBank';
+import { shuffleBibleQuestions, bibleQuestionBank, type BibleQuestion } from './bibleQuestionBank';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -21,14 +20,17 @@ import {
 
 type Question = BibleQuestion;
 
+export type TriviaAnswerEvidence = {questionId: string; answerIndex: number};
+
 type Props = {
   onExit: () => void;
-  onComplete?: (score: number) => void;
+  onComplete?: (score: number, answers: TriviaAnswerEvidence[]) => void;
 };
 
 export default function TriviaGame({ onExit, onComplete }: Props) {
   const [started, setStarted] = useState(false);
-  const [roundQuestions, setRoundQuestions] = useState<Question[]>(expandedBibleQuestionBank.slice(0, 10));
+  const [roundQuestions, setRoundQuestions] = useState<Question[]>(bibleQuestionBank.slice(0, 10));
+  const [answerTranscript, setAnswerTranscript] = useState<TriviaAnswerEvidence[]>([]);
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [seconds, setSeconds] = useState(20);
@@ -48,8 +50,8 @@ export default function TriviaGame({ onExit, onComplete }: Props) {
   useEffect(() => {
     if (!finished || resultReported.current) return;
     resultReported.current = true;
-    onComplete?.(score);
-  }, [finished, onComplete, score]);
+    onComplete?.(score, answerTranscript);
+  }, [finished, onComplete, score, answerTranscript]);
 
   // Temporizador de cada pregunta.
   useEffect(() => {
@@ -57,6 +59,7 @@ export default function TriviaGame({ onExit, onComplete }: Props) {
 
     if (seconds === 0) {
       setSelected(-1);
+      setAnswerTranscript((previous) => [...previous, {questionId: question.id, answerIndex: -1}]);
       setStreak(0);
       return;
     }
@@ -66,7 +69,7 @@ export default function TriviaGame({ onExit, onComplete }: Props) {
     }, 1000);
 
     return () => window.clearTimeout(timeout);
-  }, [started, finished, selected, seconds]);
+  }, [started, finished, selected, seconds, question.id]);
 
   // Avanza automáticamente después de mostrar la explicación.
   useEffect(() => {
@@ -90,7 +93,8 @@ export default function TriviaGame({ onExit, onComplete }: Props) {
 
   function startGame() {
     resultReported.current = false;
-    setRoundQuestions(shuffleBibleQuestions(expandedBibleQuestionBank).slice(0, 10));
+    setRoundQuestions(shuffleBibleQuestions(bibleQuestionBank).slice(0, 10));
+    setAnswerTranscript([]);
     setStarted(true);
     setFinished(false);
     setCurrent(0);
@@ -109,6 +113,7 @@ export default function TriviaGame({ onExit, onComplete }: Props) {
     if (selected !== null || finished) return;
 
     setSelected(index);
+    setAnswerTranscript((previous) => [...previous, {questionId: question.id, answerIndex: index}]);
     playGameTone(index === question.answer ? 'success' : 'incorrect');
 
     if (index === question.answer) {
@@ -120,9 +125,8 @@ export default function TriviaGame({ onExit, onComplete }: Props) {
             ? 15
             : 20;
 
-      const speedBonus = Math.min(5, Math.floor(seconds / 4));
       const streakBonus = newStreak % 3 === 0 ? 5 : 0;
-      const earned = basePoints + speedBonus + streakBonus;
+      const earned = basePoints + streakBonus;
 
       setScore((previous) => previous + earned);
       setCorrectAnswers((previous) => previous + 1);
