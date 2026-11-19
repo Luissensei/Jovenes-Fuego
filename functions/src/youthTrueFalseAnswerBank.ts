@@ -1,0 +1,23 @@
+/** Respuestas correctas del juego Verdadero o falso. */
+export const youthTrueFalseAnswerBank: Record<string, boolean> = {
+  "tf-01": true,
+  "tf-02": false,
+  "tf-03": true,
+  "tf-04": false,
+  "tf-05": true,
+  "tf-06": false,
+  "tf-07": true,
+  "tf-08": false,
+  "tf-09": true,
+  "tf-10": false,
+  "tf-11": true,
+  "tf-12": false,
+  "tf-13": true,
+  "tf-14": true,
+  "tf-15": false,
+  "tf-16": true,
+  "tf-17": false,
+  "tf-18": true,
+  "tf-19": true,
+  "tf-20": true,
+};

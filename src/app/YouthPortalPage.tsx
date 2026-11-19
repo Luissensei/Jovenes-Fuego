@@ -1119,7 +1119,7 @@ export default function YouthPortalPage() {
             {activeGame === 'survival' && <SurvivalGame onExit={exitGame} onComplete={(score) => void completeGame('survival', score)}/>}
             {activeGame === 'duel' && <DuelGame onExit={exitGame} onComplete={(score) => void completeGame('duel', score)}/>}
             {activeGame === 'order' && <OrderVerseGame onExit={exitGame} onComplete={(score) => void completeGame('order', score)}/>}
-            {activeGame === 'truefalse' && <TrueFalseGame onExit={exitGame} onComplete={(score) => void completeGame('truefalse', score)}/>}
+            {activeGame === 'truefalse' && <TrueFalseGame onExit={exitGame} onComplete={(score, answers) => void completeGame('truefalse', score, answers)}/>}
             {activeGame === 'whoami' && <WhoAmIGame onExit={exitGame} onComplete={(score) => void completeGame('whoami', score)}/>}
           </Suspense>
         </div>

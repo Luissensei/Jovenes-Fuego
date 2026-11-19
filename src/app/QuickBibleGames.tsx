@@ -3,7 +3,7 @@ import { BadgeCheck, BookOpen, CheckCircle2, ChevronLeft, ChevronRight, RotateCc
 import { playGameTone } from './gameAudio';
 import './QuickBibleGames.css';
 
-type BinaryQuestion = { statement: string; answer: boolean; reference: string; explanation: string };
+type BinaryQuestion = { id: string; statement: string; answer: boolean; reference: string; explanation: string };
 type CharacterQuestion = { answer: string; clues: string[]; options: string[]; reference: string; explanation: string };
 
 const binaryBank: BinaryQuestion[] = [
@@ -27,7 +27,7 @@ const binaryBank: BinaryQuestion[] = [
   {statement:'La parábola del hijo pródigo aparece en el Evangelio de Lucas.',answer:true,reference:'Lucas 15:11-32',explanation:'Jesús contó esta parábola para enseñar sobre el arrepentimiento y la misericordia del Padre.'},
   {statement:'Elías fue llevado al cielo en un torbellino.',answer:true,reference:'2 Reyes 2:1-12',explanation:'Elías fue llevado mientras Eliseo observaba.'},
   {statement:'Lidia era una vendedora de púrpura que vivía en Filipos.',answer:true,reference:'Hechos 16:11-15',explanation:'Lidia escuchó el mensaje de Pablo y recibió a los creyentes en su casa.'},
-];
+].map((question, index) => ({...question, id: `tf-${String(index + 1).padStart(2, '0')}`}));
 
 const characterBank: CharacterQuestion[] = [
   {answer:'Noé',clues:['Construí un arca siguiendo instrucciones de Dios.','Mi familia entró conmigo antes del diluvio.','Una paloma regresó con una hoja de olivo.'],options:['Noé','Abraham','Moisés','Job'],reference:'Génesis 6–8',explanation:'Noé obedeció a Dios y fue preservado junto con su familia.'},
@@ -52,12 +52,12 @@ function shuffle<T>(items:T[]):T[]{const result=[...items];for(let i=result.leng
 function GameHeader({title,description,onExit}:{title:string;description:string;onExit:()=>void}){return <header className="qbg-header"><button type="button" className="qbg-back" onClick={onExit}><ChevronLeft size={17}/> Volver a los juegos</button><span className="qbg-eyebrow"><Sparkles size={14}/> RETO DE CONOCIMIENTO BÍBLICO</span><h2>{title}</h2><p>{description}</p></header>;}
 function GameResult({score,onRestart,onExit}:{score:number;onRestart:()=>void;onExit:()=>void}){return <section className="qbg-result"><Trophy size={42}/><span className="qbg-eyebrow">RETO COMPLETADO</span><h3>¡Buen trabajo!</h3><strong>{score} puntos</strong><p>Consulta las referencias bíblicas y vuelve a intentarlo para seguir creciendo.</p><div className="qbg-actions"><button type="button" onClick={onRestart}><RotateCcw size={16}/> Volver a jugar</button><button type="button" className="secondary" onClick={onExit}>Salir</button></div></section>;}
 
-export function TrueFalseGame({onExit,onComplete}:{onExit:()=>void;onComplete?:(score:number)=>void}){
+export function TrueFalseGame({onExit,onComplete}:{onExit:()=>void;onComplete?:(score:number,answers:{questionId:string;answerIndex:number}[])=>void}){
   const [questions,setQuestions]=useState(()=>shuffle(binaryBank).slice(0,10));
-  const [index,setIndex]=useState(0);const [selected,setSelected]=useState<boolean|null>(null);const [score,setScore]=useState(0);const [finished,setFinished]=useState(false);const current=questions[index];const trueFalseGameReported=useRef(false);useEffect(()=>{if(!finished||trueFalseGameReported.current)return;trueFalseGameReported.current=true;onComplete?.(score);},[finished,onComplete,score]);
-  function choose(value:boolean){if(selected!==null||!current)return;setSelected(value);const correct=value===current.answer;playGameTone(correct?'success':'incorrect');if(correct)setScore((previous)=>previous+10);}
+  const [index,setIndex]=useState(0);const [selected,setSelected]=useState<boolean|null>(null);const [score,setScore]=useState(0);const [finished,setFinished]=useState(false);const [answers,setAnswers]=useState<{questionId:string;answerIndex:number}[]>([]);const current=questions[index];const trueFalseGameReported=useRef(false);useEffect(()=>{if(!finished||trueFalseGameReported.current)return;trueFalseGameReported.current=true;onComplete?.(score,answers);},[finished,onComplete,score,answers]);
+  function choose(value:boolean){if(selected!==null||!current)return;setSelected(value);setAnswers((previous)=>[...previous,{questionId:current.id,answerIndex:value?1:0}]);const correct=value===current.answer;playGameTone(correct?'success':'incorrect');if(correct)setScore((previous)=>previous+10);}
   function next(){if(index===questions.length-1){setFinished(true);return;}setIndex((previous)=>previous+1);setSelected(null);}
-  function restart(){trueFalseGameReported.current=false;setQuestions(shuffle(binaryBank).slice(0,10));setIndex(0);setSelected(null);setScore(0);setFinished(false);}
+  function restart(){trueFalseGameReported.current=false;setQuestions(shuffle(binaryBank).slice(0,10));setIndex(0);setSelected(null);setScore(0);setAnswers([]);setFinished(false);}
   return <section className="qbg-shell"><GameHeader title="Verdadero o falso" description="Lee la afirmación, decide y comprueba la referencia bíblica." onExit={onExit}/>{finished?<GameResult score={score} onRestart={restart} onExit={onExit}/>:current&&<><div className="qbg-stats"><span>Pregunta <b>{index+1}/{questions.length}</b></span><span>Puntos <b>{score}</b></span></div><div className="qbg-progress"><i style={{width:(((index+(selected!==null?1:0))/questions.length)*100) + '%'}}/></div><article className="qbg-question"><BadgeCheck size={28}/><span className="qbg-eyebrow">AFIRMACIÓN BÍBLICA</span><h3>{current.statement}</h3><div className="qbg-choice-row"><button type="button" disabled={selected!==null} onClick={()=>choose(true)} className={selected===true?'selected':''}>Verdadero</button><button type="button" disabled={selected!==null} onClick={()=>choose(false)} className={selected===false?'selected':''}>Falso</button></div>{selected!==null&&<div className={'qbg-feedback ' + (selected===current.answer ? 'correct' : 'incorrect')}>{selected===current.answer?<CheckCircle2 size={19}/>:<XCircle size={19}/>}<div><strong>{selected===current.answer?'¡Correcto!':'No es correcto.'}</strong><p>{current.explanation}</p><small><BookOpen size={13}/> {current.reference}</small></div></div>}<button className="qbg-next" type="button" onClick={next} disabled={selected===null}>{index===questions.length-1?'Ver resultado':'Siguiente'} <ChevronRight size={17}/></button></article></>}</section>;
 }
 

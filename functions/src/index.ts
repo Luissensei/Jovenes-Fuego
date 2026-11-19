@@ -5,6 +5,7 @@ import {initializeApp, getApps, cert} from "firebase-admin/app";
 import {getFirestore, FieldValue, FieldPath, type QueryDocumentSnapshot} from "firebase-admin/firestore";
 import {getAuth as getAdminAuth} from "firebase-admin/auth";
 import {youthTriviaQuestionBank} from "./youthTriviaQuestionBank.js";
+import {youthTrueFalseAnswerBank} from "./youthTrueFalseAnswerBank.js";
 
 setGlobalOptions({maxInstances: 10});
 
@@ -1721,6 +1722,26 @@ export const recordYouthGameResult = onCall(async (request) => {
 
   let scoreValue = reportedScore;
   let answerValidation = "manual-review";
+  if (gameId === "truefalse") {
+    const answers = request.data?.answers;
+    if (!Array.isArray(answers) || answers.length !== 10) {
+      throw new HttpsError("invalid-argument", "La partida debe incluir diez respuestas.");
+    }
+    const seenQuestions = new Set<string>();
+    scoreValue = 0;
+    for (const entry of answers) {
+      const questionId = text(entry?.questionId, 12);
+      const answerIndex = Number(entry?.answerIndex);
+      const correctAnswer = youthTrueFalseAnswerBank[questionId];
+      if (typeof correctAnswer !== "boolean" || seenQuestions.has(questionId) ||
+          !Number.isInteger(answerIndex) || ![0, 1].includes(answerIndex)) {
+        throw new HttpsError("invalid-argument", "La evidencia de Verdadero o falso no es válida.");
+      }
+      seenQuestions.add(questionId);
+      if ((answerIndex === 1) === correctAnswer) scoreValue += 10;
+    }
+    answerValidation = "server-validated";
+  }
   if (gameId === "trivia") {
     const answers = request.data?.answers;
     if (!Array.isArray(answers) || answers.length !== 10) {
@@ -1763,7 +1784,7 @@ export const recordYouthGameResult = onCall(async (request) => {
       memberName: member.name,
       gameId,
       score: scoreValue,
-      ...(gameId === "trivia" ? {clientReportedScore: reportedScore} : {}),
+      ...(["trivia", "truefalse"].includes(gameId) ? {clientReportedScore: reportedScore} : {}),
       answerValidation,
       verificationStatus: "pending",
       reward: 0,

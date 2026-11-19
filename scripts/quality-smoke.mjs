@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 
 const root = process.cwd();
 const read = (path) => readFile(resolve(root, path), 'utf8');
-const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, themePreference, paletteSource, attendancePage, fuegoAssistant, triviaGame, trustedTriviaBank] = await Promise.all([
+const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, themePreference, paletteSource, attendancePage, fuegoAssistant, triviaGame, trustedTriviaBank, quickBibleGames, trustedTrueFalseBank] = await Promise.all([
   read('public/manifest.webmanifest'),
   read('public/sw.js'),
   read('src/services/firebase/client.ts'),
@@ -16,6 +16,8 @@ const [manifestText, serviceWorker, firebaseClient, modulesSource, appSource, th
   read('src/app/components/FuegoAssistant.tsx'),
   read('src/app/TriviaGame.tsx'),
   read('functions/src/youthTriviaQuestionBank.ts'),
+  read('src/app/QuickBibleGames.tsx'),
+  read('functions/src/youthTrueFalseAnswerBank.ts'),
 ]);
 
 assert.match(themePreference, /theme === 'dark' \? '#0B0B0B' : '#FFFFFF'/, 'El color de la barra del navegador debe coincidir con las paletas verde y monocromática.');
@@ -145,7 +147,10 @@ assert.match(youthPortalPage, /<DevotionalFlyerTab communitySession=\{communityS
 assert.match(triviaGame, /setAnswerTranscript\(\(previous\) => \[\.\.\.previous, \{questionId: question\.id, answerIndex: index\}\]\)/, 'Trivia debe conservar las respuestas seleccionadas por pregunta.');
 assert.match(triviaGame, /shuffleBibleQuestions\(bibleQuestionBank\)/, 'Trivia debe usar el mismo banco confiable que el servidor.');
 assert.match(trustedTriviaBank, /jf-001/, 'El servidor debe tener el banco bíblico para verificar Trivia.');
-assert.match(functionsSource, /answerValidation = "server-validated"/, 'Functions debe validar las respuestas de Trivia y no confiar en la puntuación del navegador.');
+assert.match(functionsSource, /answerValidation = "server-validated"/, 'Functions debe validar las respuestas de Trivia y Verdadero o falso.');
+assert.match(quickBibleGames, /questionId:current.id,answerIndex:value\?1:0/, 'Verdadero o falso debe enviar evidencia por pregunta.');
+assert.match(trustedTrueFalseBank, /tf-20/, 'El servidor debe tener las veinte respuestas de Verdadero o falso.');
+assert.match(functionsSource, /youthTrueFalseAnswerBank\[questionId\]/, 'Functions debe verificar las respuestas de Verdadero o falso.');
 assert.match(functionsSource, /seenQuestions\.size === 10|answers\.length !== 10/, 'Functions debe exigir diez respuestas de preguntas distintas.');
 
 console.log('Smoke checks correctos: PWA, Firebase original, caché privada, devocionales con sesión PIN, ' + moduleIds.length + ' módulos y ' + callableBlocks.length + ' callables con control de acceso.');
