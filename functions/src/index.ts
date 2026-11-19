@@ -3565,9 +3565,7 @@ async function awardAttendancePoints(meetingId: string, participants: Array<{
         transaction.get(rankingRef),
       ]);
       if (awardSnapshot.exists) return;
-      if (!memberSnapshot.exists) {
-        throw new HttpsError("not-found", "No se pudo asignar el puntaje: el perfil del joven no existe.");
-      }
+      if (!memberSnapshot.exists && !publicSnapshot.exists) return;
       const member = memberSnapshot.data() ?? {};
       const profile = publicSnapshot.data() ?? {};
       const ranking = rankingSnapshot.data() ?? {};
@@ -3584,7 +3582,9 @@ async function awardAttendancePoints(meetingId: string, participants: Array<{
         ? Math.floor(currentPoints)
         : 0;
       const nextPoints = safePoints + 10;
-      transaction.set(memberRef, {points: nextPoints}, {merge: true});
+      if (memberSnapshot.exists) {
+        transaction.set(memberRef, {points: nextPoints}, {merge: true});
+      }
       transaction.set(publicRef, {points: nextPoints}, {merge: true});
       if (legacyEntry) {
         const nextEntries = legacyEntries.map((entry) =>
