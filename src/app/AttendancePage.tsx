@@ -510,7 +510,7 @@ export default function AttendancePage() {
         </div>
         {loading ? (
           <p>Consultando reuniones y jóvenes...</p>
-        ) : meetings.length === 0 ? (
+        ) : allMeetings.length === 0 ? (
           <p>Todavía no hay reuniones registradas. Crea una para comenzar.</p>
         ) : (
           <>
