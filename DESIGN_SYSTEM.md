@@ -1,90 +1,120 @@
 # Sistema de diseño de Jóvenes de Fuego
 
-Este documento es el contrato visual del producto. Se aplica a pantallas administrativas y juveniles, escritorio y móvil. Los nuevos módulos y cualquier rediseño deben seguirlo antes de añadir efectos decorativos.
+Este documento es el contrato visual del producto. Se aplica al panel administrativo y al portal juvenil, en escritorio y móvil. La referencia visual prioritaria son los videos **Dashboard V32** y **Glassy Dashboard V24** descritos en el plan de mejoras del 19 de noviembre de 2026.
 
-## Dirección visual
+## Dirección visual: Fuego en vidrio
 
-La aplicación debe sentirse como una comunidad juvenil activa: alegre, vibrante, deportiva y fácil de usar. La identidad visual combina violeta, azul eléctrico, turquesa, coral, naranja fuego y amarillo cálido. El dashboard y el ranking deben tener energía visual y color; los módulos administrativos mantienen superficies legibles y una jerarquía ordenada.
+La identidad combina la energía cálida del fuego con superficies de vidrio esmerilado. Debe sentirse moderna, juvenil y profesional, sin parecer una plantilla genérica ni sacrificar legibilidad o rendimiento.
 
-### Lo que sí usamos
-- Fondos claros o nocturnos limpios con superficies sólidas.
-- Paleta juvenil por función: violeta/azul para navegación y comunidad; naranja/coral para fuego y actividad; turquesa/verde para progreso; amarillo/oro para logros.
-- Indicadores destacados con fondos saturados y texto contrastado; no hacer que todas las tarjetas tengan el mismo color.
-- Una jerarquía clara: título de pantalla, contexto breve, contenido principal y acciones.
-- Tablas y listas para información repetida; tarjetas solo para agrupar información que realmente pertenece junta.
-- Bordes finos, radios moderados y sombras muy discretas.
-- Tipografía DM Sans con tamaños y pesos consistentes.
-- Estados con texto e icono además del color.
-- Avatares y recursos del juego pueden conservar personalidad y color porque cumplen una función de identidad.
+### Referencias visuales que prevalecen
 
-### Lo que evitamos
-- Gradientes por todas partes o combinaciones que dificulten la lectura. Sí se permiten en el hero y el arte de marca cuando aportan identidad.
-- Glassmorphism, blur de fondo, transparencias apiladas y reflejos como estilo base.
-- Neón, partículas o halos permanentes. Sí se permiten llamas y chispas animadas en zonas decorativas puntuales del dashboard, siempre ligeras y con `prefers-reduced-motion`.
-- Tarjetas dentro de tarjetas sin una razón de información.
-- Esquinas excesivamente redondeadas en todos los elementos.
-- Animaciones continuas, rebotes, inclinación 3D o desplazamiento de tarjetas al pasar el cursor.
-- Etiquetas en mayúsculas y tracking exagerado para el contenido normal.
-- Repetir la misma métrica, título o llamada a la acción en varias secciones.
+- **Dashboard V32 (Mercato):** panel oscuro, barra lateral por secciones con textura discreta, botones hundidos, acento naranja, reloj digital, gráficas de barras, modo claro/oscuro, esqueletos de carga y formularios limpios.
+- **Glassy Dashboard V24:** superficies de vidrio cálido sobre fondo ambiental, tarjeta principal coral/naranja con anillo de progreso y avatares, calendario semanal, tarjetas de datos con mini gráficas, saludo, navegación lateral en escritorio y barra inferior en móvil, transiciones suaves.
 
-## Tokens
+La decisión «Fuego en vidrio» de la sección 15 del plan prevalece sobre las reglas visuales anteriores que prohibían el vidrio. La decisión más reciente del producto también autoriza **Tailwind CSS** como sistema de utilidades. Se mantiene el resto de las restricciones y el orden de trabajo del documento.
 
-La implementación vive en `src/styles/professional-ui.css`. Es la última hoja importada desde `src/main.tsx`, así que prevalece sobre estilos históricos que deben migrarse gradualmente.
+## Paleta y tokens
 
-### Modo claro
-- Lienzo: `#F4F3FF`
-- Superficie: `#FFFFFF`
-- Texto principal: `#28203D`
-- Texto secundario: `#625A78`
-- Borde: `#E2DAF2`
-- Acción/acento: violeta `#8B43D2`
-- Acentos de datos: azul `#2368B7`, verde `#147653`, naranja `#A63D1F`
-- Navegación: violeta profundo `#25164C`
+Los colores deben conservar el mismo significado en ambos temas.
 
 ### Modo oscuro
-- Lienzo: `#111126`
-- Superficie: `#1D1A3A`
+- Lienzo noche: `#111126`
+- Superficie elevada: `#1D1A3A`
 - Texto principal: `#F7F4FF`
 - Texto secundario: `#C7BFDF`
 - Borde: `#403765`
-- Acción/acento: naranja fuego `#FF713B`
-- Acentos de datos: violeta `#A36BFF`, azul `#43B0FF`, turquesa `#39D4A5`, amarillo `#FFD45E`
+- Acción fuego/coral: `#FF713B`
+- Logros: `#FFD45E`
+- Comunidad: `#A36BFF`
+- Progreso: `#39D4A5`
+- Azul informativo: `#43B0FF`
 
-## Escala de interfaz
+### Modo claro
+- Lienzo crema cálido: `#F7F3EF`
+- Superficie: `#FFFFFF`
+- Texto principal: `#28203D`
+- Texto secundario: `#625A78`
+- Borde: `#E8DDD5`
+- Acción fuego/coral: `#D94F2B`
+- Logros: `#94620A`
+- Comunidad: `#7042B8`
+- Progreso: `#147653`
+- Azul informativo: `#2368B7`
 
-- Espaciado base de 4 px: 4, 8, 12, 16, 24, 32 y 40 px.
-- Controles: altura objetivo de 40–44 px.
-- Botones y campos: radio de 8 px.
-- Tarjetas: radio de 12 px.
-- Panel o cabecera destacada: radio máximo de 12–16 px.
-- Una acción primaria por bloque; las acciones secundarias se presentan como botones discretos o enlaces.
-- En escritorio, usar columnas solo cuando ayuden a comparar o completar tareas relacionadas. En móvil, apilar sin perder el orden de lectura.
+Los tokens deben centralizarse en `src/styles/tokens.css` y exponerse a Tailwind mediante el mecanismo de tema/configuración que corresponda a la versión instalada. No duplicar valores de color en cada componente.
 
-## Accesibilidad y estados
+## Uso del vidrio y rendimiento
 
-- Texto normal: contraste mínimo WCAG AA de 4.5:1.
-- Texto grande y componentes/gráficos esenciales: mínimo 3:1.
-- No comunicar éxito, error, asistencia, selección o prioridad solo por el color: añadir texto, icono o forma.
-- Los elementos interactivos deben tener foco visible y etiquetas accesibles.
-- Respetar `prefers-reduced-motion`; las animaciones no deben ser necesarias para entender una tarea.
-- Evitar texto secundario demasiado pálido sobre superficies claras.
+- El desenfoque real (`backdrop-filter`) se reserva para elementos de navegación y una superficie principal. Máximo **3 elementos por pantalla**.
+- Las tarjetas repetidas usan fondos translúcidos, borde claro de 1 px y brillo interior; no aplicar desenfoque vivo a cada tarjeta.
+- Si el dispositivo no soporta `backdrop-filter`, usar un fondo sólido legible mediante `@supports`.
+- Respetar `prefers-reduced-transparency` y `prefers-reduced-motion`.
+- Si el desenfoque afecta el rendimiento en móviles de gama baja, reducirlo o eliminarlo antes que comprometer la interacción.
+- Animar solo `transform` y `opacity`; máximo 3 animaciones infinitas en toda la aplicación.
+- Elevación de tarjetas solo en dispositivos con puntero (`@media (hover: hover)`); en táctil usar respuesta de presión breve.
+
+## Componentes que deben existir
+
+1. Tarjeta principal de progreso coral/naranja, con anillo SVG y acciones reales.
+2. Tarjetas de datos con cifras y mini gráficas basadas en datos reales.
+3. Tarjeta de semana/calendario con próximas actividades.
+4. Barra lateral de escritorio agrupada por secciones.
+5. Barra inferior móvil con cinco destinos prioritarios y áreas táctiles cómodas.
+6. Barra superior con saludo, búsqueda y notificaciones cuando el módulo las soporte.
+7. Esqueletos de carga y estados vacíos con una acción útil.
+8. Modo claro cálido y modo oscuro noche, conservando el significado de los colores.
+
+No inventar métricas, actividad, notificaciones, progreso ni datos para completar el diseño. Si no hay datos, mostrar un estado vacío claro.
+
+## Tailwind y arquitectura de estilos
+
+- Tailwind CSS es el sistema de utilidades elegido para los nuevos componentes y las pantallas que se migren.
+- Integrar Tailwind de forma compatible con Vite y TypeScript, manteniendo sincronizados `package.json` y `package-lock.json`. No editar el lockfile manualmente ni dejar dependencias desalineadas.
+- Migrar por pantalla, empezando por **Inicio del portal joven**, y esperar validación visual antes de extender el patrón.
+- Los estilos específicos complejos pueden permanecer en CSS Modules; los tokens compartidos viven en `tokens.css`.
+- No agregar nuevas hojas globales de correcciones ni otra capa de overrides.
+- Eliminar estilos antiguos solo después de comprobar que ningún otro componente los utiliza.
+- La librería de movimiento existente es `motion`; importar desde `motion/react`. No instalar `framer-motion`.
+
+## Escala y accesibilidad
+
+- Espaciado base: 4, 8, 12, 16, 24, 32 y 40 px.
+- Texto mínimo 14 px; campos de formulario mínimo 16 px.
+- Áreas táctiles objetivo de 48 px.
+- Contraste WCAG AA: 4.5:1 para texto normal y 3:1 para texto grande y elementos gráficos esenciales.
+- Estados con texto e icono además del color.
+- Formularios con etiquetas, validación clara, foco visible y mensajes en español cercano.
+- Sin tarjeta dentro de tarjeta salvo que exista una razón funcional clara.
+- Mostrar campos opcionales solo cuando tengan valor; evitar datos personales innecesarios, especialmente en fichas de menores.
+- Respetar zoom, teclado y preferencias de movimiento/transparencia reducidos.
+
+## Orden de trabajo visual
+
+1. Integrar Tailwind correctamente y centralizar tokens y tipografía.
+2. Portal joven: Inicio, Ranking y Tienda de Llamas.
+3. Lista de Jóvenes y Asistencia.
+4. Resto del panel administrativo.
+5. Efectos y animaciones al final, una vez estabilizada la base visual.
+
+## Proceso obligatorio por pantalla
+
+1. Describir en cinco líneas la jerarquía visual y qué se elimina.
+2. Implementar la pantalla sin alterar sus reglas de negocio ni el contrato de Firebase.
+3. Revisar en 360 px y 1280 px, en modo claro y oscuro.
+4. Revisar carga, estados vacíos, accesibilidad, desplazamiento horizontal y rendimiento.
+5. Pasar el checklist de este documento y corregir antes de continuar.
 
 ## Criterios antes de cerrar una pantalla
 
-1. ¿Se entiende el objetivo y la acción principal sin leer cada tarjeta?
-2. ¿Hay información repetida o contenedores que pueden eliminarse?
-3. ¿La pantalla usa el mismo sistema de tipografía, espacios, bordes y botones?
-4. ¿El modo claro tiene fondo neutro, superficies legibles y contraste suficiente?
-5. ¿El modo oscuro mantiene el mismo orden visual y no cambia el significado de colores?
+1. ¿Se entiende el objetivo y la acción principal de inmediato?
+2. ¿Se eliminaron repeticiones, cajas innecesarias y campos vacíos?
+3. ¿El vidrio está limitado y mantiene contraste suficiente?
+4. ¿Los datos y gráficas proceden de fuentes reales?
+5. ¿El modo claro y oscuro conservan jerarquía y significado?
 6. ¿Funciona con teclado, zoom y pantallas pequeñas?
-7. ¿Se han eliminado animaciones, brillos o gradientes que no aportan información?
+7. ¿Las animaciones respetan las preferencias del usuario y no perjudican el rendimiento?
 
-## Referencias de diseño y accesibilidad
+## Referencias de accesibilidad
 
-- W3C, WCAG 2.2, contraste mínimo (SC 1.4.3): https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html
+- W3C, WCAG 2.2, contraste mínimo: https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html
 - W3C, WCAG 2.2: https://www.w3.org/TR/WCAG22/
-- Nielsen Norman Group, *Good from Afar, But Far from Good: AI Prototyping in Real Design Contexts* (revisión 19-08-2026): https://www.nngroup.com/articles/ai-prototyping/
-- Nielsen Norman Group, *Prompt to Design Interfaces: Why Vague Prompts Fail and How to Fix Them* (05-12-2025): https://www.nngroup.com/articles/vague-prototyping/
-- Material Design 3, superficies y elevación tonal: https://developer.android.com/develop/ui/compose/designsystems/material3
-
-El propósito de estas referencias no es copiar una plantilla. Se usan para establecer criterios verificables: jerarquía, consistencia, familiaridad, contraste y menor ruido visual.
