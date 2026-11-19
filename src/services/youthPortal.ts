@@ -467,14 +467,18 @@ export async function listAdminYouthGameResults(): Promise<AdminYouthGameResult[
   return Array.isArray(response.data.results) ? response.data.results : [];
 }
 export async function reviewAdminYouthGameResult(
-  resultId: string, decision: 'approve' | 'reject', reward = 0,
+  resultId: string,
+  decision: 'approve' | 'reject',
+  reward = 0,
+  verifiedScore = 0,
+  verificationNote = '',
 ): Promise<{success: boolean; verificationStatus: 'verified' | 'rejected'; reward: number}> {
   if (!functions) throw new Error('Firebase Functions no está configurado.');
   const call = httpsCallable<
-    {resultId: string; decision: 'approve' | 'reject'; reward: number},
+    {resultId: string; decision: 'approve' | 'reject'; reward: number; verifiedScore: number; verificationNote: string},
     {success: boolean; verificationStatus: 'verified' | 'rejected'; reward: number}
   >(functions, 'adminReviewYouthGameResult');
-  const response = await call({resultId, decision, reward});
+  const response = await call({resultId, decision, reward, verifiedScore, verificationNote});
   if (!response.data.success) throw new Error('No se pudo revisar el resultado.');
   return response.data;
 }
