@@ -33,7 +33,8 @@ assert.match(attendancePage, /weekday: 3, name: 'Servicio de miércoles'/, 'El c
 assert.match(attendancePage, /weekday: 5, name: 'Servicio de viernes'/, 'El calendario debe incluir el servicio del viernes.');
 assert.match(attendancePage, /weekday: 6, name: 'Servicio de jóvenes'/, 'El calendario debe incluir el servicio de jóvenes del sábado.');
 assert.match(attendancePage, /weekday: 0, name: 'Escuela dominical'/, 'El calendario debe incluir la escuela dominical.');
-assert.match(attendancePage, /setUTCDate\(current\.getUTCDate\(\) \+ 15\)/, 'El ayuno juvenil debe conservar la periodicidad quincenal.');
+assert.match(attendancePage, /anchor\.getUTCDay\(\) !== 0/, 'El ayuno juvenil debe quedar anclado a un domingo.');
+assert.match(attendancePage, /setUTCDate\(current\.getUTCDate\(\) \+ 14\)/, 'El ayuno juvenil debe repetirse en domingos alternos.');
 assert.match(attendancePage, /historyStart\.getUTCDate\(\) - 365/, 'El selector debe recuperar al menos un año de servicios pendientes.');
 assert.match(attendancePage, /const allMeetings = useMemo\([\s\S]*?\(\)\s*=>\s*\[\.\.\.meetings, \.\.\.scheduledMeetings\]/, 'El selector debe combinar las reuniones guardadas con las reuniones programadas generadas, aunque el historial esté vacío.');
 assert.doesNotMatch(fuegoAssistant, /Firebase Staging|jovenes-de-fuego-staging/, 'Fuego AI no debe mencionar el proyecto staging.');
