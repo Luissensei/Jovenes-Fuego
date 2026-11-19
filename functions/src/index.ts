@@ -1728,6 +1728,25 @@ export const recordYouthGameResult = onCall(async (request) => {
   return {success: true, score: scoreValue, reward: 0, verificationStatus: "pending", alreadyRecorded};
 });
 
+export const getYouthGameHistory = onCall(async (request) => {
+  const memberId = requireYouthCommunitySession(request.data?.communitySession);
+  const snapshot = await db.collection("youthGameResults")
+    .where("memberId", "==", memberId)
+    .limit(30)
+    .get();
+  const results = snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      gameId: String(data.gameId ?? ""),
+      score: Number(data.score ?? 0),
+      verificationStatus: String(data.verificationStatus ?? "pending"),
+      createdAt: String(data.createdAt ?? ""),
+    };
+  }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return {results};
+});
+
 export const getPublicProfiles = onCall(async () => {
   try {
     const profiles = await loadVisiblePublicProfiles();
