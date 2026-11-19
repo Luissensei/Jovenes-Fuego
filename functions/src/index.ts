@@ -2548,22 +2548,58 @@ export const adminCreateBonusRecord = onCall(async (request) => {
   const memberName = text(member.data()?.name, 120);
   if (!memberName) throw new HttpsError("failed-precondition", "El perfil no contiene un nombre válido.");
 
-  const ref = await db.collection("bonus").add({
-    memberId,
-    memberName,
-    reason,
-    points,
-    createdAt: new Date().toISOString(),
-    createdBy: request.auth.uid,
+  const bonusRef = db.collection("bonus").doc();
+  const memberRef = db.collection("members").doc(memberId);
+  const publicRef = db.collection("publicProfiles").doc(memberId);
+  const rankingRef = db.collection("public").doc("ranking");
+  await db.runTransaction(async (transaction) => {
+    const [memberSnapshot, publicSnapshot, rankingSnapshot] = await Promise.all([
+      transaction.get(memberRef),
+      transaction.get(publicRef),
+      transaction.get(rankingRef),
+    ]);
+    if (!memberSnapshot.exists) {
+      throw new HttpsError("not-found", "El perfil del joven ya no existe.");
+    }
+    const memberData = memberSnapshot.data() ?? {};
+    const publicData = publicSnapshot.data() ?? {};
+    const rankingData = rankingSnapshot.data() ?? {};
+    const rankingRows = Array.isArray(rankingData.all)
+      ? rankingData.all as Array<Record<string, unknown>>
+      : [];
+    const rankingRow = rankingRows.find((entry) => text(entry.i, 150) === memberId);
+    const rawPoints = publicData.points ?? publicData.puntos ??
+      rankingRow?.t ?? memberData.points ?? memberData.puntos ?? 0;
+    const currentPoints = Number(rawPoints);
+    const safePoints = Number.isFinite(currentPoints) && currentPoints >= 0
+      ? Math.floor(currentPoints)
+      : 0;
+    const nextPoints = safePoints + points;
+    transaction.create(bonusRef, {
+      memberId, memberName, reason, points,
+      createdAt: new Date().toISOString(), createdBy: request.auth!.uid,
+      appliedToRanking: true,
+    });
+    transaction.set(memberRef, {points: nextPoints}, {merge: true});
+    if (publicSnapshot.exists) {
+      transaction.set(publicRef, {points: nextPoints}, {merge: true});
+    }
+    if (rankingRow) {
+      transaction.set(rankingRef, {
+        all: rankingRows.map((entry) =>
+          text(entry.i, 150) === memberId ? {...entry, t: nextPoints} : entry,
+        ),
+      }, {merge: true});
+    }
   });
   await db.collection("audit").add({
     action: "bonus.created",
     actorUid: request.auth.uid,
     targetUid: memberId,
     createdAt: new Date().toISOString(),
-    metadata: {points, bonusId: ref.id},
+    metadata: {points, bonusId: bonusRef.id},
   });
-  return {success: true, id: ref.id};
+  return {success: true, id: bonusRef.id};
 });
 
 export const adminListPastoralNotes = onCall(async (request) => {
