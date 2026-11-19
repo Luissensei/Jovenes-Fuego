@@ -167,11 +167,6 @@ export function MemoryGame({ onExit, onComplete }: { onExit: () => void; onCompl
 
   function restart() {
     memoryGameReported.current = false; 
-    orderVerseGameReported.current = false; 
-    duelGameReported.current = false; 
-    survivalGameReported.current = false; 
-    challengeGameReported.current = false; 
-    memoryGameReported.current = false;
     setCards(makeMemoryCards());
     setOpened([]);
     setMatched([]);
