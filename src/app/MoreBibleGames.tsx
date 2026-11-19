@@ -127,30 +127,6 @@ export function MemoryGame({ onExit, onComplete }: { onExit: () => void; onCompl
   const [matched, setMatched] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
   const [finished, setFinished] = useState(false);
-  const orderVerseGameReported = useRef(false);
-  useEffect(() => {
-    if (!finished || orderVerseGameReported.current) return;
-    orderVerseGameReported.current = true;
-    onComplete?.(score);
-  }, [finished, onComplete, score]);
-  const duelGameReported = useRef(false);
-  useEffect(() => {
-    if (!finished || duelGameReported.current) return;
-    duelGameReported.current = true;
-    onComplete?.(scores[0] + scores[1]);
-  }, [finished, onComplete, scores[0] + scores[1]]);
-  const survivalGameReported = useRef(false);
-  useEffect(() => {
-    if (!finished || survivalGameReported.current) return;
-    survivalGameReported.current = true;
-    onComplete?.(score);
-  }, [finished, onComplete, score]);
-  const challengeGameReported = useRef(false);
-  useEffect(() => {
-    if (!finished || challengeGameReported.current) return;
-    challengeGameReported.current = true;
-    onComplete?.(score);
-  }, [finished, onComplete, score]);
   const memoryGameReported = useRef(false);
   useEffect(() => {
     if (!finished || memoryGameReported.current) return;
@@ -189,7 +165,8 @@ export function MemoryGame({ onExit, onComplete }: { onExit: () => void; onCompl
     }, 850);
   }
 
-  function restart() { 
+  function restart() {
+    memoryGameReported.current = false; 
     orderVerseGameReported.current = false; 
     duelGameReported.current = false; 
     survivalGameReported.current = false; 
@@ -250,6 +227,12 @@ export function ChallengeGame({ onExit, onComplete }: { onExit: () => void; onCo
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
+  const challengeGameReported = useRef(false);
+  useEffect(() => {
+    if (!finished || challengeGameReported.current) return;
+    challengeGameReported.current = true;
+    onComplete?.(score);
+  }, [finished, onComplete, score]);
 
   useEffect(() => {
     if (finished) return;
@@ -279,6 +262,7 @@ export function ChallengeGame({ onExit, onComplete }: { onExit: () => void; onCo
   }
 
   function restart() {
+    challengeGameReported.current = false;
     setSeconds(60);
     setIndex(0);
     setQuestions(makeQuestionBank());
@@ -314,6 +298,12 @@ export function SurvivalGame({ onExit, onComplete }: { onExit: () => void; onCom
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
+  const survivalGameReported = useRef(false);
+  useEffect(() => {
+    if (!finished || survivalGameReported.current) return;
+    survivalGameReported.current = true;
+    onComplete?.(score);
+  }, [finished, onComplete, score]);
 
   const question = questions[index % questions.length];
   const correct = answered === question.answer;
@@ -340,6 +330,7 @@ export function SurvivalGame({ onExit, onComplete }: { onExit: () => void; onCom
   }
 
   function restart() {
+    survivalGameReported.current = false;
     setIndex(0);
     setQuestions(makeQuestionBank());
     setLives(3);
@@ -384,6 +375,12 @@ export function DuelGame({ onExit, onComplete }: { onExit: () => void; onComplet
   const [scores, setScores] = useState([0, 0]);
   const [answered, setAnswered] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
+  const duelGameReported = useRef(false);
+  useEffect(() => {
+    if (!finished || duelGameReported.current) return;
+    duelGameReported.current = true;
+    onComplete?.(scores[0] + scores[1]);
+  }, [finished, onComplete, scores[0] + scores[1]]);
 
   const question = questions[round % questions.length];
 
@@ -408,6 +405,7 @@ export function DuelGame({ onExit, onComplete }: { onExit: () => void; onComplet
   }
 
   function restart() {
+    duelGameReported.current = false;
     setTurn(0);
     setRound(0);
     setQuestions(makeQuestionBank());
@@ -523,6 +521,12 @@ export function OrderVerseGame({ onExit, onComplete }: { onExit: () => void; onC
   const [feedback, setFeedback] = useState('');
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
+  const orderVerseGameReported = useRef(false);
+  useEffect(() => {
+    if (!finished || orderVerseGameReported.current) return;
+    orderVerseGameReported.current = true;
+    onComplete?.(score);
+  }, [finished, onComplete, score]);
 
   const current = roundVerses[level];
   const arranged = selected.map((id) => words.find((word) => word.id === id)?.text ?? '');
@@ -569,6 +573,7 @@ export function OrderVerseGame({ onExit, onComplete }: { onExit: () => void; onC
   }
 
   function restart() {
+    orderVerseGameReported.current = false;
     const nextVerses = shuffle(verseLevels);
     setRoundVerses(nextVerses);
     setLevel(0);
