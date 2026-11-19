@@ -3536,6 +3536,74 @@ export const createAttendanceMeeting = onCall(async (request) => {
   return {success: true, meetingId};
 });
 
+/**
+ * Otorga puntos de asistencia una sola vez por joven y reunión.
+ * Presente y Tarde cuentan como asistencia; las ediciones repetidas no duplican puntos.
+ */
+async function awardAttendancePoints(meetingId: string, participants: Array<{
+  memberId: string;
+  name: string;
+  status: string;
+}>, actorUid: string) {
+  const eligible = participants.filter((participant) =>
+    participant.status === "Presente" || participant.status === "Tarde",
+  );
+  for (const participant of eligible) {
+    const memberId = participant.memberId;
+    const awardId = createHash("sha256")
+      .update(`${meetingId}:${memberId}`)
+      .digest("hex");
+    const awardRef = db.collection("attendancePointAwards").doc(awardId);
+    const memberRef = db.collection("members").doc(memberId);
+    const publicRef = db.collection("publicProfiles").doc(memberId);
+    const rankingRef = db.collection("public").doc("ranking");
+    await db.runTransaction(async (transaction) => {
+      const [awardSnapshot, memberSnapshot, publicSnapshot, rankingSnapshot] = await Promise.all([
+        transaction.get(awardRef),
+        transaction.get(memberRef),
+        transaction.get(publicRef),
+        transaction.get(rankingRef),
+      ]);
+      if (awardSnapshot.exists) return;
+      if (!memberSnapshot.exists) {
+        throw new HttpsError("not-found", "No se pudo asignar el puntaje: el perfil del joven no existe.");
+      }
+      const member = memberSnapshot.data() ?? {};
+      const profile = publicSnapshot.data() ?? {};
+      const ranking = rankingSnapshot.data() ?? {};
+      const legacyEntries = Array.isArray(ranking.all)
+        ? ranking.all as Array<Record<string, unknown>>
+        : [];
+      const legacyEntry = legacyEntries.find((entry) =>
+        text(entry.i, 150) === memberId,
+      );
+      const currentValue = profile.points ?? profile.puntos ??
+        legacyEntry?.t ?? member.points ?? member.puntos ?? 0;
+      const currentPoints = Number(currentValue);
+      const safePoints = Number.isFinite(currentPoints) && currentPoints >= 0
+        ? Math.floor(currentPoints)
+        : 0;
+      const nextPoints = safePoints + 10;
+      transaction.set(memberRef, {points: nextPoints}, {merge: true});
+      transaction.set(publicRef, {points: nextPoints}, {merge: true});
+      if (legacyEntry) {
+        const nextEntries = legacyEntries.map((entry) =>
+          text(entry.i, 150) === memberId ? {...entry, t: nextPoints} : entry,
+        );
+        transaction.set(rankingRef, {all: nextEntries}, {merge: true});
+      }
+      transaction.create(awardRef, {
+        meetingId,
+        memberId,
+        points: 10,
+        status: participant.status,
+        createdAt: new Date().toISOString(),
+        createdBy: actorUid,
+      });
+    });
+  }
+}
+
 export const saveMeetingAttendance = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
@@ -3701,6 +3769,7 @@ export const saveMeetingAttendance = onCall(async (request) => {
     });
   }
 
+  await awardAttendancePoints(meetingId, participants, request.auth.uid);
   await recordAudit("attendance.saved", request.auth.uid, meetingId, {participants: participants.length});
   return {success: true};
 });
