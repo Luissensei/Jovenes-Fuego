@@ -494,3 +494,23 @@ export async function getYouthGameHistory(communitySession: string): Promise<You
   const response = await call({communitySession});
   return Array.isArray(response.data.results) ? response.data.results : [];
 }
+
+
+export type YouthFlameMovement = {
+  id: string;
+  amount: number;
+  balanceAfter: number;
+  type: string;
+  description: string;
+  createdAt: string;
+};
+
+export async function getYouthFlameHistory(communitySession: string): Promise<YouthFlameMovement[]> {
+  if (!functions) throw new Error('Firebase Functions no está configurado.');
+  const call = httpsCallable<
+    {communitySession: string},
+    {movements: YouthFlameMovement[]}
+  >(functions, 'getYouthFlameHistory');
+  const response = await call({communitySession});
+  return Array.isArray(response.data.movements) ? response.data.movements : [];
+}
