@@ -80,6 +80,7 @@ export async function createAttendanceMeeting(
 export async function saveMeetingAttendance(
   meetingId: string,
   participants: AttendanceParticipant[],
+  clearedMemberIds: string[] = [],
 ): Promise<void> {
   if (!meetingId.trim()) {
     throw new Error('Debes seleccionar una reunión.');
@@ -106,6 +107,7 @@ export async function saveMeetingAttendance(
   await call<{success: boolean}>('saveMeetingAttendance', {
     meetingId,
     participants,
+    clearedMemberIds,
   });
   const userScope = auth?.currentUser?.uid ?? 'no-auth';
   invalidateRequestCache(`attendance-meetings:${userScope}:attendance`);
