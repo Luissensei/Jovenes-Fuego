@@ -186,3 +186,29 @@ body .youth-portal :is(button,.btn,[role="button"]).primary {
 }
 body .youth-portal .youth-pin-backdrop {backdrop-filter:none!important}
 body .youth-portal .youth-pin-dialog {background:var(--jf-surface)!important;color:var(--jf-ink)!important;border-color:var(--jf-line)!important}
+
+
+/* Legacy JDF token bridge: CSS modules now inherit the same reference palette. */
+:root,:root[data-theme="light"] {
+  --jdf-canvas:var(--jf-canvas);--jdf-surface:var(--jf-surface);--jdf-surface-raised:var(--jf-surface-2);
+  --jdf-text:var(--jf-ink);--jdf-muted:var(--jf-muted);--jdf-border:var(--jf-line);
+  --jdf-fire:var(--jf-brand);--jdf-fire-strong:var(--jf-brand-strong);--jdf-gold:var(--jf-gold);
+  --jdf-community:#b96b70;--jdf-progress:#39876a;--jdf-info:#557f9a;
+  --jdf-shadow-card:var(--jf-shadow);--jdf-shadow-raised:var(--jf-shadow-raised);
+  --jdf-glass-bg:rgba(255,250,246,.92);--jdf-glass-border:var(--jf-line);
+}
+:root[data-theme="dark"],:root.dark {
+  --jdf-canvas:var(--jf-canvas);--jdf-surface:var(--jf-surface);--jdf-surface-raised:var(--jf-surface-2);
+  --jdf-text:var(--jf-ink);--jdf-muted:var(--jf-muted);--jdf-border:var(--jf-line);
+  --jdf-fire:var(--jf-brand);--jdf-fire-strong:var(--jf-brand-strong);--jdf-gold:var(--jf-gold);
+  --jdf-community:#d58a70;--jdf-progress:#70c69b;--jdf-info:#8dbad3;
+  --jdf-shadow-card:var(--jf-shadow);--jdf-shadow-raised:var(--jf-shadow-raised);
+  --jdf-glass-bg:rgba(26,26,26,.94);--jdf-glass-border:var(--jf-line);
+}
+.main .jf-route-stage .ranking-hub :is(.ranking-hero) {
+  background:linear-gradient(115deg,#8f3428 0%,#d94e35 54%,#f18b51 100%)!important;
+  border-color:rgba(255,255,255,.16)!important;
+  box-shadow:0 16px 36px rgba(171,66,43,.17)!important;
+}
+.main .jf-route-stage .ranking-hub .ranking-hero :is(h1,h2,h3,p,span,strong) {color:#fff!important}
+.main .jf-route-stage .ranking-hub .ranking-hero .ranking-eyebrow {color:#ffe0ca!important}
