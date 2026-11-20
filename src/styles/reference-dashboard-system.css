@@ -212,3 +212,79 @@ body .youth-portal .youth-pin-dialog {background:var(--jf-surface)!important;col
 }
 .main .jf-route-stage .ranking-hub .ranking-hero :is(h1,h2,h3,p,span,strong) {color:#fff!important}
 .main .jf-route-stage .ranking-hub .ranking-hero .ranking-eyebrow {color:#ffe0ca!important}
+
+
+/* Screen-level finishing pass: attendance, members, pastoral follow-up and devotionals. */
+.main .jf-route-stage .attendance-page .attendance-header,
+.main .jf-route-stage .members-page .members-hero,
+.main .jf-route-stage .followup-page .followup-header,
+.main .jf-route-stage .devotionals-hero {
+  border:1px solid rgba(255,255,255,.16)!important;
+  border-radius:20px!important;
+  background:linear-gradient(112deg,#8e3328 0%,#d94e35 56%,#f18a50 100%)!important;
+  box-shadow:0 15px 34px rgba(171,66,43,.15)!important;
+}
+.main .jf-route-stage .attendance-page .attendance-header :is(h1,h2,h3,p,span),
+.main .jf-route-stage .members-page .members-hero :is(h1,h2,h3,p,span),
+.main .jf-route-stage .followup-page .followup-header :is(h1,h2,h3,p,span),
+.main .jf-route-stage .devotionals-hero :is(h1,h2,h3,p,span) {color:#fff!important}
+.main .jf-route-stage .attendance-page .attendance-card,
+.main .jf-route-stage .members-page :is(.member-card,.member-row,.member-count,.members-notice,.members-empty,.members-state),
+.main .jf-route-stage .followup-page :is(.followup-stat,.followup-card,.followup-content),
+.main .jf-route-stage .devotionals-page :is(.devotional-publisher-card,.devotionals-feature,.devotional-card,.devotionals-empty) {
+  background:var(--jf-surface)!important;color:var(--jf-ink)!important;
+  border:1px solid var(--jf-line)!important;border-radius:16px!important;box-shadow:var(--jf-shadow)!important
+}
+.main .jf-route-stage .attendance-page .attendance-member {
+  background:var(--jf-surface-2)!important;border-color:var(--jf-line)!important;border-radius:12px!important
+}
+.main .jf-route-stage .attendance-page .attendance-status-options button {
+  min-height:39px!important;border-radius:9px!important;font-weight:750!important
+}
+.main .jf-route-stage .attendance-page .attendance-status-options button[aria-pressed="true"] {
+  box-shadow:0 4px 12px color-mix(in srgb,var(--status-tone,#e65b3f) 24%,transparent)!important
+}
+.main .jf-route-stage .attendance-page .attendance-bulk-actions button,
+.main .jf-route-stage .members-page .members-search,
+.main .jf-route-stage .followup-page .followup-search,
+.main .jf-route-stage .devotionals-page .devotionals-search {
+  background:var(--jf-surface-2)!important;border-color:var(--jf-line)!important;color:var(--jf-ink)!important
+}
+.main .jf-route-stage .members-page .members-hero .members-total-card {
+  background:rgba(255,255,255,.13)!important;border:1px solid rgba(255,255,255,.24)!important
+}
+.main .jf-route-stage .members-page .member-avatar {
+  background:linear-gradient(140deg,#e65b3f,#f0a04e)!important;color:#fff!important;border-radius:14px!important
+}
+.main .jf-route-stage .members-page .member-card:hover,
+.main .jf-route-stage .members-page .member-row:hover,
+.main .jf-route-stage .followup-page .followup-card:hover,
+.main .jf-route-stage .devotionals-page .devotional-card:hover {
+  border-color:var(--jf-line-strong)!important;box-shadow:var(--jf-shadow-raised)!important;transform:translateY(-2px)
+}
+.main .jf-route-stage .followup-page .followup-stat strong {color:var(--jf-brand)!important}
+.main .jf-route-stage .followup-page .followup-status {border:1px solid var(--jf-line)!important;background:var(--jf-surface-2)!important}
+.main .jf-route-stage .followup-page .followup-modal,
+.main .jf-route-stage .devotionals-page .devotionals-modal {
+  background:var(--jf-surface)!important;color:var(--jf-ink)!important;border:1px solid var(--jf-line)!important;
+  border-radius:18px!important;box-shadow:var(--jf-shadow-raised)!important
+}
+.main .jf-route-stage .devotionals-page .devotional-card h2,
+.main .jf-route-stage .devotionals-page .devotional-card h3 {color:var(--jf-ink)!important}
+.main .jf-route-stage .devotionals-page .devotional-category {
+  background:var(--jf-brand-soft)!important;color:var(--jf-brand-ink)!important;border-radius:999px!important
+}
+.main .jf-route-stage .devotionals-page .devotional-reference {color:var(--jf-brand)!important}
+.main .jf-route-stage .devotionals-page .devotionals-categories button[aria-pressed="true"],
+.main .jf-route-stage .devotionals-page .devotionals-categories button.active {
+  background:var(--jf-brand)!important;border-color:var(--jf-brand)!important;color:#fff!important
+}
+.main .jf-route-stage :is(.attendance-page,.members-page,.followup-page,.devotionals-page) :is(button,input,select,textarea,a):focus-visible {
+  outline:2px solid var(--jf-focus)!important;outline-offset:3px
+}
+@media(max-width:650px){
+ .main .jf-route-stage .attendance-page .attendance-header,
+ .main .jf-route-stage .members-page .members-hero,
+ .main .jf-route-stage .followup-page .followup-header,
+ .main .jf-route-stage .devotionals-hero {border-radius:16px!important}
+}
