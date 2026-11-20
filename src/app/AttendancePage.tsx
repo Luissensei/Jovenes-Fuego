@@ -475,6 +475,7 @@ export default function AttendancePage() {
         lastAttended,
         daysSince,
         consecutive: laterAbsences.length,
+        lastAbsenceDate: laterAbsences[laterAbsences.length - 1]?.date ?? '',
         level,
       }];
     }).sort((a, b) => b.daysSince - a.daysSince || a.name.localeCompare(b.name, 'es'));
@@ -608,13 +609,14 @@ export default function AttendancePage() {
               <span className={styles.absenceCount}>{item.level === 'retirement' ? '30+ días' : '14–29 días'}</span>
               <button
                 type="button"
-                disabled={followupBusyId === item.id}
+                disabled={followupBusyId === item.id || item.consecutive < 2}
+                title={item.consecutive < 2 ? 'Se requieren al menos 2 faltas registradas para generar este seguimiento automático.' : 'Crear seguimiento pastoral'}
                 onClick={async () => {
                   setFollowupBusyId(item.id);
                   setError('');
                   setMessage('');
                   try {
-                    const result = await createAbsenceAlertFollowup(item.id, item.lastAttended, item.consecutive);
+                    const result = await createAbsenceAlertFollowup(item.id, item.lastAbsenceDate, item.consecutive);
                     setMessage(result.created
                       ? 'Seguimiento pastoral creado para ' + item.name + '.'
                       : 'Ya existía un seguimiento para esta alerta de ' + item.name + '.');
@@ -625,7 +627,7 @@ export default function AttendancePage() {
                   }
                 }}
               >
-                {followupBusyId === item.id ? 'Creando…' : 'Crear seguimiento'}
+                {followupBusyId === item.id ? 'Creando…' : item.consecutive < 2 ? 'Requiere 2 faltas' : 'Crear seguimiento'}
               </button>
             </li>
           ))}</ul>
