@@ -443,23 +443,41 @@ export default function AttendancePage() {
   }
 
   const absenceAlerts = useMemo(() => {
-    const recentMeetings = [...meetings].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 12);
-    if (recentMeetings.length < 2) return [];
-    return members.flatMap((member) => {
-      let consecutive = 0;
-      const dates: string[] = [];
-      for (const meeting of recentMeetings) {
-        const participant = meeting.participants.find((row) => row.memberId === member.id);
-        if (!participant) break;
-        if (participant.status === 'Ausente' || participant.status === 'Falta') {
-          consecutive += 1;
-          dates.push(meeting.date);
-        } else {
-          break;
-        }
+    const today = localDateInput();
+    const todayDate = new Date(`${today}T12:00:00Z`);
+    const byMember = new Map<string, Array<{date: string; status: AttendanceStatus}>>();
+    for (const meeting of meetings) {
+      if (!meeting.date || meeting.date > today) continue;
+      for (const participant of meeting.participants) {
+        const rows = byMember.get(participant.memberId) ?? [];
+        rows.push({date: meeting.date, status: participant.status});
+        byMember.set(participant.memberId, rows);
       }
-      return consecutive >= 2 ? [{id: member.id, name: member.name || 'Joven', consecutive, dates}] : [];
-    }).sort((a, b) => b.consecutive - a.consecutive || a.name.localeCompare(b.name, 'es'));
+    }
+
+    return members.flatMap((member) => {
+      const history = (byMember.get(member.id) ?? []).sort((a, b) => a.date.localeCompare(b.date));
+      const attended = history.filter((row) => row.status === 'Presente' || row.status === 'Tarde');
+      const lastAttended = attended[attended.length - 1]?.date;
+      // Sin una asistencia positiva registrada no se puede calcular una ausencia
+      // prolongada con fiabilidad; tampoco se cuentan marcas justificadas como faltas.
+      if (!lastAttended) return [];
+      const lastDate = new Date(`${lastAttended}T12:00:00Z`);
+      const daysSince = Math.max(0, Math.floor((todayDate.getTime() - lastDate.getTime()) / 86_400_000));
+      if (daysSince < 14) return [];
+      const laterAbsences = history.filter((row) =>
+        row.date > lastAttended && (row.status === 'Falta' || row.status === 'Ausente'),
+      );
+      const level = daysSince >= 30 ? 'retirement' as const : 'risk' as const;
+      return [{
+        id: member.id,
+        name: member.name || 'Joven',
+        lastAttended,
+        daysSince,
+        consecutive: laterAbsences.length,
+        level,
+      }];
+    }).sort((a, b) => b.daysSince - a.daysSince || a.name.localeCompare(b.name, 'es'));
   }, [meetings, members]);
 
   const attendanceCounts = useMemo(() => members.reduce((counts, member) => {
@@ -583,11 +601,11 @@ export default function AttendancePage() {
 
       {absenceAlerts.length > 0 && (
         <section className={styles.absenceAlerts} aria-labelledby="absence-alerts-title">
-          <header><AlertTriangle size={19}/><div><h2 id="absence-alerts-title">Alertas de inasistencia</h2><p>Jóvenes con 2 o más reuniones consecutivas marcadas como falta o ausencia.</p></div><strong>{absenceAlerts.length}</strong></header>
+          <header><AlertTriangle size={19}/><div><h2 id="absence-alerts-title">Alertas de inasistencia</h2><p>Riesgo: 14–29 días sin asistencia. Atención prioritaria: 30 días o más desde la última asistencia registrada.</p></div><strong>{absenceAlerts.length}</strong></header>
           <ul>{absenceAlerts.slice(0, 12).map((item) => (
             <li key={item.id}>
-              <span><b>{item.name}</b><small>{item.consecutive} reuniones seguidas · última: {item.dates[0]}</small></span>
-              <span className={styles.absenceCount}>{item.consecutive} faltas</span>
+              <span><b>{item.name}</b><small>Última asistencia: {item.lastAttended} · {item.daysSince} días sin asistir{item.consecutive > 0 ? ` · ${item.consecutive} faltas posteriores` : ''} </small></span>
+              <span className={styles.absenceCount}>{item.level === 'retirement' ? '30+ días' : '14–29 días'}</span>
               <button
                 type="button"
                 disabled={followupBusyId === item.id}
@@ -596,7 +614,7 @@ export default function AttendancePage() {
                   setError('');
                   setMessage('');
                   try {
-                    const result = await createAbsenceAlertFollowup(item.id, item.dates[0], item.consecutive);
+                    const result = await createAbsenceAlertFollowup(item.id, item.lastAttended, item.consecutive);
                     setMessage(result.created
                       ? 'Seguimiento pastoral creado para ' + item.name + '.'
                       : 'Ya existía un seguimiento para esta alerta de ' + item.name + '.');
