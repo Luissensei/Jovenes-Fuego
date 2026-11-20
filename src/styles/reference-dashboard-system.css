@@ -1,0 +1,188 @@
+/* Jóvenes de Fuego — visual reference system
+   Inspired by the supplied Glassy Dashboard V24 + Dashboard V32 videos.
+   One shared contract for admin, youth portal, forms, cards and data views.
+   Functional components, routes, Firebase and permissions remain untouched. */
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --jf-canvas:#f4eee9;
+  --jf-surface:#fffaf6;
+  --jf-surface-2:#f8eee7;
+  --jf-surface-3:#f1dfd3;
+  --jf-ink:#30221e;
+  --jf-muted:#806d64;
+  --jf-line:#ead8cc;
+  --jf-line-strong:#d8bdae;
+  --jf-brand:#e65b3f;
+  --jf-brand-strong:#c94730;
+  --jf-brand-soft:#fbe4dc;
+  --jf-brand-ink:#6f2d22;
+  --jf-ember:#f06a3f;
+  --jf-ember-strong:#d94d2e;
+  --jf-ember-soft:#ffede5;
+  --jf-gold:#e6a34c;
+  --jf-success:#39876a;
+  --jf-success-soft:#e4f2e9;
+  --jf-warning:#b8792e;
+  --jf-warning-soft:#fbf0dc;
+  --jf-danger:#c54c49;
+  --jf-danger-soft:#fae8e5;
+  --jf-info:#557f9a;
+  --jf-info-soft:#e7f0f5;
+  --jf-shadow:0 2px 8px rgba(78,43,28,.045),0 12px 30px rgba(78,43,28,.055);
+  --jf-shadow-raised:0 16px 38px rgba(78,43,28,.12);
+  --jf-radius-sm:9px;--jf-radius-md:13px;--jf-radius-lg:18px;
+  --jf-focus:#e65b3f;
+  --jf-sidebar:#241a17;--jf-sidebar-text:#fff8f3;--jf-sidebar-muted:#c5a99b;
+  --jf-sidebar-hover:#392720;--jf-sidebar-active:#563025;
+  --jf-text:var(--jf-ink);--jf-border:var(--jf-line);--jf-input:var(--jf-surface-2);
+  --jf-accent:var(--jf-ember);--jf-surface-raised:var(--jf-surface-2);
+  --text-primary:var(--jf-ink);--text-secondary:var(--jf-muted);--text:var(--jf-ink);
+  --muted:var(--jf-muted);--surface:var(--jf-surface);--card:var(--jf-surface);
+  --card-bg:var(--jf-surface);--border:var(--jf-line);--border-color:var(--jf-line);
+  --accent:var(--jf-brand);--surface-2:var(--jf-surface-2);--surface-3:var(--jf-surface-3);
+  --surface-elevated:var(--jf-surface);--surface-card:var(--jf-surface);
+  --border-subtle:var(--jf-line);--jf-glass:rgba(255,250,246,.9);--jf-glass-border:var(--jf-line);
+}
+:root[data-theme="dark"],:root.dark {
+  color-scheme:dark;
+  --jf-canvas:#101010;--jf-surface:#1a1a1a;--jf-surface-2:#242424;--jf-surface-3:#303030;
+  --jf-ink:#f7f2ee;--jf-muted:#b5aaa2;--jf-line:#393431;--jf-line-strong:#574b45;
+  --jf-brand:#ff783f;--jf-brand-strong:#ff925f;--jf-brand-soft:#45281e;--jf-brand-ink:#ffd1bb;
+  --jf-ember:#ff783f;--jf-ember-strong:#ff925f;--jf-ember-soft:#45281e;--jf-gold:#f2ad50;
+  --jf-success:#70c69b;--jf-success-soft:#1e392c;--jf-warning:#e9b65f;--jf-warning-soft:#3d301c;
+  --jf-danger:#f18b82;--jf-danger-soft:#402422;--jf-info:#8dbad3;--jf-info-soft:#1f3440;
+  --jf-shadow:0 3px 10px rgba(0,0,0,.22),0 14px 34px rgba(0,0,0,.16);
+  --jf-shadow-raised:0 18px 42px rgba(0,0,0,.35);--jf-focus:#ff925f;
+  --jf-sidebar:#090909;--jf-sidebar-text:#fff8f3;--jf-sidebar-muted:#a99d95;
+  --jf-sidebar-hover:#201915;--jf-sidebar-active:#382117;
+  --jf-text:var(--jf-ink);--jf-border:var(--jf-line);--jf-input:var(--jf-surface-2);
+  --jf-accent:var(--jf-ember);--jf-surface-raised:var(--jf-surface-2);
+  --text-primary:var(--jf-ink);--text-secondary:var(--jf-muted);--text:var(--jf-ink);
+  --muted:var(--jf-muted);--surface:var(--jf-surface);--card:var(--jf-surface);
+  --card-bg:var(--jf-surface);--border:var(--jf-line);--border-color:var(--jf-line);
+  --accent:var(--jf-brand);--surface-2:var(--jf-surface-2);--surface-3:var(--jf-surface-3);
+  --surface-elevated:var(--jf-surface);--surface-card:var(--jf-surface);
+  --border-subtle:var(--jf-line);--jf-glass:rgba(26,26,26,.92);--jf-glass-border:var(--jf-line);
+}
+
+html,body,#root,.layout,.main,.jf-route-stage,.youth-portal {
+  background:var(--jf-canvas)!important;color:var(--jf-ink)!important;
+}
+body {font-family:"DM Sans",Inter,system-ui,-apple-system,"Segoe UI",sans-serif!important}
+.main {padding:20px clamp(14px,2.4vw,36px) 30px!important}
+.main .jf-route-stage {width:min(100%,1600px)!important;margin-inline:auto}
+.main .jf-route-stage :is(h1,h2,h3,h4),.youth-portal :is(h1,h2,h3,h4) {
+  color:var(--jf-ink)!important;font-family:"Manrope","DM Sans",sans-serif;letter-spacing:-.035em
+}
+.main .jf-route-stage :is(p,small,label,.muted,.subtitle,.description,.helper-text) {color:var(--jf-muted)}
+.main .jf-route-stage :is(.page-card,.panel,.card,.stat-card,.statCard,.shared-stat-card,article[class*="card"],[class*="Card"]) {
+  border:1px solid var(--jf-line)!important;border-radius:var(--jf-radius-lg)!important;
+  background:var(--jf-surface)!important;color:var(--jf-ink)!important;box-shadow:var(--jf-shadow)!important
+}
+.main .jf-route-stage :is(.toolbar,.filter-bar,.filters,.filter-panel,.controls,.table-wrap,.table-container,.empty-state,.empty,.notice,.info-box) {
+  border-color:var(--jf-line)!important;background:var(--jf-surface-2)!important;color:var(--jf-ink)!important;border-radius:var(--jf-radius-md)!important
+}
+.main .jf-route-stage :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea),
+.youth-portal :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) {
+  min-height:40px;max-width:100%;border:1px solid var(--jf-line-strong)!important;border-radius:10px!important;
+  background:var(--jf-surface)!important;color:var(--jf-ink)!important;box-shadow:none!important
+}
+.main .jf-route-stage :is(input,select,textarea)::placeholder,.youth-portal :is(input,textarea)::placeholder {color:var(--jf-muted)!important;opacity:.82}
+.main .jf-route-stage :is(button,.btn,[role="button"]),.youth-portal :is(button,.btn,[role="button"]) {
+  border-radius:10px;transition:background-color .16s ease,border-color .16s ease,color .16s ease,transform .16s ease,box-shadow .16s ease
+}
+.main .jf-route-stage :is(button,a,input,select,textarea,[role="button"]):focus-visible,
+.youth-portal :is(button,a,input,select,textarea,[role="button"]):focus-visible {outline:2px solid var(--jf-focus)!important;outline-offset:2px}
+.main .jf-route-stage :is(.primaryAction,.primary-action,.primary-button,.btn-primary,.primary,[data-variant="primary"],button[type="submit"]) {
+  background:linear-gradient(135deg,var(--jf-brand),var(--jf-ember-strong))!important;border:1px solid var(--jf-brand)!important;color:#fff!important;
+  box-shadow:0 6px 16px color-mix(in srgb,var(--jf-brand) 22%,transparent)!important
+}
+.main .jf-route-stage :is(.danger,.btn-danger,[data-variant="danger"]) {background:var(--jf-danger-soft)!important;color:var(--jf-danger)!important}
+.main .jf-route-stage :is(table,th,td) {border-color:var(--jf-line)!important}
+.main .jf-route-stage th {background:var(--jf-surface-2)!important;color:var(--jf-muted)!important;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.main .jf-route-stage td {color:var(--jf-ink)}
+.main .jf-route-stage tbody tr:hover td {background:color-mix(in srgb,var(--jf-brand-soft) 42%,transparent)}
+.main .jf-route-stage :is(.eyebrow,.kicker,.section-kicker,.module-kicker) {color:var(--jf-brand)!important}
+
+/* App shell — compact charcoal navigation, orange active state, spacious content. */
+.layout {min-height:100dvh;background:var(--jf-canvas)!important}
+.sidebar {
+  background:linear-gradient(180deg,#211915 0%,#171311 58%,#100f0e 100%)!important;
+  color:#fff8f3!important;border-right:1px solid rgba(255,255,255,.07)!important;
+  box-shadow:10px 0 34px rgba(22,12,8,.14)!important
+}
+.sidebar .brand {padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar .brand strong {color:#fff8f3!important;font-size:14px!important;letter-spacing:-.02em}
+.sidebar .brand small {color:#bda99e!important}
+.sidebar .brand-mark,.login-logo {background:linear-gradient(140deg,#ff9a57,#e34d2f 68%,#9e302b)!important;box-shadow:0 8px 22px rgba(230,91,63,.24)!important}
+.sidebar .env-chip {background:rgba(255,120,63,.09)!important;border:1px solid rgba(255,145,95,.2)!important;color:#ffd0b9!important;border-radius:10px}
+.sidebar .pulse {background:#ff8a50!important;box-shadow:0 0 0 4px rgba(255,138,80,.12)!important}
+.sidebar .module-search {background:rgba(255,255,255,.055)!important;border:1px solid rgba(255,255,255,.11)!important;border-radius:10px!important}
+.sidebar .module-search input {color:#fff!important;background:transparent!important}
+.sidebar .module-search input::placeholder {color:#a99a91!important}
+.sidebar .jf-nav-group {border:1px solid rgba(255,255,255,.055)!important;background:rgba(255,255,255,.025)!important;border-radius:12px}
+.sidebar .jf-nav-group summary {color:#bba99f!important;font-size:9px!important;font-weight:800!important;letter-spacing:.13em!important}
+.sidebar .jf-nav-count {background:rgba(255,255,255,.07)!important;color:#d7c6bb!important}
+.sidebar .nav-item {min-height:39px!important;color:#c9b9af!important;border:1px solid transparent!important;border-radius:10px!important}
+.sidebar .nav-item-icon {background:rgba(255,255,255,.055)!important;color:#d9c5b8!important;border-radius:9px}
+.sidebar .nav-item:hover {background:rgba(255,255,255,.07)!important;color:#fff!important}
+.sidebar .nav-item.active {background:linear-gradient(100deg,rgba(239,94,57,.26),rgba(239,94,57,.07))!important;color:#fff!important;box-shadow:inset 3px 0 #ff854e!important}
+.sidebar .nav-item.active .nav-item-icon {background:#e85d3e!important;color:#fff!important}
+.sidebar .safe-note {background:rgba(255,255,255,.045)!important;border-color:rgba(255,255,255,.09)!important;color:#f2e8e1!important}
+.sidebar .safe-note small {color:#b5a49a!important}
+.sidebar .theme-toggle,.topline-theme-toggle {border-color:var(--jf-line)!important}
+.main {color:var(--jf-ink)!important}
+.topline {background:var(--jf-surface)!important;border:1px solid var(--jf-line)!important;border-radius:14px!important;box-shadow:var(--jf-shadow)!important;color:var(--jf-muted)!important}
+.topline-theme-toggle {background:var(--jf-surface-2)!important;color:var(--jf-ink)!important}
+.main footer {color:var(--jf-muted)!important;border-color:var(--jf-line)!important}
+.mobile-header {background:var(--jf-sidebar)!important;color:#fff!important;border-bottom:1px solid rgba(255,255,255,.08)}
+.scrim {background:rgba(0,0,0,.68)!important}
+.layout.sidebar-collapsed .sidebar {width:82px}
+.layout.sidebar-collapsed .main {margin-left:82px}
+@media(max-width:900px){.main{margin-left:0!important;padding:14px 12px 26px!important}.sidebar{box-shadow:18px 0 46px rgba(0,0,0,.28)!important}.mobile-header{background:#171311!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* Dashboard cards and data visualization surfaces. */
+.main .jf-route-stage :is(.dashboard-stat,.dashboard-shortcut,.dashboard-chart-card,.dashboard-community-stat,.stat-card,.metric-card) {
+  border:1px solid var(--jf-line)!important;border-radius:16px!important;background:var(--jf-surface)!important;
+  box-shadow:var(--jf-shadow)!important
+}
+.main .jf-route-stage :is(.dashboard-stat,.metric-card) strong,
+.main .jf-route-stage :is(.dashboard-stat,.metric-card) .value {font-variant-numeric:tabular-nums;letter-spacing:-.045em}
+.main .jf-route-stage :is(.dashboard-hero,.welcome,.members-hero,.reports-hero,.ranking-hero,.visitors-header,.followup-header,.devotionals-header) {
+  border-radius:20px!important;overflow:hidden
+}
+.main .jf-route-stage :is(.dashboard-hero,.welcome) {
+  background:linear-gradient(115deg,#8f3428 0%,#d94e35 54%,#f18b51 100%)!important;color:#fff!important;
+  border:1px solid rgba(255,255,255,.12)!important;box-shadow:0 16px 36px rgba(171,66,43,.17)!important
+}
+.main .jf-route-stage :is(.dashboard-hero,.welcome) :is(h1,h2,h3,p,span,strong,small) {color:#fff!important}
+.main .jf-route-stage :is(.dashboard-hero,.welcome) :is(button,a) {border-color:rgba(255,255,255,.3)!important}
+
+/* Youth portal shares the same visual language without changing its mobile-first navigation. */
+body .youth-portal {
+  --yp-bg:var(--jf-canvas);--yp-surface:var(--jf-surface);--yp-surface-2:var(--jf-surface-2);
+  --yp-text:var(--jf-ink);--yp-muted:var(--jf-muted);--yp-line:var(--jf-line);
+  --yp-green:var(--jf-brand);--yp-green-2:var(--jf-brand-strong);--yp-green-soft:var(--jf-brand-soft);
+  --yp-gold:var(--jf-gold);--yp-shadow:var(--jf-shadow);
+  background:var(--jf-canvas)!important;color:var(--jf-ink)!important
+}
+body .youth-portal :is(.youth-card,.youth-panel,.youth-activity-card,.youth-profile-card,.youth-game-tile,.youth-hall-card,.youth-profile-card,.jf-community-composer,.jf-community-post) {
+  background:var(--jf-surface)!important;color:var(--jf-ink)!important;border:1px solid var(--jf-line)!important;
+  border-radius:16px!important;box-shadow:var(--jf-shadow)!important
+}
+body .youth-portal :is(.youth-welcome,.jf-community-hero) {
+  background:linear-gradient(115deg,#8f3428 0%,#d94e35 54%,#f18b51 100%)!important;
+  border:1px solid rgba(255,255,255,.14)!important;border-radius:20px!important;color:#fff!important
+}
+body .youth-portal :is(.youth-welcome,.jf-community-hero) :is(h1,h2,h3,p,span,strong,small) {color:#fff!important}
+body .youth-portal :is(.youth-customize-trigger,.youth-back,.youth-sound-toggle,.youth-theme-toggle) {
+  background:var(--jf-surface)!important;color:var(--jf-ink)!important;border:1px solid var(--jf-line)!important
+}
+body .youth-portal :is(button,.btn,[role="button"]).primary {
+  background:linear-gradient(135deg,var(--jf-brand),var(--jf-ember-strong))!important;border-color:var(--jf-brand)!important;color:#fff!important
+}
+body .youth-portal .youth-pin-backdrop {backdrop-filter:none!important}
+body .youth-portal .youth-pin-dialog {background:var(--jf-surface)!important;color:var(--jf-ink)!important;border-color:var(--jf-line)!important}
