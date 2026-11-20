@@ -30,6 +30,8 @@ import './styles/jdf-applied-design.css';
 import './styles/mobile-runtime-stability.css';
 // Rediseño estructural final del panel administrativo.
 import './styles/admin-experience-redesign.css';
+// Final visual contract based on the two supplied dashboard references.
+import './styles/reference-dashboard-system.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
