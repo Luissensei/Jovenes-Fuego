@@ -288,3 +288,46 @@ body .youth-portal .youth-pin-dialog {background:var(--jf-surface)!important;col
  .main .jf-route-stage .followup-page .followup-header,
  .main .jf-route-stage .devotionals-hero {border-radius:16px!important}
 }
+
+
+/* Ranking and youth portal finishing pass — same coral/ember visual contract. */
+.main .jf-route-stage .ranking-hub .ranking-hero {
+  background:linear-gradient(112deg,#8e3328 0%,#d94e35 56%,#f18a50 100%)!important;
+  border:1px solid rgba(255,255,255,.16)!important;border-radius:20px!important;
+  box-shadow:0 15px 34px rgba(171,66,43,.15)!important
+}
+.main .jf-route-stage .ranking-hub :is(.ranking-tabs,.ranking-content,.ranking-progress-panel,.ranking-player-card,.ranking-podium-stage,.ranking-info-grid article) {
+  background:var(--jf-surface)!important;color:var(--jf-ink)!important;
+  border-color:var(--jf-line)!important;box-shadow:var(--jf-shadow)!important
+}
+.main .jf-route-stage .ranking-hub .ranking-tabs button.active {
+  background:var(--jf-brand-soft)!important;border-color:var(--jf-brand)!important;color:var(--jf-brand-ink)!important
+}
+.main .jf-route-stage .ranking-hub :is(.ranking-kicker,.ranking-card-points,.ranking-card-position,.ranking-card-name strong) {color:var(--jf-brand)!important}
+.main .jf-route-stage .ranking-hub .ranking-player-track {background:var(--jf-surface-3)!important}
+.main .jf-route-stage .ranking-hub .ranking-player-track > span {background:linear-gradient(90deg,var(--jf-brand),var(--jf-gold))!important}
+.main .jf-route-stage .ranking-hub .ranking-podium-base {background:var(--jf-surface-2)!important;border-color:var(--jf-line)!important}
+body .youth-portal :is(.youth-header,.youth-immersive-ranking-header) {
+  background:linear-gradient(112deg,#8e3328 0%,#d94e35 56%,#f18a50 100%)!important;
+  border:1px solid rgba(255,255,255,.16)!important;border-radius:18px!important;
+  box-shadow:0 14px 32px rgba(171,66,43,.14)!important
+}
+body .youth-portal :is(.youth-header,.youth-immersive-ranking-header) :is(h1,h2,h3,p,span,strong) {color:#fff!important}
+body .youth-portal :is(.youth-container,.youth-tab-page,.youth-ranking-tab,.youth-profile-editor,.youth-journal-panel,.youth-prayer-panel) {
+  color:var(--jf-ink)!important
+}
+body .youth-portal :is(.youth-hall-card,.youth-my-standing-card,.youth-ranking-podium,.youth-ranking-row,.youth-profile-showcase-card,.youth-game-card,.youth-store-item) {
+  background:var(--jf-surface)!important;color:var(--jf-ink)!important;
+  border:1px solid var(--jf-line)!important;border-radius:15px!important;box-shadow:var(--jf-shadow)!important
+}
+body .youth-portal :is(.youth-ranking-row-points,.youth-hall-points,.youth-my-standing-rank) {color:var(--jf-brand)!important}
+body .youth-portal :is(.youth-search,.youth-selector,.youth-profile-editor-grid input,.youth-profile-editor-grid select) {
+  background:var(--jf-surface)!important;color:var(--jf-ink)!important;border-color:var(--jf-line)!important
+}
+body .youth-portal :is(.youth-ranking-meter,.youth-progress-track) {background:var(--jf-surface-3)!important}
+body .youth-portal :is(.youth-ranking-meter > span,.youth-progress-track > span) {
+  background:linear-gradient(90deg,var(--jf-brand),var(--jf-gold))!important
+}
+@media(max-width:650px){
+ body .youth-portal :is(.youth-header,.youth-immersive-ranking-header){border-radius:15px!important}
+}
