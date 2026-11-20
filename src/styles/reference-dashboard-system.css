@@ -363,3 +363,73 @@ body .youth-portal :is(.youth-ranking-meter > span,.youth-progress-track > span)
 .main .jf-route-stage .trivia-shell :is(.trivia-intro>p,.trivia-result>p,.trivia-progress-info,.trivia-game-footer,.trivia-final-score span){color:var(--jf-muted)!important}
 @media(max-width:650px){.main .jf-route-stage .managed-page .managed-hero{border-radius:16px!important}.main .jf-route-stage .trivia-shell :is(.trivia-intro,.trivia-result,.trivia-question-card){padding:19px!important}}
 @media(prefers-reduced-motion:reduce){.main .jf-route-stage .managed-page .managed-record:hover{transform:none!important}}
+
+
+/* Prayer requests, reports and settings hub */
+.main .jf-route-stage .prayers-admin-page .management-header,
+.main .jf-route-stage .reports-page .reports-hero,
+.main .jf-route-stage .settings-hub .settings-hero {
+  background:linear-gradient(112deg,#8e3328 0%,#d94e35 56%,#f18a50 100%)!important;
+  border:1px solid rgba(255,255,255,.17)!important;border-radius:20px!important;
+  box-shadow:0 15px 34px rgba(171,66,43,.15)!important;color:#fff!important
+}
+.main .jf-route-stage .prayers-admin-page .management-header :is(h1,p,span),
+.main .jf-route-stage .reports-page .reports-hero :is(h1,p,span),
+.main .jf-route-stage .settings-hub .settings-hero :is(h1,p,span){color:#fff!important}
+.main .jf-route-stage .prayers-admin-page :is(.prayers-admin-summary,.prayers-admin-alert,.prayers-admin-empty,.prayer-admin-card),
+.main .jf-route-stage .reports-page :is(.reports-filter,.reports-stats article,.reports-card,.reports-empty,.reports-table-wrapper),
+.main .jf-route-stage .settings-hub :is(.settings-theme-card,.settings-section,.settings-area-card,.settings-security,.settings-advanced) {
+  background:var(--jf-surface)!important;color:var(--jf-ink)!important;
+  border:1px solid var(--jf-line)!important;border-radius:16px!important;box-shadow:var(--jf-shadow)!important
+}
+.main .jf-route-stage .prayers-admin-page .prayer-admin-card :is(h2,p,small,span),
+.main .jf-route-stage .reports-page :is(.reports-stats article span,.reports-section-heading h2,.reports-rate span,.reports-breakdown span,.reports-table th,.reports-table td),
+.main .jf-route-stage .settings-hub :is(h2,p,b,small){color:var(--jf-ink)!important}
+.main .jf-route-stage .prayers-admin-page .prayers-admin-icon,
+.main .jf-route-stage .reports-page .reports-icon,
+.main .jf-route-stage .settings-hub :is(.settings-hero-icon,.settings-theme-icon,.settings-area-icon){
+  background:var(--jf-brand-soft)!important;color:var(--jf-brand-ink)!important;border-radius:13px!important
+}
+.main .jf-route-stage .prayers-admin-page :is(button,select),
+.main .jf-route-stage .reports-page :is(input,button),
+.main .jf-route-stage .settings-hub :is(button,input,select){
+  border-radius:10px!important
+}
+.main .jf-route-stage .prayers-admin-page .prayer-status-control select,
+.main .jf-route-stage .reports-page .reports-filter input{
+  background:var(--jf-surface-2)!important;border:1px solid var(--jf-line)!important;color:var(--jf-ink)!important
+}
+.main .jf-route-stage .reports-page .reports-progress{background:var(--jf-surface-3)!important;border-radius:999px!important;overflow:hidden}
+.main .jf-route-stage .reports-page .reports-progress>div{background:linear-gradient(90deg,var(--jf-brand),var(--jf-gold))!important;border-radius:999px!important}
+.main .jf-route-stage .reports-page .reports-table{border-collapse:separate!important;border-spacing:0!important}
+.main .jf-route-stage .reports-page .reports-table :is(th,td){border-color:var(--jf-line)!important}
+.main .jf-route-stage .reports-page .reports-table tbody tr:nth-child(even){background:var(--jf-surface-2)!important}
+.main .jf-route-stage .reports-page .reports-error{border:1px solid #d85a4a!important;border-radius:12px!important}
+.main .jf-route-stage .settings-hub .settings-area-card{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important}
+.main .jf-route-stage .settings-hub .settings-area-card:hover{transform:translateY(-3px);border-color:var(--jf-brand)!important;box-shadow:var(--jf-shadow-raised)!important}
+.main .jf-route-stage .settings-hub .settings-security code{color:var(--jf-brand)!important}
+
+/* Remaining Bible games: memory, verse challenge, word puzzle and duel */
+.main .jf-route-stage :is(.mbg-game,.mbg-result,.mbg-duel-setup,.mbg-duel-scores,.mbg-word-board,.mbg-question,.mbg-stats,.verse-question-card,.verse-results) {
+  background:var(--jf-surface)!important;color:var(--jf-ink)!important;border:1px solid var(--jf-line)!important;
+  border-radius:17px!important;box-shadow:var(--jf-shadow)!important
+}
+.main .jf-route-stage :is(.mbg-header,.verse-game-header) {
+  background:linear-gradient(112deg,#8e3328 0%,#d94e35 56%,#f18a50 100%)!important;
+  border-radius:18px!important;color:#fff!important
+}
+.main .jf-route-stage :is(.mbg-header,.verse-game-header) :is(h1,h2,p,span){color:#fff!important}
+.main .jf-route-stage :is(.mbg-eyebrow,.verse-game-label,.verse-reference,.verse-question-number){color:var(--jf-brand)!important}
+.main .jf-route-stage :is(.mbg-card-question,.mbg-question,.mbg-word-options button,.mbg-options button,.mbg-arranged,.mbg-placeholder,.verse-option-letter) {
+  background:var(--jf-surface-2)!important;color:var(--jf-ink)!important;border:1px solid var(--jf-line)!important;border-radius:11px!important
+}
+.main .jf-route-stage :is(.mbg-primary-button,.verse-next-button){background:var(--jf-brand)!important;color:#fff!important;border-color:var(--jf-brand)!important}
+.main .jf-route-stage :is(.mbg-secondary-button,.mbg-back,.verse-back-button,.verse-exit-button){background:var(--jf-surface-2)!important;color:var(--jf-ink)!important;border:1px solid var(--jf-line)!important}
+.main .jf-route-stage :is(.mbg-bible-reference,.mbg-bible-explanation,.verse-bible-detail){background:var(--jf-brand-soft)!important;color:var(--jf-brand-ink)!important;border-radius:12px!important}
+.main .jf-route-stage .verse-progress{background:var(--jf-surface-3)!important;border-radius:999px!important;overflow:hidden}
+.main .jf-route-stage .verse-progress-fill{background:linear-gradient(90deg,var(--jf-brand),var(--jf-gold))!important}
+.main .jf-route-stage :is(.mbg-game,.verse-game) :is(button,input,select):focus-visible{outline:2px solid var(--jf-focus)!important;outline-offset:3px}
+@media(max-width:650px){
+ .main .jf-route-stage :is(.prayers-admin-page .management-header,.reports-page .reports-hero,.settings-hub .settings-hero){border-radius:16px!important}
+ .main .jf-route-stage :is(.mbg-header,.verse-game-header){border-radius:15px!important}
+}
