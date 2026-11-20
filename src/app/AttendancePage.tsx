@@ -213,7 +213,7 @@ export default function AttendancePage() {
       const date = cursor.toISOString().slice(0, 10);
       const day = cursor.getUTCDay();
       const event = schedule.find((item) => item.weekday === day);
-      if (date >= today && event && !alreadyHasScheduledType(date, event.weekday)) {
+      if (event && !alreadyHasScheduledType(date, event.weekday)) {
         generated.push({
           id: `scheduled_${date}_${event.weekday}`,
           name: event.name,
@@ -251,7 +251,7 @@ export default function AttendancePage() {
           return normalized.includes('ayuno') &&
             (normalized.includes('juvenil') || normalized.includes('jovenes'));
         });
-        if (date >= today && !hasFastingEvent) {
+        if (!hasFastingEvent) {
           generated.push({id: `scheduled_${date}_fast`, name, date, createdAt: '', participants: []});
         }
         current.setUTCDate(current.getUTCDate() + 14);
