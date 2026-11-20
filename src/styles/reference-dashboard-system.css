@@ -433,3 +433,31 @@ body .youth-portal :is(.youth-ranking-meter > span,.youth-progress-track > span)
  .main .jf-route-stage :is(.prayers-admin-page .management-header,.reports-page .reports-hero,.settings-hub .settings-hero){border-radius:16px!important}
  .main .jf-route-stage :is(.mbg-header,.verse-game-header){border-radius:15px!important}
 }
+
+
+/* SettingsHubPage uses CSS-module class names; target its structural roles safely. */
+.main .jf-route-stage main[class*="scope"]>header[class*="hero"]{
+ background:linear-gradient(112deg,#8e3328 0%,#d94e35 56%,#f18a50 100%)!important;
+ border:1px solid rgba(255,255,255,.17)!important;border-radius:20px!important;color:#fff!important;
+ box-shadow:0 15px 34px rgba(171,66,43,.15)!important
+}
+.main .jf-route-stage main[class*="scope"]>header[class*="hero"] :is(h1,p,span){color:#fff!important}
+.main .jf-route-stage main[class*="scope"]>section[class*="themeCard"],
+.main .jf-route-stage main[class*="scope"]>section[class*="section"] a[class*="areaCard"],
+.main .jf-route-stage main[class*="scope"]>section[class*="security"],
+.main .jf-route-stage main[class*="scope"]>details[class*="advanced"]{
+ background:var(--jf-surface)!important;color:var(--jf-ink)!important;
+ border:1px solid var(--jf-line)!important;border-radius:16px!important;box-shadow:var(--jf-shadow)!important
+}
+.main .jf-route-stage main[class*="scope"]>section[class*="themeCard"] :is(b,small,span),
+.main .jf-route-stage main[class*="scope"]>section[class*="section"] a[class*="areaCard"] :is(b,small),
+.main .jf-route-stage main[class*="scope"]>section[class*="security"] :is(b,small,code),
+.main .jf-route-stage main[class*="scope"]>details[class*="advanced"] :is(summary,p){color:var(--jf-ink)!important}
+.main .jf-route-stage main[class*="scope"]>section[class*="themeCard"] [class*="themeIcon"],
+.main .jf-route-stage main[class*="scope"]>section[class*="section"] a[class*="areaCard"] [class*="areaIcon"]{
+ background:var(--jf-brand-soft)!important;color:var(--jf-brand)!important
+}
+.main .jf-route-stage main[class*="scope"]>section[class*="section"] a[class*="areaCard"]:hover{
+ border-color:var(--jf-brand)!important;transform:translateY(-3px);box-shadow:var(--jf-shadow-raised)!important
+}
+@media(max-width:650px){.main .jf-route-stage main[class*="scope"]>header[class*="hero"]{border-radius:16px!important}}
