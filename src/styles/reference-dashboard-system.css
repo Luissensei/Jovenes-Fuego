@@ -331,3 +331,35 @@ body .youth-portal :is(.youth-ranking-meter > span,.youth-progress-track > span)
 @media(max-width:650px){
  body .youth-portal :is(.youth-header,.youth-immersive-ranking-header){border-radius:15px!important}
 }
+
+
+/* Visitors and shared managed records */
+.main .jf-route-stage .managed-page{color:var(--jf-ink)!important;background:transparent!important}
+.main .jf-route-stage .managed-page .managed-hero{background:linear-gradient(112deg,#8e3328 0%,#d94e35 56%,#f18a50 100%)!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:20px!important;box-shadow:0 15px 34px rgba(171,66,43,.15)!important}
+.main .jf-route-stage .managed-page .managed-eyebrow{color:#ffe0c8!important}
+.main .jf-route-stage .managed-page :is(.managed-stat,.managed-toolbar,.managed-record,.managed-empty){background:var(--jf-surface)!important;color:var(--jf-ink)!important;border:1px solid var(--jf-line)!important;border-radius:15px!important;box-shadow:var(--jf-shadow)!important}
+.main .jf-route-stage .managed-page :is(.managed-stat strong,.managed-record-heading h3,.managed-record-main strong,.managed-empty strong){color:var(--jf-ink)!important}
+.main .jf-route-stage .managed-page :is(.managed-stat span,.managed-record-description,.managed-record-details,.managed-created,.managed-results){color:var(--jf-muted)!important}
+.main .jf-route-stage .managed-page .managed-search{background:var(--jf-surface-2)!important;border-color:var(--jf-line)!important}
+.main .jf-route-stage .managed-page :is(.managed-search input,.managed-status-label select,.managed-form-field input,.managed-form-field select,.managed-form-field textarea){background:var(--jf-surface-2)!important;border-color:var(--jf-line)!important;color:var(--jf-ink)!important}
+.main .jf-route-stage .managed-page .managed-primary{background:var(--jf-brand)!important;border:1px solid var(--jf-brand)!important;color:#fff!important}
+.main .jf-route-stage .managed-page .managed-status{background:var(--jf-brand-soft)!important;color:var(--jf-brand-ink)!important}
+.main .jf-route-stage .managed-page .managed-modal{background:var(--jf-surface)!important;color:var(--jf-ink)!important;border:1px solid var(--jf-line)!important;border-radius:18px!important}
+.main .jf-route-stage .managed-page .managed-overlay{backdrop-filter:none!important}
+.main .jf-route-stage .managed-page :is(button,input,select,textarea):focus-visible{outline:2px solid var(--jf-focus)!important;outline-offset:3px}
+
+/* Bible games */
+.main .jf-route-stage .trivia-shell :is(.trivia-intro,.trivia-result,.trivia-question-card,.trivia-dashboard>div){background:var(--jf-surface)!important;color:var(--jf-ink)!important;border:1px solid var(--jf-line)!important;border-radius:17px!important;box-shadow:var(--jf-shadow)!important}
+.main .jf-route-stage .trivia-shell :is(.trivia-intro h2,.trivia-result h2,.trivia-question-card h2,.trivia-rules strong,.trivia-result-stats strong,.trivia-dashboard strong){color:var(--jf-ink)!important}
+.main .jf-route-stage .trivia-shell :is(.trivia-eyebrow,.trivia-final-score strong,.trivia-dashboard strong svg){color:var(--jf-brand)!important}
+.main .jf-route-stage .trivia-shell :is(.trivia-main-icon,.trivia-result-icon,.trivia-level){background:var(--jf-brand-soft)!important;color:var(--jf-brand-ink)!important}
+.main .jf-route-stage .trivia-shell :is(.trivia-rules>div,.trivia-result-stats>div,.trivia-timer){background:var(--jf-surface-2)!important;color:var(--jf-ink)!important}
+.main .jf-route-stage .trivia-shell .trivia-progress{background:var(--jf-surface-3)!important}
+.main .jf-route-stage .trivia-shell .trivia-progress>div{background:linear-gradient(90deg,var(--jf-brand),var(--jf-gold))!important}
+.main .jf-route-stage .trivia-shell .trivia-option{background:var(--jf-surface-2)!important;color:var(--jf-ink)!important;border-color:var(--jf-line)!important;border-radius:12px!important}
+.main .jf-route-stage .trivia-shell .trivia-option:not(:disabled):hover{border-color:var(--jf-brand)!important}
+.main .jf-route-stage .trivia-shell .trivia-primary{background:var(--jf-brand)!important;color:#fff!important}
+.main .jf-route-stage .trivia-shell .trivia-secondary{background:var(--jf-surface-2)!important;color:var(--jf-ink)!important}
+.main .jf-route-stage .trivia-shell :is(.trivia-intro>p,.trivia-result>p,.trivia-progress-info,.trivia-game-footer,.trivia-final-score span){color:var(--jf-muted)!important}
+@media(max-width:650px){.main .jf-route-stage .managed-page .managed-hero{border-radius:16px!important}.main .jf-route-stage .trivia-shell :is(.trivia-intro,.trivia-result,.trivia-question-card){padding:19px!important}}
+@media(prefers-reduced-motion:reduce){.main .jf-route-stage .managed-page .managed-record:hover{transform:none!important}}
