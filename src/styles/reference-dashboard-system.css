@@ -779,7 +779,7 @@ body .youth-portal :is(.youth-ranking-meter > span,.youth-progress-track > span)
 :where(.main .jf-route-stage,.youth-portal) :is(.badge,.chip,.pill,.tag)
 :not([class*="status"]):not([class*="role"]):not([class*="rank"])
 :not([class*="level"]):not([class*="filter"]):not([data-keep-label="true"]) {
-  box-shadow:none!important;
+  display:none!important;
 }
 :where(.main .jf-route-stage,.youth-portal) :is(
   .status,.status-badge,.role-badge,.rank-badge,.level-badge,
