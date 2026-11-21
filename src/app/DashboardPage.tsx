@@ -156,11 +156,11 @@ export default function DashboardPage() {
     [attendanceMeetings],
   );
   const metricCards = [
-    { label: 'PERFILES PÚBLICOS', value: peopleLoading ? '…' : configured ? String(people.length) : '—', note: 'Perfiles visibles del ranking', icon: Users },
-    { label: 'ACTIVIDADES PRÓXIMAS', value: activitiesLoading ? '…' : configured ? String(upcoming.length) : '—', note: 'Eventos publicados desde hoy', icon: CalendarDays },
-    { label: 'PUNTOS ACUMULADOS', value: peopleLoading ? '…' : configured ? totalPoints.toLocaleString('es-CO') : '—', note: 'Total del ranking público', icon: Star },
-    { label: 'LÍDER DEL RANKING', value: peopleLoading ? '…' : ranked[0]?.name || '—', note: ranked[0] ? `${(ranked[0].points ?? 0).toLocaleString('es-CO')} puntos` : 'Sin datos publicados', icon: Trophy },
-    ...(canReadAttendance ? [{label: 'ASISTENCIA DEL MES', value: attendanceLoading ? '…' : attendanceMetric.value, note: attendanceMetric.note, icon: ClipboardCheck}] : []),
+    { label: 'Perfiles públicos', value: peopleLoading ? '…' : configured ? String(people.length) : '—', note: 'Perfiles visibles del ranking', icon: Users },
+    { label: 'Actividades próximas', value: activitiesLoading ? '…' : configured ? String(upcoming.length) : '—', note: 'Eventos publicados desde hoy', icon: CalendarDays },
+    { label: 'Puntos acumulados', value: peopleLoading ? '…' : configured ? totalPoints.toLocaleString('es-CO') : '—', note: 'Total del ranking público', icon: Star },
+    { label: 'Líder del ranking', value: peopleLoading ? '…' : ranked[0]?.name || '—', note: ranked[0] ? `${(ranked[0].points ?? 0).toLocaleString('es-CO')} puntos` : 'Sin datos publicados', icon: Trophy },
+    ...(canReadAttendance ? [{label: 'Asistencia del mes', value: attendanceLoading ? '…' : attendanceMetric.value, note: attendanceMetric.note, icon: ClipboardCheck}] : []),
   ];
 
   return (
