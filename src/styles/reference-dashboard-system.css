@@ -461,3 +461,201 @@ body .youth-portal :is(.youth-ranking-meter > span,.youth-progress-track > span)
  border-color:var(--jf-brand)!important;transform:translateY(-3px);box-shadow:var(--jf-shadow-raised)!important
 }
 @media(max-width:650px){.main .jf-route-stage main[class*="scope"]>header[class*="hero"]{border-radius:16px!important}}
+
+
+/* ─────────────────────────────────────────────────────────────
+   ADMIN CONSOLE — unified V24 light / V32 dark experience
+   Applies to real modules; data, permissions and Firebase actions stay intact.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --jf-admin-sidebar-width:244px;
+  --jf-admin-sidebar-collapsed:76px;
+}
+.layout {background:var(--jf-canvas)!important}
+.sidebar {
+  width:var(--jf-admin-sidebar-width)!important;
+  padding:16px 12px 13px!important;
+  background:linear-gradient(180deg,#151515 0%,#1b1b1b 58%,#101010 100%)!important;
+  border-right:1px solid rgba(255,255,255,.075)!important;
+  box-shadow:8px 0 26px rgba(0,0,0,.12)!important;
+  transition:width .26s cubic-bezier(.2,.8,.2,1),transform .26s ease,background .2s ease!important;
+}
+:root[data-theme="light"] .sidebar {
+  background:linear-gradient(180deg,#a9654e 0%,#92523f 58%,#754333 100%)!important;
+}
+.sidebar>.brand {
+  min-height:58px!important;padding:5px 6px 14px!important;margin-bottom:12px!important;
+  border-bottom:1px solid rgba(255,255,255,.16)!important;
+}
+.sidebar .brand-mark {
+  width:40px!important;height:40px!important;flex:0 0 40px!important;border-radius:12px!important;
+}
+.sidebar .brand strong {font-size:13px!important;letter-spacing:-.02em!important}
+.sidebar .brand small {max-width:155px!important;font-size:9px!important;color:rgba(255,255,255,.72)!important}
+.sidebar .sidebar-collapse-toggle {
+  top:20px!important;right:10px!important;width:28px!important;height:28px!important;
+  border-radius:8px!important;background:rgba(255,255,255,.09)!important;
+  border-color:rgba(255,255,255,.15)!important;color:#fff!important;
+  transition:transform .18s ease,background .18s ease!important;
+}
+.sidebar .sidebar-collapse-toggle:hover {transform:scale(1.06);background:rgba(255,255,255,.18)!important}
+.sidebar .env-chip {display:none!important}
+.sidebar .module-search {margin:0 0 12px!important;min-height:38px!important;border-radius:10px!important}
+.sidebar .jf-module-navigation {gap:8px!important;padding:0 2px 8px 0!important}
+.sidebar .jf-nav-group {
+  border:0!important;border-radius:10px!important;background:transparent!important;overflow:hidden!important;
+}
+.sidebar .jf-nav-group summary {
+  min-height:30px!important;padding:7px 9px!important;border-radius:8px!important;
+  color:rgba(255,255,255,.62)!important;font-size:9px!important;font-weight:750!important;
+  letter-spacing:.085em!important;transition:background .18s ease,color .18s ease!important;
+}
+.sidebar .jf-nav-group summary:hover {background:rgba(255,255,255,.07)!important;color:#fff!important}
+.sidebar .jf-nav-group summary::-webkit-details-marker {display:none!important}
+.sidebar .jf-nav-group summary::after {
+  content:"⌄";display:inline-block;margin-left:auto;padding-left:8px;color:rgba(255,255,255,.55);
+  font-size:13px;line-height:1;transition:transform .2s ease,color .2s ease;
+}
+.sidebar .jf-nav-group[open] summary::after {transform:rotate(180deg);color:#ff9868}
+.sidebar .jf-nav-count {display:none!important}
+.sidebar .jf-nav-group-items {
+  display:grid!important;gap:3px!important;padding:3px 3px 6px!important;
+}
+.sidebar .jf-nav-group[open] .jf-nav-group-items {animation:jf-admin-dropdown-in .22s ease both}
+.sidebar .nav-item {
+  min-height:36px!important;padding:6px 8px!important;gap:9px!important;
+  border:1px solid transparent!important;border-radius:9px!important;
+  color:rgba(255,255,255,.73)!important;font-size:10.5px!important;font-weight:560!important;
+  transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease!important;
+}
+.sidebar .nav-item-icon {
+  width:26px!important;height:26px!important;border-radius:8px!important;
+  background:rgba(255,255,255,.075)!important;color:rgba(255,255,255,.8)!important;
+}
+.sidebar .nav-item:hover {transform:translateX(2px);background:rgba(255,255,255,.1)!important;color:#fff!important}
+.sidebar .nav-item.active {
+  background:linear-gradient(100deg,rgba(255,120,63,.24),rgba(255,120,63,.075))!important;
+  border-color:rgba(255,150,105,.23)!important;box-shadow:inset 3px 0 #ff874e!important;color:#fff!important;
+}
+.sidebar .nav-item.active .nav-item-icon {background:#e85d3e!important;color:#fff!important}
+.sidebar .safe-note {padding:10px!important;border-radius:10px!important}
+.sidebar .safe-note small {font-size:9px!important}
+.sidebar .theme-toggle {min-height:38px!important;border-radius:9px!important}
+.layout.sidebar-collapsed .sidebar {width:var(--jf-admin-sidebar-collapsed)!important;padding-inline:9px!important}
+.layout.sidebar-collapsed .main {margin-left:var(--jf-admin-sidebar-collapsed)!important}
+.layout:not(.sidebar-collapsed) .main {margin-left:var(--jf-admin-sidebar-width)!important}
+.layout.sidebar-collapsed .jf-nav-group summary {justify-content:center!important;padding-inline:3px!important}
+.layout.sidebar-collapsed .jf-nav-group summary::after {display:none!important}
+.layout.sidebar-collapsed .jf-nav-group-items {padding-inline:0!important}
+.layout.sidebar-collapsed .sidebar .nav-item {min-height:38px!important}
+.layout.sidebar-collapsed .sidebar .nav-item-icon {width:32px!important;height:32px!important}
+
+.main {
+  min-width:0!important;padding:18px clamp(16px,2.2vw,34px) 28px!important;
+  background:var(--jf-canvas)!important;transition:margin-left .26s cubic-bezier(.2,.8,.2,1)!important;
+}
+.main>.topline {
+  position:sticky!important;top:10px!important;z-index:35!important;
+  display:flex!important;min-height:54px!important;gap:12px!important;margin:0 0 20px!important;
+  padding:8px 12px!important;border:1px solid var(--jf-line)!important;border-radius:14px!important;
+  background:var(--jf-surface)!important;box-shadow:var(--jf-shadow)!important;
+}
+.topline-status {gap:10px!important}
+.topline-status-environment,.topline-status-module {font-size:10px!important;color:var(--jf-muted)!important}
+.topline-status-divider {height:18px!important;background:var(--jf-line)!important}
+.project-label {
+  max-width:230px!important;padding:0!important;border:0!important;border-radius:0!important;
+  background:transparent!important;color:var(--jf-ink)!important;font-size:11px!important;
+}
+.topline-theme-toggle {
+  min-height:36px!important;padding:0 10px!important;border:1px solid var(--jf-line)!important;
+  border-radius:9px!important;background:var(--jf-surface-2)!important;color:var(--jf-ink)!important;
+}
+.main .jf-route-stage {width:min(100%,1580px)!important}
+.main .jf-route-stage> :is(main,section) {animation:jf-admin-page-enter .42s cubic-bezier(.2,.75,.25,1) both}
+.main .jf-route-stage> :is(main,section)>:is(header,section,article) {animation:jf-admin-card-enter .42s cubic-bezier(.2,.75,.25,1) both}
+.main .jf-route-stage> :is(main,section)>:is(header,section,article):nth-child(2){animation-delay:.045s}
+.main .jf-route-stage> :is(main,section)>:is(header,section,article):nth-child(3){animation-delay:.09s}
+.main .jf-route-stage> :is(main,section)>:is(header,section,article):nth-child(4){animation-delay:.135s}
+
+/* Remove repeated micro-labels and decorative counters. Preserve form labels,
+   workflow states, role permissions, error messages and data badges. */
+.main .jf-route-stage [class*="eyebrow"],
+.main .jf-route-stage [class*="kicker"],
+.youth-portal [class*="eyebrow"],
+.youth-portal [class*="kicker"] {display:none!important}
+.main .jf-route-stage .welcomeVisual>span {display:none!important}
+.main .jf-route-stage :is(.env-chip,.jf-nav-count) {display:none!important}
+.main .jf-route-stage :is(.section-tag,.module-tag,.category-tag,.decorative-tag) {display:none!important}
+.main .jf-route-stage :is(.badge,.chip,.pill,.tag):not([class*="status"]):not([class*="role"]):not([class*="rank"]):not([class*="level"]) {
+  box-shadow:none!important;
+}
+.main .jf-route-stage :is(.card,.panel,article[class*="card"],[class*="Card"]) {
+  transition:transform .22s cubic-bezier(.2,.75,.25,1),border-color .2s ease,box-shadow .22s ease,background-color .2s ease!important;
+}
+.main .jf-route-stage :is(.panel,article[class*="card"],[class*="Card"]):hover {
+  border-color:color-mix(in srgb,var(--jf-brand) 28%,var(--jf-line))!important;
+  box-shadow:var(--jf-shadow-raised)!important;
+}
+.main .jf-route-stage :is(button,a,[role="button"]) {
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background-color .18s ease,color .18s ease!important;
+}
+.main .jf-route-stage :is(button,a[role="button"]):hover:not(:disabled) {transform:translateY(-1px)}
+.main .jf-route-stage :is(button,a[role="button"]):active:not(:disabled) {transform:translateY(0) scale(.985)}
+.main .jf-route-stage details {border-color:var(--jf-line)!important}
+.main .jf-route-stage details>summary {cursor:pointer;transition:color .18s ease,background .18s ease}
+.main .jf-route-stage details[open]>summary {color:var(--jf-brand)!important}
+.main .jf-route-stage details[open]>:not(summary) {animation:jf-admin-dropdown-in .24s ease both}
+.main .jf-route-stage :is(.modal,.dialog,[role="dialog"],[class*="modal"],[class*="Modal"]) {
+  animation:jf-admin-dialog-in .2s cubic-bezier(.2,.8,.2,1) both;
+}
+.main .jf-route-stage :is(.modal-backdrop,.modal-overlay,[class*="modal-overlay"],[class*="ModalOverlay"]) {
+  animation:jf-admin-fade-in .18s ease both;
+}
+@keyframes jf-admin-page-enter {from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes jf-admin-card-enter {from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes jf-admin-dropdown-in {from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes jf-admin-dialog-in {from{opacity:0;transform:translateY(9px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes jf-admin-fade-in {from{opacity:0}to{opacity:1}}
+
+/* Light theme follows V24's warm peach + coral dashboard. */
+:root[data-theme="light"] .main>.topline {background:#fffaf6!important;border-color:#ead8cc!important}
+:root[data-theme="light"] .sidebar .nav-item.active {
+  background:rgba(255,255,255,.18)!important;border-color:rgba(255,255,255,.22)!important;
+  box-shadow:inset 3px 0 #ffe0ce!important;color:#fff!important;
+}
+:root[data-theme="light"] .sidebar .nav-item.active .nav-item-icon {background:#fff2e9!important;color:#b94b36!important}
+:root[data-theme="light"] .sidebar .module-search {background:rgba(255,255,255,.11)!important;border-color:rgba(255,255,255,.2)!important}
+:root[data-theme="light"] .sidebar .jf-nav-group summary {color:rgba(255,255,255,.76)!important}
+:root[data-theme="dark"] .main>.topline {background:#191919!important;border-color:#373737!important}
+:root[data-theme="dark"] .main .jf-route-stage :is(.panel,.card,article[class*="card"],[class*="Card"]) {
+  background:#1a1a1a!important;border-color:#373737!important;
+}
+@media(max-width:1100px) {
+  :root {--jf-admin-sidebar-width:226px}
+  .sidebar {width:226px!important}
+  .layout:not(.sidebar-collapsed) .main {margin-left:226px!important}
+}
+@media(max-width:900px) {
+  .sidebar {width:min(312px,calc(100vw - 44px))!important;transition:transform .26s cubic-bezier(.2,.8,.2,1),opacity .2s ease!important}
+  .layout:not(.sidebar-collapsed) .main,.layout.sidebar-collapsed .main {margin-left:0!important}
+  .main {padding:12px 14px 26px!important}
+  .main>.topline {position:relative!important;top:auto!important;margin-bottom:16px!important}
+}
+@media(max-width:600px) {
+  .main {padding:10px 11px 24px!important}
+  .main>.topline {gap:8px!important;min-height:48px!important;padding:7px 9px!important}
+  .topline-status-module {display:none!important}
+  .project-label {display:none!important}
+  .topline-theme-toggle {min-height:38px!important;margin-left:auto!important}
+  .sidebar>.brand {padding-bottom:12px!important}
+  .sidebar .nav-item {min-height:42px!important}
+}
+@media(prefers-reduced-motion:reduce) {
+  .main .jf-route-stage>*,
+  .main .jf-route-stage>* *,
+  .sidebar,.sidebar * {
+    animation:none!important;transition:none!important;scroll-behavior:auto!important;
+  }
+  .main .jf-route-stage :is(button,a,[role="button"]):hover {transform:none!important}
+}
