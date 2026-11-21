@@ -52,7 +52,7 @@
   border-radius: 1.35rem;
   background:
     radial-gradient(circle at 82% 12%, color-mix(in srgb, var(--jdf-gold) 28%, transparent), transparent 28%),
-    linear-gradient(118deg, #211a3e 0%, #38234d 58%, #712f36 125%);
+    linear-gradient(118deg, #8f3428 0%, #d94e35 56%, #f18b51 125%);
   box-shadow: var(--jdf-shadow-raised);
 }
 .scope:global(.ranking-hub) :global(.ranking-hero)::after {
@@ -96,7 +96,7 @@
   padding: .78rem 1rem;
   border: 1px solid rgb(255 255 255 / 65%);
   border-radius: .8rem;
-  color: #552b34 !important;
+  color: #7b3024 !important;
   background: #fff5ed !important;
   font-weight: 850;
 }

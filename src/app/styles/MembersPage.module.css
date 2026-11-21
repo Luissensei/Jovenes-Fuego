@@ -913,7 +913,7 @@
 .scope:global(.members-page) :global(.members-hero){
  border:1px solid color-mix(in srgb,var(--jdf-fire) 38%,var(--jdf-border));
  border-radius:19px;
- background:radial-gradient(circle at 88% 8%,color-mix(in srgb,var(--jdf-gold) 20%,transparent),transparent 28%),linear-gradient(118deg,#211a3e 0%,#39234d 58%,#71313a 125%);
+ background:radial-gradient(circle at 88% 8%,color-mix(in srgb,var(--jdf-gold) 20%,transparent),transparent 28%),linear-gradient(118deg,#8f3428 0%,#d94e35 56%,#f18b51 125%);
  box-shadow:var(--jdf-shadow-raised)
 }
 .scope:global(.members-page) :global(.members-hero h1){color:#fff}
