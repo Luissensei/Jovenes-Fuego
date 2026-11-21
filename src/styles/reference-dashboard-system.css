@@ -778,7 +778,12 @@ body .youth-portal :is(.youth-ranking-meter > span,.youth-progress-track > span)
 ) {display:none!important}
 :where(.main .jf-route-stage,.youth-portal) :is(.badge,.chip,.pill,.tag)
 :not([class*="status"]):not([class*="role"]):not([class*="rank"])
-:not([class*="level"]):not([class*="filter"]):not([data-keep-label="true"]) {
+:not([class*="level"]):not([class*="filter"]):not([class*="success"])
+:not([class*="warning"]):not([class*="danger"]):not([class*="error"])
+:not([class*="pending"]):not([class*="active"]):not([class*="inactive"])
+:not([class*="approved"]):not([class*="rejected"]):not([class*="present"])
+:not([class*="absent"]):not([class*="late"]):not([class*="info"])
+:not([data-status]):not([data-keep-label="true"]) {
   display:none!important;
 }
 :where(.main .jf-route-stage,.youth-portal) :is(
