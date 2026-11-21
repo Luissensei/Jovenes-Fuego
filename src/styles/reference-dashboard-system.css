@@ -659,3 +659,158 @@ body .youth-portal :is(.youth-ranking-meter > span,.youth-progress-track > span)
   }
   .main .jf-route-stage :is(button,a,[role="button"]):hover {transform:none!important}
 }
+
+
+/* Global finish — apply the same visual language to every admin and youth module. */
+:where(.main .jf-route-stage,.youth-portal) {
+  color:var(--jf-ink)!important;
+  --jf-card-radius:17px;
+  --jf-control-radius:10px;
+}
+:where(.main .jf-route-stage,.youth-portal) :is(
+  article, .card, [class*="-card"], [class*="Card"], .panel, .stat,
+  .metric, .metric-card, .summary-card, .feature-card, .list-card,
+  .activity-card, .event-card, .report-card, .game-card, .profile-card
+):not([role="option"]) {
+  border-color:var(--jf-line)!important;
+  border-radius:var(--jf-card-radius)!important;
+  background:var(--jf-surface)!important;
+  color:var(--jf-ink)!important;
+  box-shadow:var(--jf-shadow)!important;
+  transition:transform .22s cubic-bezier(.2,.75,.25,1),border-color .2s ease,
+    box-shadow .22s ease,background-color .2s ease!important;
+}
+:where(.main .jf-route-stage,.youth-portal) :is(
+  article[class*="card"],[class*="-card"],[class*="Card"],.panel
+):hover {
+  border-color:color-mix(in srgb,var(--jf-brand) 32%,var(--jf-line))!important;
+  box-shadow:var(--jf-shadow-raised)!important;
+}
+:where(.main .jf-route-stage,.youth-portal) :is(
+  .page-header,.module-header,.page-hero,.module-hero,.section-header,
+  .attendance-header,.members-hero,.followup-header,.devotionals-hero,
+  .visitors-header,.reports-hero,.ranking-hero,.settings-header
+) {
+  border-radius:20px!important;
+  border-color:rgba(255,255,255,.16)!important;
+  background:linear-gradient(112deg,#96392e 0%,#d9533c 55%,#ef8051 100%)!important;
+  box-shadow:0 15px 34px rgba(171,66,43,.15)!important;
+  color:#fff!important;
+}
+:where(.main .jf-route-stage,.youth-portal) :is(
+  .page-header,.module-header,.page-hero,.module-hero,.section-header,
+  .attendance-header,.members-hero,.followup-header,.devotionals-hero,
+  .visitors-header,.reports-hero,.ranking-hero,.settings-header
+) :is(h1,h2,h3,p,span,strong,small) {color:inherit}
+:where(.main .jf-route-stage,.youth-portal) :is(
+  .toolbar,.filter-bar,.filters,.filter-panel,.search-panel,.table-wrap,
+  .table-container,.list-toolbar,.calendar-toolbar,.chart-container,
+  .chart-card,.visualization-card,.empty-state,.empty
+) {
+  border-color:var(--jf-line)!important;
+  border-radius:14px!important;
+  background:var(--jf-surface-2)!important;
+  color:var(--jf-ink)!important;
+}
+:where(.main .jf-route-stage,.youth-portal) :is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,textarea
+) {
+  border-radius:var(--jf-control-radius)!important;
+  border:1px solid var(--jf-line-strong)!important;
+  background:var(--jf-surface)!important;
+  color:var(--jf-ink)!important;
+}
+:where(.main .jf-route-stage,.youth-portal) :is(button,.btn,[role="button"]) {
+  border-radius:var(--jf-control-radius);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,
+    background-color .18s ease,color .18s ease!important;
+}
+:where(.main .jf-route-stage,.youth-portal) :is(button,.btn,[role="button"]):hover:not(:disabled) {
+  transform:translateY(-1px);
+}
+:where(.main .jf-route-stage,.youth-portal) :is(button,.btn,[role="button"]):active:not(:disabled) {
+  transform:translateY(0) scale(.985);
+}
+
+/* Charts: keep real chart data and axes, unify only their visual surfaces. */
+:where(.main .jf-route-stage,.youth-portal) :is(
+  .chart-card,.chart-panel,.chart-container,.dashboard-chart-card,
+  .visualization-card,[class*="chartCard"],[class*="ChartCard"],
+  [class*="chart-panel"],[class*="ChartPanel"]
+) {
+  padding:clamp(14px,2vw,22px)!important;
+  border:1px solid var(--jf-line)!important;
+  border-radius:17px!important;
+  background:var(--jf-surface)!important;
+  box-shadow:var(--jf-shadow)!important;
+}
+:where(.main .jf-route-stage,.youth-portal) :is(
+  .chart-title,.chart-heading,.chart-card h2,.chart-panel h2,
+  [class*="chartTitle"],[class*="ChartTitle"]
+) {color:var(--jf-ink)!important;font-weight:760!important}
+:where(.main .jf-route-stage,.youth-portal) :is(
+  .recharts-cartesian-grid line,.recharts-cartesian-axis line,
+  .recharts-cartesian-axis-tick-line,.recharts-reference-line line
+) {stroke:var(--jf-line)!important}
+:where(.main .jf-route-stage,.youth-portal) :is(
+  .recharts-cartesian-axis-tick-value,.recharts-legend-item-text,
+  .recharts-text,.chart-label,.chart-legend
+) {fill:var(--jf-muted)!important;color:var(--jf-muted)!important}
+:where(.main .jf-route-stage,.youth-portal) :is(
+  canvas,svg
+) {max-width:100%}
+:where(.main .jf-route-stage,.youth-portal) .echarts-for-react,
+:where(.main .jf-route-stage,.youth-portal) [class*="echarts"],
+:where(.main .jf-route-stage,.youth-portal) [class*="ECharts"] {
+  max-width:100%;min-width:0;
+}
+
+/* Remove decorative micro-labels, not meaningful information. */
+:where(.main .jf-route-stage,.youth-portal) :is(
+  .eyebrow,.kicker,.section-kicker,.module-kicker,.page-kicker,
+  .section-tag,.module-tag,.category-tag,.decorative-tag,
+  [class*="eyebrow"],[class*="kicker"],[class*="micro-label"],
+  [class*="section-tag"],[class*="module-tag"],[class*="decorative-tag"]
+) {display:none!important}
+:where(.main .jf-route-stage,.youth-portal) :is(
+  .env-chip,.jf-nav-count,.nav-count,.decorative-counter
+) {display:none!important}
+:where(.main .jf-route-stage,.youth-portal) :is(
+  .badge,.chip,.pill,.tag
+):not([class*="status"]):not([class*="role"]):not([class*="rank"])
+ :not([class*="level"]):not([class*="filter"]):not([data-keep-label="true"]) {
+  box-shadow:none!important;
+}
+:where(.main .jf-route-stage,.youth-portal) :is(
+  .status,.status-badge,.role-badge,.rank-badge,.level-badge,
+  [data-status], [aria-live="polite"]
+) {visibility:visible}
+
+/* Dark surfaces and mobile layouts stay consistent in every module. */
+:root[data-theme="dark"] :where(.main .jf-route-stage,.youth-portal) :is(
+  .chart-card,.chart-panel,.chart-container,.dashboard-chart-card,
+  .visualization-card,.toolbar,.filter-bar,.filters,.table-wrap,.table-container
+) {background:#1a1a1a!important;border-color:#393431!important}
+:root[data-theme="dark"] :where(.main .jf-route-stage,.youth-portal) :is(
+  article,.card,[class*="-card"],[class*="Card"],.panel
+) {background:#1a1a1a!important;border-color:#393431!important}
+@media(max-width:760px) {
+  :where(.main .jf-route-stage,.youth-portal) :is(
+    .page-header,.module-header,.page-hero,.module-hero,.section-header,
+    .attendance-header,.members-hero,.followup-header,.devotionals-hero,
+    .visitors-header,.reports-hero,.ranking-hero,.settings-header
+  ) {border-radius:16px!important}
+  :where(.main .jf-route-stage,.youth-portal) :is(
+    .chart-card,.chart-panel,.chart-container,.dashboard-chart-card,
+    .visualization-card
+  ) {padding:13px!important;border-radius:14px!important}
+}
+@media(prefers-reduced-motion:reduce) {
+  :where(.main .jf-route-stage,.youth-portal) *,
+  :where(.main .jf-route-stage,.youth-portal) *::before,
+  :where(.main .jf-route-stage,.youth-portal) *::after {
+    animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important;
+  }
+}
