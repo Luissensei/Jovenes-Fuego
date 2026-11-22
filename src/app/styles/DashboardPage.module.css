@@ -438,3 +438,19 @@
 @media (min-width: 640px) { .metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (min-width: 1280px) { .metrics { grid-template-columns: repeat(4,minmax(0,1fr)); } }
 @media (max-width: 640px) { .welcome { min-height: unset; } .welcomeVisual { display: none; } }
+
+
+/* Tailwind v4 utility layer — dashboard layout and shared surfaces. */
+.scope { @apply mx-auto flex w-full min-w-0 flex-col gap-5 pb-8; }
+.scope .metrics { @apply grid grid-cols-2 gap-3 lg:grid-cols-4; }
+.scope .featureGrid, .scope .lowerGrid { @apply grid grid-cols-1 gap-4 xl:grid-cols-2; }
+.scope .metricCard, .scope .panel { @apply min-w-0 rounded-jf-md border border-jf-line bg-jf-surface shadow-jf-card; }
+.scope .welcome { @apply relative flex items-center justify-between overflow-hidden rounded-jf-lg border border-jf-brand-strong; }
+.scope .welcome h1 { @apply font-display font-extrabold tracking-tight; }
+.scope .primaryAction { @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-jf-brand px-4 py-2 font-semibold text-white transition hover:-translate-y-px hover:bg-jf-brand-strong; }
+.scope .secondaryAction { @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 py-2 font-semibold text-white transition hover:bg-white/15; }
+@media (max-width: 640px) {
+  .scope .welcome { @apply min-h-0 p-5; }
+  .scope .welcomeVisual { @apply hidden; }
+  .scope .panel { @apply p-4; }
+}

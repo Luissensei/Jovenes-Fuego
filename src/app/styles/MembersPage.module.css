@@ -954,3 +954,20 @@
 .scope :global(.member-card:hover) { transform:translateY(-2px); box-shadow:var(--jf-shadow-raised); }
 .scope :global(.member-detail-minimized),.scope :global(.member-detail-header) { border-color:var(--jf-line); background:var(--jf-surface); }
 @media(max-width:640px){.scope :global(.members-hero){align-items:flex-start;flex-direction:column}.scope :global(.members-grid){grid-template-columns:1fr}.scope :global(.member-detail-fields){grid-template-columns:1fr}}
+
+
+/* Tailwind v4 utility layer — members directory and responsive member rows. */
+.scope:global(.members-page) { @apply mx-auto flex w-full min-w-0 flex-col gap-5; }
+.scope :global(.members-hero) { @apply flex items-center justify-between gap-6 rounded-jf-lg border border-jf-line bg-jf-surface p-6 shadow-jf-card; }
+.scope :global(.members-toolbar) { @apply flex items-center gap-3; }
+.scope :global(.member-search) { @apply flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-jf-line bg-jf-surface px-3; }
+.scope :global(.members-list) { @apply grid gap-2; }
+.scope :global(.member-row) { @apply flex min-w-0 items-center gap-3 rounded-xl border border-jf-line bg-jf-surface p-3 shadow-sm transition hover:-translate-y-px hover:shadow-md; }
+.scope :global(.member-avatar) { @apply grid size-11 shrink-0 place-items-center rounded-xl bg-orange-50 font-bold text-orange-700; }
+.scope :global(.member-main) { @apply flex min-w-0 flex-1 flex-col gap-1; }
+.scope :global(.member-meta) { @apply flex shrink-0 flex-col items-end gap-1 text-right; }
+@media (max-width: 640px) {
+  .scope :global(.members-hero) { @apply flex-col items-stretch gap-3 p-4; }
+  .scope :global(.members-toolbar) { @apply flex-col items-stretch; }
+  .scope :global(.member-row) { @apply gap-2 p-2.5; }
+}

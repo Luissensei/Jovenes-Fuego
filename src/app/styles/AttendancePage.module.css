@@ -507,3 +507,17 @@
 .scope :global(.attendance-member) { border:1px solid var(--jf-line); border-radius:13px; background:var(--jf-surface); }
 .scope :global(.attendance-save-button) { background:linear-gradient(135deg,var(--jf-brand),var(--jf-ember-strong)); color:#fff; border:1px solid var(--jf-brand); border-radius:11px; }
 @media(max-width:640px){.scope :global(.attendance-header){align-items:flex-start;flex-direction:column;gap:12px}.scope :global(.attendance-card){padding:14px}.scope :global(.attendance-summary){grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* Tailwind v4 utility layer — attendance workspace and form controls. */
+.scope:global(.attendance-page) { @apply grid min-w-0 content-start gap-4; }
+.scope :global(.attendance-header) { @apply flex min-h-32 items-center justify-between gap-4 rounded-jf-lg border border-jf-brand-strong px-6 py-5 text-white shadow-jf-card; }
+.scope :global(.attendance-card) { @apply min-w-0 rounded-jf-md border border-jf-line bg-jf-surface p-5 text-jf-ink shadow-sm; }
+.scope :global(.attendance-summary) { @apply grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5; }
+.scope :global(.attendance-card) input,
+.scope :global(.attendance-card) select { @apply min-h-10 w-full min-w-0 rounded-lg border border-jf-line bg-jf-surface-soft px-3 py-2 text-sm text-jf-ink outline-none transition focus:border-jf-brand focus:ring-2 focus:ring-jf-brand/20; }
+.scope :global(.attendance-card) button { @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-jf-brand bg-jf-brand px-3 py-2 text-sm font-semibold text-white transition hover:-translate-y-px hover:bg-jf-brand-strong disabled:cursor-not-allowed disabled:opacity-50; }
+@media (max-width: 640px) {
+  .scope :global(.attendance-header) { @apply min-h-0 items-start gap-3 p-4; }
+  .scope :global(.attendance-card) { @apply p-4; }
+}
