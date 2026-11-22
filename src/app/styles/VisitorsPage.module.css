@@ -304,3 +304,14 @@
 :global(:root[data-theme="light"]) .scope :global(.visitors-modal){background:#fff;color:#382d40}
 @media(max-width:600px){.scope :global(.visitors-page){gap:16px}.scope :global(.visitors-header){padding:20px;border-radius:19px}.scope :global(.visitors-stat){padding:14px;border-radius:15px}.scope :global(.visitor-card){border-radius:16px}}
 @media(prefers-reduced-motion:reduce){.scope :global(.visitor-card){transition:none}.scope :global(.visitor-card):hover{transform:none}}
+
+
+/* Tailwind v4 responsive polish — visitor records. */
+.scope { @apply w-full min-w-0; }
+.scope :global(.visitors-page) { @apply grid min-w-0 gap-4; }
+.scope :global(.visitors-header) { padding:clamp(18px,3vw,26px); border:1px solid var(--jf-line); border-radius:18px; background:var(--jf-surface-2); }
+.scope :global(.visitor-card) { border:1px solid var(--jf-line); border-radius:15px; background:var(--jf-surface); box-shadow:var(--jf-shadow); }
+.scope :global(.visitors-toolbar) { @apply flex flex-wrap items-center gap-3; }
+.scope :global(.visitors-grid) { @apply grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3; }
+.scope :global(.visitors-primary) { background:linear-gradient(135deg,var(--jf-brand),var(--jf-ember-strong)); color:#fff; border-radius:10px; }
+@media(max-width:640px){.scope :global(.visitors-header){align-items:flex-start;flex-direction:column}.scope :global(.visitors-toolbar){align-items:stretch}.scope :global(.visitors-grid){grid-template-columns:1fr}}
