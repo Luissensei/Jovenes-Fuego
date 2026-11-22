@@ -1,3 +1,4 @@
+@reference "../../styles/tailwind.css";
 /* CSS Module: DevotionalsPage. Scoped to its screen root; Members modal portal uses .portalScope. */
 .scope{min-width:0;width:100%;box-sizing:border-box;}
 .portalScope{box-sizing:border-box;}
