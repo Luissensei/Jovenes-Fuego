@@ -1,3 +1,4 @@
+@reference "../../styles/tailwind.css";
 /* Portal juvenil: módulo de estilos reducido.
    Los tokens visuales compartidos viven en src/styles/product-design-system.css. */
 .scope {
