@@ -1,4 +1,6 @@
 import React from 'react';
+// Tailwind CSS v4 utilities and shared design tokens.
+import './styles/tailwind.css';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './app/App';

@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+/* Jóvenes de Fuego — Tailwind CSS v4 theme tokens. */
+@theme {
+  --color-jf-canvas: #f4eee9;
+  --color-jf-surface: #fffaf6;
+  --color-jf-surface-soft: #f8eee7;
+  --color-jf-ink: #30221e;
+  --color-jf-muted: #806d64;
+  --color-jf-line: #ead8cc;
+  --color-jf-brand: #e65b3f;
+  --color-jf-brand-strong: #c94730;
+  --color-jf-ember: #f06a3f;
+  --color-jf-gold: #e6a34c;
+  --color-jf-success: #39876a;
+  --font-sans: "DM Sans", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Manrope", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --radius-jf-sm: 9px;
+  --radius-jf-md: 13px;
+  --radius-jf-lg: 18px;
+  --shadow-jf-card: 0 2px 8px rgb(78 43 28 / 5%), 0 12px 30px rgb(78 43 28 / 6%);
+}
+
+:root[data-theme="dark"], :root.dark {
+  --color-jf-canvas: #101010;
+  --color-jf-surface: #1a1a1a;
+  --color-jf-surface-soft: #242424;
+  --color-jf-ink: #f7f2ee;
+  --color-jf-muted: #b5aaa2;
+  --color-jf-line: #393431;
+  --color-jf-brand: #ff783f;
+  --color-jf-brand-strong: #ff925f;
+  --color-jf-ember: #ff783f;
+  --color-jf-gold: #f2ad50;
+  --color-jf-success: #70c69b;
+}
+
+@layer base {
+  html { color-scheme: light; }
+  :root[data-theme="dark"], :root.dark { color-scheme: dark; }
+  body { background: var(--jf-canvas, #f4eee9); color: var(--jf-ink, #30221e); }
+  button, input, select, textarea { font: inherit; }
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--jf-focus, #e65b3f);
+    outline-offset: 2px;
+  }
+}

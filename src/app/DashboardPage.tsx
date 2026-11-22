@@ -164,7 +164,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <main className={`${styles.scope} bg-[var(--jdf-canvas)] text-[var(--jdf-text)]`}>
+    <main className={`${styles.scope} bg-[var(--jf-canvas)] text-[var(--jf-ink)]`}>
       <header className={styles.welcome}>
         <div className={styles.welcomeCopy}>
           <span className={styles.eyebrow}><i /> PANEL DE ADMINISTRACIÓN <span>/</span> RESUMEN GENERAL</span>
