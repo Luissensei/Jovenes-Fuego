@@ -1,7 +1,7 @@
 /* Navegación móvil inferior: accesos frecuentes y menú completo bajo demanda. */
 .jf-bottom-nav { display: none; }
 @media (max-width: 900px) {
-  .jf-bottom-nav {
+  .main { padding-bottom: calc(104px + env(safe-area-inset-bottom)) !important; }\n  .jf-bottom-nav {
     position: fixed;
     z-index: 65;
     left: 10px;
@@ -12,7 +12,7 @@
     align-items: stretch;
     gap: 3px;
     min-height: 66px;
-    padding: 7px 6px max(7px, env(safe-area-inset-bottom));
+    padding: 7px 6px;
     border: 1px solid var(--jf-line);
     border-radius: 17px;
     background: var(--jf-surface);

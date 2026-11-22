@@ -2,19 +2,19 @@
 
 /* Jóvenes de Fuego — Tailwind CSS v4 theme tokens. */
 @theme {
-  --color-jf-canvas: #f4eee9;
-  --color-jf-surface: #fffaf6;
-  --color-jf-surface-soft: #f8eee7;
-  --color-jf-ink: #30221e;
-  --color-jf-muted: #806d64;
-  --color-jf-line: #ead8cc;
-  --color-jf-brand: #e65b3f;
+  --color-jf-canvas: #f7f4ef;
+  --color-jf-surface: #ffffff;
+  --color-jf-surface-soft: #eeeae3;
+  --color-jf-ink: #20211f;
+  --color-jf-muted: #6d706b;
+  --color-jf-line: #e3ded5;
+  --color-jf-brand: #f05a3a;
   --color-jf-brand-strong: #c94730;
   --color-jf-ember: #f06a3f;
-  --color-jf-gold: #e6a34c;
+  --color-jf-gold: #f2a33a;
   --color-jf-success: #39876a;
-  --font-sans: "DM Sans", Inter, ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Manrope", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: Inter, ui-sans-serif, system-ui, sans-serif;
   --radius-jf-sm: 9px;
   --radius-jf-md: 13px;
   --radius-jf-lg: 18px;

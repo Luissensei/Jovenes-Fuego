@@ -6,22 +6,22 @@
 :root,
 :root[data-theme="light"] {
   color-scheme: light;
-  --jf-canvas:#f4eee9;
-  --jf-surface:#fffaf6;
-  --jf-surface-2:#f8eee7;
-  --jf-surface-3:#f1dfd3;
-  --jf-ink:#30221e;
-  --jf-muted:#806d64;
-  --jf-line:#ead8cc;
-  --jf-line-strong:#d8bdae;
-  --jf-brand:#e65b3f;
+  --jf-canvas:#f7f4ef;
+  --jf-surface:#ffffff;
+  --jf-surface-2:#eeeae3;
+  --jf-surface-3:#e9e4dc;
+  --jf-ink:#20211f;
+  --jf-muted:#6d706b;
+  --jf-line:#e3ded5;
+  --jf-line-strong:#c9c3b9;
+  --jf-brand:#f05a3a;
   --jf-brand-strong:#c94730;
-  --jf-brand-soft:#fbe4dc;
-  --jf-brand-ink:#6f2d22;
-  --jf-ember:#f06a3f;
-  --jf-ember-strong:#d94d2e;
-  --jf-ember-soft:#ffede5;
-  --jf-gold:#e6a34c;
+  --jf-brand-soft:#fde8e1;
+  --jf-brand-ink:#7a2d20;
+  --jf-ember:#f05a3a;
+  --jf-ember-strong:#d9482c;
+  --jf-ember-soft:#fff0e9;
+  --jf-gold:#f2a33a;
   --jf-success:#39876a;
   --jf-success-soft:#e4f2e9;
   --jf-warning:#b8792e;
@@ -33,9 +33,9 @@
   --jf-shadow:0 2px 8px rgba(78,43,28,.045),0 12px 30px rgba(78,43,28,.055);
   --jf-shadow-raised:0 16px 38px rgba(78,43,28,.12);
   --jf-radius-sm:9px;--jf-radius-md:13px;--jf-radius-lg:18px;
-  --jf-focus:#e65b3f;
-  --jf-sidebar:#241a17;--jf-sidebar-text:#fff8f3;--jf-sidebar-muted:#c5a99b;
-  --jf-sidebar-hover:#392720;--jf-sidebar-active:#563025;
+  --jf-focus:#f05a3a;
+  --jf-sidebar:#292b2a;--jf-sidebar-text:#fff8f3;--jf-sidebar-muted:#c5a99b;
+  --jf-sidebar-hover:#392720;--jf-sidebar-active:#3a302d;
   --jf-text:var(--jf-ink);--jf-border:var(--jf-line);--jf-input:var(--jf-surface-2);
   --jf-accent:var(--jf-ember);--jf-surface-raised:var(--jf-surface-2);
   --text-primary:var(--jf-ink);--text-secondary:var(--jf-muted);--text:var(--jf-ink);
@@ -70,7 +70,7 @@
 html,body,#root,.layout,.main,.jf-route-stage,.youth-portal {
   background:var(--jf-canvas)!important;color:var(--jf-ink)!important;
 }
-body {font-family:"DM Sans",Inter,system-ui,-apple-system,"Segoe UI",sans-serif!important}
+body {font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important}
 .main {padding:20px clamp(14px,2.4vw,36px) 30px!important}
 .main .jf-route-stage {width:min(100%,1600px)!important;margin-inline:auto}
 .main .jf-route-stage :is(h1,h2,h3,h4),.youth-portal :is(h1,h2,h3,h4) {
