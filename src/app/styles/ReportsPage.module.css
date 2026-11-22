@@ -41,3 +41,13 @@
 @media(max-width:760px){.scope :global(.reports-stats){grid-template-columns:repeat(2,minmax(0,1fr))}.scope :global(.reports-filter){align-items:stretch;flex-direction:column}.scope :global(.reports-filter) label,.scope :global(.reports-filter) input,.scope :global(.reports-filter) select{width:100%;min-width:0}.scope :global(.reports-export){width:100%;margin-left:0}}
 @media(max-width:430px){.scope :global(.reports-stats){gap:8px}.scope :global(.reports-stats) article{padding:13px}.scope :global(.reports-meeting-list) article{align-items:flex-start;flex-direction:column}}
 @media(prefers-reduced-motion:reduce){.scope :global(.reports-progress)>div{transition:none}}
+
+
+/* Tailwind v4 responsive polish — analytics and report filters. */
+.scope { @apply w-full min-w-0; }
+.scope :global(.reports-hero) { background:linear-gradient(120deg,var(--jf-surface),var(--jf-surface-2)); box-shadow:var(--jf-shadow); }
+.scope :global(.reports-filter) { @apply flex flex-wrap items-end gap-3; }
+.scope :global(.reports-metrics) { @apply grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4; }
+.scope :global(.reports-grid) { @apply grid grid-cols-1 gap-4 xl:grid-cols-2; }
+.scope :global(.reports-card),.scope :global(.reports-chart-card) { border:1px solid var(--jf-line); border-radius:16px; background:var(--jf-surface); box-shadow:var(--jf-shadow); }
+@media(max-width:640px){.scope :global(.reports-hero){align-items:flex-start;flex-direction:column}.scope :global(.reports-filter) label,.scope :global(.reports-filter) input,.scope :global(.reports-filter) select{min-width:0;width:100%}}

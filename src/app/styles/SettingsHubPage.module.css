@@ -42,3 +42,11 @@
 .scope :global(.settings-card) :is(input,select,textarea):focus-visible{outline:2px solid var(--jf-focus);outline-offset:2px}
 @media(max-width:640px){.hero{align-items:flex-start;padding:17px}.themeCard{align-items:flex-start;flex-wrap:wrap;padding:14px}.themeCopy{width:calc(100% - 60px);flex:1}.themeCard button{width:100%}.areaGrid{grid-template-columns:1fr}.areaCard{min-height:140px}.security{align-items:flex-start;flex-direction:column}}
 @media(prefers-reduced-motion:reduce){.areaCard{transition:none}.areaCard:hover{transform:none}}
+
+
+/* Tailwind v4 responsive polish — settings hub. */
+.scope { @apply w-full min-w-0; }
+.scope :global(.settings-grid) { @apply grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3; }
+.scope :global(.settings-card),.scope :global(.themeCard) { border:1px solid var(--jf-line); border-radius:16px; background:var(--jf-surface); box-shadow:var(--jf-shadow); }
+.scope :global(.settings-card:hover) { border-color:var(--jf-brand); box-shadow:var(--jf-shadow-raised); }
+@media(max-width:640px){.scope{padding-inline:0}.hero{align-items:flex-start;flex-direction:column}}
