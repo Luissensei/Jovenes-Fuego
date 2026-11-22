@@ -429,3 +429,20 @@
   .scope:global(.ranking-hub) :global(.ranking-visual-toolbar) { align-items:stretch; flex-direction:column; }
   .scope:global(.ranking-hub) :global(.ranking-view-filters button) { flex:1; }
 }
+
+
+/* Tailwind v4 responsive polish — ranking, with deliberately solid surfaces. */
+.scope { @apply w-full min-w-0; }
+.scope:global(.ranking-hub) { color:var(--jf-ink); background:transparent; }
+.scope :global(.ranking-hero) { border:1px solid var(--jf-line); border-radius:20px; background:linear-gradient(120deg,#251914 0%,#48271d 58%,#71331f 100%); box-shadow:var(--jf-shadow-raised); }
+.scope :global(.ranking-hero-copy) { color:#fff8f3; }
+.scope :global(.ranking-eyebrow),.scope :global(.ranking-kicker) { color:var(--jf-brand); }
+.scope :global(.ranking-tabs) { @apply flex flex-wrap gap-2; }
+.scope :global(.ranking-card-grid),.scope :global(.ranking-info-grid) { @apply grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3; }
+.scope :global(.ranking-player-card),.scope :global(.ranking-progress-panel),.scope :global(.youth-hall-card) { background:var(--jf-surface); border:1px solid var(--jf-line); border-radius:16px; box-shadow:var(--jf-shadow); backdrop-filter:none!important; }
+.scope :global(.ranking-player-card:hover) { box-shadow:var(--jf-shadow-raised); }
+.scope :global(.ranking-player-track) { background:var(--jf-surface-3); border-radius:999px; overflow:hidden; }
+.scope :global(.ranking-player-track > span) { background:linear-gradient(90deg,var(--jf-brand),var(--jf-gold)); border-radius:inherit; }
+.scope :global(.ranking-podium-stage) { @apply grid grid-cols-1 items-end gap-3 sm:grid-cols-3; }
+.scope :global(.ranking-podium-player),.scope :global(.ranking-podium-base) { backdrop-filter:none!important; }
+@media(max-width:640px){.scope{padding:8px 0}.scope :global(.ranking-hero){padding:18px}.scope :global(.ranking-podium-stage){grid-template-columns:1fr}.scope :global(.ranking-card-grid){grid-template-columns:1fr}}

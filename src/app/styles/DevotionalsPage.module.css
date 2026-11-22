@@ -481,3 +481,14 @@
 .scope:global(.devotionals-page) :global(.devotionals-modal){border:1px solid var(--jdf-border);background:var(--jdf-surface);color:var(--jdf-text)}
 .scope:global(.devotionals-page) :global(.devotionals-modal) :is(input,select,textarea){border-color:var(--jdf-border);background:var(--jdf-surface-raised);color:var(--jdf-text)}
 @media(prefers-reduced-motion:reduce){.scope:global(.devotionals-page) :global(.devotional-card){transition:none!important}.scope:global(.devotionals-page) :global(.devotional-card):hover{transform:none!important}}
+
+
+/* Tailwind v4 responsive polish — devotional publishing and reading. */
+.scope { @apply w-full min-w-0; }
+.scope :global(.devotionals-hero) { padding:clamp(18px,3vw,28px); border:1px solid var(--jf-line); border-radius:20px; background:linear-gradient(120deg,var(--jf-surface),var(--jf-surface-2)); box-shadow:var(--jf-shadow); }
+.scope :global(.devotionals-feature),.scope :global(.devotional-publisher-card),.scope :global(.devotional-card) { border:1px solid var(--jf-line); border-radius:16px; background:var(--jf-surface); box-shadow:var(--jf-shadow); }
+.scope :global(.devotionals-controls) { @apply flex flex-wrap items-center gap-3; }
+.scope :global(.devotionals-grid) { @apply grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3; }
+.scope :global(.devotionals-primary) { background:linear-gradient(135deg,var(--jf-brand),var(--jf-ember-strong)); color:#fff; border-radius:11px; box-shadow:0 6px 16px color-mix(in srgb,var(--jf-brand) 20%,transparent); }
+.scope :global(.devotional-category) { background:var(--jf-brand-soft); color:var(--jf-brand-strong); border-radius:999px; }
+@media(max-width:640px){.scope :global(.devotionals-hero){align-items:flex-start;flex-direction:column}.scope :global(.devotionals-grid){grid-template-columns:1fr}}
