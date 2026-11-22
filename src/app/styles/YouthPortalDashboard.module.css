@@ -1,9 +1,9 @@
-/* Portal joven — Inicio "Fuego en vidrio".
+/* Portal joven — superficies sólidas y jerarquía visual clara.
    El módulo conserva sus reglas de negocio; esta hoja controla únicamente
    la composición y el lenguaje visual del portal autenticado. */
 .dashboard:global(.youth-portal) {
-  --home-panel: color-mix(in srgb, var(--jdf-surface) 88%, transparent);
-  --home-line: color-mix(in srgb, var(--jdf-border) 76%, transparent);
+  --home-panel: var(--jdf-surface);
+  --home-line: var(--jdf-border);
   --home-muted: var(--jdf-muted);
   width: 100%;
   min-height: 100vh;
@@ -74,7 +74,7 @@
   overflow-y: auto;
   border: 1px solid color-mix(in srgb, var(--jdf-border) 75%, transparent);
   border-radius: 22px;
-  background: var(--jdf-glass-bg);
+  background: var(--jdf-surface);
   box-shadow: var(--jdf-shadow-card);
 }
 .sideBrand {
@@ -123,7 +123,7 @@
   cursor: pointer;
 }
 .sideNavItem svg { flex: 0 0 auto; }
-.sideNavItem:hover { background: color-mix(in srgb, var(--jdf-surface) 72%, transparent); color: var(--jdf-text); }
+.sideNavItem:hover { background: var(--jdf-surface-raised); color: var(--jdf-text); }
 .sideNavActive {
   border-color: color-mix(in srgb, var(--jdf-fire) 45%, transparent);
   background: color-mix(in srgb, var(--jdf-fire) 13%, var(--jdf-surface));
@@ -312,7 +312,7 @@
   padding: 13px;
   border: 1px solid var(--home-line);
   border-radius: 13px;
-  background: color-mix(in srgb, var(--jdf-surface) 78%, transparent);
+  background: var(--jdf-surface);
 }
 .activityDate { display: grid; gap: 3px; justify-items: start; }
 .activityDate strong { color: var(--jdf-fire); font-size: 14px; font-weight: 850; text-transform: capitalize; }
@@ -383,16 +383,8 @@
 
 .mobileNavigation { display: none; }
 
-@supports (backdrop-filter: blur(14px)) {
-  .sideNav { backdrop-filter: blur(14px); }
-  .mobileNavigation { backdrop-filter: blur(14px); }
-}
-@supports not (backdrop-filter: blur(14px)) {
-  .sideNav,.mobileNavigation { background: var(--jdf-surface); }
-}
-@media (prefers-reduced-transparency: reduce) {
-  .sideNav,.mobileNavigation { backdrop-filter: none; background: var(--jdf-surface); }
-}
+/* Evita superficies translúcidas y desenfoque: contraste estable en ambos temas. */
+.sideNav,.mobileNavigation { backdrop-filter: none; -webkit-backdrop-filter: none; }
 @media (hover: hover) {
   .quickLink:hover { transform: translateY(-3px); border-color: var(--jdf-fire); }
 }
