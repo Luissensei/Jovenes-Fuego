@@ -1,3 +1,4 @@
+@reference "../../styles/tailwind.css";
 /* Ranking page component scope. Shared visuals are centralized in src/styles/refinement.css. */
 .scope {
   width: 100%;
