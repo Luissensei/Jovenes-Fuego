@@ -34,6 +34,7 @@ import './styles/mobile-runtime-stability.css';
 import './styles/admin-experience-redesign.css';
 // Final visual contract based on the two supplied dashboard references.
 import './styles/reference-dashboard-system.css';
+import './styles/mobile-bottom-navigation.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';

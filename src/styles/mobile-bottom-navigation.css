@@ -1,0 +1,58 @@
+/* Navegación móvil inferior: accesos frecuentes y menú completo bajo demanda. */
+.jf-bottom-nav { display: none; }
+@media (max-width: 900px) {
+  .jf-bottom-nav {
+    position: fixed;
+    z-index: 65;
+    left: 10px;
+    right: 10px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 3px;
+    min-height: 66px;
+    padding: 7px 6px max(7px, env(safe-area-inset-bottom));
+    border: 1px solid var(--jf-line);
+    border-radius: 17px;
+    background: var(--jf-surface);
+    box-shadow: 0 10px 34px rgba(18, 24, 20, .18);
+  }
+  .jf-bottom-nav-item {
+    display: flex;
+    min-width: 0;
+    min-height: 48px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 4px 2px;
+    border: 0;
+    border-radius: 11px;
+    background: transparent;
+    color: var(--jf-muted);
+    text-decoration: none;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1.1;
+    cursor: pointer;
+  }
+  .jf-bottom-nav-item span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .jf-bottom-nav-item.active {
+    background: var(--jf-brand-soft);
+    color: var(--jf-brand-strong);
+  }
+  .jf-bottom-nav-item:focus-visible {
+    outline: 2px solid var(--jf-focus);
+    outline-offset: -2px;
+  }
+  .layout.menu-open .jf-bottom-nav { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jf-bottom-nav, .jf-bottom-nav-item { transition: none !important; }
+}

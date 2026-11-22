@@ -287,6 +287,14 @@ function AdminApp() {
     return true;
   });
 
+  const mobileNavigationModules = (isStaff
+    ? ['dashboard', 'members', 'attendance', 'ranking']
+    : ['dashboard', 'ranking', 'games', 'profile']
+  ).flatMap((id) => {
+    const item = visibleModules.find((module) => module.id === id);
+    return item ? [item] : [];
+  });
+
   const filteredModules = visibleModules.filter((item) => {
     const query = moduleSearch.trim().toLocaleLowerCase('es');
     if (!query) return true;
@@ -625,6 +633,26 @@ function AdminApp() {
             : 'vista previa'}
         </footer>
       </div>
+      {user && profile && (
+        <nav className="jf-bottom-nav" aria-label="Navegación principal móvil">
+          {mobileNavigationModules.map((item) => (
+            <NavLink
+              key={item.id}
+              to={item.path}
+              end={item.path === '/'}
+              className={({ isActive }) => `jf-bottom-nav-item ${isActive ? 'active' : ''}`}
+              aria-label={item.label}
+            >
+              <item.icon size={19} strokeWidth={2} aria-hidden="true" />
+              <span>{item.id === 'dashboard' ? 'Inicio' : item.id === 'members' ? 'Jóvenes' : item.id === 'attendance' ? 'Asistencia' : item.id === 'ranking' ? 'Ranking' : item.id === 'games' ? 'Juegos' : 'Perfil'}</span>
+            </NavLink>
+          ))}
+          <button type="button" className="jf-bottom-nav-item" onClick={() => setMenuOpen(true)} aria-label="Abrir todos los módulos">
+            <Menu size={19} strokeWidth={2} aria-hidden="true" />
+            <span>Más</span>
+          </button>
+        </nav>
+      )}
       {user && profile && (
         <Suspense fallback={null}>
           <FuegoFloatingAssistant
