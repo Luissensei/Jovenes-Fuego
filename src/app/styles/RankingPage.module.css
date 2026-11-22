@@ -447,3 +447,184 @@
 .scope :global(.ranking-podium-stage) { @apply grid grid-cols-1 items-end gap-3 sm:grid-cols-3; }
 .scope :global(.ranking-podium-player),.scope :global(.ranking-podium-base) { backdrop-filter:none!important; }
 @media(max-width:640px){.scope{padding:8px 0}.scope :global(.ranking-hero){padding:18px}.scope :global(.ranking-podium-stage){grid-template-columns:1fr}.scope :global(.ranking-card-grid){grid-template-columns:1fr}}
+
+
+/* Ember Control — ranking: cards legibles, podio destacado y superficies opacas. */
+.scope:global(.ranking-hub) :global(.ranking-hero) {
+  min-height: 205px;
+  border-color: #d85a3d;
+  background: linear-gradient(112deg,#9f3d2e 0%,#d65338 58%,#ef8050 100%);
+  box-shadow: 0 14px 32px rgb(151 55 37 / 16%);
+}
+.scope:global(.ranking-hub) :global(.ranking-hero-art) {
+  border-color: rgb(255 255 255 / 34%);
+  background: #b94b34;
+  color: #ffe0a1;
+  box-shadow: none;
+}
+.scope:global(.ranking-hub) :global(.ranking-content),
+.scope:global(.ranking-hub) :global(.ranking-tabs),
+.scope:global(.ranking-hub) :global(.ranking-progress-panel),
+.scope:global(.ranking-hub) :global(.youth-hall-card),
+.scope:global(.ranking-hub) :global(.ranking-player-card) {
+  background: var(--jdf-surface, #fff) !important;
+  border-color: var(--jdf-border, #e7dfd8) !important;
+  box-shadow: 0 5px 18px rgb(48 34 25 / 5%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.scope:global(.ranking-hub) :global(.ranking-player-card) {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  min-height: 230px;
+  padding: 17px;
+  border-radius: 17px !important;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-top-1) {
+  border-color: color-mix(in srgb,#e8ae42 65%,var(--jdf-border)) !important;
+  background: linear-gradient(155deg,color-mix(in srgb,#f4bd4b 10%,var(--jdf-surface)),var(--jdf-surface)) !important;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-top-2) { border-top: 3px solid #9ba9b5 !important; }
+.scope:global(.ranking-hub) :global(.ranking-card-top-3) { border-top: 3px solid #bd8058 !important; }
+.scope:global(.ranking-hub) :global(.ranking-card-topline) {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-position) {
+  display:inline-flex; align-items:center; gap:6px;
+  color:var(--jdf-fire) !important; font-weight:850;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-champion) {
+  padding:5px 8px; border-radius:999px;
+  background:#fff0d3; color:#87531a; font-size:10px; font-weight:900; letter-spacing:.06em;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-identity) {
+  display:flex; align-items:center; gap:12px; min-width:0;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-avatar) {
+  display:grid; flex:0 0 58px; width:58px; height:58px; place-items:center;
+  border-radius:50%; padding:3px;
+  background:linear-gradient(135deg,#f2b34c,#ef6945,#a83b2c);
+}
+.scope:global(.ranking-hub) :global(.ranking-card-avatar-inner) {
+  display:grid; width:100%; height:100%; place-items:center; overflow:hidden;
+  border:2px solid var(--jdf-surface); border-radius:50%;
+  background:var(--jdf-surface-raised); color:var(--jdf-text); font-weight:850;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-avatar-inner img) {
+  width:100%; height:100%; object-fit:cover;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-name) {
+  display:grid; gap:4px; min-width:0;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-name strong) {
+  color:var(--jdf-text) !important; font-size:15px; line-height:1.3;
+  overflow-wrap:anywhere;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-name small) { color:var(--jdf-muted); }
+.scope:global(.ranking-hub) :global(.ranking-card-meta) {
+  display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-role) {
+  display:inline-flex; align-items:center; gap:5px; padding:5px 8px;
+  border-radius:999px; background:var(--jdf-surface-raised); color:var(--jdf-muted);
+  font-size:10px; font-weight:800; letter-spacing:.04em;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-points) {
+  display:inline-flex; align-items:center; gap:5px; color:#bd7927 !important;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-points strong) {
+  color:var(--jdf-text); font-size:19px; font-weight:900; font-variant-numeric:tabular-nums;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-points small) { color:var(--jdf-muted); font-size:11px; }
+.scope:global(.ranking-hub) :global(.ranking-card-progress) { display:grid; gap:7px; margin-top:auto; }
+.scope:global(.ranking-hub) :global(.ranking-card-progress-label) {
+  display:flex; justify-content:space-between; gap:8px; color:var(--jdf-muted); font-size:11px;
+}
+.scope:global(.ranking-hub) :global(.ranking-card-progress-label strong) { color:var(--jdf-fire); }
+.scope:global(.ranking-hub) :global(.ranking-player-track) { height:8px; background:var(--jdf-surface-raised); }
+.scope:global(.ranking-hub) :global(.ranking-player-track > i) {
+  display:block; height:100%; border-radius:inherit;
+  background:linear-gradient(90deg,#eaa33d,#ee6541);
+}
+.scope:global(.ranking-hub) :global(.ranking-card-footer) {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding-top:9px; border-top:1px solid var(--jdf-border);
+  color:var(--jdf-muted); font-size:11px;
+}
+.scope:global(.ranking-hub) :global(.ranking-player-expand) {
+  display:grid; width:30px; height:30px; place-items:center; border:1px solid var(--jdf-border);
+  border-radius:9px; background:var(--jdf-surface-raised); color:var(--jdf-text);
+}
+.scope:global(.ranking-hub) :global(.ranking-player-tooltip) {
+  display:grid; gap:5px; padding:10px; border-radius:10px;
+  background:var(--jdf-surface-raised); color:var(--jdf-muted); font-size:11px;
+}
+.scope:global(.ranking-hub) :global(.ranking-podium-stage) {
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); align-items:end; gap:12px;
+  padding:18px; border:1px solid var(--jdf-border); border-radius:16px;
+  background:var(--jdf-surface-raised) !important;
+}
+.scope:global(.ranking-hub) :global(.ranking-podium-player) {
+  display:flex; flex-direction:column; align-items:center; gap:9px; min-width:0;
+  padding:15px 10px 0; border:1px solid var(--jdf-border); border-radius:14px 14px 0 0;
+  background:var(--jdf-surface) !important; color:var(--jdf-text);
+}
+.scope:global(.ranking-hub) :global(.podium-first) { padding-top:4px; border-color:#e4b04c; }
+.scope:global(.ranking-hub) :global(.ranking-podium-rank) { color:#d99b35; }
+.scope:global(.ranking-hub) :global(.ranking-podium-avatar) {
+  display:grid; width:58px; height:58px; place-items:center; overflow:hidden;
+  border:3px solid #d99b35; border-radius:50%; background:var(--jdf-surface-raised);
+  color:var(--jdf-text); font-weight:850;
+}
+.scope:global(.ranking-hub) :global(.podium-first .ranking-podium-avatar) { width:70px; height:70px; }
+.scope:global(.ranking-hub) :global(.ranking-podium-avatar img) { width:100%; height:100%; object-fit:cover; }
+.scope:global(.ranking-hub) :global(.ranking-podium-details) { display:grid; gap:3px; min-width:0; text-align:center; }
+.scope:global(.ranking-hub) :global(.ranking-podium-details strong) {
+  max-width:100%; overflow-wrap:anywhere; color:var(--jdf-text); font-size:12px;
+}
+.scope:global(.ranking-hub) :global(.ranking-podium-details small) { color:var(--jdf-muted); font-size:11px; }
+.scope:global(.ranking-hub) :global(.ranking-podium-place) {
+  color:var(--jdf-fire); font-size:9px; font-weight:900; letter-spacing:.07em;
+}
+.scope:global(.ranking-hub) :global(.ranking-podium-base) {
+  display:grid; width:100%; min-height:44px; place-items:center;
+  border:0; border-radius:9px 9px 0 0; background:#e9e3dc; color:#59483c;
+}
+.scope:global(.ranking-hub) :global(.podium-first .ranking-podium-base) { min-height:72px; background:#f4e4bd; color:#825b19; }
+.scope:global(.ranking-hub) :global(.podium-third .ranking-podium-base) { min-height:34px; background:#ead5c6; color:#805b43; }
+@media (hover:hover) {
+  .scope:global(.ranking-hub) :global(.ranking-player-card:hover) {
+    transform:translateY(-3px); border-color:color-mix(in srgb,var(--jdf-fire) 45%,var(--jdf-border)) !important;
+    box-shadow:0 12px 25px rgb(55 36 24 / 9%) !important;
+  }
+}
+:global(:root[data-theme="dark"]) .scope:global(.ranking-hub) :global(.ranking-card-champion) { background:#47331d; color:#ffd28a; }
+:global(:root[data-theme="dark"]) .scope:global(.ranking-hub) :global(.ranking-podium-base) { background:#3a302b; color:#e9d5c7; }
+:global(:root[data-theme="dark"]) .scope:global(.ranking-hub) :global(.podium-first .ranking-podium-base) { background:#514022; color:#ffe0a0; }
+:global(:root[data-theme="dark"]) .scope:global(.ranking-hub) :global(.podium-third .ranking-podium-base) { background:#49352c; color:#e8c2a5; }
+@media(max-width:720px) {
+  .scope:global(.ranking-hub) :global(.ranking-hero) { min-height:170px; }
+  .scope:global(.ranking-hub) :global(.ranking-hero-art) { display:none; }
+  .scope:global(.ranking-hub) :global(.ranking-info-grid) { grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+  .scope:global(.ranking-hub) :global(.ranking-info-grid article) { padding:12px 8px; }
+  .scope:global(.ranking-hub) :global(.ranking-podium-stage) { grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; padding:9px; }
+  .scope:global(.ranking-hub) :global(.ranking-podium-player) { padding:10px 4px 0; gap:7px; }
+  .scope:global(.ranking-hub) :global(.ranking-podium-avatar) { width:43px; height:43px; }
+  .scope:global(.ranking-hub) :global(.podium-first .ranking-podium-avatar) { width:52px; height:52px; }
+  .scope:global(.ranking-hub) :global(.ranking-podium-details strong) { font-size:10px; }
+  .scope:global(.ranking-hub) :global(.ranking-podium-details small) { font-size:9px; }
+  .scope:global(.ranking-hub) :global(.ranking-podium-place) { font-size:8px; }
+  .scope:global(.ranking-hub) :global(.ranking-podium-base) { min-height:34px; }
+  .scope:global(.ranking-hub) :global(.podium-first .ranking-podium-base) { min-height:49px; }
+  .scope:global(.ranking-hub) :global(.podium-third .ranking-podium-base) { min-height:27px; }
+  .scope:global(.ranking-hub) :global(.ranking-player-card) { min-height:215px; padding:14px; }
+}
+@media(max-width:390px) {
+  .scope:global(.ranking-hub) :global(.ranking-info-grid) { grid-template-columns:1fr; }
+  .scope:global(.ranking-hub) :global(.ranking-podium-stage) { gap:4px; padding:6px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .scope:global(.ranking-hub) :global(.ranking-player-card) { transition:none; }
+}
