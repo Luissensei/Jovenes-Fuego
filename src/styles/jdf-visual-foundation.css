@@ -1,0 +1,236 @@
+/* Jóvenes de Fuego — canonical visual foundation.
+   This file is the final authority for shared colors and common surfaces.
+   Keep page-specific CSS modules responsible for their own layouts. */
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --jf-canvas: #f7f4ef;
+  --jf-surface: #ffffff;
+  --jf-surface-2: #f1ede7;
+  --jf-surface-3: #e9e2d9;
+  --jf-ink: #20211f;
+  --jf-muted: #6d706b;
+  --jf-line: #e3ded5;
+  --jf-line-strong: #c9c3b9;
+  --jf-brand: #f05a3a;
+  --jf-brand-strong: #c94730;
+  --jf-brand-soft: #fde8e1;
+  --jf-brand-ink: #7a2d20;
+  --jf-ember: #f05a3a;
+  --jf-ember-strong: #d9482c;
+  --jf-ember-soft: #fff0e9;
+  --jf-gold: #d98b24;
+  --jf-success: #39876a;
+  --jf-success-soft: #e4f2e9;
+  --jf-warning: #b8792e;
+  --jf-warning-soft: #fbf0dc;
+  --jf-danger: #c54c49;
+  --jf-danger-soft: #fae8e5;
+  --jf-info: #557f9a;
+  --jf-info-soft: #e7f0f5;
+  --jf-sidebar: #292b2a;
+  --jf-sidebar-text: #fff8f3;
+  --jf-sidebar-muted: #c5a99b;
+  --jf-sidebar-hover: #392720;
+  --jf-sidebar-active: #3a302d;
+  --jf-shadow: 0 2px 8px rgb(78 43 28 / 5%), 0 12px 30px rgb(78 43 28 / 6%);
+  --jf-shadow-raised: 0 16px 38px rgb(78 43 28 / 12%);
+  --jf-radius-sm: 9px;
+  --jf-radius-md: 13px;
+  --jf-radius-lg: 18px;
+  --jf-focus: #f05a3a;
+  --jf-text: var(--jf-ink);
+  --jf-border: var(--jf-line);
+  --jf-input: var(--jf-surface-2);
+  --jf-accent: var(--jf-brand);
+  --jf-surface-raised: var(--jf-surface-2);
+  --text-primary: var(--jf-ink);
+  --text-secondary: var(--jf-muted);
+  --text: var(--jf-ink);
+  --muted: var(--jf-muted);
+  --surface: var(--jf-surface);
+  --card: var(--jf-surface);
+  --card-bg: var(--jf-surface);
+  --border: var(--jf-line);
+  --border-color: var(--jf-line);
+  --accent: var(--jf-brand);
+  --surface-2: var(--jf-surface-2);
+  --surface-3: var(--jf-surface-3);
+  --surface-elevated: var(--jf-surface);
+  --surface-card: var(--jf-surface);
+  --border-subtle: var(--jf-line);
+  --jf-glass: var(--jf-surface);
+  --jf-glass-border: var(--jf-line);
+}
+
+:root[data-theme="dark"],
+:root.dark {
+  color-scheme: dark;
+  --jf-canvas: #101010;
+  --jf-surface: #1a1a1a;
+  --jf-surface-2: #242424;
+  --jf-surface-3: #303030;
+  --jf-ink: #f7f2ee;
+  --jf-muted: #b5aaa2;
+  --jf-line: #393431;
+  --jf-line-strong: #574b45;
+  --jf-brand: #ff783f;
+  --jf-brand-strong: #ff925f;
+  --jf-brand-soft: #45281e;
+  --jf-brand-ink: #ffd1bb;
+  --jf-ember: #ff783f;
+  --jf-ember-strong: #ff925f;
+  --jf-ember-soft: #45281e;
+  --jf-gold: #f2ad50;
+  --jf-success: #70c69b;
+  --jf-success-soft: #1e392c;
+  --jf-warning: #e9b65f;
+  --jf-warning-soft: #3d301c;
+  --jf-danger: #f18b82;
+  --jf-danger-soft: #402422;
+  --jf-info: #8dbad3;
+  --jf-info-soft: #1f3440;
+  --jf-sidebar: #090909;
+  --jf-sidebar-text: #fff8f3;
+  --jf-sidebar-muted: #a99d95;
+  --jf-sidebar-hover: #201915;
+  --jf-sidebar-active: #382117;
+  --jf-shadow: 0 3px 10px rgb(0 0 0 / 22%), 0 14px 34px rgb(0 0 0 / 16%);
+  --jf-shadow-raised: 0 18px 42px rgb(0 0 0 / 35%);
+  --jf-focus: #ff925f;
+  --jf-text: var(--jf-ink);
+  --jf-border: var(--jf-line);
+  --jf-input: var(--jf-surface-2);
+  --jf-accent: var(--jf-brand);
+  --jf-surface-raised: var(--jf-surface-2);
+  --text-primary: var(--jf-ink);
+  --text-secondary: var(--jf-muted);
+  --text: var(--jf-ink);
+  --muted: var(--jf-muted);
+  --surface: var(--jf-surface);
+  --card: var(--jf-surface);
+  --card-bg: var(--jf-surface);
+  --border: var(--jf-line);
+  --border-color: var(--jf-line);
+  --accent: var(--jf-brand);
+  --surface-2: var(--jf-surface-2);
+  --surface-3: var(--jf-surface-3);
+  --surface-elevated: var(--jf-surface);
+  --surface-card: var(--jf-surface);
+  --border-subtle: var(--jf-line);
+  --jf-glass: var(--jf-surface);
+  --jf-glass-border: var(--jf-line);
+}
+
+html, body, #root {
+  width: 100%;
+  min-width: 320px;
+  max-width: 100%;
+  background: var(--jf-canvas);
+  color: var(--jf-ink);
+}
+
+body {
+  font-family: Inter, "DM Sans", system-ui, sans-serif;
+  background: var(--jf-canvas) !important;
+  color: var(--jf-ink) !important;
+}
+
+.layout, .main, .jf-route-stage {
+  background: var(--jf-canvas) !important;
+  color: var(--jf-ink);
+}
+
+.sidebar {
+  background: var(--jf-sidebar) !important;
+  color: var(--jf-sidebar-text) !important;
+  border-right: 1px solid rgb(255 255 255 / 8%);
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.sidebar .brand strong,
+.sidebar .brand small,
+.sidebar .nav-item { color: inherit; }
+
+.sidebar .nav-item { border-radius: 10px; }
+.sidebar .nav-item:hover {
+  background: var(--jf-sidebar-hover) !important;
+  color: #fff !important;
+}
+.sidebar .nav-item.active {
+  background: var(--jf-brand) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+.main :is(h1, h2, h3, h4) { color: var(--jf-ink); }
+.main :is(p, small, label, .muted, .subtitle, .description) {
+  color: var(--jf-muted);
+}
+
+.main :is(input, select, textarea) {
+  color: var(--jf-ink);
+  background: var(--jf-surface);
+  border: 1px solid var(--jf-line);
+  border-radius: 10px;
+}
+.main :is(input, select, textarea)::placeholder { color: var(--jf-muted); opacity: .8; }
+
+.main :is(button, .btn, [role="button"]) {
+  -webkit-tap-highlight-color: transparent;
+}
+.main :is(button, .btn, [role="button"]):focus-visible,
+.sidebar :is(a, button):focus-visible {
+  outline: 2px solid var(--jf-focus) !important;
+  outline-offset: 3px !important;
+}
+
+/* Youth portal local variables now follow the same shared brand contract. */
+body .youth-portal {
+  --yp-bg: var(--jf-canvas);
+  --yp-surface: var(--jf-surface);
+  --yp-surface-2: var(--jf-surface-2);
+  --yp-text: var(--jf-ink);
+  --yp-muted: var(--jf-muted);
+  --yp-line: var(--jf-line);
+  --yp-green: var(--jf-brand);
+  --yp-green-2: var(--jf-brand-strong);
+  --yp-green-soft: var(--jf-brand-soft);
+  --yp-gold: var(--jf-gold);
+  --yp-shadow: var(--jf-shadow);
+  background: var(--yp-bg) !important;
+  color: var(--yp-text) !important;
+}
+
+body .youth-portal :is(h1, h2, h3, h4) { color: var(--yp-text) !important; }
+body .youth-portal :is(p, small, label) { color: var(--yp-muted); }
+
+/* Solid surfaces; no decorative blur or translucent overlays. */
+.main :is(.page-card, .panel, .card, .stat-card, .statCard, .dashboard-card),
+body .youth-portal :is(.page-card, .panel, .card, .stat-card, .statCard) {
+  background: var(--jf-surface);
+  border-color: var(--jf-line);
+  box-shadow: var(--jf-shadow);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+@media (max-width: 900px) {
+  .main { width: 100% !important; margin-left: 0 !important; }
+  .sidebar { max-width: min(300px, 88vw) !important; }
+  body .youth-portal {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

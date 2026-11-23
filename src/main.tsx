@@ -6,35 +6,26 @@ import { BrowserRouter } from 'react-router-dom';
 import { App } from './app/App';
 import RouteErrorBoundary from './app/components/RouteErrorBoundary';
 
-// New Fuego en vidrio tokens are isolated from legacy theme variables.
+// Base tokens and application shell.
 import './styles/tokens.css';
-// Global foundation and structural layout.
 import './styles/app.css';
 import './styles/layout.css';
-// Responsive behavior and isolated portal/admin enhancements.
+
+// Functional responsive layers and screen-specific layout support.
 import './styles/mobile-quality-system.css';
 import './styles/mobile-spacing-and-instant-sidebar.css';
 import './styles/admin-module-system.css';
+import './styles/admin-module-quality.css';
 import './styles/portal-complete-redesign.css';
 import './styles/portal-mobile-fix.css';
-// Single final visual contract: keep this last to avoid competing theme layers.
-import './styles/product-design-system.css';
 import './styles/navigation-performance-polish.css';
-import './styles/navigation-modern-blue.css';
-import './styles/brand-blue-refinement.css';
 import './styles/app-quality-accessibility.css';
-import './styles/admin-module-quality.css';
-// Final brand palette: forest green in light mode and monochrome in dark mode.
-import './styles/jdf-brand-palette.css';
-// Final applied visual layer: overrides legacy blue/green theme declarations.
-import './styles/jdf-applied-design.css';
-// Final touch-device performance and layout-stability layer.
 import './styles/mobile-runtime-stability.css';
-// Rediseño estructural final del panel administrativo.
-import './styles/admin-experience-redesign.css';
-// Final visual contract based on the two supplied dashboard references.
 import './styles/reference-dashboard-system.css';
 import './styles/mobile-bottom-navigation.css';
+
+// Single final visual layer. Legacy competing color systems are no longer loaded.
+import './styles/jdf-visual-foundation.css';
 
 try {
   const initialTheme = window.localStorage.getItem('jf-theme') === 'dark' ? 'dark' : 'light';
@@ -43,7 +34,7 @@ try {
   document.documentElement.style.colorScheme = initialTheme;
   document.querySelector('meta[name="theme-color"]')?.setAttribute(
     'content',
-    initialTheme === 'dark' ? '#0B0B0B' : '#FFFFFF',
+    initialTheme === 'dark' ? '#101010' : '#f7f4ef',
   );
 } catch {
   document.documentElement.dataset.theme = 'light';
@@ -68,5 +59,3 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </RouteErrorBoundary>
   </React.StrictMode>,
 );
-
-

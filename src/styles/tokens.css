@@ -1,63 +1,46 @@
-@import "tailwindcss";
-
-/* Jóvenes de Fuego — Fuego en vidrio.
-   Tokens nuevos y aislados: no pisan las variables legacy --jf-* mientras
-   las pantallas se migran gradualmente a Tailwind. */
+/* Tailwind v4 design tokens for Jóvenes de Fuego.
+   Tailwind is imported once from tailwind.css. */
 @theme {
-  --color-jdf-canvas: #111126;
-  --color-jdf-surface: #1d1a3a;
-  --color-jdf-surface-raised: #272247;
-  --color-jdf-text: #f7f4ff;
-  --color-jdf-muted: #c7bfdf;
-  --color-jdf-border: #403765;
-  --color-jdf-fire: #ff713b;
-  --color-jdf-fire-strong: #e9572b;
-  --color-jdf-gold: #ffd45e;
-  --color-jdf-community: #a36bff;
-  --color-jdf-progress: #39d4a5;
-  --color-jdf-info: #43b0ff;
+  --color-jf-canvas: #f7f4ef;
+  --color-jf-surface: #ffffff;
+  --color-jf-surface-soft: #eeeae3;
+  --color-jf-ink: #20211f;
+  --color-jf-muted: #6d706b;
+  --color-jf-line: #e3ded5;
+  --color-jf-brand: #f05a3a;
+  --color-jf-brand-strong: #c94730;
+  --color-jf-ember: #f06a3f;
+  --color-jf-gold: #f2a33a;
+  --color-jf-success: #39876a;
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: Inter, ui-sans-serif, system-ui, sans-serif;
+  --radius-jf-sm: 9px;
+  --radius-jf-md: 13px;
+  --radius-jf-lg: 18px;
+  --shadow-jf-card: 0 2px 8px rgb(78 43 28 / 5%), 0 12px 30px rgb(78 43 28 / 6%);
 }
-:root {
-  --jdf-canvas: #111126;
-  --jdf-surface: #1d1a3a;
-  --jdf-surface-raised: #272247;
-  --jdf-text: #f7f4ff;
-  --jdf-muted: #c7bfdf;
-  --jdf-border: #403765;
-  --jdf-fire: #ff713b;
-  --jdf-fire-strong: #e9572b;
-  --jdf-gold: #ffd45e;
-  --jdf-community: #a36bff;
-  --jdf-progress: #39d4a5;
-  --jdf-info: #43b0ff;
-  --jdf-radius-sm: 0.625rem;
-  --jdf-radius-md: 0.875rem;
-  --jdf-radius-lg: 1.25rem;
-  --jdf-shadow-card: 0 12px 32px rgb(7 6 24 / 22%);
-  --jdf-shadow-raised: 0 18px 42px rgb(7 6 24 / 30%);
-  --jdf-glass-bg: rgb(39 34 71 / 78%);
-  --jdf-glass-border: rgb(199 191 223 / 18%);
+
+:root[data-theme="dark"], :root.dark {
+  --color-jf-canvas: #101010;
+  --color-jf-surface: #1a1a1a;
+  --color-jf-surface-soft: #242424;
+  --color-jf-ink: #f7f2ee;
+  --color-jf-muted: #b5aaa2;
+  --color-jf-line: #393431;
+  --color-jf-brand: #ff783f;
+  --color-jf-brand-strong: #ff925f;
+  --color-jf-ember: #ff783f;
+  --color-jf-gold: #f2ad50;
+  --color-jf-success: #70c69b;
 }
-:root[data-theme="light"] {
-  --jdf-canvas: #f7f3ef;
-  --jdf-surface: #fff;
-  --jdf-surface-raised: #fffaf6;
-  --jdf-text: #28203d;
-  --jdf-muted: #625a78;
-  --jdf-border: #e8ddd5;
-  --jdf-fire: #d94f2b;
-  --jdf-fire-strong: #b93d20;
-  --jdf-gold: #94620a;
-  --jdf-community: #7042b8;
-  --jdf-progress: #147653;
-  --jdf-info: #2368b7;
-  --jdf-shadow-card: 0 8px 24px rgb(50 34 25 / 7%);
-  --jdf-shadow-raised: 0 14px 34px rgb(50 34 25 / 12%);
-  --jdf-glass-bg: rgb(255 255 255 / 88%);
-  --jdf-glass-border: rgb(232 221 213 / 88%);
-}
-:root[data-theme="dark"] { color-scheme: dark; }
-:root[data-theme="light"] { color-scheme: light; }
-@media (prefers-reduced-motion: reduce) {
-  :root { scroll-behavior: auto; }
+
+@layer base {
+  html { color-scheme: light; }
+  :root[data-theme="dark"], :root.dark { color-scheme: dark; }
+  body { background: var(--jf-canvas, #f7f4ef); color: var(--jf-ink, #20211f); }
+  button, input, select, textarea { font: inherit; }
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--jf-focus, #f05a3a);
+    outline-offset: 2px;
+  }
 }
