@@ -766,29 +766,28 @@ body .youth-portal :is(.youth-ranking-meter > span,.youth-progress-track > span)
   max-width:100%;min-width:0;
 }
 
-/* Remove decorative micro-labels, not meaningful information. */
+/* Preserve informative labels and badges across every module.
+   Decorative micro-labels remain subtle instead of being removed globally. */
 :where(.main .jf-route-stage,.youth-portal) :is(
   .eyebrow,.kicker,.section-kicker,.module-kicker,.page-kicker,
   .section-tag,.module-tag,.category-tag,.decorative-tag,
   [class*="eyebrow"],[class*="kicker"],[class*="micro-label"],
   [class*="section-tag"],[class*="module-tag"],[class*="decorative-tag"]
-) {display:none!important}
-:where(.main .jf-route-stage,.youth-portal) :is(
-  .env-chip,.jf-nav-count,.nav-count,.decorative-counter
-) {display:none!important}
-:where(.main .jf-route-stage,.youth-portal) :is(.badge,.chip,.pill,.tag)
-:not([class*="status"]):not([class*="role"]):not([class*="rank"])
-:not([class*="level"]):not([class*="filter"]):not([class*="success"])
-:not([class*="warning"]):not([class*="danger"]):not([class*="error"])
-:not([class*="pending"]):not([class*="active"]):not([class*="inactive"])
-:not([class*="approved"]):not([class*="rejected"]):not([class*="present"])
-:not([class*="absent"]):not([class*="late"]):not([class*="info"])
-:not([data-status]):not([data-keep-label="true"]) {
-  display:none!important;
+) {
+  max-width:100%;
+  color:var(--jf-muted);
 }
 :where(.main .jf-route-stage,.youth-portal) :is(
-  .status,.status-badge,.role-badge,.rank-badge,.level-badge,
-  [data-status], [aria-live="polite"]
+  .badge,.chip,.pill,.tag,.status,.status-badge,.role-badge,
+  .rank-badge,.level-badge,[data-status]
+) {
+  display:inline-flex;
+  align-items:center;
+  max-width:100%;
+  visibility:visible;
+}
+:where(.main .jf-route-stage,.youth-portal) :is(
+  .env-chip,.jf-nav-count,.nav-count,.decorative-counter
 ) {visibility:visible}
 
 /* Dark surfaces and mobile layouts stay consistent in every module. */
