@@ -1,7 +1,8 @@
 /* Navegación móvil inferior: accesos frecuentes y menú completo bajo demanda. */
 .jf-bottom-nav { display: none; }
 @media (max-width: 900px) {
-  .main { padding-bottom: calc(104px + env(safe-area-inset-bottom)) !important; }\n  .jf-bottom-nav {
+  .main { padding-bottom: calc(104px + env(safe-area-inset-bottom)) !important; }
+  .jf-bottom-nav {
     position: fixed;
     z-index: 65;
     left: 10px;
